@@ -17,7 +17,7 @@ void main() async {
     BuildEnvironment.init(
       flavor: BuildFlavor.production,
       baseUrl: 'https:///api',
-      baseUrl2: 'https:///scanandpayapi',
+      baseUrl2: 'https:///api',
     );
 
     assert(env != null);

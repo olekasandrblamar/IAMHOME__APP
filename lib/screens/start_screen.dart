@@ -10,26 +10,32 @@ class StartScreen extends StatelessWidget {
       // appBar: AppBar(
       //   title: Text('Home'),
       // ),
-      backgroundColor: AppTheme.background,
+      backgroundColor: AppTheme.white,
       body: SafeArea(
         top: true,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
-              Container(
-                margin: EdgeInsets.only(bottom: 20),
-                width: double.infinity,
-                height: 300,
-                child: Image(
-                  fit: BoxFit.fill,
-                  image: AssetImage('assets/images/1.png'),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 100),
+                child: Container(
+                  margin: EdgeInsets.only(bottom: 20),
+                  width: double.infinity,
+                  height: 100,
+                  child: Image(
+                    fit: BoxFit.fill,
+                    image: AssetImage('assets/images/ceraswithletter.png'),
+                  ),
                 ),
+              ),
+              SizedBox(
+                height: 20,
               ),
               FittedBox(
                 child: Text(
-                  'Stay Connected',
+                  'Our Terms and Conditions',
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -42,23 +48,58 @@ class StartScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(10.0),
               ),
               Text(
-                'Thank you for downloading ceras health app. Enhance your connected experience in 3 simple steps.',
+                'Before using the Ceras app, please read the following terms carefully.  Click the title for details',
                 style: TextStyle(
                   fontSize: 20,
                   fontFamily: 'Roboto',
                 ),
                 textAlign: TextAlign.start,
               ),
-              Padding(
-                padding: const EdgeInsets.all(10.0),
+              SizedBox(
+                height: 50,
               ),
-              Text(
-                'Connect the device to capture welness information.',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontFamily: 'Roboto',
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.only(bottom: 10),
+                child: Text(
+                  'End User License Agreement',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontFamily: 'Roboto',
+                  ),
+                  textAlign: TextAlign.left,
                 ),
-                textAlign: TextAlign.start,
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      width: 1.0,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                height: 30,
+              ),
+              Container(
+                width: double.infinity,
+                padding: EdgeInsets.only(bottom: 10),
+                child: Text(
+                  'Privacy Policy',
+                  style: TextStyle(
+                    fontSize: 20,
+                    fontFamily: 'Roboto',
+                  ),
+                  textAlign: TextAlign.left,
+                ),
+                decoration: BoxDecoration(
+                  border: Border(
+                    bottom: BorderSide(
+                      width: 1.0,
+                      color: Colors.black,
+                    ),
+                  ),
+                ),
               ),
             ],
           ),
@@ -68,14 +109,15 @@ class StartScreen extends StatelessWidget {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 20),
           child: RaisedButton(
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              child: Text('Continue'),
-              onPressed: () {
-                return Navigator.of(context).pushReplacementNamed(
-                  routes.ConnectDeviceRoute,
-                );
-              }),
+            color: Theme.of(context).primaryColor,
+            textColor: Colors.white,
+            child: Text('Agree'),
+            onPressed: () {
+              return Navigator.of(context).pushReplacementNamed(
+                routes.ConnectDeviceRoute,
+              );
+            },
+          ),
         ),
       ),
     );

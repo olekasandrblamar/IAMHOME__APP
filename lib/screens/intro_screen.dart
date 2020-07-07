@@ -1,26 +1,8 @@
-import 'dart:io';
-
-import 'package:device_info/device_info.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:lifeplus/constants/route_paths.dart' as routes;
 import 'package:lifeplus/theme.dart';
 
-import 'package:lifeplus/constants/route_paths.dart' as routes;
-
-class ConnectDeviceScreen extends StatefulWidget {
-  @override
-  _ConnectDeviceScreenState createState() => _ConnectDeviceScreenState();
-}
-
-class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
-  static final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
-  Map<String, dynamic> _deviceData = <String, dynamic>{};
-
-  @override
-  void initState() {
-    super.initState();
-  }
-
+class IntroScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -115,7 +97,7 @@ class _ConnectDeviceScreenState extends State<ConnectDeviceScreen> {
               child: Text('Let\'s Go'),
               onPressed: () {
                 return Navigator.of(context).pushReplacementNamed(
-                  routes.SetupDeviceRoute,
+                  routes.StartRoute,
                 );
               }),
         ),

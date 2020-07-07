@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lifeplus/screens/connect_device_screen.dart';
 import 'package:lifeplus/screens/connect_doctor_screen.dart';
+import 'package:lifeplus/screens/intro_screen.dart';
 import 'package:lifeplus/screens/setup_device_screen.dart';
 import 'package:lifeplus/screens/start_screen.dart';
 
@@ -13,6 +14,8 @@ Route<dynamic> generateRoute(
   switch (settings.name) {
     // case RootRoute:
     //   return MaterialPageRoute(builder: (context) => LoginScreen());
+    case IntroRoute:
+      return MaterialPageRoute(builder: (context) => IntroScreen());
     case StartRoute:
       return MaterialPageRoute(builder: (context) => StartScreen());
     case HomeRoute:

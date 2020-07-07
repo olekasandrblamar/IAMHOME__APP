@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifeplus/screens/home_screen.dart';
+import 'package:lifeplus/screens/intro_screen.dart';
 import 'package:lifeplus/screens/start_screen.dart';
 import 'package:provider/provider.dart';
 
@@ -57,7 +58,7 @@ class _MyAppState extends State<MyApp> {
       // darkTheme: ThemeData.dark(),
       theme: myTheme,
       initialRoute: routes.RootRoute,
-      home: StartScreen(),
+      home: IntroScreen(),
       navigatorKey: NavigationService.navigatorKey,
       onGenerateRoute: (settings) => router.generateRoute(
         settings,
