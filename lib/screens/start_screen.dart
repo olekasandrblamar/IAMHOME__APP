@@ -114,7 +114,7 @@ class StartScreen extends StatelessWidget {
             child: Text('Agree'),
             onPressed: () {
               return Navigator.of(context).pushReplacementNamed(
-                routes.ConnectDeviceRoute,
+                routes.NotificationsRoute,
               );
             },
           ),

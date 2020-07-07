@@ -62,6 +62,8 @@ flutter:
     - assets/images/4.png
     - assets/images/5.png
     - assets/images/ceraswithletter.png
+    - assets/images/Picture1.png
+    - assets/images/Picture2.png
 
   fonts:
     - family: Roboto

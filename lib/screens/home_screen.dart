@@ -8,28 +8,93 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('RECENT EXERCISE'),
+        titleSpacing: 0.0,
+        title: Row(children: [
+          IconButton(
+            color: Colors.red,
+            icon: const Icon(Icons.menu),
+            onPressed: () {},
+          ),
+          Expanded(
+            child: Center(child: Text('')),
+          )
+        ]),
+        actions: <Widget>[
+          IconButton(
+            color: Colors.red,
+            icon: const Icon(Icons.headset_mic),
+            onPressed: () {},
+          )
+        ],
+        backgroundColor: Colors.white,
+        elevation: 0,
       ),
-      backgroundColor: AppTheme.background,
-      body: SafeArea(
-        top: true,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              Flexible(
+      backgroundColor: AppTheme.white,
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            SizedBox(
+              height: 50,
+            ),
+            Material(
+              color: Colors.blue[100],
+              child: InkWell(
+                onTap: () {},
                 child: Container(
-                  margin: EdgeInsets.only(bottom: 20),
-                  width: double.infinity,
-                  child: Image(
-                    fit: BoxFit.fitHeight,
-                    image: AssetImage('assets/images/5.png'),
+                  padding: EdgeInsets.all(10),
+                  child: Row(
+                    children: <Widget>[
+                      Image(
+                        fit: BoxFit.contain,
+                        image: AssetImage('assets/images/Picture1.png'),
+                      ),
+                      Text(
+                        'CONNECT',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Roboto',
+                        ),
+                        textAlign: TextAlign.center,
+                      )
+                    ],
                   ),
                 ),
               ),
-            ],
-          ),
+            ),
+            SizedBox(
+              height: 50,
+            ),
+            Material(
+              color: Colors.blue[100],
+              child: InkWell(
+                onTap: () {},
+                child: Container(
+                  padding: EdgeInsets.all(10),
+                  child: Row(
+                    children: <Widget>[
+                      Image(
+                        fit: BoxFit.contain,
+                        image: AssetImage('assets/images/Picture2.png'),
+                      ),
+                      Text(
+                        'CONNECT',
+                        style: TextStyle(
+                          fontSize: 30,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Roboto',
+                        ),
+                        textAlign: TextAlign.center,
+                      )
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -38,10 +103,10 @@ class HomeScreen extends StatelessWidget {
           child: RaisedButton(
               color: Theme.of(context).primaryColor,
               textColor: Colors.white,
-              child: Text('Restart'),
+              child: Text('Restart Demo'),
               onPressed: () {
                 return Navigator.of(context).pushReplacementNamed(
-                  routes.StartRoute,
+                  routes.IntroRoute,
                 );
               }),
         ),
