@@ -3,7 +3,7 @@ import 'package:lifeplus/theme.dart';
 
 import 'package:lifeplus/constants/route_paths.dart' as routes;
 
-class HomeScreen extends StatelessWidget {
+class SetupHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,7 +42,11 @@ class HomeScreen extends StatelessWidget {
             Material(
               color: Colors.blue[100],
               child: InkWell(
-                onTap: () {},
+                onTap: () {
+                  return Navigator.of(context).pushNamed(
+                    routes.SetupSearchRoute,
+                  );
+                },
                 child: Container(
                   padding: EdgeInsets.all(10),
                   child: Row(
@@ -71,7 +75,11 @@ class HomeScreen extends StatelessWidget {
             Material(
               color: Colors.blue[100],
               child: InkWell(
-                onTap: () {},
+                onTap: () {
+                  return Navigator.of(context).pushNamed(
+                    routes.SetupSearchRoute,
+                  );
+                },
                 child: Container(
                   padding: EdgeInsets.all(10),
                   child: Row(

@@ -102,7 +102,7 @@ class _CameraScreenState extends State<CameraScreen> {
               child: Text('Next'),
               onPressed: () {
                 return Navigator.of(context).pushReplacementNamed(
-                  routes.HomeRoute,
+                  routes.SetupHomeRoute,
                 );
               }),
         ),

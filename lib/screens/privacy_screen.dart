@@ -3,7 +3,7 @@ import 'package:lifeplus/theme.dart';
 
 import 'package:lifeplus/constants/route_paths.dart' as routes;
 
-class StartScreen extends StatelessWidget {
+class PrivacyScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(

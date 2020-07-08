@@ -2,14 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:lifeplus/screens/access/camera_screen.dart';
 import 'package:lifeplus/screens/access/locations_screen.dart';
 import 'package:lifeplus/screens/access/notifications_screen.dart';
-import 'package:lifeplus/screens/connect_device_screen.dart';
-import 'package:lifeplus/screens/connect_doctor_screen.dart';
 import 'package:lifeplus/screens/intro_screen.dart';
-import 'package:lifeplus/screens/setup_device_screen.dart';
-import 'package:lifeplus/screens/start_screen.dart';
+import 'package:lifeplus/screens/privacy_screen.dart';
+import 'package:lifeplus/screens/setup/setup_search_screen.dart';
 
 import 'constants/route_paths.dart';
-import 'screens/home_screen.dart';
+import 'screens/setup/setup_home_screen.dart';
 
 Route<dynamic> generateRoute(
   RouteSettings settings,
@@ -25,16 +23,12 @@ Route<dynamic> generateRoute(
       return MaterialPageRoute(builder: (context) => CameraScreen());
     case IntroRoute:
       return MaterialPageRoute(builder: (context) => IntroScreen());
-    case StartRoute:
-      return MaterialPageRoute(builder: (context) => StartScreen());
-    case HomeRoute:
-      return MaterialPageRoute(builder: (context) => HomeScreen());
-    case ConnectDeviceRoute:
-      return MaterialPageRoute(builder: (context) => ConnectDeviceScreen());
-    case SetupDeviceRoute:
-      return MaterialPageRoute(builder: (context) => SetupDeviceScreen());
-    case ConnectDoctorRoute:
-      return MaterialPageRoute(builder: (context) => ConnectDoctorScreen());
+    case PrivacyRoute:
+      return MaterialPageRoute(builder: (context) => PrivacyScreen());
+    case SetupHomeRoute:
+      return MaterialPageRoute(builder: (context) => SetupHomeScreen());
+    case SetupSearchRoute:
+      return MaterialPageRoute(builder: (context) => SetupSearchScreen());
     default:
       return MaterialPageRoute(
         builder: (context) => Scaffold(

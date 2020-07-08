@@ -2,10 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lifeplus/screens/home_screen.dart';
 import 'package:lifeplus/screens/intro_screen.dart';
-import 'package:lifeplus/screens/start_screen.dart';
-import 'package:provider/provider.dart';
 
 import 'config/navigation_service.dart';
 import 'constants/route_paths.dart' as routes;

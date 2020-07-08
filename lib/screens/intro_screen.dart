@@ -97,7 +97,7 @@ class IntroScreen extends StatelessWidget {
               child: Text('Let\'s Go'),
               onPressed: () {
                 return Navigator.of(context).pushReplacementNamed(
-                  routes.StartRoute,
+                  routes.PrivacyRoute,
                 );
               }),
         ),
