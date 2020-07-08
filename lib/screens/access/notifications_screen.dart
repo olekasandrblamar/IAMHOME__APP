@@ -12,7 +12,7 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   void initState() {
-    Permission.notification.request();
+    // Permission.notification.request();
 
     // TODO: implement initState
     super.initState();
@@ -21,85 +21,120 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: IconButton(
-          icon: Icon(Icons.menu),
-          onPressed: () {},
-          color: Colors.red,
-        ),
-        title: Text(''),
-        actions: <Widget>[
-          IconButton(
-            color: Colors.red,
-            icon: const Icon(Icons.headset_mic),
-            onPressed: () {},
-          )
-        ],
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
       backgroundColor: AppTheme.white,
       body: SafeArea(
         top: true,
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              SizedBox(
-                height: 20,
-              ),
-              FittedBox(
-                child: Text(
-                  'Push Notifications',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Roboto',
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Text(
-                'To better connect with you, the care plan you select require us to send you the notifications.  Join the wellness tracker program so Ceras can continue to update your activities',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontFamily: 'Roboto',
-                ),
-                textAlign: TextAlign.start,
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              FittedBox(
-                child: Text(
-                  'About Push Notifications',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontFamily: 'Roboto',
-                  ),
-                  textAlign: TextAlign.center,
+              SizedBox(height: 5.0),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      constraints: BoxConstraints(
+                        maxHeight: 300.0,
+                      ),
+                      padding: const EdgeInsets.all(10.0),
+                      child: FadeInImage(
+                        placeholder: AssetImage(
+                          'assets/images/placeholder.jpg',
+                        ),
+                        image: AssetImage(
+                          'assets/images/push_notification.png',
+                        ),
+                        fit: BoxFit.contain,
+                        alignment: Alignment.center,
+                        fadeInDuration: Duration(milliseconds: 200),
+                        fadeInCurve: Curves.easeIn,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        'Push Notification',
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: AppTheme.title,
+                      ),
+                    ),
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        // vertical: 5.0,
+                        horizontal: 35.0,
+                      ),
+                      alignment: Alignment.topLeft,
+                      child: Text(
+                        'To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activites.',
+                        textAlign: TextAlign.center,
+                        style: AppTheme.subtitle,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: <Widget>[
+                        Container(
+                          width: 150,
+                          height: 75,
+                          padding: EdgeInsets.all(10),
+                          child: RaisedButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.5),
+                            ),
+                            color: Color(0XFFE6E6E6),
+                            textColor: Colors.black,
+                            child: Text(
+                              'No, Thanks',
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                            onPressed: () {
+                              return Navigator.of(context).pushReplacementNamed(
+                                routes.PrivacyRoute,
+                              );
+                            },
+                          ),
+                        ),
+                        Container(
+                          width: 150,
+                          height: 75,
+                          padding: EdgeInsets.all(10),
+                          child: RaisedButton(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(4.5),
+                            ),
+                            color: Color(0XFF6C63FF),
+                            textColor: Colors.white,
+                            child: Text(
+                              'I\'m In',
+                              style: TextStyle(
+                                fontSize: 14,
+                              ),
+                            ),
+                            onPressed: () {
+                              return Navigator.of(context).pushReplacementNamed(
+                                routes.LocationsRoute,
+                              );
+                            },
+                          ),
+                        ),
+                      ],
+                    )
+                  ],
                 ),
               ),
             ],
           ),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: RaisedButton(
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              child: Text('Next'),
-              onPressed: () {
-                return Navigator.of(context).pushReplacementNamed(
-                  routes.LocationsRoute,
-                );
-              }),
         ),
       ),
     );

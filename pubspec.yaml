@@ -56,16 +56,19 @@ flutter:
   uses-material-design: true
 
   assets:
-    - assets/images/1.png
+    - assets/images/placeholder.jpg
+    - assets/images/location.png
+    - assets/images/camera.png
+    - assets/images/push_notification.png
     - assets/images/2.png
-    - assets/images/3.png
-    - assets/images/4.png
-    - assets/images/5.png
     - assets/images/ceraswithletter.png
     - assets/images/Picture1.png
     - assets/images/Picture2.png
     - assets/images/bluetooth.png
     - assets/images/nodevice.png
+    - assets/images/Group.png
+    - assets/images/Group4.png
+    - assets/images/Group8.png
 
   fonts:
     - family: Roboto
