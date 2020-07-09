@@ -13,6 +13,7 @@ import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
@@ -69,7 +70,7 @@ class MainActivity: FlutterActivity() {
             } else if(call.method =="getData"){
                 WatchData().loadData(result)
             } else if(call.method =="syncData"){
-                WatchData().syncData()
+                WatchData().syncData(result)
             }
             else {
                 result.notImplemented()
@@ -89,5 +90,26 @@ class MainActivity: FlutterActivity() {
 
         return batteryLevel
     }
+
+}
+
+
+class ConnectResponse{
+    var deviceId:String? = null
+    var deviceName:String? = null
+    var connected = false
+    var message:String? = null
+
+    companion object{
+        fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null):String{
+            return Gson().toJson(ConnectResponse().apply {
+                this.deviceId = deviceId
+                this.connected = connected
+                this.message = message
+                this.deviceName = deviceName
+            })
+        }
+    }
+
 
 }

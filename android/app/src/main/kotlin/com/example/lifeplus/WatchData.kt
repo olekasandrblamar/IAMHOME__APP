@@ -44,7 +44,7 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
                 HardSdk.getInstance().stopScan()
                 HardSdk.getInstance().startScan()
             } else {
-                result.success("Timeout")
+                result.success(ConnectResponse.createResponse(message = "Timeout"))
             }
         }
     }
@@ -212,7 +212,7 @@ class WatchData {
 
     //Sync the data from watch
     //This needs to be called in background from time to time
-    fun syncData(){
+    fun syncData(result: MethodChannel.Result){
         //Load the data from device
         HardSdk.getInstance().setHardSdkCallback(DataCallBack(null))
         HardSdk.getInstance().syncLatestBodyTemperature(0)
@@ -221,7 +221,9 @@ class WatchData {
         HardSdk.getInstance().syncStepData(0)
         HardSdk.getInstance().syncSleepData(0)
         MainActivity.lastConnected = Calendar.getInstance()
+        result.success("Load complete")
     }
+
 }
 
 class WatchDataCallBack : IHardScanCallback {
@@ -314,7 +316,7 @@ class WatchDataCallBack : IHardScanCallback {
             )
             Log.d(TAG, "Got data $factoryNameByUUID device ${device.name} address ${device.address}")
             stopScanning()
-            result.success("Connected to $deviceName with address $deviceAddr ")
+            result.success(ConnectResponse.createResponse(message = "Connected",connected = true,deviceId = deviceAddr,deviceName = deviceName))
         }
         if (deviceName != null) {
             HardSdk.getInstance().stopScan();

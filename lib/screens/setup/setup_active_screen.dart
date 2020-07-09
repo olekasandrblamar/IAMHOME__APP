@@ -18,17 +18,26 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
 
   @override
   void initState() {
-    _loadDataFromDevice().then((value) {});
+    _syncDataFromDevice().then((value) {});
     super.initState();
   }
 
   static const platform = const MethodChannel('ceras.iamhome.mobile/device');
 
   /**
+   * Sync the data from the device
+   */
+  Future _syncDataFromDevice() async {
+    final String result = await platform.invokeMethod('syncData');
+    print("Got Sync Data "+result);
+  }
+
+  /**
    * Load the data from the device
    */
   Future _loadDataFromDevice() async {
-    final String result = await platform.invokeMethod('syncData');
+    final String result = await platform.invokeMethod('loadData');
+    print("Got load Data "+result);
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -36,20 +45,22 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
     // Configure BackgroundFetch.
     BackgroundFetch.configure(
         BackgroundFetchConfig(
-          minimumFetchInterval: 15,
+          minimumFetchInterval: 5,
           stopOnTerminate: false,
           enableHeadless: true,
           requiresBatteryNotLow: false,
           requiresCharging: false,
           requiresStorageNotLow: false,
+          forceAlarmManager: true,// We are forcing alarm manager to make sure the task is prioritized in android
           requiresDeviceIdle: false,
           requiredNetworkType: NetworkType.NONE,
         ), (String taskId) async {
       switch (taskId) {
-        case 'com.transistorsoft.datasync':
-          print("Received custom sync task");
+        case 'com.cerashealth.iamhome.datasync':
+          _syncDataFromDevice();
           break;
-        case 'com.transistorsoft.dataupdate':
+        case 'com.cerashealth.iamhome.dataupdate':
+          _loadDataFromDevice();
           print("Received custom update task");
           break;
         default:
@@ -82,6 +93,9 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
     setState(() {
       _status = status;
     });
+
+    //Schedule the tasks
+    _scheduleTask();
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -118,15 +132,23 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
     // Step 2:  Schedule a custom "oneshot" task "com.transistorsoft.datasync" to execute 5000ms from now.
     BackgroundFetch.scheduleTask(
       TaskConfig(
-        taskId: "com.transistorsoft.datasync",
+        taskId: "com.cerashealth.iamhome.datasync",
         delay: 5000, // <-- milliseconds
+        periodic: true,
+        startOnBoot: true,
+        stopOnTerminate: false,
+        enableHeadless: true
       ),
     );
 
     BackgroundFetch.scheduleTask(
       TaskConfig(
-        taskId: "com.transistorsoft.dataupdate",
-        delay: 5000, // <-- milliseconds
+        taskId: "com.cerashealth.iamhome.dataupdate",
+        delay: 10000, // <-- milliseconds
+        periodic: true,
+        startOnBoot: true,
+        stopOnTerminate: false,
+        enableHeadless: true
       ),
     );
   }
@@ -228,7 +250,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
 //                  return Navigator.of(context).pushReplacementNamed(
 //                    routes.SetupHomeRoute,
 //                  );
-                  this._loadDataFromDevice();
+                  this._syncDataFromDevice();
                 },
               ),
             ),
