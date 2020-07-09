@@ -28,8 +28,19 @@ apply from: "$flutterRoot/packages/flutter_tools/gradle/flutter.gradle"
 android {
     compileSdkVersion 28
 
+    repositories {
+        google()
+        flatDir {
+            dirs 'libs'
+        }
+        maven { url 'https://jitpack.io' }
+    }
+
     sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
+        main{
+            jniLibs.srcDirs = ['libs']
+            java.srcDirs += 'src/main/kotlin'
+        }
     }
 
     lintOptions {
@@ -60,4 +71,10 @@ flutter {
 
 dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    implementation files('libs/vpprotocol_2.1.27.15.jar')
+    annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
+    implementation(name: 'hardsdk_1.17', ext: 'aar')
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.6'
 }

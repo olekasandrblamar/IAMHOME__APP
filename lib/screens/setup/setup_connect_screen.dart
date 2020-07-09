@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lifeplus/helpers/errordialog_popup.dart';
 import 'package:lifeplus/screens/setup/setup_active_screen.dart';
 import 'package:lifeplus/theme.dart';
@@ -16,6 +17,8 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
   var _isLoading = false;
   var _deviceIdNumber = '';
+
+  static const platform = const MethodChannel('samples.flutter.dev/battery');
 
   @override
   void dispose() {
@@ -47,12 +50,19 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   }
 
   Future<bool> _connectDevice() async {
-    //Capture the device last 4
-    //Add code to call native methods to connect
 
+    try {
+      final String result = await platform.invokeMethod('connectDevice');
+      print("Got response "+result);
+    } on PlatformException catch (e) {
+    }
     setState(() {
       _isLoading = false;
     });
+
+    //TODO - Add code to check the result and add actions based on that
+
+    _redirectTo();
   }
 
   void _redirectTo() {
