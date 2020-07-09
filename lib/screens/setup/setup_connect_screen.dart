@@ -8,7 +8,9 @@ import 'package:permission_handler/permission_handler.dart';
 class SetupConnectScreen extends StatelessWidget {
 
   Future<bool> _connectDevice() async{
+    //Capture the device last 4
     //Add code to call native methods to connect
+
   }
 
   @override
