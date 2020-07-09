@@ -49,7 +49,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
     }
   }
 
-  Future<bool> _connectDevice() async {
+  Future<void> _connectDevice() async {
 
     try {
       final String result = await platform.invokeMethod('connectDevice');
