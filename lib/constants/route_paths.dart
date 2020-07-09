@@ -9,3 +9,6 @@ const String LocationsRoute = '/access/locations';
 
 const String SetupHomeRoute = '/setup/home';
 const String SetupSearchRoute = '/setup/search';
+const String SetupActiveRoute = '/setup/active';
+const String SetupConnectRoute = '/setup/connect';
+const String BluetoothNotfoundRoute = '/setup/bluetoothNotfound';

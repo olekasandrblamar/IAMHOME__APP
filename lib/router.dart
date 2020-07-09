@@ -4,6 +4,9 @@ import 'package:lifeplus/screens/access/locations_screen.dart';
 import 'package:lifeplus/screens/access/notifications_screen.dart';
 import 'package:lifeplus/screens/intro_screen.dart';
 import 'package:lifeplus/screens/privacy_screen.dart';
+import 'package:lifeplus/screens/setup/bluetooth_notfound_screen.dart';
+import 'package:lifeplus/screens/setup/setup_active_screen.dart';
+import 'package:lifeplus/screens/setup/setup_connect_screen.dart';
 import 'package:lifeplus/screens/setup/setup_search_screen.dart';
 
 import 'constants/route_paths.dart';
@@ -29,6 +32,12 @@ Route<dynamic> generateRoute(
       return MaterialPageRoute(builder: (context) => SetupHomeScreen());
     case SetupSearchRoute:
       return MaterialPageRoute(builder: (context) => SetupSearchScreen());
+    case SetupActiveRoute:
+      return MaterialPageRoute(builder: (context) => SetupActiveScreen());
+    case SetupConnectRoute:
+      return MaterialPageRoute(builder: (context) => SetupConnectScreen());
+    case BluetoothNotfoundRoute:
+      return MaterialPageRoute(builder: (context) => BluetoothNotfoundScreen());
     default:
       return MaterialPageRoute(
         builder: (context) => Scaffold(

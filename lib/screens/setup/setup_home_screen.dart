@@ -30,93 +30,133 @@ class SetupHomeScreen extends StatelessWidget {
         elevation: 0,
       ),
       backgroundColor: AppTheme.white,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
+      body: Container(
+        padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            SizedBox(
-              height: 50,
-            ),
-            Material(
-              color: Colors.blue[100],
-              child: InkWell(
-                onTap: () {
-                  return Navigator.of(context).pushNamed(
-                    routes.SetupSearchRoute,
-                  );
-                },
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  child: Row(
-                    children: <Widget>[
-                      Image(
-                        fit: BoxFit.contain,
-                        image: AssetImage('assets/images/Picture1.png'),
-                      ),
-                      Text(
-                        'CONNECT',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Roboto',
-                        ),
-                        textAlign: TextAlign.center,
-                      )
-                    ],
-                  ),
-                ),
+            Container(
+              padding: const EdgeInsets.all(10.0),
+              child: Text(
+                'Select Device',
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: AppTheme.title,
               ),
             ),
-            SizedBox(
-              height: 50,
-            ),
-            Material(
-              color: Colors.blue[100],
-              child: InkWell(
-                onTap: () {
-                  return Navigator.of(context).pushNamed(
-                    routes.SetupSearchRoute,
-                  );
-                },
-                child: Container(
-                  padding: EdgeInsets.all(10),
-                  child: Row(
-                    children: <Widget>[
-                      Image(
-                        fit: BoxFit.contain,
-                        image: AssetImage('assets/images/Picture2.png'),
-                      ),
-                      Text(
-                        'CONNECT',
-                        style: TextStyle(
-                          fontSize: 30,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Roboto',
+            GridView.count(
+              shrinkWrap: true,
+              crossAxisCount: 2,
+              padding: EdgeInsets.all(10.0),
+              childAspectRatio: 1.0 / 1.0,
+              children: [
+                Card(
+                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: InkWell(
+                    child: Container(
+                      padding: EdgeInsets.all(15),
+                      child: GridTile(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: FadeInImage(
+                                placeholder: AssetImage(
+                                  'assets/images/placeholder.jpg',
+                                ),
+                                image: AssetImage(
+                                  'assets/images/Picture1.png',
+                                ),
+                                fit: BoxFit.contain,
+                                alignment: Alignment.center,
+                                fadeInDuration: Duration(milliseconds: 200),
+                                fadeInCurve: Curves.easeIn,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 30,
+                            ),
+                          ],
                         ),
-                        textAlign: TextAlign.center,
-                      )
-                    ],
+                        footer: Center(
+                          child: Text(
+                            'Connect',
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    onTap: () => {
+                      Navigator.of(context).pushNamed(
+                        routes.BluetoothNotfoundRoute,
+                      ),
+                    },
                   ),
                 ),
-              ),
+                Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                  child: InkWell(
+                    child: Container(
+                      padding: EdgeInsets.all(15),
+                      child: GridTile(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: FadeInImage(
+                                placeholder: AssetImage(
+                                  'assets/images/placeholder.jpg',
+                                ),
+                                image: AssetImage(
+                                  'assets/images/Picture2.png',
+                                ),
+                                fit: BoxFit.contain,
+                                alignment: Alignment.center,
+                                fadeInDuration: Duration(milliseconds: 200),
+                                fadeInCurve: Curves.easeIn,
+                              ),
+                            ),
+                            SizedBox(
+                              height: 30,
+                            ),
+                          ],
+                        ),
+                        footer: Center(
+                          child: Text(
+                            'Connect',
+                            overflow: TextOverflow.ellipsis,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                    onTap: () => {
+                      Navigator.of(context).pushNamed(
+                        routes.SetupSearchRoute,
+                      ),
+                    },
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: RaisedButton(
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              child: Text('Restart Demo'),
-              onPressed: () {
-                return Navigator.of(context).pushReplacementNamed(
-                  routes.IntroRoute,
-                );
-              }),
         ),
       ),
     );

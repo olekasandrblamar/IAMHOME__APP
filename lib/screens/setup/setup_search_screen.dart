@@ -12,36 +12,14 @@ class SetupSearchScreen extends StatefulWidget {
 
 class _SetupSearchScreenState extends State<SetupSearchScreen>
     with SingleTickerProviderStateMixin {
-  String showDisplay = 'Found';
-  AnimationController rotationController;
-
-  List<bool> _selections = [true, false, false];
+  bool showDisplay = false;
 
   @override
   void initState() {
-    rotationController = AnimationController(
-      duration: const Duration(milliseconds: 5000),
-      vsync: this,
-    );
-
-    // ..addStatusListener((status) {
-    //     if (status == AnimationStatus.completed) {
-    //       rotationController.repeat();
-    //     }
-    //   });
-
-    rotationController.forward();
-
-    _searchDevices();
+    // _searchDevices();
 
     // TODO: implement initState
     super.initState();
-  }
-
-  @override
-  void dispose() {
-    rotationController.dispose();
-    super.dispose();
   }
 
   void _searchDevices() {
@@ -70,227 +48,195 @@ class _SetupSearchScreenState extends State<SetupSearchScreen>
         elevation: 0,
       ),
       backgroundColor: AppTheme.white,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      body: !showDisplay ? _buildNoDeviceFound() : _buildDevicesFound(),
+    );
+  }
+
+  Widget _buildDevicesFound() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Container(
+            padding: const EdgeInsets.all(10.0),
+            child: Text(
+              'Found Devices',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: AppTheme.title,
+            ),
+          ),
+          Expanded(
+            child: ListView(
               children: <Widget>[
-                Expanded(
-                  child: RaisedButton(
-                    color: showDisplay == 'Found' ? Colors.red : null,
-                    child: Text('Record'),
-                    onPressed: () {
-                      setState(() {
-                        showDisplay = 'Found';
-                      });
+                Card(
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  color: Colors.white,
+                  child: InkWell(
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        Container(
+                          height: 90,
+                          padding: const EdgeInsets.all(8.0),
+                          alignment: Alignment.topLeft,
+                          child: FadeInImage(
+                            placeholder: AssetImage(
+                              'assets/images/product-placeholder.png',
+                            ),
+                            image: AssetImage(
+                              'assets/images/Picture2.png',
+                            ),
+                            fit: BoxFit.contain,
+                            alignment: Alignment.center,
+                            fadeInDuration: Duration(milliseconds: 200),
+                            fadeInCurve: Curves.easeIn,
+                            height: 75,
+                            width: 75,
+                          ),
+                        ),
+                        Expanded(
+                          child: Container(
+                            height: 90,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: <Widget>[
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 5.0,
+                                  ),
+                                  child: Text(
+                                    'Device Name',
+                                    overflow: TextOverflow.ellipsis,
+                                    style: AppTheme.subtitle,
+                                    textAlign: TextAlign.left,
+                                  ),
+                                ),
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 5.0,
+                                  ),
+                                  child: Text(
+                                    'Connect',
+                                    style: AppTheme.title,
+                                    textAlign: TextAlign.left,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    onTap: () => {
+                      Navigator.of(context).pushReplacementNamed(
+                        routes.SetupConnectRoute,
+                      ),
                     },
                   ),
                 ),
-                Expanded(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0),
-                    child: RaisedButton(
-                      color: showDisplay == 'NotFound' ? Colors.red : null,
-                      child: FittedBox(child: Text('Device Not Found')),
-                      onPressed: () {
-                        setState(() {
-                          showDisplay = 'NotFound';
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                Expanded(
-                  child: RaisedButton(
-                    color:
-                        showDisplay == 'BluetoothNotFound' ? Colors.red : null,
-                    child: FittedBox(
-                      child: Text('Bluetooth Not Found'),
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        showDisplay = 'BluetoothNotFound';
-                      });
-                    },
-                  ),
-                )
               ],
             ),
-            // ToggleButtons(
-            //   selectedColor: Colors.red,
-            //   children: [
-            //     Padding(
-            //       padding: const EdgeInsets.all(8.0),
-            //       child: Text('Record'),
-            //     ),
-            //     Padding(
-            //       padding: const EdgeInsets.all(8.0),
-            //       child: Text('Device Not Found'),
-            //     ),
-            //     Padding(
-            //       padding: const EdgeInsets.all(8.0),
-            //       child: Text('Bluetooth Not Found'),
-            //     ),
-            //   ],
-            //   isSelected: _selections,
-            //   onPressed: (int index) {
-            //     setState(
-            //       () {
-            //         for (int indexBtn = 0;
-            //             indexBtn < _selections.length;
-            //             indexBtn++) {
-            //           if (indexBtn == index) {
-            //             _selections[indexBtn] = true;
-            //           } else {
-            //             _selections[indexBtn] = false;
-            //           }
-            //         }
-            //       },
-            //     );
-            //   },
-            // ),
-            SizedBox(
-              height: 10,
-            ),
-            ...showDisplay == 'Found' ? _buildDeviceFound() : [],
-            ...showDisplay == 'NotFound' ? _buildNoDeviceFound() : [],
-            ...showDisplay == 'BluetoothNotFound'
-                ? _buildBluetoothNotFound()
-                : [],
-          ],
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: RaisedButton(
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              child: Text(
-                showDisplay == 'Found'
-                    ? 'Record'
-                    : showDisplay == 'NotFound'
-                        ? 'Search'
-                        : showDisplay == 'BluetoothNotFound'
-                            ? 'Turn Bluetooth'
-                            : '',
-              ),
-              onPressed: () {}),
-        ),
+          ),
+        ],
       ),
     );
   }
 
-  List<Widget> _buildDeviceFound() {
-    Offset _offset = Offset(0.3, -0.9);
-
-    return [
-      FittedBox(
-        child: Text(
-          'Device Found',
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Roboto',
-          ),
-        ),
-      ),
-      SizedBox(
-        height: 5,
-      ),
-      FittedBox(
-        child: Text(
-          'Last connected 04/24/2020 12:35 PM',
-          style: TextStyle(
-            fontSize: 18,
-            fontFamily: 'Roboto',
-          ),
-        ),
-      ),
-      SizedBox(
-        height: 20,
-      ),
-      Expanded(
-        child: GestureDetector(
-          onTap: () {
-            rotationController.reset();
-            rotationController.forward();
-          },
-          child: Transform(
-            alignment: FractionalOffset.centerLeft,
-            transform: Matrix4.identity()
-              ..setEntry(3, 2, 0.0011)
-              ..rotateX(_offset.dy)
-              ..rotateY(_offset.dx),
-            child: RotationTransition(
-              turns: Tween(begin: 0.0, end: 1.0).animate(rotationController),
-              child: Image(
-                fit: BoxFit.fitHeight,
-                image: AssetImage('assets/images/2.png'),
-              ),
+  Widget _buildNoDeviceFound() {
+    return Padding(
+      padding: const EdgeInsets.all(16.0),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          SizedBox(height: 5.0),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10.0),
+            child: Column(
+              children: <Widget>[
+                Container(
+                  constraints: BoxConstraints(
+                    maxHeight: 300.0,
+                  ),
+                  padding: const EdgeInsets.all(10.0),
+                  child: FadeInImage(
+                    placeholder: AssetImage(
+                      'assets/images/placeholder.jpg',
+                    ),
+                    image: AssetImage(
+                      'assets/images/Group3.png',
+                    ),
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
+                    fadeInDuration: Duration(milliseconds: 200),
+                    fadeInCurve: Curves.easeIn,
+                  ),
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    'No Devices Found',
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: AppTheme.title,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    // vertical: 5.0,
+                    horizontal: 35.0,
+                  ),
+                  alignment: Alignment.topLeft,
+                  child: Text(
+                    'Check connection and please try again.',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.subtitle,
+                  ),
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      width: 150,
+                      height: 75,
+                      padding: EdgeInsets.all(10),
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.5),
+                        ),
+                        color: Color(0XFF6C63FF),
+                        textColor: Colors.white,
+                        child: Text(
+                          'Search',
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            showDisplay = true;
+                          });
+                        },
+                      ),
+                    ),
+                  ],
+                )
+              ],
             ),
           ),
-        ),
+        ],
       ),
-      SizedBox(
-        height: 20,
-      ),
-    ];
-  }
-
-  List<Widget> _buildNoDeviceFound() {
-    return [
-      FittedBox(
-        child: Text(
-          'No Device Found',
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Roboto',
-          ),
-        ),
-      ),
-      SizedBox(
-        height: 20,
-      ),
-      Expanded(
-        child: Image(
-          image: AssetImage('assets/images/nodevice.png'),
-        ),
-      ),
-      SizedBox(
-        height: 20,
-      ),
-    ];
-  }
-
-  List<Widget> _buildBluetoothNotFound() {
-    return [
-      FittedBox(
-        child: Text(
-          'Bluetooth Turned Off',
-          style: TextStyle(
-            fontSize: 30,
-            fontWeight: FontWeight.bold,
-            fontFamily: 'Roboto',
-          ),
-        ),
-      ),
-      SizedBox(
-        height: 20,
-      ),
-      Expanded(
-        child: Image(
-          image: AssetImage('assets/images/bluetooth.png'),
-        ),
-      ),
-      SizedBox(
-        height: 20,
-      ),
-    ];
+    );
   }
 }
