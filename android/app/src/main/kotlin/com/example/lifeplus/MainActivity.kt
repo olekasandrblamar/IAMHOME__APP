@@ -16,6 +16,7 @@ import androidx.core.content.ContextCompat
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import java.util.*
 
 class MainActivity: FlutterActivity() {
 
@@ -25,6 +26,7 @@ class MainActivity: FlutterActivity() {
     private var watchData:WatchData? = null
 
     companion object{
+        var lastConnected: Calendar = Calendar.getInstance()
         private val TAG = MainActivity::class.java.simpleName
         private var deviceId = ""
         private const val MY_PERMISSIONS_REQUEST_BLUETOOTH:Int = 0x55;
@@ -66,6 +68,10 @@ class MainActivity: FlutterActivity() {
                 watchData?.let {
                     it.connectDevice(this,result)
                 }
+            } else if(call.method =="getData"){
+                WatchData().loadData(result)
+            } else if(call.method =="syncData"){
+                WatchData().syncData()
             }
             else {
                 result.notImplemented()

@@ -9,13 +9,13 @@ import com.google.gson.Gson
 import com.walnutin.HeartRateAdditional
 import com.walnutin.hardsdk.ProductList.sdk.GlobalValue
 import com.walnutin.hardsdk.ProductList.sdk.HardSdk
+import com.walnutin.hardsdk.ProductList.sdk.TimeUtil
 import com.walnutin.hardsdk.ProductNeed.Jinterface.IHardScanCallback
 import com.walnutin.hardsdk.ProductNeed.Jinterface.SimpleDeviceCallback
-import com.walnutin.hardsdk.ProductNeed.entity.BloodPressure
-import com.walnutin.hardsdk.ProductNeed.entity.Device
-import com.walnutin.hardsdk.ProductNeed.entity.TempStatus
-import com.walnutin.hardsdk.ProductNeed.entity.Version
+import com.walnutin.hardsdk.ProductNeed.entity.*
 import io.flutter.plugin.common.MethodChannel
+import java.text.ParseException
+import java.util.*
 
 class ConnectDeviceCallBack : SimpleDeviceCallback {
 
@@ -40,6 +40,8 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
             //retry 3 times for disconnect
             if (retries < 3) {
                 retries++
+                Log.i(WatchData.TAG,"retrying scan")
+                HardSdk.getInstance().stopScan()
                 HardSdk.getInstance().startScan()
             } else {
                 result.success("Timeout")
@@ -50,9 +52,9 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
 }
 
 class DataCallBack : SimpleDeviceCallback {
-    private val result: MethodChannel.Result
+    private val result: MethodChannel.Result?
 
-    constructor(result: MethodChannel.Result) {
+    constructor(result: MethodChannel.Result?) {
         this.result = result
     }
 
@@ -199,6 +201,26 @@ class WatchData {
     //Load the data
     fun loadData(result: MethodChannel.Result) {
         HardSdk.getInstance().setHardSdkCallback(DataCallBack(result))
+        val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
+
+        val sleepModel = HardSdk.getInstance().queryOneDaySleepInfo(beforeTime)
+        val stepInfos = HardSdk.getInstance().queryOneDayStep(beforeTime)
+        Log.i(WatchData.TAG,"Got sleep info ${Gson().toJson(sleepModel)}")
+        Log.i(WatchData.TAG,"Got step info ${Gson().toJson(stepInfos)}")
+        result.success("Got data")
+    }
+
+    //Sync the data from watch
+    //This needs to be called in background from time to time
+    fun syncData(){
+        //Load the data from device
+        HardSdk.getInstance().setHardSdkCallback(DataCallBack(null))
+        HardSdk.getInstance().syncLatestBodyTemperature(0)
+        HardSdk.getInstance().syncLatestWristTemperature(0)
+        HardSdk.getInstance().syncHeartRateData(0)
+        HardSdk.getInstance().syncStepData(0)
+        HardSdk.getInstance().syncSleepData(0)
+        MainActivity.lastConnected = Calendar.getInstance()
     }
 }
 
@@ -285,12 +307,10 @@ class WatchDataCallBack : IHardScanCallback {
                     rssi
             )
             HardSdk.getInstance().stopScan()
-            HardSdk.getInstance().refreshBleServiceUUID(
+            HardSdk.getInstance().bindBracelet(
                     targetDevice?.factoryName,
                     deviceName!!,
-                    deviceAddr!!,
-                    context!!,
-                    true
+                    deviceAddr!!
             )
             Log.d(TAG, "Got data $factoryNameByUUID device ${device.name} address ${device.address}")
             stopScanning()
