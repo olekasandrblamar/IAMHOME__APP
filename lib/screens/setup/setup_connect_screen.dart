@@ -124,6 +124,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                         autofocus: false,
                         onChanged: _onChangeDeviceIdInput,
                         enabled: !_isLoading ? true : false,
+                        maxLength: 4,
                       ),
                     ),
                     flex: 4,
@@ -147,28 +148,28 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                   ),
                 ),
               ),
-              SizedBox(
-                height: 25,
-              ),
-              Container(
-                width: 150,
-                height: 75,
-                padding: EdgeInsets.all(10),
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4.5),
-                  ),
-                  color: Color(0XFF6C63FF),
-                  textColor: Colors.white,
-                  child: Text(
-                    'Connect',
-                    style: TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                  onPressed: () {},
-                ),
-              ),
+              // SizedBox(
+              //   height: 25,
+              // ),
+              // Container(
+              //   width: 150,
+              //   height: 75,
+              //   padding: EdgeInsets.all(10),
+              //   child: RaisedButton(
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(4.5),
+              //     ),
+              //     color: Color(0XFF6C63FF),
+              //     textColor: Colors.white,
+              //     child: Text(
+              //       'Connect',
+              //       style: TextStyle(
+              //         fontSize: 14,
+              //       ),
+              //     ),
+              //     onPressed: !_isLoading ? null : () => {},
+              //   ),
+              // ),
             ],
           ),
         ),
