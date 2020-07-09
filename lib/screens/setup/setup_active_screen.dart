@@ -4,7 +4,12 @@ import 'package:lifeplus/theme.dart';
 import 'package:lifeplus/constants/route_paths.dart' as routes;
 import 'package:permission_handler/permission_handler.dart';
 
-class SetupActiveScreen extends StatelessWidget {
+class SetupActiveScreen extends StatefulWidget {
+  @override
+  _SetupActiveScreenState createState() => _SetupActiveScreenState();
+}
+
+class _SetupActiveScreenState extends State<SetupActiveScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
