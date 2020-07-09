@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:lifeplus/theme.dart';
 
 import 'package:lifeplus/constants/route_paths.dart' as routes;
@@ -10,6 +11,24 @@ class SetupActiveScreen extends StatefulWidget {
 }
 
 class _SetupActiveScreenState extends State<SetupActiveScreen> {
+
+  @override
+  void initState() {
+    _loadDataFromDevice().then((value){
+
+    });
+    super.initState();
+  }
+
+  static const platform = const MethodChannel('ceras.iamhome.mobile/device');
+
+  /**
+   * Load the data from the device
+   */
+  Future _loadDataFromDevice() async {
+    final String result = await platform.invokeMethod('syncData');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -98,15 +117,16 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
                 color: Color(0XFF6C63FF),
                 textColor: Colors.white,
                 child: Text(
-                  'Reconnect',
+                  'SyncData',
                   style: TextStyle(
                     fontSize: 14,
                   ),
                 ),
                 onPressed: () {
-                  return Navigator.of(context).pushReplacementNamed(
-                    routes.SetupHomeRoute,
-                  );
+//                  return Navigator.of(context).pushReplacementNamed(
+//                    routes.SetupHomeRoute,
+//                  );
+                  this._loadDataFromDevice();
                 },
               ),
             ),

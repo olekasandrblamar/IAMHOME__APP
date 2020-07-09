@@ -18,7 +18,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   var _isLoading = false;
   var _deviceIdNumber = '';
 
-  static const platform = const MethodChannel('samples.flutter.dev/battery');
+  static const platform = const MethodChannel('ceras.iamhome.mobile/device');
 
   @override
   void dispose() {

@@ -20,9 +20,7 @@ import java.util.*
 
 class MainActivity: FlutterActivity() {
 
-    private val CHANNEL = "samples.flutter.dev/battery"
-
-
+    private val CHANNEL = "ceras.iamhome.mobile/device"
     private var watchData:WatchData? = null
 
     companion object{
