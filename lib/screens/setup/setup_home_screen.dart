@@ -149,7 +149,7 @@ class SetupHomeScreen extends StatelessWidget {
                     ),
                     onTap: () => {
                       Navigator.of(context).pushNamed(
-                        routes.SetupSearchRoute,
+                        routes.SetupConnectRoute,
                       ),
                     },
                   ),

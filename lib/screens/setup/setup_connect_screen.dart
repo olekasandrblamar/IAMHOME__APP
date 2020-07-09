@@ -6,6 +6,11 @@ import 'package:lifeplus/constants/route_paths.dart' as routes;
 import 'package:permission_handler/permission_handler.dart';
 
 class SetupConnectScreen extends StatelessWidget {
+
+  Future<bool> _connectDevice() async{
+    //Add code to call native methods to connect
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -81,7 +86,7 @@ class SetupConnectScreen extends StatelessWidget {
                 padding: const EdgeInsets.all(10.0),
                 child: FittedBox(
                   child: Text(
-                    'Enter last 4 charcters of device ID',
+                    'Enter last 4 characters of device ID',
                     textAlign: TextAlign.center,
                     style: AppTheme.title,
                   ),
@@ -119,6 +124,7 @@ class SetupConnectScreen extends StatelessWidget {
                     ),
                   ),
                   onPressed: () {
+
                     return Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(
                           builder: (BuildContext context) =>
