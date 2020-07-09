@@ -106,18 +106,29 @@ class PrivacyScreen extends StatelessWidget {
         ),
       ),
       bottomNavigationBar: SafeArea(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20),
-          child: RaisedButton(
-            color: Theme.of(context).primaryColor,
-            textColor: Colors.white,
-            child: Text('Agree'),
-            onPressed: () {
-              return Navigator.of(context).pushReplacementNamed(
-                routes.NotificationsRoute,
-              );
-            },
-          ),
+        bottom: true,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              width: 200,
+              height: 90,
+              padding: EdgeInsets.all(20),
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.5),
+                ),
+                color: Color(0XFF6C63FF),
+                textColor: Colors.white,
+                child: Text('Agree'),
+                onPressed: () {
+                  return Navigator.of(context).pushReplacementNamed(
+                    routes.NotificationsRoute,
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
