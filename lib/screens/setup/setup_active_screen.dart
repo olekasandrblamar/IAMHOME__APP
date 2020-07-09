@@ -1,3 +1,4 @@
+import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifeplus/theme.dart';
@@ -11,12 +12,13 @@ class SetupActiveScreen extends StatefulWidget {
 }
 
 class _SetupActiveScreenState extends State<SetupActiveScreen> {
+  bool _enabled = true;
+  int _status = 0;
+  List<DateTime> _events = [];
 
   @override
   void initState() {
-    _loadDataFromDevice().then((value){
-
-    });
+    _loadDataFromDevice().then((value) {});
     super.initState();
   }
 
@@ -27,6 +29,106 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
    */
   Future _loadDataFromDevice() async {
     final String result = await platform.invokeMethod('syncData');
+  }
+
+  // Platform messages are asynchronous, so we initialize in an async method.
+  Future<void> initPlatformState() async {
+    // Configure BackgroundFetch.
+    BackgroundFetch.configure(
+        BackgroundFetchConfig(
+          minimumFetchInterval: 15,
+          stopOnTerminate: false,
+          enableHeadless: true,
+          requiresBatteryNotLow: false,
+          requiresCharging: false,
+          requiresStorageNotLow: false,
+          requiresDeviceIdle: false,
+          requiredNetworkType: NetworkType.NONE,
+        ), (String taskId) async {
+      switch (taskId) {
+        case 'com.transistorsoft.datasync':
+          print("Received custom sync task");
+          break;
+        case 'com.transistorsoft.dataupdate':
+          print("Received custom update task");
+          break;
+        default:
+          print("Default fetch task");
+      }
+
+      // This is the fetch-event callback.
+      print("[BackgroundFetch] Event received $taskId");
+      setState(() {
+        _events.insert(0, new DateTime.now());
+      });
+
+      // IMPORTANT:  You must signal completion of your task or the OS can punish your app
+      // for taking too long in the background.
+      BackgroundFetch.finish(taskId);
+    }).then((int status) {
+      print('[BackgroundFetch] configure success: $status');
+      setState(() {
+        _status = status;
+      });
+    }).catchError((e) {
+      print('[BackgroundFetch] configure ERROR: $e');
+      setState(() {
+        _status = e;
+      });
+    });
+
+    // Optionally query the current BackgroundFetch status.
+    int status = await BackgroundFetch.status;
+    setState(() {
+      _status = status;
+    });
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+  }
+
+  void _onClickEnable(enabled) {
+    setState(() {
+      _enabled = enabled;
+    });
+    if (enabled) {
+      BackgroundFetch.start().then((int status) {
+        print('[BackgroundFetch] start success: $status');
+      }).catchError((e) {
+        print('[BackgroundFetch] start FAILURE: $e');
+      });
+    } else {
+      BackgroundFetch.stop().then((int status) {
+        print('[BackgroundFetch] stop success: $status');
+      });
+    }
+  }
+
+  void _onClickStatus() async {
+    int status = await BackgroundFetch.status;
+    print('[BackgroundFetch] status: $status');
+    setState(() {
+      _status = status;
+    });
+  }
+
+  void _scheduleTask() {
+    // Step 2:  Schedule a custom "oneshot" task "com.transistorsoft.datasync" to execute 5000ms from now.
+    BackgroundFetch.scheduleTask(
+      TaskConfig(
+        taskId: "com.transistorsoft.datasync",
+        delay: 5000, // <-- milliseconds
+      ),
+    );
+
+    BackgroundFetch.scheduleTask(
+      TaskConfig(
+        taskId: "com.transistorsoft.dataupdate",
+        delay: 5000, // <-- milliseconds
+      ),
+    );
   }
 
   @override

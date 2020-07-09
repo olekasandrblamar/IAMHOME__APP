@@ -1,4 +1,6 @@
 PODS:
+  - background_fetch (0.6.0):
+    - Flutter
   - device_info (0.0.1):
     - Flutter
   - Flutter (1.0.0)
@@ -25,6 +27,7 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - background_fetch (from `.symlinks/plugins/background_fetch/ios`)
   - device_info (from `.symlinks/plugins/device_info/ios`)
   - Flutter (from `Flutter`)
   - flutter_blue (from `.symlinks/plugins/flutter_blue/ios`)
@@ -41,6 +44,8 @@ SPEC REPOS:
     - Protobuf
 
 EXTERNAL SOURCES:
+  background_fetch:
+    :path: ".symlinks/plugins/background_fetch/ios"
   device_info:
     :path: ".symlinks/plugins/device_info/ios"
   Flutter:
@@ -63,6 +68,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences_web/ios"
 
 SPEC CHECKSUMS:
+  background_fetch: 9221ccc02b41aff8a52b2090d9f791c5ed82eaee
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_blue: eeb381dc4727a0954dede73515f683865494b370
