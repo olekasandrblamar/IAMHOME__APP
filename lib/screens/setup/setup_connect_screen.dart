@@ -1,16 +1,67 @@
 import 'package:flutter/material.dart';
+import 'package:lifeplus/helpers/errordialog_popup.dart';
 import 'package:lifeplus/screens/setup/setup_active_screen.dart';
 import 'package:lifeplus/theme.dart';
 
 import 'package:lifeplus/constants/route_paths.dart' as routes;
 import 'package:permission_handler/permission_handler.dart';
 
-class SetupConnectScreen extends StatelessWidget {
+class SetupConnectScreen extends StatefulWidget {
+  @override
+  _SetupConnectScreenState createState() => _SetupConnectScreenState();
+}
 
-  Future<bool> _connectDevice() async{
+class _SetupConnectScreenState extends State<SetupConnectScreen> {
+  final TextEditingController _deviceIdController = TextEditingController();
+
+  var _isLoading = false;
+  var _deviceIdNumber = '';
+
+  @override
+  void dispose() {
+    _deviceIdController.dispose();
+
+    super.dispose();
+  }
+
+  void _onChangeDeviceIdInput(String pin) async {
+    try {
+      setState(
+        () {
+          _deviceIdNumber = _deviceIdController.text;
+        },
+      );
+
+      if (_deviceIdNumber.length < 4) {
+        return;
+      }
+
+      setState(() {
+        _isLoading = true;
+      });
+
+      this._connectDevice();
+    } catch (error) {
+      showErrorDialog(context, error.toString());
+    }
+  }
+
+  Future<bool> _connectDevice() async {
     //Capture the device last 4
     //Add code to call native methods to connect
 
+    setState(() {
+      _isLoading = false;
+    });
+  }
+
+  void _redirectTo() {
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (BuildContext context) => SetupActiveScreen(),
+          settings: const RouteSettings(name: routes.SetupActiveRoute),
+        ),
+        (Route<dynamic> route) => false);
   }
 
   @override
@@ -67,10 +118,12 @@ class SetupConnectScreen extends StatelessWidget {
                           // labelText: 'Phone',
                           hintText: "-   -   -   -",
                         ),
+                        controller: _deviceIdController,
                         keyboardType: TextInputType.text,
                         textInputAction: TextInputAction.done,
-                        // inputFormatters: [_otpMaskFormatter],
-                        autofocus: true,
+                        autofocus: false,
+                        onChanged: _onChangeDeviceIdInput,
+                        enabled: !_isLoading ? true : false,
                       ),
                     ),
                     flex: 4,
@@ -94,18 +147,6 @@ class SetupConnectScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              // Container(
-              //   padding: const EdgeInsets.symmetric(
-              //     // vertical: 5.0,
-              //     horizontal: 35.0,
-              //   ),
-              //
-              //   child: Text(
-              //     'Last connected 04/24/2020  12:35 PM.',
-              //     textAlign: TextAlign.center,
-              //     style: AppTheme.subtitle,
-              //   ),
-              // ),
               SizedBox(
                 height: 25,
               ),
@@ -125,17 +166,7 @@ class SetupConnectScreen extends StatelessWidget {
                       fontSize: 14,
                     ),
                   ),
-                  onPressed: () {
-
-                    return Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(
-                          builder: (BuildContext context) =>
-                              SetupActiveScreen(),
-                          settings: const RouteSettings(
-                              name: routes.SetupActiveRoute),
-                        ),
-                        (Route<dynamic> route) => false);
-                  },
+                  onPressed: () {},
                 ),
               ),
             ],
