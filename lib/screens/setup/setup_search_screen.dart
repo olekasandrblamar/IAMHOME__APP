@@ -83,7 +83,6 @@ class _SetupSearchScreenState extends State<SetupSearchScreen>
                         Container(
                           height: 90,
                           padding: const EdgeInsets.all(8.0),
-                          alignment: Alignment.topLeft,
                           child: FadeInImage(
                             placeholder: AssetImage(
                               'assets/images/product-placeholder.png',
@@ -149,7 +148,7 @@ class _SetupSearchScreenState extends State<SetupSearchScreen>
   }
 
   Widget _buildNoDeviceFound() {
-    return Padding(
+    return Container(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
@@ -194,7 +193,6 @@ class _SetupSearchScreenState extends State<SetupSearchScreen>
                     // vertical: 5.0,
                     horizontal: 35.0,
                   ),
-                  alignment: Alignment.topLeft,
                   child: Text(
                     'Check connection and please try again.',
                     textAlign: TextAlign.center,

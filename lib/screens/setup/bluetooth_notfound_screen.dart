@@ -14,7 +14,8 @@ class BluetoothNotfoundScreen extends StatelessWidget {
         elevation: 0,
       ),
       backgroundColor: AppTheme.white,
-      body: Padding(
+      body: Container(
+        width: double.infinity,
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -59,7 +60,6 @@ class BluetoothNotfoundScreen extends StatelessWidget {
                       // vertical: 5.0,
                       horizontal: 35.0,
                     ),
-                    alignment: Alignment.topLeft,
                     child: Text(
                       'Turn Bluetooth on your smartphone.',
                       textAlign: TextAlign.center,

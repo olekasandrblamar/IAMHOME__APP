@@ -19,124 +19,115 @@ class SetupConnectScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              SizedBox(height: 5.0),
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10.0),
-                child: Column(
-                  children: <Widget>[
-                    Container(
-                      constraints: BoxConstraints(
-                        maxHeight: 300.0,
-                      ),
-                      padding: const EdgeInsets.all(10.0),
-                      child: FadeInImage(
-                        placeholder: AssetImage(
-                          'assets/images/placeholder.jpg',
+                constraints: BoxConstraints(
+                  maxHeight: 300.0,
+                ),
+                padding: const EdgeInsets.all(10.0),
+                child: FadeInImage(
+                  placeholder: AssetImage(
+                    'assets/images/placeholder.jpg',
+                  ),
+                  image: AssetImage(
+                    'assets/images/2.png',
+                  ),
+                  fit: BoxFit.contain,
+                  alignment: Alignment.center,
+                  fadeInDuration: Duration(milliseconds: 200),
+                  fadeInCurve: Curves.easeIn,
+                ),
+              ),
+              SizedBox(
+                height: 25,
+              ),
+              Row(
+                children: <Widget>[
+                  Flexible(
+                    child: Container(),
+                    flex: 2,
+                  ),
+                  Flexible(
+                    child: Container(
+                      // margin: EdgeInsets.symmetric(horizontal: 40),
+                      child: TextField(
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 35,
                         ),
-                        image: AssetImage(
-                          'assets/images/2.png',
+                        decoration: InputDecoration(
+                          // border: OutlineInputBorder(),
+                          // labelText: 'Phone',
+                          hintText: "-   -   -   -",
                         ),
-                        fit: BoxFit.contain,
-                        alignment: Alignment.center,
-                        fadeInDuration: Duration(milliseconds: 200),
-                        fadeInCurve: Curves.easeIn,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 25,
-                    ),
-                    Row(
-                      children: <Widget>[
-                        Flexible(
-                          child: Container(),
-                          flex: 2,
-                        ),
-                        Flexible(
-                          child: Container(
-                            // margin: EdgeInsets.symmetric(horizontal: 40),
-                            child: TextField(
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                fontSize: 35,
-                              ),
-                              decoration: InputDecoration(
-                                // border: OutlineInputBorder(),
-                                // labelText: 'Phone',
-                                hintText: "-   -   -   -",
-                              ),
-                              keyboardType: TextInputType.text,
-                              textInputAction: TextInputAction.done,
-                              // inputFormatters: [_otpMaskFormatter],
-                              autofocus: true,
-                            ),
-                          ),
-                          flex: 4,
-                        ),
-                        Flexible(
-                          child: Container(),
-                          flex: 2,
-                        ),
-                      ],
-                    ),
-                    SizedBox(
-                      height: 25,
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(10.0),
-                      child: FittedBox(
-                        child: Text(
-                          'Enter last 4 charcters of device ID',
-                          textAlign: TextAlign.center,
-                          style: AppTheme.title,
-                        ),
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.done,
+                        // inputFormatters: [_otpMaskFormatter],
+                        autofocus: true,
                       ),
                     ),
-                    // Container(
-                    //   padding: const EdgeInsets.symmetric(
-                    //     // vertical: 5.0,
-                    //     horizontal: 35.0,
-                    //   ),
-                    //   alignment: Alignment.topLeft,
-                    //   child: Text(
-                    //     'Last connected 04/24/2020  12:35 PM.',
-                    //     textAlign: TextAlign.center,
-                    //     style: AppTheme.subtitle,
-                    //   ),
-                    // ),
-                    SizedBox(
-                      height: 25,
+                    flex: 4,
+                  ),
+                  Flexible(
+                    child: Container(),
+                    flex: 2,
+                  ),
+                ],
+              ),
+              SizedBox(
+                height: 25,
+              ),
+              Container(
+                padding: const EdgeInsets.all(10.0),
+                child: FittedBox(
+                  child: Text(
+                    'Enter last 4 charcters of device ID',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.title,
+                  ),
+                ),
+              ),
+              // Container(
+              //   padding: const EdgeInsets.symmetric(
+              //     // vertical: 5.0,
+              //     horizontal: 35.0,
+              //   ),
+              //
+              //   child: Text(
+              //     'Last connected 04/24/2020  12:35 PM.',
+              //     textAlign: TextAlign.center,
+              //     style: AppTheme.subtitle,
+              //   ),
+              // ),
+              SizedBox(
+                height: 25,
+              ),
+              Container(
+                width: 150,
+                height: 75,
+                padding: EdgeInsets.all(10),
+                child: RaisedButton(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4.5),
+                  ),
+                  color: Color(0XFF6C63FF),
+                  textColor: Colors.white,
+                  child: Text(
+                    'Connect',
+                    style: TextStyle(
+                      fontSize: 14,
                     ),
-                    Container(
-                      width: 150,
-                      height: 75,
-                      padding: EdgeInsets.all(10),
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(4.5),
+                  ),
+                  onPressed: () {
+                    return Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(
+                          builder: (BuildContext context) =>
+                              SetupActiveScreen(),
+                          settings: const RouteSettings(
+                              name: routes.SetupActiveRoute),
                         ),
-                        color: Color(0XFF6C63FF),
-                        textColor: Colors.white,
-                        child: Text(
-                          'Connect',
-                          style: TextStyle(
-                            fontSize: 14,
-                          ),
-                        ),
-                        onPressed: () {
-                          return Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    SetupActiveScreen(),
-                                settings: const RouteSettings(
-                                    name: routes.SetupActiveRoute),
-                              ),
-                              (Route<dynamic> route) => false);
-                        },
-                      ),
-                    ),
-                  ],
+                        (Route<dynamic> route) => false);
+                  },
                 ),
               ),
             ],

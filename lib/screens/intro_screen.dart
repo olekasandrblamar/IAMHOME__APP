@@ -136,7 +136,6 @@ class _IntroScreenState extends State<IntroScreen> {
                                     // vertical: 5.0,
                                     horizontal: 35.0,
                                   ),
-                                  alignment: Alignment.topLeft,
                                   child: Text(
                                     _pages[i].description,
                                     textAlign: TextAlign.center,
