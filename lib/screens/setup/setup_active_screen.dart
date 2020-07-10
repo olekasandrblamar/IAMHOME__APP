@@ -1,7 +1,13 @@
+import 'dart:convert';
+
 import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lifeplus/models/watchdata_model.dart';
+import 'package:lifeplus/providers/auth_provider.dart';
 import 'package:lifeplus/theme.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SetupActiveScreen extends StatefulWidget {
   @override
@@ -27,8 +33,12 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
    */
   Future _syncDataFromDevice() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
       //Send the connection info we got from connect device
-      String connectionInfo = "";
+      String connectionInfo = prefs.getString('watchInfo');;
+
+      print("Sending connection info ${connectionInfo}");
+
       final String result = await platform.invokeMethod('syncData',<String, dynamic>{
         'connectionInfo': connectionInfo
       });
@@ -42,7 +52,6 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
    * Load the data from the device
    */
   Future _loadDataFromDevice() async {
-    //Get the device data we saved as string
     final String result = await platform.invokeMethod('loadData');
     print("Got load Data " + result);
   }

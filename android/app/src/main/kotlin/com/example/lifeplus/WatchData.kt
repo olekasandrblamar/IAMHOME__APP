@@ -77,6 +77,7 @@ class DataCallBack : SimpleDeviceCallback {
             decrementAndRemove()
             Log.i(WatchData.TAG, "onCallbackResult: Sleep Sync")
         } else if (flag == GlobalValue.OFFLINE_EXERCISE_SYNC_OK) {
+            decrementAndRemove()
             Log.d(WatchData.TAG, "onCallbackResult: Exercise Sync")
         } else if (flag == GlobalValue.SYNC_FINISH) {
             Log.d(WatchData.TAG, "onCallbackResult: Sync complete")
@@ -148,6 +149,8 @@ class DataCallBack : SimpleDeviceCallback {
             val stepInfos = HardSdk.getInstance().queryOneDayStep(beforeTime)
             Log.i(WatchData.TAG,"Got sleep info ${Gson().toJson(sleepModel)}")
             Log.i(WatchData.TAG,"Got step info ${Gson().toJson(stepInfos)}")
+
+
         }
     }
 
@@ -230,34 +233,38 @@ class WatchData {
 
     //Sync the data from watch
     //This needs to be called in background from time to time
-    fun syncData(result: MethodChannel.Result,connectionInfo: ConnectionInfo){
+    fun syncData(result: MethodChannel.Result,connectionInfo: ConnectionInfo,context: Context){
         Log.i(WatchData.TAG,"Calling sync data")
         val dataCallback = DataCallBack(null)
 
+        Log.i(TAG,"Is device connected ${HardSdk.getInstance().isDevConnected}")
         //If the device is not connected  try to connect
         if(!HardSdk.getInstance().isDevConnected){
+            HardSdk.getInstance().init(context)
             HardSdk.getInstance().bindBracelet(
                     connectionInfo.additionalInformation["factoryName"],
                     connectionInfo.deviceName,
                     connectionInfo.deviceId
             )
+        }else {
+            //Load the data from device
+            HardSdk.getInstance().setHardSdkCallback(dataCallback)
+            dataCallback.callCount++
+            HardSdk.getInstance().syncLatestBodyTemperature(0)
+            dataCallback.callCount++
+            HardSdk.getInstance().syncLatestWristTemperature(0)
+            dataCallback.callCount++
+            HardSdk.getInstance().syncHeartRateData(0)
+            dataCallback.callCount++
+            HardSdk.getInstance().syncExerciseData(0)
+            dataCallback.callCount++
+            HardSdk.getInstance().syncStepData(0)
+            dataCallback.callCount++
+            HardSdk.getInstance().syncSleepData(0)
+            MainActivity.lastConnected = Calendar.getInstance()
+            Log.i(WatchData.TAG, "Data sync complete")
+            result.success("Load complete")
         }
-
-        //Load the data from device
-        HardSdk.getInstance().setHardSdkCallback(dataCallback)
-        dataCallback.callCount++
-        HardSdk.getInstance().syncLatestBodyTemperature(0)
-        dataCallback.callCount++
-        HardSdk.getInstance().syncLatestWristTemperature(0)
-        dataCallback.callCount++
-        HardSdk.getInstance().syncHeartRateData(0)
-        dataCallback.callCount++
-        HardSdk.getInstance().syncStepData(0)
-        dataCallback.callCount++
-        HardSdk.getInstance().syncSleepData(0)
-        MainActivity.lastConnected = Calendar.getInstance()
-        Log.i(WatchData.TAG,"Data sync complete")
-        result.success("Load complete")
     }
 
 }
@@ -357,6 +364,11 @@ class WatchDataCallBack : IHardScanCallback {
         if (deviceName != null) {
             HardSdk.getInstance().stopScan();
         }
+    }
+
+    private fun connectDevice(factoryNameByUUID: String?,deviceName:String,deviceAddress:String){
+
+
     }
 
     private fun stopScanning() {

@@ -26,7 +26,7 @@ class MainActivity: FlutterActivity() {
 
     companion object{
         var lastConnected: Calendar = Calendar.getInstance()
-        private val TAG = MainActivity::class.java.simpleName
+        val TAG = MainActivity::class.java.simpleName
         private var deviceId = ""
         private const val MY_PERMISSIONS_REQUEST_BLUETOOTH:Int = 0x55;
     }
@@ -71,8 +71,9 @@ class MainActivity: FlutterActivity() {
                 WatchData().loadData(result)
             } else if(call.method =="syncData"){
                 val deviceDataString = call.argument<String>("connectionInfo")
+                Log.i(TAG,"got sync data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
-                WatchData().syncData(result,deviceData)
+                WatchData().syncData(result,deviceData,this)
             }
             else {
                 result.notImplemented()
@@ -104,13 +105,15 @@ class ConnectionInfo{
 
     companion object{
         fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null,additionalInfo: Map<String, String> = mapOf<String,String>()):String{
-            return Gson().toJson(ConnectionInfo().apply {
+            val connectionData =  Gson().toJson(ConnectionInfo().apply {
                 this.deviceId = deviceId
                 this.connected = connected
                 this.message = message
                 this.deviceName = deviceName
-                this.additionalInformation = additionalInformation
+                this.additionalInformation = additionalInfo
             })
+            Log.i(MainActivity.TAG,"Sending connection data back $connectionData")
+            return connectionData
         }
     }
 

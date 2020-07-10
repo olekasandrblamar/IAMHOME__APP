@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifeplus/helpers/errordialog_popup.dart';
@@ -54,13 +56,15 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
   Future<void> _connectDevice() async {
     try {
-      final WatchData result = await platform.invokeMethod('connectDevice');
-      print("Got response " + result.toString());
-
+      final String connectionInfo = await platform.invokeMethod('connectDevice');
+      print("Got response " + connectionInfo);
+      
+      final WatchData connectionData = WatchData.fromJson(jsonDecode(connectionInfo));
+      
       //TODO - Add code to check the result and add actions based on that
 
       await Provider.of<AuthProvider>(context, listen: false)
-          .saveWatchInfo(result);
+          .saveWatchInfo(connectionData);
 
       setState(() {
         _isLoading = false;
