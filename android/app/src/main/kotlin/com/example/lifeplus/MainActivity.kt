@@ -70,7 +70,9 @@ class MainActivity: FlutterActivity() {
             } else if(call.method =="loadData"){
                 WatchData().loadData(result)
             } else if(call.method =="syncData"){
-                WatchData().syncData(result)
+                val deviceDataString = call.argument<String>("connectionInfo")
+                val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
+                WatchData().syncData(result,deviceData)
             }
             else {
                 result.notImplemented()
@@ -93,20 +95,21 @@ class MainActivity: FlutterActivity() {
 
 }
 
-
-class ConnectResponse{
+class ConnectionInfo{
     var deviceId:String? = null
     var deviceName:String? = null
     var connected = false
     var message:String? = null
+    var additionalInformation = mapOf<String,String>()
 
     companion object{
-        fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null):String{
-            return Gson().toJson(ConnectResponse().apply {
+        fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null,additionalInfo: Map<String, String> = mapOf<String,String>()):String{
+            return Gson().toJson(ConnectionInfo().apply {
                 this.deviceId = deviceId
                 this.connected = connected
                 this.message = message
                 this.deviceName = deviceName
+                this.additionalInformation = additionalInformation
             })
         }
     }

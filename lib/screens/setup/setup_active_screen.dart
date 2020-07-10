@@ -27,7 +27,11 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
    */
   Future _syncDataFromDevice() async {
     try {
-      final String result = await platform.invokeMethod('syncData');
+      //Send the connection info we got from connect device
+      String connectionInfo = "";
+      final String result = await platform.invokeMethod('syncData',<String, dynamic>{
+        'connectionInfo': connectionInfo
+      });
       print("Got Sync Data " + result);
     } catch (ex) {
       print(ex);
@@ -38,6 +42,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
    * Load the data from the device
    */
   Future _loadDataFromDevice() async {
+    //Get the device data we saved as string
     final String result = await platform.invokeMethod('loadData');
     print("Got load Data " + result);
   }
@@ -47,6 +52,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
     // Configure BackgroundFetch.
     BackgroundFetch.configure(
         BackgroundFetchConfig(
+          startOnBoot: true,
           minimumFetchInterval: 5,
           stopOnTerminate: false,
           enableHeadless: true,
@@ -145,7 +151,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
         startOnBoot: true,
         stopOnTerminate: false,
         enableHeadless: true,
-        requiresDeviceIdle: false
+        requiresDeviceIdle: false,
+        forceAlarmManager: true
       ),
     );
 
@@ -157,7 +164,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
         startOnBoot: true,
         stopOnTerminate: false,
         enableHeadless: true,
-        requiresDeviceIdle: false
+        requiresDeviceIdle: false,
+        forceAlarmManager: true
       ),
     );
   }

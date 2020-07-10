@@ -6,7 +6,6 @@ import android.content.Context
 import android.text.TextUtils
 import android.util.Log
 import com.google.gson.Gson
-import com.walnutin.HeartRateAdditional
 import com.walnutin.hardsdk.ProductList.sdk.GlobalValue
 import com.walnutin.hardsdk.ProductList.sdk.HardSdk
 import com.walnutin.hardsdk.ProductList.sdk.TimeUtil
@@ -14,7 +13,6 @@ import com.walnutin.hardsdk.ProductNeed.Jinterface.IHardScanCallback
 import com.walnutin.hardsdk.ProductNeed.Jinterface.SimpleDeviceCallback
 import com.walnutin.hardsdk.ProductNeed.entity.*
 import io.flutter.plugin.common.MethodChannel
-import java.text.ParseException
 import java.util.*
 
 class ConnectDeviceCallBack : SimpleDeviceCallback {
@@ -44,7 +42,7 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
                 HardSdk.getInstance().stopScan()
                 HardSdk.getInstance().startScan()
             } else {
-                result.success(ConnectResponse.createResponse(message = "Timeout"))
+                result.success(ConnectionInfo.createResponse(message = "Timeout"))
             }
         }
     }
@@ -232,9 +230,19 @@ class WatchData {
 
     //Sync the data from watch
     //This needs to be called in background from time to time
-    fun syncData(result: MethodChannel.Result){
+    fun syncData(result: MethodChannel.Result,connectionInfo: ConnectionInfo){
         Log.i(WatchData.TAG,"Calling sync data")
         val dataCallback = DataCallBack(null)
+
+        //If the device is not connected  try to connect
+        if(!HardSdk.getInstance().isDevConnected){
+            HardSdk.getInstance().bindBracelet(
+                    connectionInfo.additionalInformation["factoryName"],
+                    connectionInfo.deviceName,
+                    connectionInfo.deviceId
+            )
+        }
+
         //Load the data from device
         HardSdk.getInstance().setHardSdkCallback(dataCallback)
         dataCallback.callCount++
@@ -344,7 +352,7 @@ class WatchDataCallBack : IHardScanCallback {
             )
             Log.d(TAG, "Got data $factoryNameByUUID device ${device.name} address ${device.address}")
             stopScanning()
-            result.success(ConnectResponse.createResponse(message = "Connected",connected = true,deviceId = deviceAddr,deviceName = deviceName))
+            result.success(ConnectionInfo.createResponse(message = "Connected",connected = true,deviceId = deviceAddr,deviceName = deviceName,additionalInfo = mapOf("factoryName" to targetDevice!!.factoryName)))
         }
         if (deviceName != null) {
             HardSdk.getInstance().stopScan();
