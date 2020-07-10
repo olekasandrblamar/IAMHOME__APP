@@ -16,8 +16,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
   }
 
   void _initData() async {
-    await BackgroundFetchData().syncDataFromDevice();
-    await BackgroundFetchData().initPlatformState();
+    await syncDataFromDevice();
+    await initPlatformState(mounted);
   }
 
   @override
@@ -117,7 +117,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
 //                  return Navigator.of(context).pushReplacementNamed(
 //                    routes.SetupHomeRoute,
 //                  );
-                  BackgroundFetchData().syncDataFromDevice();
+                  syncDataFromDevice();
                 },
               ),
             ),
