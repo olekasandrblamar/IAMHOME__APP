@@ -11,8 +11,6 @@ import 'config/env.dart';
 
 void main() {
   try {
-    BackgroundFetchData().backgroundFetchHeadlessTask;
-
     WidgetsFlutterBinding.ensureInitialized();
 
     BuildEnvironment.init(
@@ -36,8 +34,7 @@ void main() {
 
       // Register to receive BackgroundFetch events after app is terminated.
       // Requires {stopOnTerminate: false, enableHeadless: true}
-      await BackgroundFetch.registerHeadlessTask(
-          BackgroundFetchData().backgroundFetchHeadlessTask);
+      await BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
     });
   } catch (error, stackTrace) {
     print(error);
