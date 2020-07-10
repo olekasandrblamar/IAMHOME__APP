@@ -9,11 +9,9 @@ analyzer:
       lib/helpers/*.dart,
       lib/models/**/*.dart,
       lib/providers/*.dart,
-      lib/**/*.dart,
-      lib/*.dart,
     ]
   strong-mode:
-    implicit-casts: false
+    implicit-casts: true
     implicit-dynamic: true
     # Explanation: https://www.reddit.com/r/FlutterDev/comments/eb546t/tighten_up_you_type_checking_in_preparation_of/
   errors:

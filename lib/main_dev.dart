@@ -4,18 +4,15 @@ import 'dart:io';
 import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lifeplus/config/background_fetch.dart';
 
 import 'app.dart';
 import 'config/env.dart';
 
-/// This "Headless Task" is run when app is terminated.
-void backgroundFetchHeadlessTask(String taskId) async {
-  print('[BackgroundFetch] Headless event received.');
-  BackgroundFetch.finish(taskId);
-}
-
 void main() {
   try {
+    BackgroundFetchData().backgroundFetchHeadlessTask;
+
     WidgetsFlutterBinding.ensureInitialized();
 
     BuildEnvironment.init(
@@ -39,7 +36,8 @@ void main() {
 
       // Register to receive BackgroundFetch events after app is terminated.
       // Requires {stopOnTerminate: false, enableHeadless: true}
-      BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
+      await BackgroundFetch.registerHeadlessTask(
+          BackgroundFetchData().backgroundFetchHeadlessTask);
     });
   } catch (error, stackTrace) {
     print(error);

@@ -1,8 +1,6 @@
-import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:lifeplus/config/background_fetch.dart';
 import 'package:lifeplus/theme.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SetupActiveScreen extends StatefulWidget {
   @override
@@ -10,154 +8,16 @@ class SetupActiveScreen extends StatefulWidget {
 }
 
 class _SetupActiveScreenState extends State<SetupActiveScreen> {
-  final List<DateTime> _events = [];
-
   @override
   void initState() {
-    _syncDataFromDevice().then((value) {});
-    initPlatformState();
+    _initData();
+
     super.initState();
   }
 
-  static const platform = MethodChannel('ceras.iamhome.mobile/device');
-
-  /**
-   * Sync the data from the device
-   */
-  Future _syncDataFromDevice() async {
-    try {
-      final prefs = await SharedPreferences.getInstance();
-      //Send the connection info we got from connect device
-      final connectionInfo = prefs.getString('watchInfo');
-
-      print('Sending connection info ${connectionInfo}');
-
-      final result = await platform.invokeMethod(
-              'syncData', <String, dynamic>{'connectionInfo': connectionInfo})
-          as String;
-
-      print('Got Sync Data ' + result);
-    } catch (ex) {
-      print(ex);
-    }
-  }
-
-  /// Load the data from the device
-  Future _loadDataFromDevice() async {
-    final result = await platform.invokeMethod('loadData') as String;
-
-    print('Got load Data ' + result);
-  }
-
-  // Platform messages are asynchronous, so we initialize in an async method.
-  Future<void> initPlatformState() async {
-    // Configure BackgroundFetch.
-    BackgroundFetch.configure(
-        BackgroundFetchConfig(
-          startOnBoot: true,
-          minimumFetchInterval: 5,
-          stopOnTerminate: false,
-          enableHeadless: true,
-          requiresBatteryNotLow: false,
-          requiresCharging: false,
-          requiresStorageNotLow: false,
-          forceAlarmManager:
-              true, // We are forcing alarm manager to make sure the task is prioritized in android
-          requiresDeviceIdle: false,
-          requiredNetworkType: NetworkType.NONE,
-        ), (String taskId) async {
-      switch (taskId) {
-        case 'com.transistorsoft.datasync':
-          print("Calling data sync");
-          await _syncDataFromDevice();
-          break;
-        case 'com.transistorsoft.dataupdate':
-          print("Calling data update");
-          await _loadDataFromDevice();
-          print("Received custom update task");
-          break;
-        default:
-          print("Task $taskId");
-          print("Default fetch task");
-      }
-
-      // This is the fetch-event callback.
-      print('[BackgroundFetch] Event received $taskId');
-      setState(() {
-        _events.insert(0, new DateTime.now());
-      });
-
-      // IMPORTANT:  You must signal completion of your task or the OS can punish your app
-      // for taking too long in the background.
-      BackgroundFetch.finish(taskId);
-    }).then((int status) {
-      print('[BackgroundFetch] configure success: $status');
-      setState(() {});
-    }).catchError((e) {
-      print('[BackgroundFetch] configure ERROR: $e');
-      setState(() {});
-    });
-
-    // Optionally query the current BackgroundFetch status.
-    var status = await BackgroundFetch.status;
-    setState(() {});
-
-    //Schedule the tasks
-    _scheduleTask();
-    _onClickEnable(true);
-
-    // If the widget was removed from the tree while the asynchronous platform
-    // message was in flight, we want to discard the reply rather than calling
-    // setState to update our non-existent appearance.
-    if (!mounted) return;
-  }
-
-  void _onClickEnable(bool enabled) {
-    setState(() {});
-    if (enabled) {
-      BackgroundFetch.start().then((int status) {
-        print('[BackgroundFetch] start success: $status');
-      }).catchError((e) {
-        print('[BackgroundFetch] start FAILURE: $e');
-      });
-    } else {
-      BackgroundFetch.stop().then((int status) {
-        print('[BackgroundFetch] stop success: $status');
-      });
-    }
-  }
-
-  void _onClickStatus() async {
-    var status = await BackgroundFetch.status;
-    print('[BackgroundFetch] status: $status');
-    setState(() {});
-  }
-
-  void _scheduleTask() {
-    // Step 2:  Schedule a custom "oneshot" task "com.transistorsoft.datasync" to execute 5000ms from now.
-    BackgroundFetch.scheduleTask(
-      TaskConfig(
-          taskId: 'com.transistorsoft.datasync',
-          delay: 5000, // <-- milliseconds
-          periodic: true,
-          startOnBoot: true,
-          stopOnTerminate: false,
-          enableHeadless: true,
-          requiresDeviceIdle: false,
-          forceAlarmManager: true),
-    );
-
-    BackgroundFetch.scheduleTask(
-      TaskConfig(
-          taskId: 'com.transistorsoft.dataupdate',
-          delay: 10000, // <-- milliseconds
-          periodic: true,
-          startOnBoot: true,
-          stopOnTerminate: false,
-          enableHeadless: true,
-          requiresDeviceIdle: false,
-          forceAlarmManager: true),
-    );
+  void _initData() async {
+    await BackgroundFetchData().syncDataFromDevice();
+    await BackgroundFetchData().initPlatformState();
   }
 
   @override
@@ -257,7 +117,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
 //                  return Navigator.of(context).pushReplacementNamed(
 //                    routes.SetupHomeRoute,
 //                  );
-                  this._syncDataFromDevice();
+                  BackgroundFetchData().syncDataFromDevice();
                 },
               ),
             ),
