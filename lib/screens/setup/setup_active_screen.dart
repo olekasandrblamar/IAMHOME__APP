@@ -19,6 +19,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
   @override
   void initState() {
     _syncDataFromDevice().then((value) {});
+    initPlatformState();
     super.initState();
   }
 
@@ -57,13 +58,16 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
         ), (String taskId) async {
       switch (taskId) {
         case 'com.cerashealth.iamhome.datasync':
-          _syncDataFromDevice();
+          print("Calling data sync");
+          await _syncDataFromDevice();
           break;
         case 'com.cerashealth.iamhome.dataupdate':
-          _loadDataFromDevice();
+          print("Calling data update");
+          await _loadDataFromDevice();
           print("Received custom update task");
           break;
         default:
+          print("Task $taskId");
           print("Default fetch task");
       }
 
@@ -96,6 +100,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
 
     //Schedule the tasks
     _scheduleTask();
+    _onClickEnable(true);
 
     // If the widget was removed from the tree while the asynchronous platform
     // message was in flight, we want to discard the reply rather than calling
@@ -137,7 +142,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
         periodic: true,
         startOnBoot: true,
         stopOnTerminate: false,
-        enableHeadless: true
+        enableHeadless: true,
+        requiresDeviceIdle: false
       ),
     );
 
@@ -148,7 +154,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
         periodic: true,
         startOnBoot: true,
         stopOnTerminate: false,
-        enableHeadless: true
+        enableHeadless: true,
+        requiresDeviceIdle: false
       ),
     );
   }

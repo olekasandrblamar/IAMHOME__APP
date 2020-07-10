@@ -54,6 +54,9 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
 class DataCallBack : SimpleDeviceCallback {
     private val result: MethodChannel.Result?
 
+    @get:Synchronized @set:Synchronized
+    var callCount = 0;
+
     constructor(result: MethodChannel.Result?) {
         this.result = result
     }
@@ -69,11 +72,12 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.CONNECT_TIME_OUT_MSG) {
             Log.d(WatchData.TAG, "onCallbackResult: Timeout")
         } else if (flag == GlobalValue.STEP_FINISH) {
-            Log.d(WatchData.TAG, "onCallbackResult: Step finish")
+            Log.i(WatchData.TAG, "onCallbackResult: Step finish")
         } else if (flag == GlobalValue.OFFLINE_HEART_SYNC_OK) {
-            Log.d(WatchData.TAG, "onCallbackResult: Offline heart sync")
+            Log.i(WatchData.TAG, "onCallbackResult: Offline heart sync")
         } else if (flag == GlobalValue.SLEEP_SYNC_OK) {
-            Log.d(WatchData.TAG, "onCallbackResult: Sleep Sync")
+            decrementAndRemove()
+            Log.i(WatchData.TAG, "onCallbackResult: Sleep Sync")
         } else if (flag == GlobalValue.OFFLINE_EXERCISE_SYNC_OK) {
             Log.d(WatchData.TAG, "onCallbackResult: Exercise Sync")
         } else if (flag == GlobalValue.SYNC_FINISH) {
@@ -101,7 +105,9 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.TEMP_HIGH) { //
         } else if (flag == GlobalValue.SYNC_BODY_FINISH) { //
             Log.i(WatchData.TAG, "Sync Body finish")
+            decrementAndRemove()
         } else if (flag == GlobalValue.SYNC_WRIST_FINISH) { //
+            Log.i(WatchData.TAG,"Wrist sync finished")
         } else if (flag == GlobalValue.READ_ArmpitTemp) { // -273.15代表绝对0度 作为无效值
             val yewen = obj as Float
             if (!java.lang.Float.isNaN(yewen) && yewen > -273) {
@@ -125,6 +131,26 @@ class DataCallBack : SimpleDeviceCallback {
             finish_status: Boolean
     ) {
         Log.d(WatchData.TAG, "onStepChanged: step:$step")
+        if(finish_status)
+            decrementAndRemove()
+    }
+
+    private fun decrementAndRemove(){
+        Log.i(WatchData.TAG,"got count $callCount")
+        if(callCount>0)
+            callCount--;
+        //If all the synchronizations are complete remove the sdk call back for sync
+        if(callCount==0){
+            Log.i(WatchData.TAG,"Removing call back")
+            HardSdk.getInstance().removeHardSdkCallback(this)
+            //once all the tasks are completed then load the data
+            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
+
+            val sleepModel = HardSdk.getInstance().queryOneDaySleepInfo(beforeTime)
+            val stepInfos = HardSdk.getInstance().queryOneDayStep(beforeTime)
+            Log.i(WatchData.TAG,"Got sleep info ${Gson().toJson(sleepModel)}")
+            Log.i(WatchData.TAG,"Got step info ${Gson().toJson(stepInfos)}")
+        }
     }
 
     override fun onHeartRateChanged(rate: Int, status: Int) {
@@ -134,6 +160,7 @@ class DataCallBack : SimpleDeviceCallback {
             WatchData.isTestingHeart = true
             if (status == GlobalValue.RATE_TEST_FINISH) {
                 WatchData.isTestingHeart = false
+                Log.i(WatchData.TAG,"Heart rate finished")
             }
         }
 //            else if (isTestingOxygen == true) {
@@ -200,27 +227,28 @@ class WatchData {
 
     //Load the data
     fun loadData(result: MethodChannel.Result) {
-        HardSdk.getInstance().setHardSdkCallback(DataCallBack(result))
-        val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
-
-        val sleepModel = HardSdk.getInstance().queryOneDaySleepInfo(beforeTime)
-        val stepInfos = HardSdk.getInstance().queryOneDayStep(beforeTime)
-        Log.i(WatchData.TAG,"Got sleep info ${Gson().toJson(sleepModel)}")
-        Log.i(WatchData.TAG,"Got step info ${Gson().toJson(stepInfos)}")
         result.success("Got data")
     }
 
     //Sync the data from watch
     //This needs to be called in background from time to time
     fun syncData(result: MethodChannel.Result){
+        Log.i(WatchData.TAG,"Calling sync data")
+        val dataCallback = DataCallBack(null)
         //Load the data from device
-        HardSdk.getInstance().setHardSdkCallback(DataCallBack(null))
+        HardSdk.getInstance().setHardSdkCallback(dataCallback)
+        dataCallback.callCount++
         HardSdk.getInstance().syncLatestBodyTemperature(0)
+        dataCallback.callCount++
         HardSdk.getInstance().syncLatestWristTemperature(0)
+        dataCallback.callCount++
         HardSdk.getInstance().syncHeartRateData(0)
+        dataCallback.callCount++
         HardSdk.getInstance().syncStepData(0)
+        dataCallback.callCount++
         HardSdk.getInstance().syncSleepData(0)
         MainActivity.lastConnected = Calendar.getInstance()
+        Log.i(WatchData.TAG,"Data sync complete")
         result.success("Load complete")
     }
 

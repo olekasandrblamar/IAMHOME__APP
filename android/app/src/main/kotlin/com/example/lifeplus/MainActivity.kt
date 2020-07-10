@@ -67,7 +67,7 @@ class MainActivity: FlutterActivity() {
                 watchData?.let {
                     it.connectDevice(this,result)
                 }
-            } else if(call.method =="getData"){
+            } else if(call.method =="loadData"){
                 WatchData().loadData(result)
             } else if(call.method =="syncData"){
                 WatchData().syncData(result)
