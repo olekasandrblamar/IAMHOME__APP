@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifeplus/helpers/errordialog_popup.dart';
+import 'package:lifeplus/providers/auth_provider.dart';
 import 'package:lifeplus/screens/setup/setup_active_screen.dart';
 import 'package:lifeplus/theme.dart';
 
 import 'package:lifeplus/constants/route_paths.dart' as routes;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 
 class SetupConnectScreen extends StatefulWidget {
   @override
@@ -50,19 +52,21 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   }
 
   Future<void> _connectDevice() async {
-
     try {
       final String result = await platform.invokeMethod('connectDevice');
-      print("Got response "+result);
-    } on PlatformException catch (e) {
-    }
-    setState(() {
-      _isLoading = false;
-    });
+      print("Got response " + result);
 
-    //TODO - Add code to check the result and add actions based on that
+      //TODO - Add code to check the result and add actions based on that
 
-    _redirectTo();
+      await Provider.of<AuthProvider>(context, listen: false)
+          .saveWatchId(result);
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      _redirectTo();
+    } on PlatformException catch (e) {}
   }
 
   void _redirectTo() {

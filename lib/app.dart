@@ -2,7 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lifeplus/providers/auth_provider.dart';
 import 'package:lifeplus/screens/intro_screen.dart';
+import 'package:lifeplus/screens/setup/setup_active_screen.dart';
+import 'package:lifeplus/screens/splash_screen.dart';
+import 'package:provider/provider.dart';
 
 import 'config/navigation_service.dart';
 import 'constants/route_paths.dart' as routes;
@@ -39,41 +43,52 @@ class _MyAppState extends State<MyApp> {
       ),
     );
 
-    return MaterialApp(
-      title: 'lifeplus',
-      debugShowCheckedModeBanner: false,
-      // theme: ThemeData(
-      //   primarySwatch: Colors.blue,
-      //   textTheme: AppTheme.textTheme,
-      //   // pageTransitionsTheme: PageTransitionsTheme(
-      //   //   builders: {
-      //   //     TargetPlatform.android: CustomPageTransitionBuilder(),
-      //   //     TargetPlatform.iOS: CustomPageTransitionBuilder(),
-      //   //   },
-      //   // ),
-      // ),
-      // darkTheme: ThemeData.dark(),
-      theme: myTheme,
-      initialRoute: routes.RootRoute,
-      home: IntroScreen(),
-      navigatorKey: NavigationService.navigatorKey,
-      onGenerateRoute: (settings) => router.generateRoute(
-        settings,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(
+          value: AuthProvider(),
+        ),
+      ],
+      child: Consumer<AuthProvider>(
+        builder: (ctx, auth, _) {
+          return MaterialApp(
+            title: 'lifeplus',
+            debugShowCheckedModeBanner: false,
+            // theme: ThemeData(
+            //   primarySwatch: Colors.blue,
+            //   textTheme: AppTheme.textTheme,
+            //   // pageTransitionsTheme: PageTransitionsTheme(
+            //   //   builders: {
+            //   //     TargetPlatform.android: CustomPageTransitionBuilder(),
+            //   //     TargetPlatform.iOS: CustomPageTransitionBuilder(),
+            //   //   },
+            //   // ),
+            // ),
+            // darkTheme: ThemeData.dark(),
+            theme: myTheme,
+            initialRoute: routes.RootRoute,
+            home: _buildHomeWidget(auth),
+            navigatorKey: NavigationService.navigatorKey,
+            onGenerateRoute: (settings) => router.generateRoute(
+              settings,
+            ),
+          );
+        },
       ),
     );
   }
 
-  // Widget _buildHomeWidget(AuthProvider auth) {
-  // if (auth.isAuth) {
-  //   return SwitchStoreScreen();
-  // } else {
-  //   return FutureBuilder(
-  //     future: auth.tryAutoLogin(),
-  //     builder: (ctx, authResultSnapshot) =>
-  //         authResultSnapshot.connectionState == ConnectionState.waiting
-  //             ? SplashScreen()
-  //             : LoginScreen(),
-  //   );
-  // }
-  // }
+  Widget _buildHomeWidget(AuthProvider auth) {
+    if (auth.isAuth) {
+      return SetupActiveScreen();
+    } else {
+      return FutureBuilder(
+        future: auth.tryAutoLogin(),
+        builder: (ctx, authResultSnapshot) =>
+            authResultSnapshot.connectionState == ConnectionState.waiting
+                ? SplashScreen()
+                : IntroScreen(),
+      );
+    }
+  }
 }

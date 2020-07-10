@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 // import 'package:lifeplus/screens/auth/login_screen.dart';
 
 import 'package:lifeplus/constants/route_paths.dart' as routes;
+import 'package:lifeplus/screens/intro_screen.dart';
 
 class NavigationService {
   static GlobalKey<NavigatorState> navigatorKey =
@@ -18,21 +19,12 @@ class NavigationService {
   }
 
   static goBackHome() {
-    // return navigatorKey.currentState.pushAndRemoveUntil(
-    //     MaterialPageRoute(
-    //       builder: (BuildContext context) => LoginScreen(),
-    //       settings: const RouteSettings(name: routes.LoginRoute),
-    //     ),
-    //     (Route<dynamic> route) => false);
-  }
-
-  static goToSwitchStore() {
-    // return navigatorKey.currentState.pushAndRemoveUntil(
-    //     MaterialPageRoute(
-    //       builder: (BuildContext context) => SwitchStoreScreen(),
-    //       settings: const RouteSettings(name: routes.SwitchStoreRoute),
-    //     ),
-    //     (Route<dynamic> route) => false);
+    return navigatorKey.currentState.pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (BuildContext context) => IntroScreen(),
+          settings: const RouteSettings(name: routes.IntroRoute),
+        ),
+        (Route<dynamic> route) => false);
   }
 }
 

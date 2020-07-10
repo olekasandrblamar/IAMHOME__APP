@@ -48,11 +48,11 @@ class AppInterceptors extends Interceptor {
         NavigationService.goBackHome();
       }
 
-      if (dioError?.response?.data['message']
-          .contains("Access denied. No Location token Provided")) {
-        prefs.remove('locationData');
-        NavigationService.goToSwitchStore();
-      }
+      // if (dioError?.response?.data['message']
+      //     .contains("Access denied. No Location token Provided")) {
+      //   prefs.remove('locationData');
+      //   NavigationService.goToSwitchStore();
+      // }
 
       return dioError?.response?.data['message'] ?? dioError;
     }
