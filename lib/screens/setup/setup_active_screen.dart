@@ -27,6 +27,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
   Future _syncDataFromDevice() async {
     try {
       final prefs = await SharedPreferences.getInstance();
+      print("Last updated ${prefs.getString("last_updated")}");
       //Send the connection info we got from connect device
       final connectionInfo = prefs.getString('watchInfo');
 

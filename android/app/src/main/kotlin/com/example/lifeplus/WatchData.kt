@@ -3,6 +3,7 @@ package com.example.lifeplus
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.Context
+import android.content.SharedPreferences
 import android.text.TextUtils
 import android.util.Log
 import com.google.gson.Gson
@@ -71,16 +72,21 @@ class DataCallBack : SimpleDeviceCallback {
             Log.d(WatchData.TAG, "onCallbackResult: Timeout")
         } else if (flag == GlobalValue.STEP_FINISH) {
             Log.i(WatchData.TAG, "onCallbackResult: Step finish")
+            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
+            val stepInfos = HardSdk.getInstance().queryOneDayStep(beforeTime)
+            Log.i(WatchData.TAG,"Got step info ${Gson().toJson(stepInfos)}")
         } else if (flag == GlobalValue.OFFLINE_HEART_SYNC_OK) {
             Log.i(WatchData.TAG, "onCallbackResult: Offline heart sync")
         } else if (flag == GlobalValue.SLEEP_SYNC_OK) {
-            decrementAndRemove()
             Log.i(WatchData.TAG, "onCallbackResult: Sleep Sync")
+            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
+            val sleepModel = HardSdk.getInstance().queryOneDaySleepInfo(beforeTime)
+            Log.i(WatchData.TAG,"Got sleep info ${Gson().toJson(sleepModel)}")
         } else if (flag == GlobalValue.OFFLINE_EXERCISE_SYNC_OK) {
-            decrementAndRemove()
             Log.d(WatchData.TAG, "onCallbackResult: Exercise Sync")
         } else if (flag == GlobalValue.SYNC_FINISH) {
             Log.d(WatchData.TAG, "onCallbackResult: Sync complete")
+
         } else if (flag == GlobalValue.Firmware_Version) {
             Log.d(WatchData.TAG, "version ${obj as String}")
         } else if (flag == GlobalValue.Hardware_Version) {
@@ -102,9 +108,10 @@ class DataCallBack : SimpleDeviceCallback {
             if (tempStatus.downTime == 0) {
             }
         } else if (flag == GlobalValue.TEMP_HIGH) { //
-        } else if (flag == GlobalValue.SYNC_BODY_FINISH) { //
+        } else if (flag == GlobalValue.SYNC_BODY_FINISH) { //Body temperature complete
             Log.i(WatchData.TAG, "Sync Body finish")
-            decrementAndRemove()
+            val tempData = HardSdk.getInstance().getBodyTemperature(TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 1),TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0))
+            Log.d(WatchData.TAG,"Temparatire data ${Gson().toJson(tempData)}")
         } else if (flag == GlobalValue.SYNC_WRIST_FINISH) { //
             Log.i(WatchData.TAG,"Wrist sync finished")
         } else if (flag == GlobalValue.READ_ArmpitTemp) { // -273.15代表绝对0度 作为无效值
@@ -130,8 +137,6 @@ class DataCallBack : SimpleDeviceCallback {
             finish_status: Boolean
     ) {
         Log.d(WatchData.TAG, "onStepChanged: step:$step")
-        if(finish_status)
-            decrementAndRemove()
     }
 
     private fun decrementAndRemove(){
@@ -141,14 +146,8 @@ class DataCallBack : SimpleDeviceCallback {
         //If all the synchronizations are complete remove the sdk call back for sync
         if(callCount==0){
             Log.i(WatchData.TAG,"Removing call back")
-            HardSdk.getInstance().removeHardSdkCallback(this)
             //once all the tasks are completed then load the data
-            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
 
-            val sleepModel = HardSdk.getInstance().queryOneDaySleepInfo(beforeTime)
-            val stepInfos = HardSdk.getInstance().queryOneDayStep(beforeTime)
-            Log.i(WatchData.TAG,"Got sleep info ${Gson().toJson(sleepModel)}")
-            Log.i(WatchData.TAG,"Got step info ${Gson().toJson(stepInfos)}")
 
 
         }
@@ -214,6 +213,7 @@ class WatchData {
     companion object {
         var isTestingHeart = false;
         val TAG = WatchData::class.java.simpleName
+        var dataCallback: DataCallBack? = null
     }
 
     fun connectDevice(context: Context, result: MethodChannel.Result) {
@@ -235,33 +235,34 @@ class WatchData {
     //This needs to be called in background from time to time
     fun syncData(result: MethodChannel.Result,connectionInfo: ConnectionInfo,context: Context){
         Log.i(WatchData.TAG,"Calling sync data")
-        val dataCallback = DataCallBack(null)
 
         Log.i(TAG,"Is device connected ${HardSdk.getInstance().isDevConnected}")
         //If the device is not connected  try to connect
-        if(!HardSdk.getInstance().isDevConnected){
+        if(!HardSdk.getInstance().isDevConnected &&
+                !HardSdk.getInstance().isConnecting){
             HardSdk.getInstance().init(context)
             HardSdk.getInstance().bindBracelet(
                     connectionInfo.additionalInformation["factoryName"],
                     connectionInfo.deviceName,
                     connectionInfo.deviceId
             )
-        }else {
-            //Load the data from device
-            HardSdk.getInstance().setHardSdkCallback(dataCallback)
-            dataCallback.callCount++
-            HardSdk.getInstance().syncLatestBodyTemperature(0)
-            dataCallback.callCount++
-            HardSdk.getInstance().syncLatestWristTemperature(0)
-            dataCallback.callCount++
-            HardSdk.getInstance().syncHeartRateData(0)
-            dataCallback.callCount++
-            HardSdk.getInstance().syncExerciseData(0)
-            dataCallback.callCount++
-            HardSdk.getInstance().syncStepData(0)
-            dataCallback.callCount++
-            HardSdk.getInstance().syncSleepData(0)
+        }else if(!HardSdk.getInstance().isSyncing && HardSdk.getInstance().isDevConnected){ //If the data is not syncing
+            if(dataCallback==null) {
+                dataCallback = DataCallBack(result)
+                //Load the data from device
+                HardSdk.getInstance().setHardSdkCallback(dataCallback)
+            }
+            dataCallback?.let {
+                HardSdk.getInstance().syncLatestBodyTemperature(0)
+                HardSdk.getInstance().syncLatestWristTemperature(0)
+                HardSdk.getInstance().syncHeartRateData(0)
+                HardSdk.getInstance().syncExerciseData(0)
+                HardSdk.getInstance().syncStepData(0)
+                HardSdk.getInstance().syncSleepData(0)
+            }
+
             MainActivity.lastConnected = Calendar.getInstance()
+            context.getSharedPreferences("last_sync",Context.MODE_PRIVATE).edit().putString("last_update",MainActivity.lastConnected.toString())
             Log.i(WatchData.TAG, "Data sync complete")
             result.success("Load complete")
         }
