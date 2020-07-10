@@ -25,10 +25,10 @@ class FileUploader {
 
   _uploadFile(dynamic imageLink) async {
     try {
-      String fileName = imageLink.path.split('/').last;
+      final fileName = imageLink.path.split('/').last as String;
       var formData = FormData.fromMap({
         "file": await MultipartFile.fromFile(
-          imageLink.path,
+          imageLink.path as String,
           filename: fileName,
         ),
       });
@@ -49,7 +49,7 @@ class FileUploader {
       );
 
       final responseData = response.data;
-      String fileId = responseData['id'];
+      String fileId = responseData['id'] as String;
 
       _controller.add({
         'progress': 100.0,

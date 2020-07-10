@@ -38,12 +38,13 @@ class AppInterceptors extends Interceptor {
       if (dioError?.response?.data is String) {
         print(dioError?.response?.data);
 
-        return HttpException(dioError.response.data);
+        return HttpException(dioError.response.data as String);
       }
 
       final SharedPreferences prefs = await SharedPreferences.getInstance();
       if (dioError?.response?.data['message']
-          .contains("Access denied. No token provided.")) {
+              .contains("Access denied. No token provided.") !=
+          null) {
         prefs.remove('userData');
         NavigationService.goBackHome();
       }

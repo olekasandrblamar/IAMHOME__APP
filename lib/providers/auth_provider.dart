@@ -22,7 +22,8 @@ class AuthProvider with ChangeNotifier {
 
   Future<WatchData> get watchData async {
     final prefs = await SharedPreferences.getInstance();
-    final WatchData checkWatchInfo = WatchData.fromJson(json.decode(prefs.getString('watchInfo')));
+    final WatchData checkWatchInfo = WatchData.fromJson(
+        json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>);
 
     return checkWatchInfo;
   }
@@ -44,8 +45,8 @@ class AuthProvider with ChangeNotifier {
       return false;
     }
 
-
-    final WatchData checkwatchInfo = WatchData.fromJson(json.decode(prefs.getString('watchInfo')));
+    final WatchData checkwatchInfo = WatchData.fromJson(
+        json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>);
 
     if (checkwatchInfo == null) {
       logout();

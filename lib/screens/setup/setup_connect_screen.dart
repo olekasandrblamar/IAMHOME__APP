@@ -2,14 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lifeplus/constants/route_paths.dart' as routes;
 import 'package:lifeplus/helpers/errordialog_popup.dart';
 import 'package:lifeplus/models/watchdata_model.dart';
 import 'package:lifeplus/providers/auth_provider.dart';
 import 'package:lifeplus/screens/setup/setup_active_screen.dart';
 import 'package:lifeplus/theme.dart';
-
-import 'package:lifeplus/constants/route_paths.dart' as routes;
-import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 
 class SetupConnectScreen extends StatefulWidget {
@@ -23,7 +21,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   var _isLoading = false;
   var _deviceIdNumber = '';
 
-  static const platform = const MethodChannel('ceras.iamhome.mobile/device');
+  static const platform = MethodChannel('ceras.iamhome.mobile/device');
 
   @override
   void dispose() {
@@ -48,7 +46,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         _isLoading = true;
       });
 
-      this._connectDevice();
+      await _connectDevice();
     } catch (error) {
       showErrorDialog(context, error.toString());
     }
@@ -56,13 +54,16 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
   Future<void> _connectDevice() async {
     try {
-      final String connectionInfo = await platform.invokeMethod('connectDevice');
-      print("Got response " + connectionInfo);
-      
-      final WatchData connectionData = WatchData.fromJson(jsonDecode(connectionInfo));
-      
-      //TODO - Add code to check the result and add actions based on that
+      final connectionInfo =
+          await platform.invokeMethod('connectDevice') as String;
 
+      print('Got response ' + connectionInfo);
+
+      final connectionData = WatchData.fromJson(
+        json.decode(connectionInfo) as Map<String, dynamic>,
+      );
+
+      //TODO - Add code to check the result and add actions based on that
       await Provider.of<AuthProvider>(context, listen: false)
           .saveWatchInfo(connectionData);
 

@@ -7,7 +7,7 @@ Map<String, dynamic> parseJwt(String token) {
   }
 
   final payload = _decodeBase64(parts[1]);
-  final payloadMap = json.decode(payload);
+  final payloadMap = json.decode(payload) as Map<String, dynamic>;
   if (payloadMap is! Map<String, dynamic>) {
     throw Exception('invalid payload');
   }

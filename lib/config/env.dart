@@ -22,7 +22,6 @@ class BuildEnvironment {
     @required flavor,
     @required baseUrl,
     @required baseUrl2,
-    @required stripeOptions,
   }) =>
       _env ??= BuildEnvironment._init(
         flavor: flavor,
