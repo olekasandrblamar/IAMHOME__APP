@@ -3,9 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifeplus/theme.dart';
 
-import 'package:lifeplus/constants/route_paths.dart' as routes;
-import 'package:permission_handler/permission_handler.dart';
-
 class SetupActiveScreen extends StatefulWidget {
   @override
   _SetupActiveScreenState createState() => _SetupActiveScreenState();
@@ -29,8 +26,12 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
    * Sync the data from the device
    */
   Future _syncDataFromDevice() async {
-    final String result = await platform.invokeMethod('syncData');
-    print("Got Sync Data "+result);
+    try {
+      final String result = await platform.invokeMethod('syncData');
+      print("Got Sync Data " + result);
+    } catch (ex) {
+      print(ex);
+    }
   }
 
   /**
@@ -38,7 +39,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
    */
   Future _loadDataFromDevice() async {
     final String result = await platform.invokeMethod('loadData');
-    print("Got load Data "+result);
+    print("Got load Data " + result);
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -52,16 +53,17 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
           requiresBatteryNotLow: false,
           requiresCharging: false,
           requiresStorageNotLow: false,
-          forceAlarmManager: true,// We are forcing alarm manager to make sure the task is prioritized in android
+          forceAlarmManager:
+              true, // We are forcing alarm manager to make sure the task is prioritized in android
           requiresDeviceIdle: false,
           requiredNetworkType: NetworkType.NONE,
         ), (String taskId) async {
       switch (taskId) {
-        case 'com.cerashealth.iamhome.datasync':
+        case 'com.transistorsoft.datasync':
           print("Calling data sync");
           await _syncDataFromDevice();
           break;
-        case 'com.cerashealth.iamhome.dataupdate':
+        case 'com.transistorsoft.dataupdate':
           print("Calling data update");
           await _loadDataFromDevice();
           print("Received custom update task");
@@ -137,7 +139,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
     // Step 2:  Schedule a custom "oneshot" task "com.transistorsoft.datasync" to execute 5000ms from now.
     BackgroundFetch.scheduleTask(
       TaskConfig(
-        taskId: "com.cerashealth.iamhome.datasync",
+        taskId: "com.transistorsoft.datasync",
         delay: 5000, // <-- milliseconds
         periodic: true,
         startOnBoot: true,
@@ -149,7 +151,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
 
     BackgroundFetch.scheduleTask(
       TaskConfig(
-        taskId: "com.cerashealth.iamhome.dataupdate",
+        taskId: "com.transistorsoft.dataupdate",
         delay: 10000, // <-- milliseconds
         periodic: true,
         startOnBoot: true,

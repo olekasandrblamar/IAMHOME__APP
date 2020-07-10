@@ -5,8 +5,8 @@
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
 		<string>com.transistorsoft.fetch</string>
-		<string>com.cerashealth.iamhome.datasync</string>
-		<string>com.cerashealth.iamhome.dataupdate</string>
+		<string>com.transistorsoft.datasync</string>
+		<string>com.transistorsoft.dataupdate</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
