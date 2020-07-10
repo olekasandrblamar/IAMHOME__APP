@@ -7,6 +7,7 @@ import android.content.SharedPreferences
 import android.text.TextUtils
 import android.util.Log
 import com.google.gson.Gson
+import com.walnutin.HeartRateAdditional
 import com.walnutin.hardsdk.ProductList.sdk.GlobalValue
 import com.walnutin.hardsdk.ProductList.sdk.HardSdk
 import com.walnutin.hardsdk.ProductList.sdk.TimeUtil
@@ -14,6 +15,7 @@ import com.walnutin.hardsdk.ProductNeed.Jinterface.IHardScanCallback
 import com.walnutin.hardsdk.ProductNeed.Jinterface.SimpleDeviceCallback
 import com.walnutin.hardsdk.ProductNeed.entity.*
 import io.flutter.plugin.common.MethodChannel
+import java.text.ParseException
 import java.util.*
 
 class ConnectDeviceCallBack : SimpleDeviceCallback {
@@ -77,6 +79,10 @@ class DataCallBack : SimpleDeviceCallback {
             Log.i(WatchData.TAG,"Got step info ${Gson().toJson(stepInfos)}")
         } else if (flag == GlobalValue.OFFLINE_HEART_SYNC_OK) {
             Log.i(WatchData.TAG, "onCallbackResult: Offline heart sync")
+            sendBloodPressureInfo()
+            sendHeartRateInfo()
+            sendOxygenInfo()
+            //heart rate sync is complete
         } else if (flag == GlobalValue.SLEEP_SYNC_OK) {
             Log.i(WatchData.TAG, "onCallbackResult: Sleep Sync")
             val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
@@ -110,10 +116,22 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.TEMP_HIGH) { //
         } else if (flag == GlobalValue.SYNC_BODY_FINISH) { //Body temperature complete
             Log.i(WatchData.TAG, "Sync Body finish")
-            val tempData = HardSdk.getInstance().getBodyTemperature(TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 1),TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0))
-            Log.d(WatchData.TAG,"Temparatire data ${Gson().toJson(tempData)}")
+            val prevDay = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 2)
+            val today = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), -2)
+            Log.d(WatchData.TAG,"Getting temp $prevDay to $today")
+            val tempData = HardSdk.getInstance().getBodyTemperature(prevDay,today)
+            tempData.forEach {
+                Log.d(WatchData.TAG,"Temperature data ${Gson().toJson(it)}")
+            }
+
         } else if (flag == GlobalValue.SYNC_WRIST_FINISH) { //
             Log.i(WatchData.TAG,"Wrist sync finished")
+            Log.i(WatchData.TAG, "Sync Body finish")
+            val prevDay = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 1)
+            val today = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0)
+            Log.d(WatchData.TAG,"Getting wrist temp $prevDay to $today")
+            val tempData = HardSdk.getInstance().getWristTemperature(prevDay,today)
+            Log.d(WatchData.TAG,"Wrist Temperature data ${Gson().toJson(tempData)}")
         } else if (flag == GlobalValue.READ_ArmpitTemp) { // -273.15代表绝对0度 作为无效值
             val yewen = obj as Float
             if (!java.lang.Float.isNaN(yewen) && yewen > -273) {
@@ -127,6 +145,60 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.PIC_TRANSF_FINISH) {
         } else if (flag == GlobalValue.PIC_TRANSF_START) {
         } else if (flag == GlobalValue.PIC_TRANSF_ING) {
+        }
+    }
+
+    fun sendOxygenInfo(){
+        val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
+        HardSdk.getInstance().queryOneDayBP(beforeTime).forEach {
+            try {
+                val heartRateAdditional = HeartRateAdditional(
+                        TimeUtil.detaiTimeToStamp(it.testMomentTime) / 1000,
+                        it.currentRate,
+                        170,
+                        160,
+                        0,
+                        30
+                )
+                val bloodOxygen = BloodOxygen();
+                bloodOxygen.testMomentTime = it.testMomentTime;
+                bloodOxygen.oxygen = (heartRateAdditional.get_blood_oxygen());
+                Log.i(WatchData.TAG, "GOT O2 ${Gson().toJson(bloodOxygen)}")
+            } catch (e: ParseException) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun sendHeartRateInfo(){
+        val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), -1);
+        val heartRate = HardSdk.getInstance().queryOneDayHeartRate(beforeTime)
+        Log.i(WatchData.TAG,"got HR "+Gson().toJson(heartRate))
+        heartRate.forEach{
+            Log.i(WatchData.TAG,"GOT HR ${Gson().toJson(it)}")
+        }
+    }
+
+    fun sendBloodPressureInfo(){
+        val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
+        HardSdk.getInstance().queryOneDayBP(beforeTime).forEach {
+            try {
+                val heartRateAdditional = HeartRateAdditional(
+                        TimeUtil.detaiTimeToStamp(it.testMomentTime) / 1000,
+                        it.currentRate,
+                        170,
+                        160,
+                        0,
+                        30
+                )
+                val bloodPressure = BloodPressure()
+                bloodPressure.testMomentTime = it.testMomentTime
+                bloodPressure.setSystolicPressure(heartRateAdditional.get_systolic_blood_pressure())
+                bloodPressure.setDiastolicPressure(heartRateAdditional.get_diastolic_blood_pressure())
+                Log.i(WatchData.TAG,"GOT BP ${Gson().toJson(bloodPressure)}")
+            } catch (e: ParseException) {
+                e.printStackTrace()
+            }
         }
     }
 

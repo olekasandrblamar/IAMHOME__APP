@@ -2,7 +2,11 @@ import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-const platform = MethodChannel('ceras.iamhome.mobile/device');
+class BackgroundFetchData{
+  static const platform = MethodChannel('ceras.iamhome.mobile/device');
+}
+
+
 
 /// This "Headless Task" is run when app is terminated.
 void backgroundFetchHeadlessTask(String taskId) async {
@@ -75,9 +79,7 @@ Future<void> initPlatformState(mounted) async {
             true, // We are forcing alarm manager to make sure the task is prioritized in android
         requiresDeviceIdle: false,
         requiredNetworkType: NetworkType.NONE,
-      ), (String taskId) async {
-    backgroundFetchHeadlessTask(taskId);
-  }).then((int status) {
+      ), backgroundFetchHeadlessTask).then((int status) {
     print('[BackgroundFetch] configure success: $status');
   }).catchError((e) {
     print('[BackgroundFetch] configure ERROR: $e');
@@ -98,7 +100,7 @@ Future<void> initPlatformState(mounted) async {
 
 /// Load the data from the device
 Future loadDataFromDevice() async {
-  final result = await platform.invokeMethod('loadData') as String;
+  final result = await BackgroundFetchData.platform.invokeMethod('loadData') as String;
 
   print('Got load Data ' + result);
 }
@@ -130,15 +132,16 @@ Future<void> syncDataFromDevice() async {
     final prefs = await SharedPreferences.getInstance();
     //Send the connection info we got from connect device
     final connectionInfo = prefs.getString('watchInfo');
+    if(connectionInfo!=null) {
+      print('Sending connection info ${connectionInfo}');
 
-    print('Sending connection info ${connectionInfo}');
+      final result = await BackgroundFetchData.platform.invokeMethod(
+        'syncData',
+        <String, dynamic>{'connectionInfo': connectionInfo},
+      ) as String;
 
-    final result = await platform.invokeMethod(
-      'syncData',
-      <String, dynamic>{'connectionInfo': connectionInfo},
-    ) as String;
-
-    print('Got Sync Data ' + result);
+      print('Got Sync Data ' + result);
+    }
   } catch (ex) {
     print(ex);
   }

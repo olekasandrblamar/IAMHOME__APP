@@ -17,7 +17,6 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
 
   void _initData() async {
     await syncDataFromDevice();
-    await initPlatformState(mounted);
   }
 
   @override

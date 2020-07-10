@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:lifeplus/config/background_fetch.dart';
 import 'package:lifeplus/providers/auth_provider.dart';
 import 'package:lifeplus/screens/intro_screen.dart';
 import 'package:lifeplus/screens/setup/setup_active_screen.dart';
@@ -24,9 +25,13 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     // NotificationOneSignal().initialiseOneSignal();
     // DynamicLinksSetup().initDynamicLinks();
-
+    initalizeBackgroundFetch();
     // TODO: implement initState
     super.initState();
+  }
+
+  initalizeBackgroundFetch() async{
+    await initPlatformState(false);
   }
 
   @override
