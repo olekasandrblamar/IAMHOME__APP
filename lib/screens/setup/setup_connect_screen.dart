@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:lifeplus/helpers/errordialog_popup.dart';
+import 'package:lifeplus/models/watchdata_model.dart';
 import 'package:lifeplus/providers/auth_provider.dart';
 import 'package:lifeplus/screens/setup/setup_active_screen.dart';
 import 'package:lifeplus/theme.dart';
@@ -53,13 +54,13 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
   Future<void> _connectDevice() async {
     try {
-      final String result = await platform.invokeMethod('connectDevice');
-      print("Got response " + result);
+      final WatchData result = await platform.invokeMethod('connectDevice');
+      print("Got response " + result.toString());
 
       //TODO - Add code to check the result and add actions based on that
 
       await Provider.of<AuthProvider>(context, listen: false)
-          .saveWatchId(result);
+          .saveWatchInfo(result);
 
       setState(() {
         _isLoading = false;

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:lifeplus/constants/route_paths.dart' as routes;
-import 'package:lifeplus/models/intro.dart';
+import 'package:lifeplus/models/intro_model.dart';
 import 'package:lifeplus/theme.dart';
 
 class IntroScreen extends StatefulWidget {

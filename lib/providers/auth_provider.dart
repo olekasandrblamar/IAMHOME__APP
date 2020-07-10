@@ -4,26 +4,34 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:lifeplus/config/http.dart';
 import 'package:lifeplus/config/navigation_service.dart';
+import 'package:lifeplus/models/watchdata_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {
   final http = HttpClient().http;
 
-  String _watchId;
+  WatchData _watchInfo;
 
   bool get isAuth {
-    return _watchId != null;
+    return _watchInfo != null;
   }
 
-  String get watchId {
-    return _watchId;
+  WatchData get watchInfo {
+    return _watchInfo;
   }
 
-  Future<bool> saveWatchId(watchInfo) async {
+  Future<WatchData> get watchData async {
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString('watchId', watchInfo);
+    final WatchData checkWatchInfo = json.decode(prefs.getString('watchInfo'));
 
-    _watchId = watchInfo;
+    return checkWatchInfo;
+  }
+
+  Future<bool> saveWatchInfo(WatchData watchInfo) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('watchInfo', json.encode(watchInfo));
+
+    _watchInfo = watchInfo;
 
     notifyListeners();
     return true;
@@ -32,29 +40,29 @@ class AuthProvider with ChangeNotifier {
   Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
 
-    if (!prefs.containsKey('watchId')) {
+    if (!prefs.containsKey('watchInfo')) {
       return false;
     }
 
-    final String checkWatchId = prefs.getString('watchId');
+    final WatchData checkwatchInfo = json.decode(prefs.getString('watchInfo'));
 
-    if (checkWatchId.isEmpty) {
+    if (checkwatchInfo == null) {
       logout();
       return false;
     }
 
-    _watchId = checkWatchId;
+    _watchInfo = checkwatchInfo;
 
     notifyListeners();
     return true;
   }
 
   Future<void> logout() async {
-    _watchId = null;
+    _watchInfo = null;
 
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
-    prefs.remove('watchId');
+    prefs.remove('watchInfo');
     NavigationService.goBackHome();
     // prefs.clear();
   }
