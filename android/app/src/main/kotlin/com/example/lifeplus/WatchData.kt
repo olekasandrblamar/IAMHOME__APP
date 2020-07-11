@@ -16,6 +16,7 @@ import com.walnutin.hardsdk.ProductNeed.Jinterface.SimpleDeviceCallback
 import com.walnutin.hardsdk.ProductNeed.entity.*
 import io.flutter.plugin.common.MethodChannel
 import java.text.ParseException
+import java.text.SimpleDateFormat
 import java.util.*
 
 class ConnectDeviceCallBack : SimpleDeviceCallback {
@@ -62,6 +63,53 @@ class DataCallBack : SimpleDeviceCallback {
         this.result = result
     }
 
+    private fun uploadTemperature(){
+        val prevDay = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 2)
+        val today = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), -2)
+        Log.d(WatchData.TAG,"Getting temp $prevDay to $today")
+        val tempData = HardSdk.getInstance().getBodyTemperature(prevDay,today)
+        val tempTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val tempUploads = tempData.map {
+            val celsius = it.temps
+            val fahrenheit = (celsius*9/5)+32
+            TemperatureUpload(measureTime = tempTimeFormat.parse(it.testMomentTime),deviceId = MainActivity.deviceId,celsius = celsius.toDouble(),fahrenheit = fahrenheit.toDouble())
+        }
+        DataSync.uploadTemperature(tempUploads)
+    }
+
+    private fun uploadSteps(){
+        val stepList = mutableListOf<StepUpload>()
+        val dailySteps = mutableListOf<DailyStepUpload>()
+        val calories = mutableListOf<CaloriesUpload>()
+        val dateFormat = SimpleDateFormat("yyyy-MM-dd")
+        //Last three days data
+        (0..2).forEach {
+            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), it);
+            val stepInfos = HardSdk.getInstance().queryOneDayStep(beforeTime)
+            Log.i(WatchData.TAG,"step info ${Gson().toJson(stepInfos)}")
+            if(stepInfos.dates!=null) {
+                val startOfDate = dateFormat.parse(stepInfos.dates)
+                dailySteps.add(DailyStepUpload(measureTime = startOfDate,deviceId = MainActivity.deviceId,steps = stepInfos.step))
+                calories.add(CaloriesUpload(measureTime = startOfDate,deviceId = MainActivity.deviceId,calories = stepInfos.calories))
+                stepList.addAll(stepInfos.stepOneHourInfo.map {
+                    val measureTime = Calendar.getInstance()
+                    measureTime.time = startOfDate
+                    measureTime.add(Calendar.MINUTE, it.key)
+                    StepUpload(measureTime = measureTime.time, deviceId = MainActivity.deviceId, steps = it.value)
+                })
+            }
+        }
+        if(stepList.isNotEmpty()) {
+            //Upload the steps
+            DataSync.uploadStepInfo(stepList)
+        }
+        if(calories.isNotEmpty())
+            DataSync.uploadCalories(calories)
+        if(dailySteps.isNotEmpty())
+            DataSync.uploadDailySteps(dailySteps)
+
+    }
+
     override fun onCallbackResult(flag: Int, state: Boolean, obj: Any?) {
         super.onCallbackResult(flag, state, obj)
         if (flag == GlobalValue.BATTERY) {
@@ -74,9 +122,7 @@ class DataCallBack : SimpleDeviceCallback {
             Log.d(WatchData.TAG, "onCallbackResult: Timeout")
         } else if (flag == GlobalValue.STEP_FINISH) {
             Log.i(WatchData.TAG, "onCallbackResult: Step finish")
-            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
-            val stepInfos = HardSdk.getInstance().queryOneDayStep(beforeTime)
-            Log.i(WatchData.TAG,"Got step info ${Gson().toJson(stepInfos)}")
+            uploadSteps()
         } else if (flag == GlobalValue.OFFLINE_HEART_SYNC_OK) {
             Log.i(WatchData.TAG, "onCallbackResult: Offline heart sync")
             sendBloodPressureInfo()
@@ -116,14 +162,7 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.TEMP_HIGH) { //
         } else if (flag == GlobalValue.SYNC_BODY_FINISH) { //Body temperature complete
             Log.i(WatchData.TAG, "Sync Body finish")
-            val prevDay = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 2)
-            val today = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), -2)
-            Log.d(WatchData.TAG,"Getting temp $prevDay to $today")
-            val tempData = HardSdk.getInstance().getBodyTemperature(prevDay,today)
-            tempData.forEach {
-                Log.d(WatchData.TAG,"Temperature data ${Gson().toJson(it)}")
-            }
-
+            uploadTemperature()
         } else if (flag == GlobalValue.SYNC_WRIST_FINISH) { //
             Log.i(WatchData.TAG,"Wrist sync finished")
             Log.i(WatchData.TAG, "Sync Body finish")
@@ -209,20 +248,6 @@ class DataCallBack : SimpleDeviceCallback {
             finish_status: Boolean
     ) {
         Log.d(WatchData.TAG, "onStepChanged: step:$step")
-    }
-
-    private fun decrementAndRemove(){
-        Log.i(WatchData.TAG,"got count $callCount")
-        if(callCount>0)
-            callCount--;
-        //If all the synchronizations are complete remove the sdk call back for sync
-        if(callCount==0){
-            Log.i(WatchData.TAG,"Removing call back")
-            //once all the tasks are completed then load the data
-
-
-
-        }
     }
 
     override fun onHeartRateChanged(rate: Int, status: Int) {
@@ -325,16 +350,16 @@ class WatchData {
                 HardSdk.getInstance().setHardSdkCallback(dataCallback)
             }
             dataCallback?.let {
-                HardSdk.getInstance().syncLatestBodyTemperature(0)
-                HardSdk.getInstance().syncLatestWristTemperature(0)
-                HardSdk.getInstance().syncHeartRateData(0)
-                HardSdk.getInstance().syncExerciseData(0)
-                HardSdk.getInstance().syncStepData(0)
-                HardSdk.getInstance().syncSleepData(0)
+                HardSdk.getInstance().syncLatestBodyTemperature(2)
+                HardSdk.getInstance().syncLatestWristTemperature(2)
+                HardSdk.getInstance().syncHeartRateData(2)
+                HardSdk.getInstance().syncExerciseData(2)
+                HardSdk.getInstance().syncStepData(2)
+                HardSdk.getInstance().syncSleepData(2)
             }
 
             MainActivity.lastConnected = Calendar.getInstance()
-            context.getSharedPreferences("last_sync",Context.MODE_PRIVATE).edit().putString("last_update",MainActivity.lastConnected.toString())
+            context.getSharedPreferences("last_sync",Context.MODE_PRIVATE).edit().putString("last_sync",MainActivity.lastConnected.toString())
             Log.i(WatchData.TAG, "Data sync complete")
             result.success("Load complete")
         }

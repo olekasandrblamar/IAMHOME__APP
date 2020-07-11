@@ -27,7 +27,7 @@ class MainActivity: FlutterActivity() {
     companion object{
         var lastConnected: Calendar = Calendar.getInstance()
         val TAG = MainActivity::class.java.simpleName
-        private var deviceId = ""
+        var deviceId = ""
         private const val MY_PERMISSIONS_REQUEST_BLUETOOTH:Int = 0x55;
     }
 
@@ -65,6 +65,7 @@ class MainActivity: FlutterActivity() {
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got sync data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
+                deviceId = deviceData.deviceId?:""
                 WatchData().syncData(result,deviceData,this)
             }
             else {
@@ -95,6 +96,5 @@ class ConnectionInfo{
             return connectionData
         }
     }
-
 
 }
