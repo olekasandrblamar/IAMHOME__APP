@@ -3,7 +3,6 @@ package com.example.lifeplus
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.Context
-import android.content.SharedPreferences
 import android.text.TextUtils
 import android.util.Log
 import com.google.gson.Gson
@@ -91,12 +90,14 @@ class DataCallBack : SimpleDeviceCallback {
                 val startOfDate = dateFormat.parse(stepInfos.dates)
                 dailySteps.add(DailyStepUpload(measureTime = startOfDate,deviceId = MainActivity.deviceId,steps = stepInfos.step))
                 calories.add(CaloriesUpload(measureTime = startOfDate,deviceId = MainActivity.deviceId,calories = stepInfos.calories))
-                stepList.addAll(stepInfos.stepOneHourInfo.map {
-                    val measureTime = Calendar.getInstance()
-                    measureTime.time = startOfDate
-                    measureTime.add(Calendar.MINUTE, it.key)
-                    StepUpload(measureTime = measureTime.time, deviceId = MainActivity.deviceId, steps = it.value)
-                })
+                stepInfos.stepOneHourInfo?.let {
+                    stepList.addAll(stepInfos.stepOneHourInfo.map {
+                        val measureTime = Calendar.getInstance()
+                        measureTime.time = startOfDate
+                        measureTime.add(Calendar.MINUTE, it.key)
+                        StepUpload(measureTime = measureTime.time, deviceId = MainActivity.deviceId, steps = it.value)
+                    })
+                }
             }
         }
         if(stepList.isNotEmpty()) {
@@ -331,7 +332,7 @@ class WatchData {
     //Sync the data from watch
     //This needs to be called in background from time to time
     fun syncData(result: MethodChannel.Result,connectionInfo: ConnectionInfo,context: Context){
-        Log.i(WatchData.TAG,"Calling sync data")
+        Log.i(TAG,"Calling sync data")
 
         Log.i(TAG,"Is device connected ${HardSdk.getInstance().isDevConnected}")
         //If the device is not connected  try to connect
@@ -359,8 +360,9 @@ class WatchData {
             }
 
             MainActivity.lastConnected = Calendar.getInstance()
-            context.getSharedPreferences("last_sync",Context.MODE_PRIVATE).edit().putString("last_sync",MainActivity.lastConnected.toString())
-            Log.i(WatchData.TAG, "Data sync complete")
+            context.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).edit().putString("flutter.last_sync",MainActivity.displayDateFormat.format(MainActivity.lastConnected.time)).commit()
+            Log.i(TAG,"last Updated ${context.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).all}")
+            Log.i(TAG, "Data sync complete")
             result.success("Load complete")
         }
     }

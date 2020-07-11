@@ -1,6 +1,9 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:lifeplus/config/background_fetch.dart';
 import 'package:lifeplus/theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SetupActiveScreen extends StatefulWidget {
   @override
@@ -8,15 +11,23 @@ class SetupActiveScreen extends StatefulWidget {
 }
 
 class _SetupActiveScreenState extends State<SetupActiveScreen> {
+
+  var last_Updated = "";
+
   @override
   void initState() {
-    _initData();
-
+    _syncDataFromDevice();
     super.initState();
   }
 
-  void _initData() async {
+  void _syncDataFromDevice() async {
     await syncDataFromDevice();
+    var lastUpdate = (await SharedPreferences.getInstance()).getString("last_sync");
+    setState(
+            () {
+          last_Updated = lastUpdate;
+        }
+    );
   }
 
   @override
@@ -88,7 +99,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
                 horizontal: 35.0,
               ),
               child: Text(
-                'Last connected 04/24/2020  12:35 PM.',
+                'Last connected ${last_Updated}.',
                 textAlign: TextAlign.center,
                 style: AppTheme.subtitle,
               ),
@@ -112,11 +123,12 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
                     fontSize: 14,
                   ),
                 ),
-                onPressed: () {
+                onPressed: () async {
 //                  return Navigator.of(context).pushReplacementNamed(
 //                    routes.SetupHomeRoute,
 //                  );
-                  syncDataFromDevice();
+                  await _syncDataFromDevice();
+
                 },
               ),
             ),

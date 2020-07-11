@@ -17,6 +17,7 @@ import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity: FlutterActivity() {
@@ -28,6 +29,8 @@ class MainActivity: FlutterActivity() {
         var lastConnected: Calendar = Calendar.getInstance()
         val TAG = MainActivity::class.java.simpleName
         var deviceId = ""
+        const val SharedPrefernces = "FlutterSharedPreferences"
+        val displayDateFormat = SimpleDateFormat("MM/dd/yyyy hh:mm a")
         private const val MY_PERMISSIONS_REQUEST_BLUETOOTH:Int = 0x55;
     }
 
