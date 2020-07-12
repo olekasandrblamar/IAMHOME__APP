@@ -65,6 +65,11 @@ class MainActivity: FlutterActivity() {
             } else if(call.method =="loadData"){
                 WatchData().loadData(result)
             } else if(call.method =="syncData"){
+                lastConnected = Calendar.getInstance()
+                context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).edit()
+                        .putString("flutter.last_sync",displayDateFormat.format(MainActivity.lastConnected.time))
+                        .commit()
+                Log.i(WatchData.TAG,"last Updated ${context.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).all}")
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got sync data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
