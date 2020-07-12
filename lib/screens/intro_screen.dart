@@ -46,6 +46,8 @@ class _IntroScreenState extends State<IntroScreen> {
       });
     });
 
+    // WidgetsBinding.instance.addPostFrameCallback((_) => _animateSlider());
+
     // TODO: implement initState
     super.initState();
   }
@@ -55,7 +57,7 @@ class _IntroScreenState extends State<IntroScreen> {
       _currentPage = index;
     });
 
-    this._goToNextPage();
+    _goToNextPage();
   }
 
   void _goToNextPage() {
@@ -64,6 +66,26 @@ class _IntroScreenState extends State<IntroScreen> {
       duration: Duration(milliseconds: 500),
       curve: Curves.ease,
     );
+  }
+
+  void _animateSlider() {
+    Future.delayed(Duration(seconds: 2)).then((_) {
+      if (_pageController.page != null) {
+        var nextPage = _pageController.page.round() + 1;
+
+        if (nextPage == _pages.length) {
+          nextPage = 0;
+        }
+
+        _pageController
+            .animateToPage(
+              nextPage,
+              duration: Duration(seconds: 1),
+              curve: Curves.linear,
+            )
+            .then((_) => _animateSlider());
+      }
+    });
   }
 
   @override

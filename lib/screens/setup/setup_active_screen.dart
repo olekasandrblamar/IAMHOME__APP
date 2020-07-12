@@ -11,8 +11,7 @@ class SetupActiveScreen extends StatefulWidget {
 }
 
 class _SetupActiveScreenState extends State<SetupActiveScreen> {
-
-  var last_Updated = "";
+  String last_Updated = '';
 
   @override
   void initState() {
@@ -22,12 +21,13 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
 
   void _syncDataFromDevice() async {
     await syncDataFromDevice();
-    var lastUpdate = (await SharedPreferences.getInstance()).getString("last_sync");
-    setState(
-            () {
-          last_Updated = lastUpdate;
-        }
-    );
+
+    final prefs = await SharedPreferences.getInstance();
+    final lastUpdate = prefs.getString('last_sync');
+
+    setState(() {
+      last_Updated = lastUpdate;
+    });
   }
 
   @override
@@ -128,7 +128,6 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
 //                    routes.SetupHomeRoute,
 //                  );
                   await _syncDataFromDevice();
-
                 },
               ),
             ),

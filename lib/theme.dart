@@ -59,7 +59,7 @@ class AppTheme {
   static const TextStyle subtitle = TextStyle(
     fontFamily: fontName,
     fontWeight: FontWeight.w400,
-    fontSize: 14,
+    fontSize: 16,
     letterSpacing: -0.04,
     color: darkText,
   );

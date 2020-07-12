@@ -35,7 +35,11 @@ Route<dynamic> generateRoute(
     case SetupActiveRoute:
       return MaterialPageRoute(builder: (context) => SetupActiveScreen());
     case SetupConnectRoute:
-      return MaterialPageRoute(builder: (context) => SetupConnectScreen());
+      var arguments = settings.arguments as Map<dynamic, dynamic>;
+      return MaterialPageRoute(
+          builder: (context) => SetupConnectScreen(
+                routeArgs: arguments,
+              ));
     case BluetoothNotfoundRoute:
       return MaterialPageRoute(builder: (context) => BluetoothNotfoundScreen());
     default:

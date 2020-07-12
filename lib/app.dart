@@ -25,12 +25,12 @@ class _MyAppState extends State<MyApp> {
   void initState() {
     // NotificationOneSignal().initialiseOneSignal();
     // DynamicLinksSetup().initDynamicLinks();
-    initalizeBackgroundFetch();
+    // initalizeBackgroundFetch();
     // TODO: implement initState
     super.initState();
   }
 
-  initalizeBackgroundFetch() async{
+  initalizeBackgroundFetch() async {
     await initPlatformState(false);
   }
 

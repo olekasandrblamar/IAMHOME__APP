@@ -11,6 +11,10 @@ import 'package:lifeplus/theme.dart';
 import 'package:provider/provider.dart';
 
 class SetupConnectScreen extends StatefulWidget {
+  final Map<dynamic, dynamic> routeArgs;
+
+  SetupConnectScreen({Key key, this.routeArgs}) : super(key: key);
+
   @override
   _SetupConnectScreenState createState() => _SetupConnectScreenState();
 }
@@ -18,10 +22,21 @@ class SetupConnectScreen extends StatefulWidget {
 class _SetupConnectScreenState extends State<SetupConnectScreen> {
   final TextEditingController _deviceIdController = TextEditingController();
 
+  var _deviceType = '';
   var _isLoading = false;
   var _deviceIdNumber = '';
 
   static const platform = MethodChannel('ceras.iamhome.mobile/device');
+
+  @override
+  void initState() {
+    if (widget.routeArgs != null) {
+      _deviceType = widget.routeArgs['deviceType'];
+    }
+
+    // TODO: implement initState
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -108,7 +123,9 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                     'assets/images/placeholder.jpg',
                   ),
                   image: AssetImage(
-                    'assets/images/2.png',
+                    _deviceType == 'WATCH'
+                        ? 'assets/images/Picture1.png'
+                        : 'assets/images/Picture2.png',
                   ),
                   fit: BoxFit.contain,
                   alignment: Alignment.center,
