@@ -117,6 +117,8 @@ class DataCallBack : SimpleDeviceCallback {
         }
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchData.TAG, "onCallbackResult: Connected")
+            //Set the auto health test to true
+            HardSdk.getInstance().setAutoHealthTest(true)
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
             Log.d(WatchData.TAG, "onCallbackResult: Disconnected")
         } else if (flag == GlobalValue.CONNECT_TIME_OUT_MSG) {
@@ -126,9 +128,9 @@ class DataCallBack : SimpleDeviceCallback {
             uploadSteps()
         } else if (flag == GlobalValue.OFFLINE_HEART_SYNC_OK) {
             Log.i(WatchData.TAG, "onCallbackResult: Offline heart sync")
-            sendBloodPressureInfo()
-            sendHeartRateInfo()
-            sendOxygenInfo()
+            uploadBloodPressureInfo()
+            //uploadOxygenInfo()
+            //uploadHeartRateInfo()
             //heart rate sync is complete
         } else if (flag == GlobalValue.SLEEP_SYNC_OK) {
             Log.i(WatchData.TAG, "onCallbackResult: Sleep Sync")
@@ -188,8 +190,10 @@ class DataCallBack : SimpleDeviceCallback {
         }
     }
 
-    fun sendOxygenInfo(){
+    fun uploadOxygenInfo(){
         val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
+        val tempTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val oxygenLevels = mutableListOf<OxygenLevelUpload>()
         HardSdk.getInstance().queryOneDayBP(beforeTime).forEach {
             try {
                 val heartRateAdditional = HeartRateAdditional(
@@ -203,24 +207,36 @@ class DataCallBack : SimpleDeviceCallback {
                 val bloodOxygen = BloodOxygen();
                 bloodOxygen.testMomentTime = it.testMomentTime;
                 bloodOxygen.oxygen = (heartRateAdditional.get_blood_oxygen());
-                Log.i(WatchData.TAG, "GOT O2 ${Gson().toJson(bloodOxygen)}")
+                oxygenLevels.add(OxygenLevelUpload(measureTime = tempTimeFormat.parse(bloodOxygen.testMomentTime),deviceId = MainActivity.deviceId,oxygenLevel = bloodOxygen.oxygen))
             } catch (e: ParseException) {
                 e.printStackTrace()
             }
         }
     }
 
-    fun sendHeartRateInfo(){
+    private fun uploadHeartRateInfo(){
         val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), -1);
         val heartRate = HardSdk.getInstance().queryOneDayHeartRate(beforeTime)
+        val tempTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         Log.i(WatchData.TAG,"got HR "+Gson().toJson(heartRate))
-        heartRate.forEach{
-            Log.i(WatchData.TAG,"GOT HR ${Gson().toJson(it)}")
+        val heartRates = mutableListOf<HeartRateUpload>()
+        heartRate.forEach{heartRate->
+            heartRate.currentRate?.let {currentRate->
+                heartRate.testMomentTime?.let {testMomentTime->
+                    heartRates.add(HeartRateUpload(deviceId = MainActivity.deviceId,measureTime = tempTimeFormat.parse(testMomentTime),heartRate = currentRate))
+                }
+            }
         }
+        if(heartRates.isNotEmpty())
+            DataSync.uploadHeartRate(heartRates)
     }
 
-    fun sendBloodPressureInfo(){
+    private fun uploadBloodPressureInfo(){
         val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
+        val tempTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
+        val bloodPressureUpload = mutableListOf<BpUpload>()
+        val oxygenLevels = mutableListOf<OxygenLevelUpload>()
+        val heartRates = mutableListOf<HeartRateUpload>()
         HardSdk.getInstance().queryOneDayBP(beforeTime).forEach {
             try {
                 val heartRateAdditional = HeartRateAdditional(
@@ -231,15 +247,20 @@ class DataCallBack : SimpleDeviceCallback {
                         0,
                         30
                 )
-                val bloodPressure = BloodPressure()
-                bloodPressure.testMomentTime = it.testMomentTime
-                bloodPressure.setSystolicPressure(heartRateAdditional.get_systolic_blood_pressure())
-                bloodPressure.setDiastolicPressure(heartRateAdditional.get_diastolic_blood_pressure())
-                Log.i(WatchData.TAG,"GOT BP ${Gson().toJson(bloodPressure)}")
+                val measureTime = tempTimeFormat.parse(it.testMomentTime)
+                bloodPressureUpload.add(BpUpload(measureTime = measureTime,systolic = heartRateAdditional._systolic_blood_pressure,distolic = heartRateAdditional._diastolic_blood_pressure,deviceId = MainActivity.deviceId))
+                heartRates.add(HeartRateUpload(measureTime = measureTime,deviceId = MainActivity.deviceId,heartRate = it.currentRate))
+                oxygenLevels.add(OxygenLevelUpload(measureTime = measureTime,deviceId = MainActivity.deviceId,oxygenLevel = heartRateAdditional._blood_oxygen))
             } catch (e: ParseException) {
                 e.printStackTrace()
             }
         }
+        if(bloodPressureUpload.isNotEmpty())
+            DataSync.uploadBloodPressure(bloodPressureUpload)
+        if(heartRates.isNotEmpty())
+            DataSync.uploadHeartRate(heartRates)
+        if(oxygenLevels.isNotEmpty())
+            DataSync.uploadOxygenData(oxygenLevels)
     }
 
     override fun onStepChanged(
@@ -351,17 +372,13 @@ class WatchData {
                 HardSdk.getInstance().setHardSdkCallback(dataCallback)
             }
             dataCallback?.let {
-                HardSdk.getInstance().syncLatestBodyTemperature(2)
-                HardSdk.getInstance().syncLatestWristTemperature(2)
-                HardSdk.getInstance().syncHeartRateData(2)
-                HardSdk.getInstance().syncExerciseData(2)
-                HardSdk.getInstance().syncStepData(2)
-                HardSdk.getInstance().syncSleepData(2)
+                HardSdk.getInstance().syncLatestBodyTemperature(0)
+                HardSdk.getInstance().syncLatestWristTemperature(0)
+                HardSdk.getInstance().syncHeartRateData(0)
+                HardSdk.getInstance().syncExerciseData(0)
+                HardSdk.getInstance().syncStepData(0)
+                HardSdk.getInstance().syncSleepData(0)
             }
-
-            MainActivity.lastConnected = Calendar.getInstance()
-            context.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).edit().putString("flutter.last_sync",MainActivity.displayDateFormat.format(MainActivity.lastConnected.time)).commit()
-            Log.i(TAG,"last Updated ${context.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).all}")
             Log.i(TAG, "Data sync complete")
             result.success("Load complete")
         }

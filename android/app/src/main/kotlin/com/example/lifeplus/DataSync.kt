@@ -24,6 +24,18 @@ class DataSync {
             makePostRequest(gson.toJson(temperatures),"temperature")
         }
 
+        fun uploadOxygenData(oxygenLevels:List<OxygenLevelUpload>){
+            makePostRequest(gson.toJson(oxygenLevels),"oxygen")
+        }
+
+        fun uploadBloodPressure(bpLevels:List<BpUpload>){
+            makePostRequest(gson.toJson(bpLevels),"bloodpressure")
+        }
+
+        fun uploadHeartRate(heartRates:List<HeartRateUpload>){
+            makePostRequest(gson.toJson(heartRates),"heartrate")
+        }
+
         fun uploadStepInfo(stepInfo:List<StepUpload>){
             makePostRequest(gson.toJson(stepInfo),"steps")
         }
@@ -61,3 +73,9 @@ data class StepUpload(val measureTime:Date, var steps:Int,val deviceId:String)
 data class DailyStepUpload(val measureTime:Date, var steps:Int,val deviceId:String)
 
 data class CaloriesUpload(val measureTime:Date, var calories:Int,val deviceId:String)
+
+data class BpUpload(val measureTime:Date, var distolic:Int,var systolic:Int,val deviceId:String)
+
+data class HeartRateUpload(val measureTime:Date, var heartRate:Int,val deviceId:String)
+
+data class OxygenLevelUpload(val measureTime:Date, var oxygenLevel:Int,val deviceId:String)
