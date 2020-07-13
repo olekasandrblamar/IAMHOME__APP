@@ -21,9 +21,10 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
 
   void _changeLastUpdated() async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     final lastUpdate = prefs.getString('last_sync');
     final deviceType = prefs.getString('deviceType');
-
+    print("Last updated at ${lastUpdate}");
     setState(() {
       _lastUpdated = lastUpdate;
       _deviceType = deviceType;
