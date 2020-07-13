@@ -1,5 +1,3 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:lifeplus/config/background_fetch.dart';
 import 'package:lifeplus/theme.dart';
@@ -11,7 +9,8 @@ class SetupActiveScreen extends StatefulWidget {
 }
 
 class _SetupActiveScreenState extends State<SetupActiveScreen> {
-  String last_Updated = null;
+  String _lastUpdated = null;
+  String _deviceType = null;
 
   @override
   void initState() {
@@ -23,14 +22,12 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
   void _changeLastUpdated() async {
     final prefs = await SharedPreferences.getInstance();
     final lastUpdate = prefs.getString('last_sync');
+    final deviceType = prefs.getString('deviceType');
+
     setState(() {
-      last_Updated = lastUpdate;
+      _lastUpdated = lastUpdate;
+      _deviceType = deviceType;
     });
-//    SharedPreferences.getInstance().then((pref) {
-//      setState(() {
-//        last_Updated = pref.getString("last_sync");
-//      });
-//    });
   }
 
   void _syncDataFromDevice() async {
@@ -81,7 +78,9 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
                   'assets/images/placeholder.jpg',
                 ),
                 image: AssetImage(
-                  'assets/images/2.png',
+                  _deviceType == 'WATCH'
+                      ? 'assets/images/Picture1.jpg'
+                      : 'assets/images/Picture2.jpg',
                 ),
                 fit: BoxFit.contain,
                 alignment: Alignment.center,
@@ -107,7 +106,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
                 horizontal: 35.0,
               ),
               child: Text(
-                'Last connected ${last_Updated}.',
+                'Last connected ${_lastUpdated}.',
                 textAlign: TextAlign.center,
                 style: AppTheme.subtitle,
               ),

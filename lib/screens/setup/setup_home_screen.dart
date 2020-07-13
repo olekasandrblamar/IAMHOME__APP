@@ -30,11 +30,13 @@ class SetupHomeScreen extends StatelessWidget {
         elevation: 0,
       ),
       backgroundColor: AppTheme.white,
-      body: SingleChildScrollView(
+      body: SafeArea(
+        bottom: true,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
               Container(
                 padding: const EdgeInsets.all(10.0),
@@ -45,13 +47,10 @@ class SetupHomeScreen extends StatelessWidget {
                   style: AppTheme.title,
                 ),
               ),
-              GridView.count(
-                shrinkWrap: true,
-                crossAxisCount: 1,
-                padding: EdgeInsets.all(5.0),
-                childAspectRatio: 1.0 / 1.0,
-                children: [
-                  Card(
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  child: Card(
                     margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                     elevation: 5,
                     shape: RoundedRectangleBorder(
@@ -60,39 +59,19 @@ class SetupHomeScreen extends StatelessWidget {
                     child: InkWell(
                       child: Container(
                         padding: EdgeInsets.all(15),
-                        child: GridTile(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: FadeInImage(
-                                  placeholder: AssetImage(
-                                    'assets/images/placeholder.jpg',
-                                  ),
-                                  image: AssetImage(
-                                    'assets/images/Picture1.png',
-                                  ),
-                                  fit: BoxFit.contain,
-                                  alignment: Alignment.center,
-                                  fadeInDuration: Duration(milliseconds: 200),
-                                  fadeInCurve: Curves.easeIn,
-                                  height: 100,
-                                  width: 200,
-                                ),
-                              ),
-                            ],
+                        child: FadeInImage(
+                          placeholder: AssetImage(
+                            'assets/images/placeholder.jpg',
                           ),
-                          // footer: Center(
-                          //   child: Text(
-                          //     'Connect',
-                          //     overflow: TextOverflow.ellipsis,
-                          //     textAlign: TextAlign.center,
-                          //     style: TextStyle(
-                          //       fontSize: 16,
-                          //       fontWeight: FontWeight.w500,
-                          //     ),
-                          //   ),
-                          // ),
+                          image: AssetImage(
+                            'assets/images/Picture1.jpg',
+                          ),
+                          fit: BoxFit.contain,
+                          alignment: Alignment.center,
+                          fadeInDuration: Duration(milliseconds: 200),
+                          fadeInCurve: Curves.easeIn,
+                          height: 100,
+                          width: 200,
                         ),
                       ),
                       onTap: () => {
@@ -105,48 +84,33 @@ class SetupHomeScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                  Card(
+                ),
+              ),
+              Expanded(
+                child: Container(
+                  width: double.infinity,
+                  child: Card(
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                     elevation: 5,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10.0),
                     ),
-                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
                     child: InkWell(
                       child: Container(
                         padding: EdgeInsets.all(15),
-                        child: GridTile(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: FadeInImage(
-                                  placeholder: AssetImage(
-                                    'assets/images/placeholder.jpg',
-                                  ),
-                                  image: AssetImage(
-                                    'assets/images/Picture2.png',
-                                  ),
-                                  fit: BoxFit.contain,
-                                  alignment: Alignment.center,
-                                  fadeInDuration: Duration(milliseconds: 200),
-                                  fadeInCurve: Curves.easeIn,
-                                  height: 100,
-                                  width: 200,
-                                ),
-                              ),
-                            ],
+                        child: FadeInImage(
+                          placeholder: AssetImage(
+                            'assets/images/placeholder.jpg',
                           ),
-                          // footer: Center(
-                          //   child: Text(
-                          //     'Connect',
-                          //     overflow: TextOverflow.ellipsis,
-                          //     textAlign: TextAlign.center,
-                          //     style: TextStyle(
-                          //       fontSize: 16,
-                          //       fontWeight: FontWeight.w500,
-                          //     ),
-                          //   ),
-                          // ),
+                          image: AssetImage(
+                            'assets/images/Picture2.jpg',
+                          ),
+                          fit: BoxFit.contain,
+                          alignment: Alignment.center,
+                          fadeInDuration: Duration(milliseconds: 200),
+                          fadeInCurve: Curves.easeIn,
+                          height: 100,
+                          width: 200,
                         ),
                       ),
                       onTap: () => {
@@ -159,11 +123,8 @@ class SetupHomeScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                ],
+                ),
               ),
-              SizedBox(
-                height: 50,
-              )
             ],
           ),
         ),
@@ -171,3 +132,120 @@ class SetupHomeScreen extends StatelessWidget {
     );
   }
 }
+
+//  GridView.count(
+//               shrinkWrap: true,
+//               crossAxisCount: 1,
+//               padding: EdgeInsets.all(5.0),
+//               childAspectRatio: 1.0 / 1.0,
+//               children: [
+//                 Card(
+//                   margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+//                   elevation: 5,
+//                   shape: RoundedRectangleBorder(
+//                     borderRadius: BorderRadius.circular(10.0),
+//                   ),
+//                   child: InkWell(
+//                     child: Container(
+//                       padding: EdgeInsets.all(15),
+//                       child: GridTile(
+//                         child: Column(
+//                           mainAxisAlignment: MainAxisAlignment.center,
+//                           children: [
+//                             Expanded(
+//                               child: FadeInImage(
+//                                 placeholder: AssetImage(
+//                                   'assets/images/placeholder.jpg',
+//                                 ),
+//                                 image: AssetImage(
+//                                   'assets/images/Picture1.jpg',
+//                                 ),
+//                                 fit: BoxFit.contain,
+//                                 alignment: Alignment.center,
+//                                 fadeInDuration: Duration(milliseconds: 200),
+//                                 fadeInCurve: Curves.easeIn,
+//                                 height: 100,
+//                                 width: 200,
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                         // footer: Center(
+//                         //   child: Text(
+//                         //     'Connect',
+//                         //     overflow: TextOverflow.ellipsis,
+//                         //     textAlign: TextAlign.center,
+//                         //     style: TextStyle(
+//                         //       fontSize: 16,
+//                         //       fontWeight: FontWeight.w500,
+//                         //     ),
+//                         //   ),
+//                         // ),
+//                       ),
+//                     ),
+//                     onTap: () => {
+//                       Navigator.of(context).pushNamed(
+//                         routes.SetupConnectRoute,
+//                         arguments: {
+//                           'deviceType': 'WATCH',
+//                         },
+//                       ),
+//                     },
+//                   ),
+//                 ),
+//                 Card(
+//                   elevation: 5,
+//                   shape: RoundedRectangleBorder(
+//                     borderRadius: BorderRadius.circular(10.0),
+//                   ),
+//                   margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+//                   child: InkWell(
+//                     child: Container(
+//                       padding: EdgeInsets.all(15),
+//                       child: GridTile(
+//                         child: Column(
+//                           mainAxisAlignment: MainAxisAlignment.center,
+//                           children: [
+//                             Expanded(
+//                               child: FadeInImage(
+//                                 placeholder: AssetImage(
+//                                   'assets/images/placeholder.jpg',
+//                                 ),
+//                                 image: AssetImage(
+//                                   'assets/images/Picture2.jpg',
+//                                 ),
+//                                 fit: BoxFit.contain,
+//                                 alignment: Alignment.center,
+//                                 fadeInDuration: Duration(milliseconds: 200),
+//                                 fadeInCurve: Curves.easeIn,
+//                                 height: 100,
+//                                 width: 200,
+//                               ),
+//                             ),
+//                           ],
+//                         ),
+//                         // footer: Center(
+//                         //   child: Text(
+//                         //     'Connect',
+//                         //     overflow: TextOverflow.ellipsis,
+//                         //     textAlign: TextAlign.center,
+//                         //     style: TextStyle(
+//                         //       fontSize: 16,
+//                         //       fontWeight: FontWeight.w500,
+//                         //     ),
+//                         //   ),
+//                         // ),
+//                       ),
+//                     ),
+//                     onTap: () => {
+//                       Navigator.of(context).pushNamed(
+//                         routes.SetupConnectRoute,
+//                         arguments: {
+//                           'deviceType': 'BAND',
+//                         },
+//                       ),
+//                     },
+//                   ),
+//                 ),
+//               ],
+//             ),

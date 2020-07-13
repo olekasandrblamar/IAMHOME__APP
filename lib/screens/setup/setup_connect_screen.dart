@@ -82,6 +82,9 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
       await Provider.of<AuthProvider>(context, listen: false)
           .saveWatchInfo(connectionData);
 
+      await Provider.of<AuthProvider>(context, listen: false)
+          .setDeviceType(_deviceType);
+
       setState(() {
         _isLoading = false;
       });
@@ -124,8 +127,8 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                   ),
                   image: AssetImage(
                     _deviceType == 'WATCH'
-                        ? 'assets/images/Picture1.png'
-                        : 'assets/images/Picture2.png',
+                        ? 'assets/images/Picture1.jpg'
+                        : 'assets/images/Picture2.jpg',
                   ),
                   fit: BoxFit.contain,
                   alignment: Alignment.center,

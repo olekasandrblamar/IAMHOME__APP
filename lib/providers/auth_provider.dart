@@ -11,6 +11,7 @@ class AuthProvider with ChangeNotifier {
   final http = HttpClient().http;
 
   WatchData _watchInfo;
+  String _deviceType;
 
   bool get isAuth {
     return _watchInfo != null;
@@ -18,6 +19,20 @@ class AuthProvider with ChangeNotifier {
 
   WatchData get watchInfo {
     return _watchInfo;
+  }
+
+  Future<String> get deviceType async {
+    final prefs = await SharedPreferences.getInstance();
+    _deviceType = prefs.getString('deviceType');
+
+    return _deviceType;
+  }
+
+  void setDeviceType(String deviceType) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('deviceType', deviceType);
+
+    _deviceType = deviceType;
   }
 
   Future<WatchData> get watchData async {

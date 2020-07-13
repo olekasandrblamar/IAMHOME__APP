@@ -61,12 +61,9 @@ flutter:
     - assets/images/location.png
     - assets/images/camera.png
     - assets/images/push_notification.png
-    - assets/images/2.png
     - assets/images/ceraswithletter.png
-    - assets/images/Picture1.png
-    - assets/images/Picture2.png
-    - assets/images/bluetooth.png
-    - assets/images/nodevice.png
+    - assets/images/Picture1.jpg
+    - assets/images/Picture2.jpg
     - assets/images/Group.png
     - assets/images/Group2.png
     - assets/images/Group3.png
