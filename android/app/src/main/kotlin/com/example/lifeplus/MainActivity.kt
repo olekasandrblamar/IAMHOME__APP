@@ -52,7 +52,7 @@ class MainActivity: FlutterActivity() {
         }
     }
 
-    private fun connectDeviceChannel(){
+    private fun connectDeviceChannel(flutterEngine: FlutterEngine){
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             if(call.method=="connectDevice"){
                 //For now connect to watch
@@ -83,7 +83,7 @@ class MainActivity: FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         // requestPermission()
-        connectDeviceChannel()
+        connectDeviceChannel(flutterEngine)
     }
 
 }
