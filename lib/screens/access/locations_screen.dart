@@ -12,10 +12,51 @@ class LocationsScreen extends StatefulWidget {
 class _LocationsScreenState extends State<LocationsScreen> {
   @override
   void initState() {
-    // Permission.location.request();
-
     // TODO: implement initState
     super.initState();
+  }
+
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Permission Denied!'),
+          content: Text('Do you want to open settings'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('Open'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                openAppSettings();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _checkPermission() async {
+    final status = await Permission.location.request();
+
+    if (PermissionStatus.granted == status) {
+      _goToCamera();
+    } else {
+      _showDialog();
+    }
+  }
+
+  dynamic _goToCamera() {
+    return Navigator.of(context).pushReplacementNamed(
+      routes.CameraRoute,
+    );
   }
 
   @override
@@ -92,11 +133,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () {
-                        return Navigator.of(context).pushReplacementNamed(
-                          routes.PrivacyRoute,
-                        );
-                      },
+                      onPressed: () => _goToCamera(),
                     ),
                   ),
                   Container(
@@ -115,11 +152,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () {
-                        return Navigator.of(context).pushReplacementNamed(
-                          routes.CameraRoute,
-                        );
-                      },
+                      onPressed: () => _checkPermission(),
                     ),
                   ),
                 ],

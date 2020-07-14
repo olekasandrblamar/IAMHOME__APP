@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:lifeplus/constants/route_paths.dart' as routes;
 import 'package:lifeplus/models/intro_model.dart';
@@ -68,25 +70,19 @@ class _IntroScreenState extends State<IntroScreen> {
     );
   }
 
-  void _animateSlider() {
-    Future.delayed(Duration(seconds: 2)).then((_) {
-      if (_pageController.page != null) {
-        var nextPage = _pageController.page.round() + 1;
+  // void _animateSlider() {
+  //   Timer.periodic(Duration(seconds: 5), (Timer timer) {
+  //     if (_currentPage < 2) {
+  //       _currentPage++;
+  //     } else {
+  //       _currentPage = 0;
+  //     }
 
-        if (nextPage == _pages.length) {
-          nextPage = 0;
-        }
-
-        _pageController
-            .animateToPage(
-              nextPage,
-              duration: Duration(seconds: 1),
-              curve: Curves.linear,
-            )
-            .then((_) => _animateSlider());
-      }
-    });
-  }
+  //     print(_currentPage);
+  //     print(currentPageValue);
+  //     _goToNextPage();
+  //   });
+  // }
 
   @override
   Widget build(BuildContext context) {

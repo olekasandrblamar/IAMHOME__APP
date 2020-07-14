@@ -1,9 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:lifeplus/theme.dart';
 
 import 'package:lifeplus/constants/route_paths.dart' as routes;
 
 class PrivacyScreen extends StatelessWidget {
+  void _openBrowser() {
+    final browser = ChromeSafariBrowser();
+    browser.open(
+      url: 'https://flutter.io',
+      options: ChromeSafariBrowserClassOptions(
+        android: AndroidChromeCustomTabsOptions(
+          addDefaultShareMenuItem: false,
+        ),
+        ios: IOSSafariOptions(
+          barCollapsingEnabled: true,
+          entersReaderIfAvailable: true,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,8 +39,8 @@ class PrivacyScreen extends StatelessWidget {
                 padding: const EdgeInsets.symmetric(horizontal: 100),
                 child: Container(
                   margin: EdgeInsets.only(bottom: 20),
-                  width: double.infinity,
-                  height: 100,
+                  // width: double.infinity,
+                  // height: 80,
                   child: Image(
                     fit: BoxFit.fill,
                     image: AssetImage('assets/images/ceraswithletter.png'),
@@ -33,73 +50,64 @@ class PrivacyScreen extends StatelessWidget {
               SizedBox(
                 height: 20,
               ),
-              FittedBox(
-                child: Text(
-                  'Our Terms and Conditions',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
-                    fontFamily: 'Roboto',
-                  ),
-                  textAlign: TextAlign.center,
-                ),
+              Text(
+                'Our Terms and Conditions',
+                textAlign: TextAlign.center,
+                style: AppTheme.title,
               ),
               Padding(
                 padding: const EdgeInsets.all(10.0),
               ),
               Text(
                 'Before using the Ceras app, please read the following terms carefully.  Click the title for details',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontFamily: 'Roboto',
-                ),
                 textAlign: TextAlign.start,
+                style: AppTheme.subtitle,
               ),
               SizedBox(
                 height: 50,
               ),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.only(bottom: 10),
-                child: Text(
-                  'End User License Agreement',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontFamily: 'Roboto',
+              InkWell(
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: Text(
+                    'End User License Agreement',
+                    style: AppTheme.title,
+                    textAlign: TextAlign.left,
                   ),
-                  textAlign: TextAlign.left,
-                ),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      width: 1.0,
-                      color: Colors.black,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        width: 1.0,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),
+                onTap: () => _openBrowser(),
               ),
               SizedBox(
                 height: 30,
               ),
-              Container(
-                width: double.infinity,
-                padding: EdgeInsets.only(bottom: 10),
-                child: Text(
-                  'Privacy Policy',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontFamily: 'Roboto',
+              InkWell(
+                child: Container(
+                  width: double.infinity,
+                  padding: EdgeInsets.only(bottom: 10),
+                  child: Text(
+                    'Privacy Policy',
+                    style: AppTheme.title,
+                    textAlign: TextAlign.left,
                   ),
-                  textAlign: TextAlign.left,
-                ),
-                decoration: BoxDecoration(
-                  border: Border(
-                    bottom: BorderSide(
-                      width: 1.0,
-                      color: Colors.black,
+                  decoration: BoxDecoration(
+                    border: Border(
+                      bottom: BorderSide(
+                        width: 1.0,
+                        color: Colors.grey,
+                      ),
                     ),
                   ),
                 ),
+                onTap: () => _openBrowser(),
               ),
             ],
           ),

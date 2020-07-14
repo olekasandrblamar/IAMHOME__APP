@@ -36,6 +36,7 @@ dependencies:
   permission_handler: "^5.0.1+1"
   permission_handler_platform_interface: "2.0.1"
   background_fetch: "^0.6.0"
+  flutter_inappwebview: ^4.0.0+4
 
 dev_dependencies:
   pedantic: ^1.9.0

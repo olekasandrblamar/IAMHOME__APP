@@ -12,10 +12,51 @@ class NotificationsScreen extends StatefulWidget {
 class _NotificationsScreenState extends State<NotificationsScreen> {
   @override
   void initState() {
-    // Permission.notification.request();
-
     // TODO: implement initState
     super.initState();
+  }
+
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Permission Denied!'),
+          content: Text('Do you want to open settings'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('Open'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                openAppSettings();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _checkPermission() async {
+    final status = await Permission.notification.request();
+
+    if (PermissionStatus.granted == status) {
+      _goToLocations();
+    } else {
+      _showDialog();
+    }
+  }
+
+  dynamic _goToLocations() {
+    return Navigator.of(context).pushReplacementNamed(
+      routes.LocationsRoute,
+    );
   }
 
   @override
@@ -92,11 +133,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () {
-                        return Navigator.of(context).pushReplacementNamed(
-                          routes.PrivacyRoute,
-                        );
-                      },
+                      onPressed: () => _goToLocations(),
                     ),
                   ),
                   Container(
@@ -115,11 +152,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () {
-                        return Navigator.of(context).pushReplacementNamed(
-                          routes.LocationsRoute,
-                        );
-                      },
+                      onPressed: () => _checkPermission(),
                     ),
                   ),
                 ],

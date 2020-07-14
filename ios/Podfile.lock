@@ -10,6 +10,8 @@ PODS:
   - flutter_blue/Protos (0.0.1):
     - Flutter
     - Protobuf (~> 3.11.4)
+  - flutter_inappwebview (0.0.1):
+    - Flutter
   - package_info (0.0.1):
     - Flutter
   - path_provider_linux (0.0.1):
@@ -31,6 +33,7 @@ DEPENDENCIES:
   - device_info (from `.symlinks/plugins/device_info/ios`)
   - Flutter (from `Flutter`)
   - flutter_blue (from `.symlinks/plugins/flutter_blue/ios`)
+  - flutter_inappwebview (from `.symlinks/plugins/flutter_inappwebview/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - path_provider_linux (from `.symlinks/plugins/path_provider_linux/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
@@ -52,6 +55,8 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_blue:
     :path: ".symlinks/plugins/flutter_blue/ios"
+  flutter_inappwebview:
+    :path: ".symlinks/plugins/flutter_inappwebview/ios"
   package_info:
     :path: ".symlinks/plugins/package_info/ios"
   path_provider_linux:
@@ -72,6 +77,7 @@ SPEC CHECKSUMS:
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   Flutter: 0e3d915762c693b495b44d77113d4970485de6ec
   flutter_blue: eeb381dc4727a0954dede73515f683865494b370
+  flutter_inappwebview: 69dfbac46157b336ffbec19ca6dfd4638c7bf189
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   path_provider_linux: 4d630dc393e1f20364f3e3b4a2ff41d9674a84e4
   permission_handler: eac8e15b4a1a3fba55b761d19f3f4e6b005d15b6

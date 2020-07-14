@@ -12,10 +12,51 @@ class CameraScreen extends StatefulWidget {
 class _CameraScreenState extends State<CameraScreen> {
   @override
   void initState() {
-    // Permission.camera.request();
-
     // TODO: implement initState
     super.initState();
+  }
+
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Permission Denied!'),
+          content: Text('Do you want to open settings'),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('Close'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('Open'),
+              onPressed: () {
+                Navigator.of(context).pop();
+                openAppSettings();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _checkPermission() async {
+    final status = await Permission.camera.request();
+
+    if (PermissionStatus.granted == status) {
+      _goToHome();
+    } else {
+      _showDialog();
+    }
+  }
+
+  dynamic _goToHome() {
+    return Navigator.of(context).pushReplacementNamed(
+      routes.SetupHomeRoute,
+    );
   }
 
   @override
@@ -93,11 +134,7 @@ class _CameraScreenState extends State<CameraScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () {
-                        return Navigator.of(context).pushReplacementNamed(
-                          routes.PrivacyRoute,
-                        );
-                      },
+                      onPressed: () => _goToHome(),
                     ),
                   ),
                   Container(
@@ -116,11 +153,7 @@ class _CameraScreenState extends State<CameraScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () {
-                        return Navigator.of(context).pushReplacementNamed(
-                          routes.SetupHomeRoute,
-                        );
-                      },
+                      onPressed: () => _checkPermission(),
                     ),
                   ),
                 ],
