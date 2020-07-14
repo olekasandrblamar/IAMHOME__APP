@@ -4,19 +4,8 @@ import 'package:lifeplus/theme.dart';
 import 'package:lifeplus/constants/route_paths.dart' as routes;
 import 'package:permission_handler/permission_handler.dart';
 
-class NotificationsScreen extends StatefulWidget {
-  @override
-  _NotificationsScreenState createState() => _NotificationsScreenState();
-}
-
-class _NotificationsScreenState extends State<NotificationsScreen> {
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  void _showDialog() {
+class NotificationsScreen extends StatelessWidget {
+  void _showDialog(context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -43,17 +32,17 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
     );
   }
 
-  void _checkPermission() async {
+  void _checkPermission(context) async {
     final status = await Permission.notification.request();
 
     if (PermissionStatus.granted == status) {
-      _goToLocations();
+      _goToLocations(context);
     } else {
-      _showDialog();
+      _showDialog(context);
     }
   }
 
-  dynamic _goToLocations() {
+  dynamic _goToLocations(context) {
     return Navigator.of(context).pushReplacementNamed(
       routes.LocationsRoute,
     );
@@ -133,7 +122,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () => _goToLocations(),
+                      onPressed: () => _goToLocations(context),
                     ),
                   ),
                   Container(
@@ -152,7 +141,7 @@ class _NotificationsScreenState extends State<NotificationsScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () => _checkPermission(),
+                      onPressed: () => _checkPermission(context),
                     ),
                   ),
                 ],

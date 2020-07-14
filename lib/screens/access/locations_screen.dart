@@ -4,19 +4,8 @@ import 'package:lifeplus/theme.dart';
 import 'package:lifeplus/constants/route_paths.dart' as routes;
 import 'package:permission_handler/permission_handler.dart';
 
-class LocationsScreen extends StatefulWidget {
-  @override
-  _LocationsScreenState createState() => _LocationsScreenState();
-}
-
-class _LocationsScreenState extends State<LocationsScreen> {
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  void _showDialog() {
+class LocationsScreen extends StatelessWidget {
+  void _showDialog(context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -43,17 +32,17 @@ class _LocationsScreenState extends State<LocationsScreen> {
     );
   }
 
-  void _checkPermission() async {
+  void _checkPermission(context) async {
     final status = await Permission.location.request();
 
     if (PermissionStatus.granted == status) {
-      _goToCamera();
+      _goToCamera(context);
     } else {
-      _showDialog();
+      _showDialog(context);
     }
   }
 
-  dynamic _goToCamera() {
+  dynamic _goToCamera(context) {
     return Navigator.of(context).pushReplacementNamed(
       routes.CameraRoute,
     );
@@ -133,7 +122,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () => _goToCamera(),
+                      onPressed: () => _goToCamera(context),
                     ),
                   ),
                   Container(
@@ -152,7 +141,7 @@ class _LocationsScreenState extends State<LocationsScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () => _checkPermission(),
+                      onPressed: () => _checkPermission(context),
                     ),
                   ),
                 ],

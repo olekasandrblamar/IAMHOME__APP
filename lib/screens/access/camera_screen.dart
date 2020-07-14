@@ -4,19 +4,8 @@ import 'package:lifeplus/theme.dart';
 import 'package:lifeplus/constants/route_paths.dart' as routes;
 import 'package:permission_handler/permission_handler.dart';
 
-class CameraScreen extends StatefulWidget {
-  @override
-  _CameraScreenState createState() => _CameraScreenState();
-}
-
-class _CameraScreenState extends State<CameraScreen> {
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-  }
-
-  void _showDialog() {
+class CameraScreen extends StatelessWidget {
+  void _showDialog(context) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -43,17 +32,17 @@ class _CameraScreenState extends State<CameraScreen> {
     );
   }
 
-  void _checkPermission() async {
+  void _checkPermission(context) async {
     final status = await Permission.camera.request();
 
     if (PermissionStatus.granted == status) {
-      _goToHome();
+      _goToHome(context);
     } else {
-      _showDialog();
+      _showDialog(context);
     }
   }
 
-  dynamic _goToHome() {
+  dynamic _goToHome(context) {
     return Navigator.of(context).pushReplacementNamed(
       routes.SetupHomeRoute,
     );
@@ -134,7 +123,7 @@ class _CameraScreenState extends State<CameraScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () => _goToHome(),
+                      onPressed: () => _goToHome(context),
                     ),
                   ),
                   Container(
@@ -153,7 +142,7 @@ class _CameraScreenState extends State<CameraScreen> {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () => _checkPermission(),
+                      onPressed: () => _checkPermission(context),
                     ),
                   ),
                 ],
