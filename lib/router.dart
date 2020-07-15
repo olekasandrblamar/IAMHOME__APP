@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:lifeplus/screens/access/camera_screen.dart';
 import 'package:lifeplus/screens/access/locations_screen.dart';
 import 'package:lifeplus/screens/access/notifications_screen.dart';
+import 'package:lifeplus/screens/help/help_widget.dart';
 import 'package:lifeplus/screens/intro_screen.dart';
 import 'package:lifeplus/screens/privacy_screen.dart';
 import 'package:lifeplus/screens/setup/bluetooth_notfound_screen.dart';
@@ -42,6 +43,8 @@ Route<dynamic> generateRoute(
               ));
     case BluetoothNotfoundRoute:
       return MaterialPageRoute(builder: (context) => BluetoothNotfoundScreen());
+    case HelpRoute:
+      return MaterialPageRoute(builder: (context) => HelpScreen());
     default:
       return MaterialPageRoute(
         builder: (context) => Scaffold(

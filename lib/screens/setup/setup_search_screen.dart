@@ -168,7 +168,7 @@ class _SetupSearchScreenState extends State<SetupSearchScreen>
                       'assets/images/placeholder.jpg',
                     ),
                     image: AssetImage(
-                      'assets/images/Group3.png',
+                      'assets/images/devicenotfound.png',
                     ),
                     fit: BoxFit.contain,
                     alignment: Alignment.center,
@@ -213,7 +213,7 @@ class _SetupSearchScreenState extends State<SetupSearchScreen>
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(4.5),
                         ),
-                        color: Color(0XFF6C63FF),
+                        color: Theme.of(context).primaryColor,
                         textColor: Colors.white,
                         child: Text(
                           'Search',

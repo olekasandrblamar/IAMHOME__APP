@@ -63,6 +63,11 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
       await _connectDevice();
     } catch (error) {
+      _deviceIdController.text = '';
+      setState(() {
+        _deviceIdNumber = '';
+        _isLoading = false;
+      });
       showErrorDialog(context, error.toString());
     }
   }
@@ -74,7 +79,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
       print('Got response ' + connectionInfo);
 
-      final connectionData = WatchData.fromJson(
+      final connectionData = WatchModel.fromJson(
         json.decode(connectionInfo) as Map<String, dynamic>,
       );
 
@@ -199,7 +204,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
               //     shape: RoundedRectangleBorder(
               //       borderRadius: BorderRadius.circular(4.5),
               //     ),
-              //     color: Color(0XFF6C63FF),
+              //     color: Theme.of(context).primaryColor,
               //     textColor: Colors.white,
               //     child: Text(
               //       'Connect',

@@ -10,14 +10,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthProvider with ChangeNotifier {
   final http = HttpClient().http;
 
-  WatchData _watchInfo;
+  WatchModel _watchInfo;
   String _deviceType;
 
   bool get isAuth {
     return _watchInfo != null;
   }
 
-  WatchData get watchInfo {
+  WatchModel get watchInfo {
     return _watchInfo;
   }
 
@@ -35,15 +35,15 @@ class AuthProvider with ChangeNotifier {
     _deviceType = deviceType;
   }
 
-  Future<WatchData> get watchData async {
+  Future<WatchModel> get watchData async {
     final prefs = await SharedPreferences.getInstance();
-    final WatchData checkWatchInfo = WatchData.fromJson(
+    final WatchModel checkWatchInfo = WatchModel.fromJson(
         json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>);
 
     return checkWatchInfo;
   }
 
-  Future<bool> saveWatchInfo(WatchData watchInfo) async {
+  Future<bool> saveWatchInfo(WatchModel watchInfo) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('watchInfo', json.encode(watchInfo));
 
@@ -60,7 +60,7 @@ class AuthProvider with ChangeNotifier {
       return false;
     }
 
-    final WatchData checkwatchInfo = WatchData.fromJson(
+    final WatchModel checkwatchInfo = WatchModel.fromJson(
         json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>);
 
     if (checkwatchInfo == null) {

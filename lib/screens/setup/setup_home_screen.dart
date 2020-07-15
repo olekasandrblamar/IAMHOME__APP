@@ -2,34 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:lifeplus/theme.dart';
 
 import 'package:lifeplus/constants/route_paths.dart' as routes;
+import 'package:lifeplus/widgets/apppermissions_widget.dart';
+import 'package:lifeplus/widgets/setup_appbar_widget.dart';
 
 class SetupHomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        titleSpacing: 0.0,
-        title: Row(children: [
-          IconButton(
-            color: Colors.red,
-            icon: const Icon(Icons.menu),
-            onPressed: () {},
-          ),
-          Expanded(
-            child: Center(child: Text('')),
-          )
-        ]),
-        actions: <Widget>[
-          IconButton(
-            color: Colors.red,
-            icon: const Icon(Icons.headset_mic),
-            onPressed: () {},
-          )
-        ],
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      backgroundColor: AppTheme.white,
+      appBar: SetupAppBar(),
+      backgroundColor: AppTheme.background,
       body: SafeArea(
         bottom: true,
         child: Container(
@@ -38,15 +19,15 @@ class SetupHomeScreen extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              Container(
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  'Select Device',
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: AppTheme.title,
-                ),
-              ),
+              // Container(
+              //   padding: const EdgeInsets.all(10.0),
+              //   child: Text(
+              //     'Select Device',
+              //     overflow: TextOverflow.ellipsis,
+              //     textAlign: TextAlign.center,
+              //     style: AppTheme.title,
+              //   ),
+              // ),
               Expanded(
                 child: Container(
                   width: double.infinity,

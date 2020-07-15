@@ -6,8 +6,8 @@ part of 'watchdata_model.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-WatchData _$WatchDataFromJson(Map<String, dynamic> json) {
-  return WatchData(
+WatchModel _$WatchModelFromJson(Map<String, dynamic> json) {
+  return WatchModel(
     connected: json['connected'] as bool,
     deviceId: json['deviceId'] as String,
     deviceName: json['deviceName'] as String,
@@ -19,7 +19,8 @@ WatchData _$WatchDataFromJson(Map<String, dynamic> json) {
   );
 }
 
-Map<String, dynamic> _$WatchDataToJson(WatchData instance) => <String, dynamic>{
+Map<String, dynamic> _$WatchModelToJson(WatchModel instance) =>
+    <String, dynamic>{
       'connected': instance.connected,
       'deviceId': instance.deviceId,
       'deviceName': instance.deviceName,

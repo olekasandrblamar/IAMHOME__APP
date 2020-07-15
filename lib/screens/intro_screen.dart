@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:lifeplus/constants/route_paths.dart' as routes;
+import 'package:lifeplus/data/intro_data.dart';
 import 'package:lifeplus/models/intro_model.dart';
 import 'package:lifeplus/theme.dart';
 
@@ -19,26 +20,7 @@ class _IntroScreenState extends State<IntroScreen> {
     // viewportFraction: 0.8,
   );
 
-  List<Intro> _pages = <Intro>[
-    Intro(
-      title: 'Health Monitored',
-      image: 'assets/images/Group4.png',
-      description:
-          'Automatically record your wellness data from the device and send them to your doctor for review of your health. Just wear it and forget it',
-    ),
-    Intro(
-      title: 'Conditions Managed',
-      image: 'assets/images/Group.png',
-      description:
-          'Whether you have a minor acute issue or a chronic condition, let your doctor proactively manage conditions from the convenience of your home.',
-    ),
-    Intro(
-      title: 'Always Connected',
-      image: 'assets/images/Group8.png',
-      description:
-          'Be connected to your doctor. Have peace of mind while your care team monitors your health 24x7. we have your healthcare experience covered.',
-    )
-  ];
+  final List<IntroModel> _pages = INTRO_DATA;
 
   @override
   void initState() {
@@ -202,7 +184,7 @@ class _IntroScreenState extends State<IntroScreen> {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(4.5),
                 ),
-                color: Color(0XFF6C63FF),
+                color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
                 child: Text('Let\'s Go'),
                 onPressed: () {
@@ -225,7 +207,7 @@ class _IntroScreenState extends State<IntroScreen> {
       height: isActive ? 12 : 8,
       width: isActive ? 12 : 8,
       decoration: BoxDecoration(
-        color: isActive ? Color(0XFF6C63FF) : Color(0XFFC7C7C7),
+        color: isActive ? Theme.of(context).primaryColor : Color(0XFFC7C7C7),
         borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
     );

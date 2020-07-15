@@ -37,6 +37,7 @@ dependencies:
   permission_handler_platform_interface: "2.0.1"
   background_fetch: "^0.6.0"
   flutter_inappwebview: ^4.0.0+4
+  url_launcher: ^5.5.0
 
 dev_dependencies:
   pedantic: ^1.9.0
@@ -65,11 +66,13 @@ flutter:
     - assets/images/ceraswithletter.png
     - assets/images/Picture1.jpg
     - assets/images/Picture2.jpg
-    - assets/images/Group.png
-    - assets/images/Group2.png
-    - assets/images/Group3.png
-    - assets/images/Group4.png
-    - assets/images/Group8.png
+    - assets/images/condition.png
+    - assets/images/bluetooth.png
+    - assets/images/devicenotfound.png
+    - assets/images/health.png
+    - assets/images/connected.png
+    - assets/images/support.png
+    - assets/images/t&c.png
 
   fonts:
     - family: Roboto

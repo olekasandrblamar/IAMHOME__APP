@@ -35,7 +35,7 @@ class BluetoothNotfoundScreen extends StatelessWidget {
                         'assets/images/placeholder.jpg',
                       ),
                       image: AssetImage(
-                        'assets/images/Group2.png',
+                        'assets/images/bluetooth.png',
                       ),
                       fit: BoxFit.contain,
                       alignment: Alignment.center,
@@ -77,7 +77,7 @@ class BluetoothNotfoundScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4.5),
                       ),
-                      color: Color(0XFF6C63FF),
+                      color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       child: Text(
                         'Enable Bluetooth',

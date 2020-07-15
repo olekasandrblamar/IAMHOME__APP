@@ -1,11 +1,11 @@
 import 'package:flutter/foundation.dart';
 
-class IntroModel {
+class AccessModel {
   final String title;
   final String description;
   final String image;
 
-  IntroModel({
+  AccessModel({
     @required this.title,
     @required this.description,
     @required this.image,

@@ -1,33 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:lifeplus/theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'package:lifeplus/constants/route_paths.dart' as routes;
 
-class PrivacyScreen extends StatelessWidget {
-  void _openBrowser() {
-    final browser = ChromeSafariBrowser();
-    browser.open(
-      url: 'https://flutter.io',
-      options: ChromeSafariBrowserClassOptions(
-        android: AndroidChromeCustomTabsOptions(
-          addDefaultShareMenuItem: false,
-        ),
-        ios: IOSSafariOptions(
-          barCollapsingEnabled: true,
-          entersReaderIfAvailable: true,
-        ),
-      ),
-    );
+import 'package:lifeplus/theme.dart';
+
+class HelpScreen extends StatelessWidget {
+  void _callUs() async {
+    const url = 'tel:+18773001232';
+    if (await canLaunch(url)) {
+      await launch(url);
+    } else {
+      throw 'Could not launch $url';
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        leading: CloseButton(color: Colors.black),
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: Text(
+          'Help',
+          style: TextStyle(
+            color: Colors.black,
+          ),
+        ),
+        // actions: <Widget>[
+        //   SwitchStoreIcon(),
+        // ],
+      ),
       backgroundColor: AppTheme.white,
       body: SafeArea(
         top: true,
-        child: Padding(
+        child: Container(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -42,7 +50,7 @@ class PrivacyScreen extends StatelessWidget {
                     'assets/images/placeholder.jpg',
                   ),
                   image: AssetImage(
-                    'assets/images/t&c.png',
+                    'assets/images/support.png',
                   ),
                   fit: BoxFit.contain,
                   alignment: Alignment.center,
@@ -56,7 +64,7 @@ class PrivacyScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
-                  'Our Terms and Conditions',
+                  'Contact Support',
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: AppTheme.title,
@@ -68,7 +76,7 @@ class PrivacyScreen extends StatelessWidget {
                   horizontal: 35.0,
                 ),
                 child: Text(
-                  'Before using the Ceras app, please read the following terms carefully. \n\n Agree to End User License Agreement & Privacy Policy.',
+                  'To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activites.',
                   textAlign: TextAlign.center,
                   style: AppTheme.subtitle,
                 ),
@@ -87,38 +95,15 @@ class PrivacyScreen extends StatelessWidget {
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(4.5),
                       ),
-                      color: Color(0XFFE6E6E6),
-                      textColor: Colors.black,
-                      child: Text(
-                        'View',
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      onPressed: () => _openBrowser(),
-                    ),
-                  ),
-                  Container(
-                    width: 150,
-                    height: 75,
-                    padding: EdgeInsets.all(10),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.5),
-                      ),
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       child: Text(
-                        'Agree',
+                        'Call Us',
                         style: TextStyle(
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () {
-                        return Navigator.of(context).pushReplacementNamed(
-                          routes.NotificationsRoute,
-                        );
-                      },
+                      onPressed: () => _callUs(),
                     ),
                   ),
                 ],
