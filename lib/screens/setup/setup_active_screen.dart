@@ -109,7 +109,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
                 child: Text(
-                  'SyncData',
+                  'Sync Data',
                   style: TextStyle(
                     fontSize: 14,
                   ),
