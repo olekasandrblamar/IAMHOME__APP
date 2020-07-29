@@ -1,4 +1,4 @@
-import 'package:lifeplus/models/access_model.dart';
+import 'package:ceras/models/access_model.dart';
 
 List<AccessModel> ACCESS_DATA = <AccessModel>[
   AccessModel(

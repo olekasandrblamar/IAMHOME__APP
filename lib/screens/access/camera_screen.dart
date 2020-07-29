@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:lifeplus/data/access_data.dart';
-import 'package:lifeplus/models/access_model.dart';
-import 'package:lifeplus/screens/access/widgets/access_widget.dart';
-import 'package:lifeplus/theme.dart';
+import 'package:ceras/data/access_data.dart';
+import 'package:ceras/models/access_model.dart';
+import 'package:ceras/screens/access/widgets/access_widget.dart';
+import 'package:ceras/theme.dart';
 
-import 'package:lifeplus/constants/route_paths.dart' as routes;
+import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:permission_handler/permission_handler.dart';
 
 import 'widgets/show_access_alert_dialog.dart';

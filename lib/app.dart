@@ -2,11 +2,11 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lifeplus/config/background_fetch.dart';
-import 'package:lifeplus/providers/auth_provider.dart';
-import 'package:lifeplus/screens/intro_screen.dart';
-import 'package:lifeplus/screens/setup/setup_active_screen.dart';
-import 'package:lifeplus/screens/splash_screen.dart';
+import 'package:ceras/config/background_fetch.dart';
+import 'package:ceras/providers/auth_provider.dart';
+import 'package:ceras/screens/intro_screen.dart';
+import 'package:ceras/screens/setup/setup_active_screen.dart';
+import 'package:ceras/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
 
 import 'config/navigation_service.dart';

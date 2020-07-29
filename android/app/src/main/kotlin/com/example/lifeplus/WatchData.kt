@@ -1,4 +1,4 @@
-package com.example.lifeplus
+package com.cerashealth.ceras
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice

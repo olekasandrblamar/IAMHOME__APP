@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:lifeplus/screens/access/camera_screen.dart';
-import 'package:lifeplus/screens/access/locations_screen.dart';
-import 'package:lifeplus/screens/access/notifications_screen.dart';
-import 'package:lifeplus/screens/help/help_widget.dart';
-import 'package:lifeplus/screens/intro_screen.dart';
-import 'package:lifeplus/screens/privacy_screen.dart';
-import 'package:lifeplus/screens/setup/bluetooth_notfound_screen.dart';
-import 'package:lifeplus/screens/setup/setup_active_screen.dart';
-import 'package:lifeplus/screens/setup/setup_connect_screen.dart';
-import 'package:lifeplus/screens/setup/setup_search_screen.dart';
+import 'package:ceras/screens/access/camera_screen.dart';
+import 'package:ceras/screens/access/locations_screen.dart';
+import 'package:ceras/screens/access/notifications_screen.dart';
+import 'package:ceras/screens/help/help_widget.dart';
+import 'package:ceras/screens/intro_screen.dart';
+import 'package:ceras/screens/privacy_screen.dart';
+import 'package:ceras/screens/setup/bluetooth_notfound_screen.dart';
+import 'package:ceras/screens/setup/setup_active_screen.dart';
+import 'package:ceras/screens/setup/setup_connect_screen.dart';
+import 'package:ceras/screens/setup/setup_search_screen.dart';
 
 import 'constants/route_paths.dart';
 import 'screens/setup/setup_home_screen.dart';

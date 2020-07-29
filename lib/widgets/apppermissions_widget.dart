@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-import 'package:lifeplus/theme.dart';
+import 'package:ceras/theme.dart';
 
 class AppPermissions extends StatelessWidget {
   @override

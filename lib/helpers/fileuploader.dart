@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:dio/dio.dart';
-import 'package:lifeplus/config/env.dart';
-import 'package:lifeplus/config/http.dart';
+import 'package:ceras/config/env.dart';
+import 'package:ceras/config/http.dart';
 
 class FileUploader {
   FileUploader(

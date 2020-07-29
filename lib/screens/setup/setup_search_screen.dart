@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_blue/flutter_blue.dart';
-import 'package:lifeplus/theme.dart';
+import 'package:ceras/theme.dart';
 import 'dart:math';
 
-import 'package:lifeplus/constants/route_paths.dart' as routes;
+import 'package:ceras/constants/route_paths.dart' as routes;
 
 class SetupSearchScreen extends StatefulWidget {
   @override

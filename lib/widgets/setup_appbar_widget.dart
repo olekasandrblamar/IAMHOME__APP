@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:lifeplus/screens/help/help_widget.dart';
-import 'package:lifeplus/widgets/apppermissions_widget.dart';
+import 'package:ceras/screens/help/help_widget.dart';
+import 'package:ceras/widgets/apppermissions_widget.dart';
 
-import 'package:lifeplus/constants/route_paths.dart' as routes;
+import 'package:ceras/constants/route_paths.dart' as routes;
 
 class SetupAppBar extends StatelessWidget implements PreferredSizeWidget {
   const SetupAppBar({

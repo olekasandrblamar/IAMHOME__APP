@@ -1,4 +1,4 @@
-import 'package:lifeplus/models/intro_model.dart';
+import 'package:ceras/models/intro_model.dart';
 
 List<IntroModel> INTRO_DATA = <IntroModel>[
   IntroModel(

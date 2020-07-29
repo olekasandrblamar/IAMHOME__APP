@@ -1,10 +1,10 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:lifeplus/constants/route_paths.dart' as routes;
-import 'package:lifeplus/data/intro_data.dart';
-import 'package:lifeplus/models/intro_model.dart';
-import 'package:lifeplus/theme.dart';
+import 'package:ceras/constants/route_paths.dart' as routes;
+import 'package:ceras/data/intro_data.dart';
+import 'package:ceras/models/intro_model.dart';
+import 'package:ceras/theme.dart';
 
 class IntroScreen extends StatefulWidget {
   @override
