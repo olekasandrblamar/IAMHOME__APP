@@ -37,11 +37,11 @@
 	<key>NSCameraUsageDescription</key>
 	<string>This app needs access to your camera to scan the barcode</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>loc both</string>
+	<string>This app needs access to your location to find you</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>loc always</string>
+	<string>This app needs access to your location to find you</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>location wheninuse</string>
+	<string>This app needs access to your location to find you</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs access to your camera to scan the image</string>
 	<key>UIBackgroundModes</key>
