@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import 'package:lifeplus/constants/route_paths.dart' as routes;
+import 'package:ceras/constants/route_paths.dart' as routes;
 
-import 'package:lifeplus/theme.dart';
+import 'package:ceras/theme.dart';
 
 class HelpScreen extends StatelessWidget {
   void _callUs() async {

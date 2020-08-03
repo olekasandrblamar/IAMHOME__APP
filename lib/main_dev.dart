@@ -4,7 +4,7 @@ import 'dart:io';
 import 'package:background_fetch/background_fetch.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lifeplus/config/background_fetch.dart';
+import 'package:ceras/config/background_fetch.dart';
 
 import 'app.dart';
 import 'config/env.dart';

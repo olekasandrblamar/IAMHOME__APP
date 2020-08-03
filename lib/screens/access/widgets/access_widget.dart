@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:lifeplus/models/access_model.dart';
-import 'package:lifeplus/theme.dart';
+import 'package:ceras/models/access_model.dart';
+import 'package:ceras/theme.dart';
 
 class AccessWidget extends StatelessWidget {
   const AccessWidget({
