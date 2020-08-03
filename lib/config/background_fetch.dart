@@ -137,6 +137,7 @@ Future<void> syncDataFromDevice() async {
 
       final result = await BackgroundFetchData.platform.invokeMethod(
         'syncData',
+        //'connectDevice',
         <String, dynamic>{'connectionInfo': connectionInfo},
       ) as String;
 

@@ -3,34 +3,64 @@ import Flutter
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
+    
+    var watchData:WatchData = WatchData()
+    static let dateFormatter = DateFormatter()
+    
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     let deviceChannel = FlutterMethodChannel(name: "ceras.iamhome.mobile/device",binaryMessenger: controller.binaryMessenger)
-    
+    AppDelegate.dateFormatter.dateFormat = "MM/dd/yyyy hh:mm a"
     //Register the methods
     deviceChannel.setMethodCallHandler({
       [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
-        guard call.method == "connectDevice" else {
+        if(call.method=="connectDevice"){
+            
+            guard let args = call.arguments else {
+              result("iOS could not recognize flutter arguments in method: (sendParams)")
+              return
+            }
+            
+            let deviceId:String = (args as? [String: Any])?["deviceId"] as! String
+            self?.connectDevice(result: result,deviceId: deviceId)
+        } else if(call.method=="syncData"){
+            
+            guard let args = call.arguments else {
+              result("iOS could not recognize flutter arguments in method: (sendParams)")
+              return
+            }
+            
+            let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
+            NSLog("Got connection info %@", connectionInfo)
+            do{
+                let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
+                UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
+                NSLog("Syncing data ")
+                self?.syncData(connectionInfo: connectionData)
+                result("Load complete")
+            }catch{
+                result("Error")
+            }
+        }
+        else {
           result(FlutterMethodNotImplemented)
           return
         }
-        self?.connectDevice(result: result)
+        
     })
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
     
-    private func connectDevice(result: FlutterResult) {
-        var connectionInfo = ConnectionInfo(deviceId: "123", deviceName: "abc", connected: true, message: "connected")
-        connectionInfo.additionalInformation["factoryName"] = "Sample Device"
-        do{
-            let deviceJson = try JSONEncoder().encode(connectionInfo)
-            let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
-            result(connectionInfoData)
-        }catch{result("Error")}
+    private func syncData(connectionInfo:ConnectionInfo){
+        self.watchData.syncData(connectionInfo: connectionInfo)
+    }
+    
+    private func connectDevice(result:@escaping FlutterResult,deviceId:String) {
+        self.watchData.startScan(result: result,deviceId:deviceId)
     }
 }
 

@@ -16,6 +16,7 @@
 		5257E6C824D2608300C2B1BA /* libHardManagerSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5257E6C724D25ED000C2B1BA /* libHardManagerSDK.a */; };
 		5257E6CA24D632CC00C2B1BA /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5257E6C924D2693100C2B1BA /* libc++.tbd */; };
 		5257E6CC24D841C800C2B1BA /* WatchData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5257E6CB24D841C800C2B1BA /* WatchData.swift */; };
+		5257E6CE24D8D28E00C2B1BA /* DataSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5257E6CD24D8D28E00C2B1BA /* DataSync.swift */; };
 		6C530F2A96B548B28B29ADCB /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6903C456B590865D172210F4 /* Pods_Runner.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
@@ -49,6 +50,7 @@
 		5257E6C724D25ED000C2B1BA /* libHardManagerSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; name = libHardManagerSDK.a; path = HardSDK/libHardManagerSDK.a; sourceTree = "<group>"; };
 		5257E6C924D2693100C2B1BA /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
 		5257E6CB24D841C800C2B1BA /* WatchData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchData.swift; sourceTree = "<group>"; };
+		5257E6CD24D8D28E00C2B1BA /* DataSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSync.swift; sourceTree = "<group>"; };
 		6903C456B590865D172210F4 /* Pods_Runner.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Runner.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -139,6 +141,7 @@
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 				5257E6CB24D841C800C2B1BA /* WatchData.swift */,
+				5257E6CD24D8D28E00C2B1BA /* DataSync.swift */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -308,6 +311,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5257E6CE24D8D28E00C2B1BA /* DataSync.swift in Sources */,
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				5257E6CC24D841C800C2B1BA /* WatchData.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
