@@ -1,1 +1,5 @@
 #import "GeneratedPluginRegistrant.h"
+#import "../HardSDK/HardManagerSDK.h"
+#import "../HardSDK/HardDefine.h"
+#import "../HardSDK/HardAlarmModel.h"
+#import "../HardSDK/HardExerciseModel.h"
