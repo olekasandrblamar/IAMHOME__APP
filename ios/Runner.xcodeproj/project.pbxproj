@@ -400,7 +400,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = 7U8B8RNS4D;
+				DEVELOPMENT_TEAM = AGKDWGW3EV;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -423,7 +423,7 @@
 					"-framework",
 					Flutter,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.cerashealth.iamhome.lifeplus;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cerashealth.ceras;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -551,7 +551,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = 7U8B8RNS4D;
+				DEVELOPMENT_TEAM = AGKDWGW3EV;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -574,7 +574,7 @@
 					"-framework",
 					Flutter,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.cerashealth.iamhome.lifeplus;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cerashealth.ceras;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
@@ -593,7 +593,7 @@
 				CLANG_ENABLE_MODULES = YES;
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CURRENT_PROJECT_VERSION = "$(FLUTTER_BUILD_NUMBER)";
-				DEVELOPMENT_TEAM = 7U8B8RNS4D;
+				DEVELOPMENT_TEAM = AGKDWGW3EV;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(inherited)",
@@ -616,7 +616,7 @@
 					"-framework",
 					Flutter,
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = com.cerashealth.iamhome.lifeplus;
+				PRODUCT_BUNDLE_IDENTIFIER = com.cerashealth.ceras;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SUPPORTED_PLATFORMS = "iphonesimulator iphoneos";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
