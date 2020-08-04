@@ -32,14 +32,13 @@ import Flutter
               result("iOS could not recognize flutter arguments in method: (sendParams)")
               return
             }
-            
             let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
             NSLog("Got connection info %@", connectionInfo)
             do{
                 let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
                 UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
                 NSLog("Syncing data ")
-                self?.syncData(connectionInfo: connectionData)
+                self?.watchData.syncData(connectionInfo: connectionData)
                 result("Load complete")
             }catch{
                 result("Error")

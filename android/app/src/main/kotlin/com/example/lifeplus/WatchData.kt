@@ -196,7 +196,7 @@ class DataCallBack : SimpleDeviceCallback {
         val oxygenLevels = mutableListOf<OxygenLevelUpload>()
         HardSdk.getInstance().queryOneDayBP(beforeTime).forEach {
             try {
-                val heartRateAdditional = HeartRateAdditional(
+                    val heartRateAdditional = HeartRateAdditional(
                         TimeUtil.detaiTimeToStamp(it.testMomentTime) / 1000,
                         it.currentRate,
                         170,

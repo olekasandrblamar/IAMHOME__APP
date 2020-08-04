@@ -14,12 +14,12 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var device:CBPeripheral? = nil
     var dayFormat = DateFormatter()
     var dateTimeFormat = DateFormatter()
-    
+    static var currentDeviceId:String? = nil
     
     override init() {
         super.init()
         self.dayFormat.dateFormat = "yyyy-MM-dd"
-        self.dateTimeFormat.dateFormat = "yyyy-MM-dd hh:mm:ss"
+        self.dateTimeFormat.dateFormat = "yyyy-MM-dd HH:mm:ss"
         HardManagerSDK.shareBLEManager()?.delegate = self
     }
     
@@ -41,59 +41,81 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         //NSLog("Got option \(option.rawValue) value %@", values)
         //For tempartire History
         if(option == HardGettingOption.bodyTemperatureHistory){
-            
             let tempArray = values["temperatureArray"] as! [[String:String]]
             syncTemparature(tempArray: tempArray)
         }
         if(option == HardGettingOption.stepDetail){
-            NSLog("Got Step data \(values)")
             let stepData = values as! [String:Any]
             syncStepInfo(stepInfo: stepData)
         }
         if(option == HardGettingOption.heart){
-            NSLog("Got Heart data \(values)")
-        }
-        if(option == HardGettingOption.step){
-            NSLog("Got Step data \(values)")
+            print("values \(values["hearts"])")
+            if(values["hearts"] != nil){
+                let heartRateData = values["hearts"] as! [[String:String]]
+                syncHearRate(heartRateArray: heartRateData)
+            }
+            
         }
         
     }
     
     func deviceDidConnected() {
-        let deviceName = device?.name
+        
         HardManagerSDK.shareBLEManager()?.stopScanDevice()
-        let uuid = device?.identifier.uuidString
-        NSLog("Device connected \(deviceName ?? "No name ") - \(uuid)")
-        var connectionInfo = ConnectionInfo(deviceId: uuid, deviceName: deviceName, connected: true, message: "connected")
-        connectionInfo.additionalInformation["factoryName"] = device?.description
+        HardManagerSDK.shareBLEManager()?.setHardTimeUnitAndUserProfileIs12(true, isMeter: false, sex: 0, age: 32, weight: 80, height: 178)
         //Enable auto heart rate test
         HardManagerSDK.shareBLEManager()?.setHardAutoHeartTest(true)
         //Enable Temp type to F
         HardManagerSDK.shareBLEManager()?.setHardTemperatureType(true)
-        do{
-            let deviceJson = try JSONEncoder().encode(connectionInfo)
-            let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
-            NSLog("Connection data \(connectionInfoData)")
-            result?(connectionInfoData)
-        }catch{result?("Error")}
+        if(device != nil){
+            let deviceName = device?.name
+            let uuid = device?.identifier.uuidString
+            if(uuid != nil){
+                WatchData.currentDeviceId = uuid
+            }
+            NSLog("Device connected \(deviceName ?? "No name ") - \(uuid)")
+            var connectionInfo = ConnectionInfo(deviceId: uuid, deviceName: deviceName, connected: true, message: "connected")
+            connectionInfo.additionalInformation["factoryName"] = device?.description
+            
+            do{
+                let deviceJson = try JSONEncoder().encode(connectionInfo)
+                let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                NSLog("Connection data \(connectionInfoData)")
+                result?(connectionInfoData)
+            }catch{result?("Error")}
+        }
     }
     
     func settingFallBack(_ option: HardSettingOption, status: HardOptionStatus) {
         
     }
     
-    private func getCurrentDeviceId()->String{
-        return (device?.identifier.uuidString)!
-    }
-    
     private func syncTemparature(tempArray:[[String:String]]){
         
-        let tempUploads = tempArray.map { (tempMap) -> TemperatureUpload in
-            let measureDate = dateTimeFormat.date(from: tempMap["timePoint"]!)
+        let temperatureUploads = tempArray.map { (tempMap) -> TemperatureUpload in
+            let measureDate = dateTimeFormat.date(from: tempMap["timePoint"]!)!
             let celsius = Double(tempMap["temperature"]!)
-            return TemperatureUpload(measureTime: measureDate!, celsius: celsius!, deviceId: getCurrentDeviceId())
+            return TemperatureUpload(measureTime: measureDate, celsius: celsius!, deviceId: WatchData.currentDeviceId!)
         }
-        
+        DataSync.uploadTemparatures(temps: temperatureUploads)
+    }
+    
+    private func syncHearRate(heartRateArray:[[String:String]]){
+        var bpUploads:[BpUpload] = []
+        var oxygenUploads: [OxygenLevelUpload] = []
+        let heartRateUploads = heartRateArray.map { (heartMap) -> HeartRateUpload in
+            let measureDate = dateTimeFormat.date(from: heartMap["testMomentTime"]!)
+            let heartRate = Int(heartMap["currentRate"]!)
+            let distolic = Int(heartMap["diastolicPressure"]!)
+            let systolic = Int(heartMap["systolicPressure"]!)
+            let oxygenLevel = Int(heartMap["oxygen"]!)
+            bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic!, systolic: systolic!, deviceId: WatchData.currentDeviceId!))
+            oxygenUploads.append(OxygenLevelUpload(measureTime: measureDate!,oxygenLevel: oxygenLevel!,deviceId: WatchData.currentDeviceId!))
+            return HeartRateUpload(measureTime: measureDate!, heartRate: heartRate!, deviceId: WatchData.currentDeviceId!)
+        }
+        DataSync.uploadHeartRateInfo(heartRates: heartRateUploads)
+        DataSync.uploadBloodPressure(bpLevels: bpUploads)
+        DataSync.uploadOxygenLevels(oxygenLevels: oxygenUploads)
     }
     
     private func syncStepInfo(stepInfo: [String: Any]){
@@ -109,21 +131,21 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         let stepList = hourlySteps.map { (stepMap) -> StepUpload in
             let (stepMinutes, stepsCount) = stepMap
             let stepTime = Calendar.current.date(byAdding: .minute,value: Int(stepMinutes)!, to: stepDate!)
-            return StepUpload(measureTime: stepTime!, steps: Int(stepsCount)!, deviceId: getCurrentDeviceId())
+            return StepUpload(measureTime: stepTime!, steps: Int(stepsCount)!, deviceId: WatchData.currentDeviceId!)
             
         }
-        for(minutes,stepsCount) in hourlySteps{
-            let stepTime = Calendar.current.date(byAdding: .minute,value: Int(minutes)!, to: stepDate!)
-            NSLog("Steps at \(stepTime) count :\(stepsCount)")
-        }
-        StepUpload(measureTime: stepDate!, steps: dailySteps!, deviceId: getCurrentDeviceId())
-        
+        let dailyStepsUpload = StepUpload(measureTime: stepDate!, steps: dailySteps!, deviceId: WatchData.currentDeviceId!)
+        let dailyCaloriesUpload = CaloriesUpload(measureTime: stepDate!, calories: calories!, deviceId: WatchData.currentDeviceId!)
+        DataSync.uploadCalories(calories: dailyCaloriesUpload)
+        DataSync.uploadSteps(steps: stepList)
+        DataSync.uploadDailySteps(dailySteps: dailyStepsUpload)
     }
     
     func syncData(connectionInfo:ConnectionInfo){
         
         NSLog("Device connected \(HardManagerSDK.shareBLEManager().isConnected)")
         if(!HardManagerSDK.shareBLEManager().isConnected){
+            WatchData.currentDeviceId = connectionInfo.deviceId
             HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connectionInfo.deviceId)
         }else if(HardManagerSDK.shareBLEManager().isConnected && !HardManagerSDK.shareBLEManager().isSyncing){
             NSLog("Syncing data")
