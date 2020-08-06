@@ -2,12 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lifeplus/constants/route_paths.dart' as routes;
-import 'package:lifeplus/helpers/errordialog_popup.dart';
-import 'package:lifeplus/models/watchdata_model.dart';
-import 'package:lifeplus/providers/auth_provider.dart';
-import 'package:lifeplus/screens/setup/setup_active_screen.dart';
-import 'package:lifeplus/theme.dart';
+import 'package:ceras/constants/route_paths.dart' as routes;
+import 'package:ceras/helpers/errordialog_popup.dart';
+import 'package:ceras/models/watchdata_model.dart';
+import 'package:ceras/providers/auth_provider.dart';
+import 'package:ceras/screens/setup/setup_active_screen.dart';
+import 'package:ceras/theme.dart';
 import 'package:provider/provider.dart';
 
 class SetupConnectScreen extends StatefulWidget {
@@ -75,7 +75,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   Future<void> _connectDevice() async {
     try {
       final connectionInfo =
-          await platform.invokeMethod('connectDevice') as String;
+          await platform.invokeMethod('connectDevice',<String, dynamic>{'deviceId': _deviceIdNumber}) as String;
 
       print('Got response ' + connectionInfo);
 

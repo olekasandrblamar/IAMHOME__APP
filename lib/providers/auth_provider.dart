@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:lifeplus/config/http.dart';
-import 'package:lifeplus/config/navigation_service.dart';
-import 'package:lifeplus/models/watchdata_model.dart';
+import 'package:ceras/config/http.dart';
+import 'package:ceras/config/navigation_service.dart';
+import 'package:ceras/models/watchdata_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider with ChangeNotifier {

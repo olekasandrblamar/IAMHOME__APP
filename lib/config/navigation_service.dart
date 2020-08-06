@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
-// import 'package:lifeplus/screens/auth/switchstore_screen.dart';
-// import 'package:lifeplus/screens/auth/login_screen.dart';
+// import 'package:ceras/screens/auth/switchstore_screen.dart';
+// import 'package:ceras/screens/auth/login_screen.dart';
 
-import 'package:lifeplus/constants/route_paths.dart' as routes;
-import 'package:lifeplus/screens/intro_screen.dart';
+import 'package:ceras/constants/route_paths.dart' as routes;
+import 'package:ceras/screens/intro_screen.dart';
 
 class NavigationService {
   static GlobalKey<NavigatorState> navigatorKey =

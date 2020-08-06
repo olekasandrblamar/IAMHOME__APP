@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:lifeplus/config/background_fetch.dart';
-import 'package:lifeplus/theme.dart';
-import 'package:lifeplus/widgets/apppermissions_widget.dart';
-import 'package:lifeplus/widgets/setup_appbar_widget.dart';
+import 'package:ceras/config/background_fetch.dart';
+import 'package:ceras/theme.dart';
+import 'package:ceras/widgets/apppermissions_widget.dart';
+import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import 'package:lifeplus/constants/route_paths.dart' as routes;
+import 'package:ceras/constants/route_paths.dart' as routes;
 
 class SetupActiveScreen extends StatefulWidget {
   @override

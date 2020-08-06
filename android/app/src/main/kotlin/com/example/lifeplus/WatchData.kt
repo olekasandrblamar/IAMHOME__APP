@@ -1,4 +1,4 @@
-package com.example.lifeplus
+package com.cerashealth.ceras
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
@@ -71,7 +71,6 @@ class DataCallBack : SimpleDeviceCallback {
         val tempUploads = tempData.map {
             val celsius = it.temps
             val fahrenheit = (celsius*9/5)+32
-            println(it.testMomentTime+" "+celsius)
             TemperatureUpload(measureTime = tempTimeFormat.parse(it.testMomentTime),deviceId = MainActivity.deviceId,celsius = celsius.toDouble(),fahrenheit = fahrenheit.toDouble())
         }
         DataSync.uploadTemperature(tempUploads)

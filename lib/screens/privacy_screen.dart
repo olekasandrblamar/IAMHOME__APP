@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:lifeplus/theme.dart';
+import 'package:ceras/theme.dart';
 
-import 'package:lifeplus/constants/route_paths.dart' as routes;
+import 'package:ceras/constants/route_paths.dart' as routes;
 
 class PrivacyScreen extends StatelessWidget {
   void _openBrowser() {

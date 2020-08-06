@@ -2,12 +2,12 @@ import 'dart:async';
 import 'dart:convert';
 
 import 'package:dio/dio.dart';
-import 'package:lifeplus/helpers/http_exception.dart';
+import 'package:ceras/helpers/http_exception.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-// import 'package:lifeplus/config/locator.dart';
-import 'package:lifeplus/app.dart';
-import 'package:lifeplus/config/navigation_service.dart';
+// import 'package:ceras/config/locator.dart';
+import 'package:ceras/app.dart';
+import 'package:ceras/config/navigation_service.dart';
 
 class AppInterceptors extends Interceptor {
   @override
