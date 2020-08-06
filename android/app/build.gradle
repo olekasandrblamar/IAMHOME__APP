@@ -74,7 +74,7 @@ dependencies {
     implementation fileTree(dir: "libs", include: ["*.jar"])
     implementation files('libs/vpprotocol_2.1.27.15.jar')
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
-    implementation(name: 'hardsdk_1.17', ext: 'aar')
+    implementation(name: 'hardsdkk_1.20', ext: 'aar')
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.1.6'
     implementation 'com.squareup.okhttp3:okhttp:4.7.2'

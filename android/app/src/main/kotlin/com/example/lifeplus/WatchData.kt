@@ -71,6 +71,7 @@ class DataCallBack : SimpleDeviceCallback {
         val tempUploads = tempData.map {
             val celsius = it.temps
             val fahrenheit = (celsius*9/5)+32
+            println(it.testMomentTime+" "+celsius)
             TemperatureUpload(measureTime = tempTimeFormat.parse(it.testMomentTime),deviceId = MainActivity.deviceId,celsius = celsius.toDouble(),fahrenheit = fahrenheit.toDouble())
         }
         DataSync.uploadTemperature(tempUploads)
@@ -190,47 +191,6 @@ class DataCallBack : SimpleDeviceCallback {
         }
     }
 
-    fun uploadOxygenInfo(){
-        val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
-        val tempTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        val oxygenLevels = mutableListOf<OxygenLevelUpload>()
-        HardSdk.getInstance().queryOneDayBP(beforeTime).forEach {
-            try {
-                val heartRateAdditional = HeartRateAdditional(
-                        TimeUtil.detaiTimeToStamp(it.testMomentTime) / 1000,
-                        it.currentRate,
-                        170,
-                        160,
-                        0,
-                        30
-                )
-                val bloodOxygen = BloodOxygen();
-                bloodOxygen.testMomentTime = it.testMomentTime;
-                bloodOxygen.oxygen = (heartRateAdditional.get_blood_oxygen());
-                oxygenLevels.add(OxygenLevelUpload(measureTime = tempTimeFormat.parse(bloodOxygen.testMomentTime),deviceId = MainActivity.deviceId,oxygenLevel = bloodOxygen.oxygen))
-            } catch (e: ParseException) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    private fun uploadHeartRateInfo(){
-        val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), -1);
-        val heartRate = HardSdk.getInstance().queryOneDayHeartRate(beforeTime)
-        val tempTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        Log.i(WatchData.TAG,"got HR "+Gson().toJson(heartRate))
-        val heartRates = mutableListOf<HeartRateUpload>()
-        heartRate.forEach{heartRate->
-            heartRate.currentRate?.let {currentRate->
-                heartRate.testMomentTime?.let {testMomentTime->
-                    heartRates.add(HeartRateUpload(deviceId = MainActivity.deviceId,measureTime = tempTimeFormat.parse(testMomentTime),heartRate = currentRate))
-                }
-            }
-        }
-        if(heartRates.isNotEmpty())
-            DataSync.uploadHeartRate(heartRates)
-    }
-
     private fun uploadBloodPressureInfo(){
         val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
         val tempTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
@@ -242,8 +202,8 @@ class DataCallBack : SimpleDeviceCallback {
                 val heartRateAdditional = HeartRateAdditional(
                         TimeUtil.detaiTimeToStamp(it.testMomentTime) / 1000,
                         it.currentRate,
-                        170,
-                        160,
+                        162,
+                        56,
                         0,
                         30
                 )
