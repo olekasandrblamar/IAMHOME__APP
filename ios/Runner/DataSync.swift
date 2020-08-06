@@ -34,7 +34,7 @@ class DataSync {
     
     static func uploadDailySteps(dailySteps:StepUpload){
         do{
-            makePostApiCall(url: "dailySteps", postData: try encoder.encode(dailySteps))
+            makePostApiCall(url: "dailySteps", postData: try encoder.encode([dailySteps]))
         }catch{
             NSLog("Error while Uploading Data \(error)")
         }
@@ -73,7 +73,7 @@ class DataSync {
     
     static func uploadCalories(calories:CaloriesUpload){
         do{
-            makePostApiCall(url: "calories", postData: try encoder.encode(calories))
+            makePostApiCall(url: "calories", postData: try encoder.encode([calories]))
         }catch{
             NSLog("Error while Uploading Data \(error)")
         }
