@@ -59,24 +59,33 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         
     }
     
+    func connectedDeviceMacDidUpdate(_ hardManager: HardManagerSDK!) {
+        NSLog("Mac updated \(hardManager.connectedDeviceMAC)")
+    }
+    
     func deviceDidConnected() {
-        
+        NSLog("Device connected")
         HardManagerSDK.shareBLEManager()?.stopScanDevice()
+        NSLog("Scanning connected")
         HardManagerSDK.shareBLEManager()?.setHardTimeUnitAndUserProfileIs12(true, isMeter: false, sex: 0, age: 32, weight: 80, height: 178)
         //Enable auto heart rate test
         HardManagerSDK.shareBLEManager()?.setHardAutoHeartTest(true)
         //Enable Temp type to F
         HardManagerSDK.shareBLEManager()?.setHardTemperatureType(true)
+        let macId = HardManagerSDK.shareBLEManager()?.connectedDeviceMAC
+        NSLog("Got Mac id \(macId)")
+        
         if(device != nil){
             let deviceName = device?.name
             let uuid = device?.identifier.uuidString
-            if(uuid != nil){
-                WatchData.currentDeviceId = uuid
-            }
+            
             NSLog("Device connected \(deviceName ?? "No name ") - \(uuid)")
             var connectionInfo = ConnectionInfo(deviceId: uuid, deviceName: deviceName, connected: true, message: "connected")
-            connectionInfo.additionalInformation["factoryName"] = device?.description
-            
+            connectionInfo.additionalInformation["factoryName"] = device!.description
+            connectionInfo.additionalInformation["macId"] = macId
+            if(uuid != nil){
+                WatchData.currentDeviceId = uuid!
+            }
             do{
                 let deviceJson = try JSONEncoder().encode(connectionInfo)
                 let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
@@ -145,6 +154,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         
         NSLog("Device connected \(HardManagerSDK.shareBLEManager().isConnected)")
         if(!HardManagerSDK.shareBLEManager().isConnected){
+            //WatchData.currentDeviceId = connectionInfo.additionalInformation["macId"]
             WatchData.currentDeviceId = connectionInfo.deviceId
             HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connectionInfo.deviceId)
         }else if(HardManagerSDK.shareBLEManager().isConnected && !HardManagerSDK.shareBLEManager().isSyncing){
@@ -172,6 +182,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         //if( deviceSuffix == deviceId){
         if(self.device == nil){
             self.device = peripharal
+            NSLog("Connecting to device \(deviceName ?? "No name ") - \(uuid)")
             HardManagerSDK.shareBLEManager()?.startConnectDevice(withUUID: uuid)
         }
         //}

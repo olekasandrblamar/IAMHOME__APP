@@ -3,3 +3,4 @@
 #import "../HardSDK/HardDefine.h"
 #import "../HardSDK/HardAlarmModel.h"
 #import "../HardSDK/HardExerciseModel.h"
+#import "../HardSDK/HardItemModel.h"

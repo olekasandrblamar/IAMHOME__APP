@@ -11,25 +11,28 @@
 #import "HardDefine.h"
 #import "HardAlarmModel.h"
 #import "HardExerciseModel.h"
+#import "HardItemModel.h"
+
+@class HardManagerSDK;
 
 @protocol HardManagerSDKDelegate <NSObject>
 
 @optional
 
 -(void)didFindDevice:(CBPeripheral *)device;
-
 -(void)didFindDeviceDict:(NSDictionary *)deviceDict;
 
 -(void)deviceDidConnected;
-
 -(void)deviceDidDisconnected;
 
--(void)settingFallBack:(HardSettingOption)option status:(HardOptionStatus)status;
+/// 已连接设备的MAC地址已更新
+-(void)connectedDeviceMacDidUpdate:(HardManagerSDK *)hardManager;
 
+-(void)settingFallBack:(HardSettingOption)option status:(HardOptionStatus)status;
 -(void)gettingFallBack:(HardGettingOption)option values:(NSDictionary *)values;
 
 @end
-        
+
 typedef void(^temperatureMeasureDisturb)(BOOL disturb);
 
 typedef void(^temperatureDanger)(BOOL Danger);
@@ -37,6 +40,14 @@ typedef void(^temperatureDanger)(BOOL Danger);
 @interface HardManagerSDK : NSObject
 
 @property (nonatomic,weak)id<HardManagerSDKDelegate>delegate;
+
+/**
+ 当前已连接蓝牙设备的MAC地址
+ 
+ 当连接设备时并不会马上更新，成功连接设别后，会调用协议 HardManagerSDKDelegate —> connectedDeviceMacDidUpdate:(HardManagerSDK *)hardManager
+ 当断开连接时会置为nil（调用 HardManagerSDKDelegate —>  deviceDidDisconnected 之前便会置为nil）
+ */
+@property (nonatomic,copy) NSString *connectedDeviceMAC;
 
 #pragma mark - bool value
 
@@ -119,6 +130,10 @@ typedef void(^temperatureDanger)(BOOL Danger);
 从这里查询手环缺失文件
 */
 -(void)getHardBandImageFileNeeded;
+/*
+获取事件提醒集合
+*/
+-(void)getHardEventItem;
 
 #pragma mark - setting action
 /**
@@ -241,6 +256,28 @@ typedef void(^temperatureDanger)(BOOL Danger);
 血氧数据一键测量，注意：一定需要传入用户数据后才有值。否则只有心率数据
 */
 -(void)setStartBloodOxygenMeasurement;
+/*
+血糖数据一键测量
+ */
+-(void)setStartBloodSugerMeasurement;
+/*
+胆固醇数据一键测量
+ */
+-(void)setStartCholesterolMeasurement;
+/*
+ @param app  app类型
+ 0：来电提醒 1：短信提醒 2：QQ提醒 3：微信提醒 4：来电接听或挂电话 5：Facebook消息提醒 6：WhatsApp消息提醒 7：Twitter消息提醒 8：Skype消息提醒 9：Line消息提醒 10: Linkedln 11: Instagram 12: TIM消息 13: Snapchat 14: others其它类型通知
+ @param message 推送的消息,不可为空
+ 
+ iOS调用对应提醒前，需要将对应App的消息推送开关打开，否则可能不生效
+ */
+-(void)setPushNoti:(NSInteger)app message:(NSString *)message;
+
+/**
+设置事件
+ @param items  事件集合
+*/
+-(void)setHardEvenItems:(NSArray <HardItemModel *>*)items;
 /**
 传输语言文件前调用，否则手环有可能复位
   @param language zh、en、fr、es、ru、ja、pt、de、it、ar
@@ -251,5 +288,11 @@ typedef void(^temperatureDanger)(BOOL Danger);
   @param filePath 本地文件路径
 */
 -(void)setStartTransportLocalFile:(NSString *)filePath;
+/**
+测量血糖、胆固醇结束后返回到手环的数据
+  @param type 1->心率 2->血压 3->血氧 4->血糖 5->胆固醇 (此接口目前只接受血糖，胆固醇的结果返回)
+  @param result 返回到手环的数据 如需要显示值为5.13，则传入的值为513;
+*/
+-(void)hardSetMeasurementResultWithType:(NSInteger)type result:(NSInteger)result;
 
 @end
