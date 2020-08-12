@@ -15,6 +15,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var dayFormat = DateFormatter()
     var dateTimeFormat = DateFormatter()
     static var currentDeviceId:String? = nil
+    let MAC_ADDRESS_NAME = "flutter.device_macid"
     
     override init() {
         super.init()
@@ -61,6 +62,9 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     
     func connectedDeviceMacDidUpdate(_ hardManager: HardManagerSDK!) {
         NSLog("Mac updated \(hardManager.connectedDeviceMAC)")
+        if(hardManager.connectedDeviceMAC != nil){
+            UserDefaults.standard.set(hardManager.connectedDeviceMAC!,forKey: MAC_ADDRESS_NAME)
+        }
     }
     
     func deviceDidConnected() {
@@ -99,12 +103,20 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         
     }
     
+    private func getMacId() -> String{
+        let macAddress = UserDefaults.standard.string(forKey: MAC_ADDRESS_NAME)
+        if(macAddress != nil){
+            return macAddress!
+        }
+        return WatchData.currentDeviceId!
+    }
+    
     private func syncTemparature(tempArray:[[String:String]]){
-        
+        let deviceId = getMacId()
         let temperatureUploads = tempArray.map { (tempMap) -> TemperatureUpload in
             let measureDate = dateTimeFormat.date(from: tempMap["timePoint"]!)!
             let celsius = Double(tempMap["temperature"]!)
-            return TemperatureUpload(measureTime: measureDate, celsius: celsius!, deviceId: WatchData.currentDeviceId!)
+            return TemperatureUpload(measureTime: measureDate, celsius: celsius!, deviceId: deviceId)
         }
         DataSync.uploadTemparatures(temps: temperatureUploads)
     }
@@ -112,15 +124,16 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     private func syncHearRate(heartRateArray:[[String:String]]){
         var bpUploads:[BpUpload] = []
         var oxygenUploads: [OxygenLevelUpload] = []
+        let deviceId = getMacId()
         let heartRateUploads = heartRateArray.map { (heartMap) -> HeartRateUpload in
             let measureDate = dateTimeFormat.date(from: heartMap["testMomentTime"]!)
             let heartRate = Int(heartMap["currentRate"]!)
             let distolic = Int(heartMap["diastolicPressure"]!)
             let systolic = Int(heartMap["systolicPressure"]!)
             let oxygenLevel = Int(heartMap["oxygen"]!)
-            bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic!, systolic: systolic!, deviceId: WatchData.currentDeviceId!))
-            oxygenUploads.append(OxygenLevelUpload(measureTime: measureDate!,oxygenLevel: oxygenLevel!,deviceId: WatchData.currentDeviceId!))
-            return HeartRateUpload(measureTime: measureDate!, heartRate: heartRate!, deviceId: WatchData.currentDeviceId!)
+            bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic!, systolic: systolic!, deviceId: deviceId))
+            oxygenUploads.append(OxygenLevelUpload(measureTime: measureDate!,oxygenLevel: oxygenLevel!,deviceId:deviceId))
+            return HeartRateUpload(measureTime: measureDate!, heartRate: heartRate!, deviceId: deviceId)
         }
         DataSync.uploadHeartRateInfo(heartRates: heartRateUploads)
         DataSync.uploadBloodPressure(bpLevels: bpUploads)
@@ -128,6 +141,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     }
     
     private func syncStepInfo(stepInfo: [String: Any]){
+        let deviceId = getMacId()
         let dateString:String = stepInfo["date"] as! String
         NSLog("Got date String %@", dateString)
         let stepDate = self.dayFormat.date(from: dateString)
@@ -140,11 +154,11 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         let stepList = hourlySteps.map { (stepMap) -> StepUpload in
             let (stepMinutes, stepsCount) = stepMap
             let stepTime = Calendar.current.date(byAdding: .minute,value: Int(stepMinutes)!, to: stepDate!)
-            return StepUpload(measureTime: stepTime!, steps: Int(stepsCount)!, deviceId: WatchData.currentDeviceId!)
+            return StepUpload(measureTime: stepTime!, steps: Int(stepsCount)!, deviceId: deviceId)
             
         }
-        let dailyStepsUpload = StepUpload(measureTime: stepDate!, steps: dailySteps!, deviceId: WatchData.currentDeviceId!)
-        let dailyCaloriesUpload = CaloriesUpload(measureTime: stepDate!, calories: calories!, deviceId: WatchData.currentDeviceId!)
+        let dailyStepsUpload = StepUpload(measureTime: stepDate!, steps: dailySteps!, deviceId: deviceId)
+        let dailyCaloriesUpload = CaloriesUpload(measureTime: stepDate!, calories: calories!, deviceId: deviceId)
         DataSync.uploadCalories(calories: dailyCaloriesUpload)
         DataSync.uploadSteps(steps: stepList)
         DataSync.uploadDailySteps(dailySteps: dailyStepsUpload)

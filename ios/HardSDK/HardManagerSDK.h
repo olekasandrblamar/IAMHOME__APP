@@ -16,7 +16,7 @@
 @class HardManagerSDK;
 
 @protocol HardManagerSDKDelegate <NSObject>
-
+    
 @optional
 
 -(void)didFindDevice:(CBPeripheral *)device;
