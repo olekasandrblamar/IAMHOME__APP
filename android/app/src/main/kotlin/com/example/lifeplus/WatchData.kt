@@ -33,6 +33,7 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchData.TAG, "onCallbackResult: Connected")
             HardSdk.getInstance().stopScan()
+            HardSdk.getInstance().bindNotice()
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
             Log.d(WatchData.TAG, "onCallbackResult: Disconnected")
             HardSdk.getInstance().startScan()
@@ -71,7 +72,12 @@ class DataCallBack : SimpleDeviceCallback {
         val tempUploads = tempData.map {
             val celsius = it.temps
             val fahrenheit = (celsius*9/5)+32
-            TemperatureUpload(measureTime = tempTimeFormat.parse(it.testMomentTime),deviceId = MainActivity.deviceId,celsius = celsius.toDouble(),fahrenheit = fahrenheit.toDouble())
+            val measureTime = tempTimeFormat.parse(it.testMomentTime)
+            val tempCal = Calendar.getInstance()
+            tempCal.time = measureTime
+            tempCal.add(Calendar.HOUR,-1)
+            println("Time ${tempCal}")
+            TemperatureUpload(measureTime = tempCal.time,deviceId = MainActivity.deviceId,celsius = celsius.toDouble(),fahrenheit = fahrenheit.toDouble())
         }
         DataSync.uploadTemperature(tempUploads)
     }
@@ -113,12 +119,14 @@ class DataCallBack : SimpleDeviceCallback {
 
     override fun onCallbackResult(flag: Int, state: Boolean, obj: Any?) {
         super.onCallbackResult(flag, state, obj)
+        Log.d(WatchData.TAG, "onCallbackResult: ${flag}")
         if (flag == GlobalValue.BATTERY) {
         }
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchData.TAG, "onCallbackResult: Connected")
             //Set the auto health test to true
             HardSdk.getInstance().setAutoHealthTest(true)
+            HardSdk.getInstance().setAutoTemperatureStatus(true)
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
             Log.d(WatchData.TAG, "onCallbackResult: Disconnected")
         } else if (flag == GlobalValue.CONNECT_TIME_OUT_MSG) {
@@ -129,8 +137,6 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.OFFLINE_HEART_SYNC_OK) {
             Log.i(WatchData.TAG, "onCallbackResult: Offline heart sync")
             uploadBloodPressureInfo()
-            //uploadOxygenInfo()
-            //uploadHeartRateInfo()
             //heart rate sync is complete
         } else if (flag == GlobalValue.SLEEP_SYNC_OK) {
             Log.i(WatchData.TAG, "onCallbackResult: Sleep Sync")
