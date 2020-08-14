@@ -9,6 +9,7 @@ class WatchModel {
   final String deviceId;
   final String deviceName;
   final String message;
+  final String deviceType;
   final Map<String, String> additionalInformation;
 
   WatchModel({
@@ -17,6 +18,7 @@ class WatchModel {
     this.deviceName,
     this.message,
     this.additionalInformation,
+    this.deviceType
   });
 
   factory WatchModel.fromJson(Map<String, dynamic> json) =>

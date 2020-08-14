@@ -65,6 +65,7 @@ class DataCallBack : SimpleDeviceCallback {
     }
 
     private fun uploadTemperature(){
+        Log.i(WatchDevice.TAG,"Getting temparature ")
         val prevDay = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 2)
         val today = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), -2)
         Log.d(WatchDevice.TAG,"Getting temp $prevDay to $today")
@@ -127,6 +128,7 @@ class DataCallBack : SimpleDeviceCallback {
             Log.d(WatchDevice.TAG, "onCallbackResult: Connected")
             //Set the auto health test to true
             HardSdk.getInstance().setAutoHealthTest(true)
+            HardSdk.getInstance().setAutoTemperatureStatus(true)
             HardSdk.getInstance().setAutoTemperatureStatus(true)
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Disconnected")
