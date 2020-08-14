@@ -75,7 +75,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   Future<void> _connectDevice() async {
     try {
       final connectionInfo =
-          await platform.invokeMethod('connectDevice',<String, dynamic>{'deviceId': _deviceIdNumber}) as String;
+          await platform.invokeMethod('connectDevice',<String, dynamic>{'deviceId': _deviceIdNumber,'deviceType': _deviceType}) as String;
 
       print('Got response ' + connectionInfo);
 

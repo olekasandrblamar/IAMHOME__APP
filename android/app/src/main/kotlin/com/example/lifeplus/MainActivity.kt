@@ -3,16 +3,12 @@ package com.cerashealth.ceras
 
 import android.Manifest
 import android.content.Context
-import android.content.ContextWrapper
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.PackageManager
 
-import android.os.BatteryManager
-import android.os.Build
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import com.example.lifeplus.BaseDevice
 import com.google.gson.Gson
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -23,7 +19,7 @@ import java.util.*
 class MainActivity: FlutterActivity() {
 
     private val CHANNEL = "ceras.iamhome.mobile/device"
-    private var watchData:WatchData? = null
+    private var sycnDevice:BaseDevice? = null
 
     companion object{
         var lastConnected: Calendar = Calendar.getInstance()
@@ -55,24 +51,23 @@ class MainActivity: FlutterActivity() {
     private fun connectDeviceChannel(flutterEngine: FlutterEngine){
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             if(call.method=="connectDevice"){
+                val deviceType = call.argument<String>("deviceType")
                 //For now connect to watch
-                watchData = WatchData()
-                watchData?.let {
+                sycnDevice = BaseDevice.getDeviceImpl(deviceType)
+                sycnDevice?.let {
                     it.connectDevice(this,result)
                 }
-            } else if(call.method =="loadData"){
-                WatchData().loadData(result)
             } else if(call.method =="syncData"){
                 lastConnected = Calendar.getInstance()
                 context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).edit()
                         .putString("flutter.last_sync",displayDateFormat.format(lastConnected.time))
                         .commit()
-                Log.i(WatchData.TAG,"last Updated ${context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).all}")
+                Log.i(MainActivity.TAG,"last Updated ${context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).all}")
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got sync data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
                 deviceId = deviceData.deviceId?:""
-                WatchData().syncData(result,deviceData,this)
+                BaseDevice.getDeviceImpl(deviceData.deviceType).syncData(result,deviceData,this)
             }
             else {
                 result.notImplemented()
@@ -94,15 +89,18 @@ class ConnectionInfo{
     var connected = false
     var message:String? = null
     var additionalInformation = mapOf<String,String>()
+    var deviceType:String? = null
 
     companion object{
-        fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null,additionalInfo: Map<String, String> = mapOf<String,String>()):String{
+        fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null
+                           ,additionalInfo: Map<String, String> = mapOf<String,String>(),deviceType:String? = null):String{
             val connectionData =  Gson().toJson(ConnectionInfo().apply {
                 this.deviceId = deviceId
                 this.connected = connected
                 this.message = message
                 this.deviceName = deviceName
                 this.additionalInformation = additionalInfo
+                this.deviceType = deviceType
             })
             Log.i(MainActivity.TAG,"Sending connection data back $connectionData")
             return connectionData

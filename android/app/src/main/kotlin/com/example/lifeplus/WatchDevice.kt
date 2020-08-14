@@ -5,6 +5,7 @@ import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.text.TextUtils
 import android.util.Log
+import com.example.lifeplus.BaseDevice
 import com.google.gson.Gson
 import com.walnutin.HeartRateAdditional
 import com.walnutin.hardsdk.ProductList.sdk.GlobalValue
@@ -31,17 +32,17 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
     override fun onCallbackResult(flag: Int, state: Boolean, obj: Any?) {
         super.onCallbackResult(flag, state, obj)
         if (flag == GlobalValue.CONNECTED_MSG) {
-            Log.d(WatchData.TAG, "onCallbackResult: Connected")
+            Log.d(WatchDevice.TAG, "onCallbackResult: Connected")
             HardSdk.getInstance().stopScan()
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
-            Log.d(WatchData.TAG, "onCallbackResult: Disconnected")
+            Log.d(WatchDevice.TAG, "onCallbackResult: Disconnected")
             HardSdk.getInstance().startScan()
         } else if (flag == GlobalValue.CONNECT_TIME_OUT_MSG) {
-            Log.d(WatchData.TAG, "onCallbackResult: Time out")
+            Log.d(WatchDevice.TAG, "onCallbackResult: Time out")
             //retry 3 times for disconnect
             if (retries < 3) {
                 retries++
-                Log.i(WatchData.TAG,"retrying scan")
+                Log.i(WatchDevice.TAG,"retrying scan")
                 HardSdk.getInstance().stopScan()
                 HardSdk.getInstance().startScan()
             } else {
@@ -65,7 +66,7 @@ class DataCallBack : SimpleDeviceCallback {
     private fun uploadTemperature(){
         val prevDay = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 2)
         val today = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), -2)
-        Log.d(WatchData.TAG,"Getting temp $prevDay to $today")
+        Log.d(WatchDevice.TAG,"Getting temp $prevDay to $today")
         val tempData = HardSdk.getInstance().getBodyTemperature(prevDay,today)
         val tempTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val tempUploads = tempData.map {
@@ -85,7 +86,7 @@ class DataCallBack : SimpleDeviceCallback {
         (0..2).forEach {
             val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), it);
             val stepInfos = HardSdk.getInstance().queryOneDayStep(beforeTime)
-            Log.i(WatchData.TAG,"step info ${Gson().toJson(stepInfos)}")
+            Log.i(WatchDevice.TAG,"step info ${Gson().toJson(stepInfos)}")
             if(stepInfos.dates!=null) {
                 val startOfDate = dateFormat.parse(stepInfos.dates)
                 dailySteps.add(DailyStepUpload(measureTime = startOfDate,deviceId = MainActivity.deviceId,steps = stepInfos.step))
@@ -116,64 +117,64 @@ class DataCallBack : SimpleDeviceCallback {
         if (flag == GlobalValue.BATTERY) {
         }
         if (flag == GlobalValue.CONNECTED_MSG) {
-            Log.d(WatchData.TAG, "onCallbackResult: Connected")
+            Log.d(WatchDevice.TAG, "onCallbackResult: Connected")
             //Set the auto health test to true
             HardSdk.getInstance().setAutoHealthTest(true)
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
-            Log.d(WatchData.TAG, "onCallbackResult: Disconnected")
+            Log.d(WatchDevice.TAG, "onCallbackResult: Disconnected")
         } else if (flag == GlobalValue.CONNECT_TIME_OUT_MSG) {
-            Log.d(WatchData.TAG, "onCallbackResult: Timeout")
+            Log.d(WatchDevice.TAG, "onCallbackResult: Timeout")
         } else if (flag == GlobalValue.STEP_FINISH) {
-            Log.i(WatchData.TAG, "onCallbackResult: Step finish")
+            Log.i(WatchDevice.TAG, "onCallbackResult: Step finish")
             uploadSteps()
         } else if (flag == GlobalValue.OFFLINE_HEART_SYNC_OK) {
-            Log.i(WatchData.TAG, "onCallbackResult: Offline heart sync")
+            Log.i(WatchDevice.TAG, "onCallbackResult: Offline heart sync")
             uploadBloodPressureInfo()
             //uploadOxygenInfo()
             //uploadHeartRateInfo()
             //heart rate sync is complete
         } else if (flag == GlobalValue.SLEEP_SYNC_OK) {
-            Log.i(WatchData.TAG, "onCallbackResult: Sleep Sync")
+            Log.i(WatchDevice.TAG, "onCallbackResult: Sleep Sync")
             val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
             val sleepModel = HardSdk.getInstance().queryOneDaySleepInfo(beforeTime)
-            Log.i(WatchData.TAG,"Got sleep info ${Gson().toJson(sleepModel)}")
+            Log.i(WatchDevice.TAG,"Got sleep info ${Gson().toJson(sleepModel)}")
         } else if (flag == GlobalValue.OFFLINE_EXERCISE_SYNC_OK) {
-            Log.d(WatchData.TAG, "onCallbackResult: Exercise Sync")
+            Log.d(WatchDevice.TAG, "onCallbackResult: Exercise Sync")
         } else if (flag == GlobalValue.SYNC_FINISH) {
-            Log.d(WatchData.TAG, "onCallbackResult: Sync complete")
+            Log.d(WatchDevice.TAG, "onCallbackResult: Sync complete")
 
         } else if (flag == GlobalValue.Firmware_Version) {
-            Log.d(WatchData.TAG, "version ${obj as String}")
+            Log.d(WatchDevice.TAG, "version ${obj as String}")
         } else if (flag == GlobalValue.Hardware_Version) {
         } else if (flag == GlobalValue.DISCOVERY_DEVICE_SHAKE) {
         } else if (flag == GlobalValue.Firmware_DownFile) {
         } else if (flag == GlobalValue.Firmware_Start_Upgrade) {
         } else if (flag == GlobalValue.Firmware_Info_Error) {
         } else if (flag == GlobalValue.Firmware_Server_Status) {
-            Log.i(WatchData.TAG, "Server status: $obj \n")
+            Log.i(WatchDevice.TAG, "Server status: $obj \n")
             if (obj != null) {
                 val serverVersion = obj as Version
-                Log.i(WatchData.TAG, "Version：" + Gson().toJson(serverVersion))
+                Log.i(WatchDevice.TAG, "Version：" + Gson().toJson(serverVersion))
             }
         } else if (flag == GlobalValue.Firmware_Upgrade_Progress) {
         } else if (flag == GlobalValue.Firmware_Server_Failed) {
         } else if (flag == GlobalValue.READ_TEMP_FINISH_2) { // -273.15代表绝对0度作为无效值
             val tempStatus = obj as TempStatus
-            Log.i(WatchData.TAG, "temp ${Gson().toJson(tempStatus)}")
+            Log.i(WatchDevice.TAG, "temp ${Gson().toJson(tempStatus)}")
             if (tempStatus.downTime == 0) {
             }
         } else if (flag == GlobalValue.TEMP_HIGH) { //
         } else if (flag == GlobalValue.SYNC_BODY_FINISH) { //Body temperature complete
-            Log.i(WatchData.TAG, "Sync Body finish")
+            Log.i(WatchDevice.TAG, "Sync Body finish")
             uploadTemperature()
         } else if (flag == GlobalValue.SYNC_WRIST_FINISH) { //
-            Log.i(WatchData.TAG,"Wrist sync finished")
-            Log.i(WatchData.TAG, "Sync Body finish")
+            Log.i(WatchDevice.TAG,"Wrist sync finished")
+            Log.i(WatchDevice.TAG, "Sync Body finish")
             val prevDay = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 1)
             val today = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0)
-            Log.d(WatchData.TAG,"Getting wrist temp $prevDay to $today")
+            Log.d(WatchDevice.TAG,"Getting wrist temp $prevDay to $today")
             val tempData = HardSdk.getInstance().getWristTemperature(prevDay,today)
-            Log.d(WatchData.TAG,"Wrist Temperature data ${Gson().toJson(tempData)}")
+            Log.d(WatchDevice.TAG,"Wrist Temperature data ${Gson().toJson(tempData)}")
         } else if (flag == GlobalValue.READ_ArmpitTemp) { // -273.15代表绝对0度 作为无效值
             val yewen = obj as Float
             if (!java.lang.Float.isNaN(yewen) && yewen > -273) {
@@ -218,7 +219,7 @@ class DataCallBack : SimpleDeviceCallback {
         val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), -1);
         val heartRate = HardSdk.getInstance().queryOneDayHeartRate(beforeTime)
         val tempTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
-        Log.i(WatchData.TAG,"got HR "+Gson().toJson(heartRate))
+        Log.i(WatchDevice.TAG,"got HR "+Gson().toJson(heartRate))
         val heartRates = mutableListOf<HeartRateUpload>()
         heartRate.forEach{heartRate->
             heartRate.currentRate?.let {currentRate->
@@ -269,17 +270,17 @@ class DataCallBack : SimpleDeviceCallback {
             calories: Int,
             finish_status: Boolean
     ) {
-        Log.d(WatchData.TAG, "onStepChanged: step:$step")
+        Log.d(WatchDevice.TAG, "onStepChanged: step:$step")
     }
 
     override fun onHeartRateChanged(rate: Int, status: Int) {
         super.onHeartRateChanged(rate, status)
-        Log.d(WatchData.TAG, "onHeartRateChanged: status:$status")
-        if (WatchData.isTestingHeart) {
-            WatchData.isTestingHeart = true
+        Log.d(WatchDevice.TAG, "onHeartRateChanged: status:$status")
+        if (WatchDevice.isTestingHeart) {
+            WatchDevice.isTestingHeart = true
             if (status == GlobalValue.RATE_TEST_FINISH) {
-                WatchData.isTestingHeart = false
-                Log.i(WatchData.TAG,"Heart rate finished")
+                WatchDevice.isTestingHeart = false
+                Log.i(WatchDevice.TAG,"Heart rate finished")
             }
         }
 //            else if (isTestingOxygen == true) {
@@ -327,15 +328,15 @@ class DataCallBack : SimpleDeviceCallback {
     }
 }
 
-class WatchData {
+class WatchDevice:BaseDevice()     {
 
     companion object {
         var isTestingHeart = false;
-        val TAG = WatchData::class.java.simpleName
+        val TAG = BaseDevice::class.java.simpleName
         var dataCallback: DataCallBack? = null
     }
 
-    fun connectDevice(context: Context, result: MethodChannel.Result) {
+    override fun connectDevice(context: Context, result: MethodChannel.Result) {
         HardSdk.getInstance().init(context)
         val watchDataCallBack = WatchDataCallBack(context, result)
         HardSdk.getInstance().setHardScanCallback(watchDataCallBack)
@@ -344,15 +345,9 @@ class WatchData {
             HardSdk.getInstance().startScan()
     }
 
-
-    //Load the data
-    fun loadData(result: MethodChannel.Result) {
-        result.success("Got data")
-    }
-
     //Sync the data from watch
     //This needs to be called in background from time to time
-    fun syncData(result: MethodChannel.Result,connectionInfo: ConnectionInfo,context: Context){
+    override fun syncData(result: MethodChannel.Result,connectionInfo: ConnectionInfo,context: Context){
         Log.i(TAG,"Calling sync data")
 
         Log.i(TAG,"Is device connected ${HardSdk.getInstance().isDevConnected}")
@@ -476,7 +471,8 @@ class WatchDataCallBack : IHardScanCallback {
             )
             Log.d(TAG, "Got data $factoryNameByUUID device ${device.name} address ${device.address}")
             stopScanning()
-            result.success(ConnectionInfo.createResponse(message = "Connected",connected = true,deviceId = deviceAddr,deviceName = deviceName,additionalInfo = mapOf("factoryName" to targetDevice!!.factoryName)))
+            result.success(ConnectionInfo.createResponse(message = "Connected",connected = true,deviceId = deviceAddr,deviceName = deviceName,
+                    additionalInfo = mapOf("factoryName" to targetDevice!!.factoryName),deviceType = BaseDevice.WATCH_DEVICE))
         }
         if (deviceName != null) {
             HardSdk.getInstance().stopScan();

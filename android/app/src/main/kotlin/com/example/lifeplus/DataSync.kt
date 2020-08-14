@@ -24,6 +24,10 @@ class DataSync {
             makePostRequest(gson.toJson(temperatures),"temperature")
         }
 
+        fun sendHeartBeat(heartBeat: DeviceHeartBeat){
+            makePostRequest(gson.toJson(heartBeat),"heartbeat")
+        }
+
         fun uploadOxygenData(oxygenLevels:List<OxygenLevelUpload>){
             makePostRequest(gson.toJson(oxygenLevels),"oxygen")
         }
@@ -65,6 +69,8 @@ class DataSync {
     }
 
 }
+
+data class DeviceHeartBeat(val deviceId:String)
 
 data class TemperatureUpload(val measureTime:Date, var celsius:Double, val fahrenheit:Double, val deviceId:String)
 
