@@ -20,7 +20,7 @@ class CustomEncoder: JSONEncoder{
 
 class DataSync {
     
-    private static let baseUrl = "https://device.dev.myceras.com/api/v1/device/"
+    private static let baseUrl = "https://device.alpha.myceras.com/api/v1/device/"
     private static let encoder = CustomEncoder()
     
     
@@ -71,6 +71,14 @@ class DataSync {
         }
     }
     
+    static func sendHeartBeat(heartBeat:HeartBeat){
+        do{
+            makePostApiCall(url: "heartbeat", postData: try encoder.encode(heartBeat))
+        }catch{
+            NSLog("Error while Uploading Data \(error)")
+        }
+    }
+    
     static func uploadCalories(calories:CaloriesUpload){
         do{
             makePostApiCall(url: "calories", postData: try encoder.encode([calories]))
@@ -86,7 +94,6 @@ class DataSync {
         request.httpBody = postData
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
-        print("calling \(completeUrl) with \(String(data: postData, encoding: .utf8)!)")
         let task = URLSession.shared.dataTask(with: request) { data, response, error in
             print(response)
             print(data)
@@ -111,6 +118,11 @@ struct TemperatureUpload:Codable {
         self.fahrenheit = (celsius*9/5)+32
         self.deviceId = deviceId
     }
+}
+
+struct HeartBeat:Codable{
+    let deviceId:String?
+    let macAddress:String?
 }
 
 struct BpUpload:Codable {

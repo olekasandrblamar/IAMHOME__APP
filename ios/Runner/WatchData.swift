@@ -149,13 +149,15 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         let calories = Int(stepInfo["calories"] as! String)
         let dailySteps = Int(stepInfo["step"] as! String)
         NSLog("Date \(stepDate) calories: \(calories) dailySteps \(dailySteps)")
-        
-        let hourlySteps = stepInfo["stepOneHourInfo"] as! [String:String]
-        let stepList = hourlySteps.map { (stepMap) -> StepUpload in
-            let (stepMinutes, stepsCount) = stepMap
-            let stepTime = Calendar.current.date(byAdding: .minute,value: Int(stepMinutes)!, to: stepDate!)
-            return StepUpload(measureTime: stepTime!, steps: Int(stepsCount)!, deviceId: deviceId)
-            
+        var stepList = [StepUpload]()
+        if(stepInfo["stepOneHourInfo"] != nil){
+            let hourlySteps = stepInfo["stepOneHourInfo"] as! [String:String]
+            stepList = hourlySteps.map { (stepMap) -> StepUpload in
+                let (stepMinutes, stepsCount) = stepMap
+                let stepTime = Calendar.current.date(byAdding: .minute,value: Int(stepMinutes)!, to: stepDate!)
+                return StepUpload(measureTime: stepTime!, steps: Int(stepsCount)!, deviceId: deviceId)
+                
+            }
         }
         let dailyStepsUpload = StepUpload(measureTime: stepDate!, steps: dailySteps!, deviceId: deviceId)
         let dailyCaloriesUpload = CaloriesUpload(measureTime: stepDate!, calories: calories!, deviceId: deviceId)
@@ -173,6 +175,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connectionInfo.deviceId)
         }else if(HardManagerSDK.shareBLEManager().isConnected && !HardManagerSDK.shareBLEManager().isSyncing){
             NSLog("Syncing data")
+            DataSync.sendHeartBeat(heartBeat: HeartBeat(deviceId: connectionInfo.deviceId, macAddress: getMacId()))
             let last24Hours = Calendar.current.date(byAdding: .hour,value: -24, to: Date())
             HardManagerSDK.shareBLEManager().getHardExercise(with: last24Hours)
             HardManagerSDK.shareBLEManager().getHardStepDaysAgo(0)
