@@ -134,10 +134,10 @@ class BandDevice :BaseDevice(){
 
         }
 
-        private fun getDateFromTime(timeInMills:Long):Date{
+        private fun getDateFromTime(year:Int,month:Int,dayOfMonth:Int,hour:Int,minutes:Int):Date{
             val cal = Calendar.getInstance()
-            cal.timeZone = TimeZone.getTimeZone("UTC")
-            cal.timeInMillis = timeInMills
+            cal.set(year,month,dayOfMonth,hour,minutes,0)
+            cal.set(Calendar.MILLISECOND,0)
             return cal.time
         }
 
@@ -151,12 +151,20 @@ class BandDevice :BaseDevice(){
                             val dailySteps = mutableListOf<DailyStepUpload>()
                             val steps = mutableListOf<StepUpload>()
                             val dailyCalories = mutableListOf<CaloriesUpload>()
+                            var totalSteps = 0
+                            var totalCalories = 0
                             exerciseDataSets.filter { it!=null&&it.stepCount>0 }.forEach {
-                                val readingTime = getDateFromTime(it.date)
-                                dailySteps.add(DailyStepUpload(measureTime = readingTime,deviceId = currentDeviceId!!,steps = it.stepCount))
+                                Log.i(TAG,"Got Step data ${it} ${it.hour} ${it.minuter} ")
+                                val readingTime = getDateFromTime(it.year,it.month,it.day,it.hour,it.minuter)
+                                totalSteps+=it.stepCount
+                                totalCalories+=it.calory
                                 steps.add(StepUpload(measureTime = readingTime,deviceId = currentDeviceId!!,steps = it.stepCount))
-                                dailyCalories.add(CaloriesUpload(measureTime = readingTime,deviceId = currentDeviceId!!, calories = it.calory))
                             }
+                            val dailyTime = Calendar.getInstance()
+                            dailyTime.set(cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH),0,0,0)
+                            dailyTime.set(Calendar.MILLISECOND,0)
+                            dailySteps.add(DailyStepUpload(measureTime = dailyTime.time,deviceId = currentDeviceId!!,steps = totalSteps))
+                            dailyCalories.add(CaloriesUpload(measureTime = dailyTime.time,deviceId = currentDeviceId!!, calories = totalCalories))
                             DataSync.uploadCalories(dailyCalories)
                             DataSync.uploadDailySteps(dailySteps)
                             DataSync.uploadStepInfo(steps)
@@ -185,8 +193,8 @@ class BandDevice :BaseDevice(){
                             val oxygenUploads = mutableListOf<OxygenLevelUpload>()
                             val bloodPressureUploads = mutableListOf<BpUpload>()
                             val heartRateUploads = heartRateInfos.filter { it!=null&&it.heartRaveValue>0 }.map {
-                                Log.i(TAG,"Got data ${it}")
-                                val readingTime = getDateFromTime(it.date)
+                                Log.i(TAG,"Got HR Data ${it} ${it.hour} ${it.minuter} ")
+                                val readingTime = getDateFromTime(it.year,it.month,it.day,it.hour,it.minuter)
                                 bloodPressureUploads.add(BpUpload(measureTime = readingTime,systolic = it.ss,distolic = it.fz,deviceId = currentDeviceId!!))
                                 oxygenUploads.add(OxygenLevelUpload(measureTime = readingTime,oxygenLevel = it.oxygen,deviceId = currentDeviceId!!))
                                 HeartRateUpload(measureTime = readingTime,deviceId = currentDeviceId!!,heartRate = it.heartRaveValue)
@@ -214,12 +222,9 @@ class BandDevice :BaseDevice(){
                             val tempUploads = tempInfos.filter { tempInfo ->
                                 tempInfo != null && tempInfo.tmpHandler > 0
                             }.map {
-                                val cal = Calendar.getInstance()
-                                cal.timeZone = TimeZone.getTimeZone("UTC")
-                                cal.timeInMillis = it!!.date
                                 val celsius:Double = it!!.tmpHandler/100.0
                                 val fahrenheit = (celsius*9/5)+32
-                                TemperatureUpload(deviceId = currentDeviceId!!,measureTime = cal.time,fahrenheit = fahrenheit,celsius = celsius)
+                                TemperatureUpload(deviceId = currentDeviceId!!,measureTime = getDateFromTime(it.year,it.month,it.day,it.hour,it.minute),fahrenheit = fahrenheit,celsius = celsius)
                             }
                             DataSync.uploadTemperature(tempUploads)
                             if(next!=null)
