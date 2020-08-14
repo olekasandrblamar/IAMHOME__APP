@@ -17,7 +17,7 @@ class DataSync {
         private val TAG = DataSync::class.java.simpleName
         private val okHttp = OkHttpClient()
         private val jsonMediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-        val baseUrl = "https://device.dev.myceras.com/api/v1/device"
+        val baseUrl = "https://device.alpha.myceras.com/api/v1/device"
         private val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create()
 
         fun uploadTemperature(temperatures:List<TemperatureUpload>){
