@@ -6,18 +6,20 @@ import 'package:ceras/constants/route_paths.dart' as routes;
 
 class PrivacyScreen extends StatelessWidget {
   void _openBrowser() {
-    final browser = ChromeSafariBrowser();
-    browser.open(
-      url: 'https://flutter.io',
-      options: ChromeSafariBrowserClassOptions(
-        android: AndroidChromeCustomTabsOptions(
-          addDefaultShareMenuItem: false,
-        ),
-        ios: IOSSafariOptions(
-          barCollapsingEnabled: true,
-          entersReaderIfAvailable: true,
-        ),
-      ),
+    final browser = InAppBrowser();
+    browser.openFile(
+      // url: 'https://flutter.io',
+      assetFilePath: "assets/privacy/index.html",
+      // options: InAppBrowserClassOptions(
+      // inAppWebViewGroupOptions: InAppWebViewGroupOptions(
+      // crossPlatform: InAppWebViewOptions(
+      // useShouldOverrideUrlLoading: true,
+      // useOnLoadResource: true,
+      // transparentBackground: true,
+      // applicationNameForUserAgent: 'Ceras',
+      // ),
+      // ),
+      // ),
     );
   }
 
