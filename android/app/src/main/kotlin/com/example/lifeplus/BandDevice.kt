@@ -72,6 +72,8 @@ class BandDevice :BaseDevice(){
         var device:BLEDevice? = null
         var currentDeviceId:String? = null
         var mBluetoothLe: BluetoothLe? = null
+        var isSyncing = false
+        var lastSyncTime:Date? = null
 
         private fun setStatus(){
             Log.i(TAG,"setting device status")
@@ -123,11 +125,20 @@ class BandDevice :BaseDevice(){
         }
 
         fun loadData(){
-            DataSync.sendHeartBeat(HeartBeat(deviceId = device?.mDeviceName,macAddress = currentDeviceId!!))
-            syncTemperature{
-                syncHeartRate{
-                    syncSteps {
-                        Log.i(TAG,"Data sync complete")
+            val currentTime = Calendar.getInstance().timeInMillis
+            lastSyncTime?.let {
+                Log.i(TAG,"Difference ${currentTime - it.time}")
+            }
+            if((lastSyncTime==null|| currentTime - lastSyncTime!!.time  > 1000) && !isSyncing) {
+                isSyncing = true
+                lastSyncTime = Calendar.getInstance().time
+                DataSync.sendHeartBeat(HeartBeat(deviceId = device?.mDeviceName, macAddress = currentDeviceId!!))
+                syncTemperature() {
+                    syncHeartRate() {
+                        syncSteps() {
+                            Log.i(TAG, "Data sync complete")
+                            isSyncing = false
+                        }
                     }
                 }
             }
@@ -207,7 +218,10 @@ class BandDevice :BaseDevice(){
                             next()
                     }
                 }
-                override fun onFailed(e: WriteBleException) {}
+                override fun onFailed(e: WriteBleException) {
+                    if(next!=null)
+                        next()
+                }
             })
         }
 
@@ -232,7 +246,10 @@ class BandDevice :BaseDevice(){
                         }
                     }
                 }
-                override fun onFailed(e: WriteBleException) {}
+                override fun onFailed(e: WriteBleException) {
+                    if(next!=null)
+                        next()
+                }
             })
 
         }
