@@ -36,6 +36,10 @@ class DataSync {
             makePostRequest(gson.toJson(heartRates),"heartrate")
         }
 
+        fun sendHeartBeat(heartBeat: HeartBeat){
+            makePostRequest(gson.toJson(heartBeat),"heartbeat")
+        }
+
         fun uploadStepInfo(stepInfo:List<StepUpload>){
             makePostRequest(gson.toJson(stepInfo),"steps")
         }
@@ -79,3 +83,5 @@ data class BpUpload(val measureTime:Date, var distolic:Int,var systolic:Int,val 
 data class HeartRateUpload(val measureTime:Date, var heartRate:Int,val deviceId:String)
 
 data class OxygenLevelUpload(val measureTime:Date, var oxygenLevel:Int,val deviceId:String)
+
+data class HeartBeat(val deviceId:String?,val macAddress:String?)

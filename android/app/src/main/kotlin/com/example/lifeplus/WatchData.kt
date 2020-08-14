@@ -336,6 +336,7 @@ class WatchData {
                 //Load the data from device
                 HardSdk.getInstance().setHardSdkCallback(dataCallback)
             }
+            DataSync.sendHeartBeat(HeartBeat(macAddress = connectionInfo.deviceId,deviceId = connectionInfo.deviceName))
             dataCallback?.let {
                 HardSdk.getInstance().syncLatestBodyTemperature(0)
                 HardSdk.getInstance().syncLatestWristTemperature(0)
