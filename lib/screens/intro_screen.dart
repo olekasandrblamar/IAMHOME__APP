@@ -159,13 +159,10 @@ class _IntroScreenState extends State<IntroScreen> {
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  for (int i = 0; i < _pages.length; i++)
-                    if (i == _currentPage)
-                      _buildSlideDots(context, true, i)
-                    else
-                      _buildSlideDots(context, false, i)
-                ],
+                children: List.generate(
+                  _pages.length,
+                  (index) => _buildSlideDots(index: index),
+                ),
               ),
             ),
           ],
@@ -200,15 +197,17 @@ class _IntroScreenState extends State<IntroScreen> {
     );
   }
 
-  Widget _buildSlideDots(BuildContext context, bool isActive, int index) {
+  AnimatedContainer _buildSlideDots({int index}) {
     return AnimatedContainer(
-      duration: Duration(milliseconds: 150),
+      duration: Duration(milliseconds: 200),
       margin: const EdgeInsets.symmetric(horizontal: 6),
-      height: isActive ? 12 : 8,
-      width: isActive ? 12 : 8,
+      height: 6,
+      width: _currentPage == index ? 20 : 6,
       decoration: BoxDecoration(
-        color: isActive ? Theme.of(context).primaryColor : Color(0XFFC7C7C7),
-        borderRadius: BorderRadius.all(Radius.circular(12)),
+        color: _currentPage == index
+            ? Theme.of(context).primaryColor
+            : Color(0XFFC7C7C7),
+        borderRadius: BorderRadius.circular(3),
       ),
     );
   }
