@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "لغة"
+	},
+	"settings": {
+		"content": {
+			"language": "لغة",
+			"permissions": "أذونات",
+			"review": "أكتب مراجعة"
+		},
+		"title": "الإعدادات"
+	}
+}

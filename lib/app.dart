@@ -2,13 +2,16 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/screens/intro_screen.dart';
 import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/screens/splash_screen.dart';
 import 'package:provider/provider.dart';
+import 'package:ceras/providers/applanguage_provider.dart';
 
+import 'config/app_localizations.dart';
 import 'config/navigation_service.dart';
 import 'constants/route_paths.dart' as routes;
 import 'router.dart' as router;
@@ -21,11 +24,16 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
+  final AppLanguageProvider appLanguage = AppLanguageProvider();
+
   @override
   void initState() {
     // NotificationOneSignal().initialiseOneSignal();
     // DynamicLinksSetup().initDynamicLinks();
     // initalizeBackgroundFetch();
+
+    appLanguage.fetchLocale();
+
     // TODO: implement initState
     super.initState();
   }
@@ -51,11 +59,14 @@ class _MyAppState extends State<MyApp> {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider.value(
+          value: appLanguage,
+        ),
+        ChangeNotifierProvider.value(
           value: AuthProvider(),
         ),
       ],
-      child: Consumer<AuthProvider>(
-        builder: (ctx, auth, _) {
+      child: Consumer2<AuthProvider, AppLanguageProvider>(
+        builder: (ctx, auth, appLanguage, _) {
           return MaterialApp(
             title: 'lifeplus',
             debugShowCheckedModeBanner: false,
@@ -77,6 +88,34 @@ class _MyAppState extends State<MyApp> {
             onGenerateRoute: (settings) => router.generateRoute(
               settings,
             ),
+            locale: appLanguage.appLocal,
+            supportedLocales: [
+              const Locale('en', 'US'),
+              const Locale('hi', 'IN'),
+              const Locale('ar', 'AE'),
+              const Locale('zh', 'CN'),
+              const Locale('nl', 'NL'),
+              const Locale('fr', 'FR'),
+              const Locale('de', 'DE'),
+              const Locale('el', 'GR'),
+              const Locale('hi', 'IN'),
+              const Locale('it', 'IT'),
+              const Locale('ja', 'JP'),
+              const Locale('ko', 'KR'),
+              const Locale('ms', 'MY'),
+              const Locale('pt', 'PT'),
+              const Locale('ru', 'RU'),
+              const Locale('es', 'ES'),
+              const Locale('sv', 'SE'),
+              const Locale('tr', 'TR'),
+              const Locale('th', 'TH'),
+              const Locale('vi', 'VN'),
+            ],
+            localizationsDelegates: [
+              AppLocalizations.delegate,
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+            ],
           );
         },
       ),

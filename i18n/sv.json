@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "Språk"
+	},
+	"settings": {
+		"content": {
+			"language": "Språk",
+			"permissions": "Behörigheter",
+			"review": "Skriva en recension"
+		},
+		"title": "Inställningar"
+	}
+}

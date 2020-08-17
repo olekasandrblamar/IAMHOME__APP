@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "언어"
+	},
+	"settings": {
+		"content": {
+			"language": "언어",
+			"permissions": "권한",
+			"review": "리뷰를 작성"
+		},
+		"title": "설정"
+	}
+}

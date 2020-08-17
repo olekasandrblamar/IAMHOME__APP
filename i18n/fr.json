@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "La langue"
+	},
+	"settings": {
+		"content": {
+			"language": "La langue",
+			"permissions": "Les permissions",
+			"review": "Écrire une critique"
+		},
+		"title": "Réglages"
+	}
+}

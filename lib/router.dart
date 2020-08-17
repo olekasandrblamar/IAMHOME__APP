@@ -1,3 +1,4 @@
+import 'package:ceras/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/screens/access/camera_screen.dart';
 import 'package:ceras/screens/access/locations_screen.dart';
@@ -45,6 +46,8 @@ Route<dynamic> generateRoute(
       return MaterialPageRoute(builder: (context) => BluetoothNotfoundScreen());
     case HelpRoute:
       return MaterialPageRoute(builder: (context) => HelpScreen());
+    case SettingsRoute:
+      return MaterialPageRoute(builder: (context) => SettingsScreen());
     default:
       return MaterialPageRoute(
         builder: (context) => Scaffold(

@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "Taal"
+	},
+	"settings": {
+		"content": {
+			"language": "Taal",
+			"permissions": "machtigingen",
+			"review": "Schrijf een recensie"
+		},
+		"title": "instellingen"
+	}
+}

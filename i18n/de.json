@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "Sprache"
+	},
+	"settings": {
+		"content": {
+			"language": "Sprache",
+			"permissions": "Berechtigungen",
+			"review": "Eine Rezension schreiben"
+		},
+		"title": "die Einstellungen"
+	}
+}

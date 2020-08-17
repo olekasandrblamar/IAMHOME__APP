@@ -23,6 +23,9 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_cupertino_localizations: ^1.0.1
   provider: ^4.3.2
   intl: ^0.16.1
   dio: ^3.0.10
@@ -38,6 +41,7 @@ dependencies:
   background_fetch: "^0.6.0"
   flutter_inappwebview: ^4.0.0+4
   url_launcher: ^5.5.0
+  launch_review: ^2.0.0
 
 dev_dependencies:
   pedantic: ^1.9.0
@@ -59,6 +63,7 @@ flutter:
   uses-material-design: true
 
   assets:
+    - i18n/
     - assets/privacy/index.html
     - assets/images/placeholder.jpg
     - assets/images/location.png
