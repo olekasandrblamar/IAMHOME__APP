@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "ภาษา"
+	},
+	"settings": {
+		"content": {
+			"language": "ภาษา",
+			"permissions": "สิทธิ์",
+			"review": "แสดงความคิดเห็น"
+		},
+		"title": "การตั้งค่า"
+	}
+}

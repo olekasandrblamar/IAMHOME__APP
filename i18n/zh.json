@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "语言"
+	},
+	"settings": {
+		"content": {
+			"language": "语言",
+			"permissions": "权限",
+			"review": "写评论"
+		},
+		"title": "设置"
+	}
+}

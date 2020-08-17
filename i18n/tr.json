@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "dil"
+	},
+	"settings": {
+		"content": {
+			"language": "dil",
+			"permissions": "İzinler",
+			"review": "Bir değerlendirme yazın"
+		},
+		"title": "ayarlar"
+	}
+}

@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "言語"
+	},
+	"settings": {
+		"content": {
+			"language": "言語",
+			"permissions": "許可",
+			"review": "レビューを書く"
+		},
+		"title": "設定"
+	}
+}

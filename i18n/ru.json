@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "язык"
+	},
+	"settings": {
+		"content": {
+			"language": "язык",
+			"permissions": "права доступа",
+			"review": "Написать обзор"
+		},
+		"title": "настройки"
+	}
+}

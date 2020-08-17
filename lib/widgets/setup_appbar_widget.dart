@@ -18,14 +18,7 @@ class SetupAppBar extends StatelessWidget implements PreferredSizeWidget {
           // color: Colors.black,
           icon: const Icon(Icons.menu),
           onPressed: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<Null>(
-                builder: (BuildContext context) {
-                  return AppPermissions();
-                },
-                fullscreenDialog: true,
-              ),
-            );
+            Navigator.of(context).pushNamed(routes.SettingsRoute);
           },
         ),
         Expanded(

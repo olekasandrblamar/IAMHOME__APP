@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "ngôn ngữ"
+	},
+	"settings": {
+		"content": {
+			"language": "ngôn ngữ",
+			"permissions": "Quyền",
+			"review": "Viết nhận xét"
+		},
+		"title": "Cài đặt"
+	}
+}

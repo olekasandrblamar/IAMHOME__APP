@@ -10,14 +10,8 @@ class AppPermissions extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: CloseButton(color: Colors.black),
-        backgroundColor: Colors.white,
-        elevation: 0,
         title: const Text(
           'Permissions',
-          style: TextStyle(
-            color: Colors.black,
-          ),
         ),
         actions: <Widget>[
           IconButton(
@@ -26,7 +20,6 @@ class AppPermissions extends StatelessWidget {
               var hasOpened = openAppSettings();
               debugPrint('App Settings opened: ' + hasOpened.toString());
             },
-            color: Colors.black,
           )
         ],
       ),

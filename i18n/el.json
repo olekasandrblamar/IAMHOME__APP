@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "γλώσσα"
+	},
+	"settings": {
+		"content": {
+			"language": "γλώσσα",
+			"permissions": "Άδειες",
+			"review": "Γράψτε μια κριτική"
+		},
+		"title": "Ρυθμίσεις"
+	}
+}

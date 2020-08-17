@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "Bahasa"
+	},
+	"settings": {
+		"content": {
+			"language": "Bahasa",
+			"permissions": "Kebenaran",
+			"review": "Menulis ulasan"
+		},
+		"title": "Tetapan"
+	}
+}

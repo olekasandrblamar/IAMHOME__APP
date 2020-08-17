@@ -1,0 +1,13 @@
+{
+	"appLanguage": {
+		"title": "भाषा"
+	},
+	"settings": {
+		"content": {
+			"language": "भाषा",
+			"permissions": "अनुमतियां",
+			"review": "एक समीक्षा लिखे"
+		},
+		"title": "सेटिंग्स"
+	}
+}
