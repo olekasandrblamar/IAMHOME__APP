@@ -1,31 +1,10 @@
+import 'package:ceras/data/language_data.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/providers/applanguage_provider.dart';
 import 'package:provider/provider.dart';
 
 import 'package:ceras/theme.dart';
-
-enum LanguageSelectionChoice {
-  en,
-  ar,
-  zh,
-  nl,
-  fr,
-  de,
-  el,
-  hi,
-  it,
-  ja,
-  ko,
-  ms,
-  pt,
-  ru,
-  es,
-  sv,
-  tr,
-  th,
-  vi
-}
 
 class LanguageSelection extends StatefulWidget {
   @override
@@ -35,122 +14,7 @@ class LanguageSelection extends StatefulWidget {
 class _LanguageSelectionState extends State<LanguageSelection> {
   LanguageSelectionChoice _language = LanguageSelectionChoice.en;
 
-  final List<dynamic> _languages = [
-    {
-      'language_code': 'en',
-      'label': 'English',
-      'countryCode': 'US',
-      'value': LanguageSelectionChoice.en
-    },
-    {
-      'language_code': 'ar',
-      'label': 'Arabic',
-      'countryCode': 'AE',
-      'value': LanguageSelectionChoice.ar
-    },
-    {
-      'language_code': 'zh',
-      'label': 'Chinese',
-      'countryCode': 'CN',
-      'value': LanguageSelectionChoice.zh
-    },
-    {
-      'language_code': 'nl',
-      'label': 'Dutch',
-      'countryCode': 'NL',
-      'value': LanguageSelectionChoice.nl
-    },
-    {
-      'language_code': 'fr',
-      'label': 'French',
-      'countryCode': 'FR',
-      'value': LanguageSelectionChoice.fr
-    },
-    {
-      'language_code': 'de',
-      'label': 'German',
-      'countryCode': 'DE',
-      'value': LanguageSelectionChoice.de
-    },
-    {
-      'language_code': 'el',
-      'label': 'Greek',
-      'countryCode': 'GR',
-      'value': LanguageSelectionChoice.el
-    },
-    {
-      'language_code': 'hi',
-      'label': 'Hindi',
-      'countryCode': 'IN',
-      'value': LanguageSelectionChoice.hi
-    },
-    {
-      'language_code': 'it',
-      'label': 'Italian',
-      'countryCode': 'IT',
-      'value': LanguageSelectionChoice.it
-    },
-    {
-      'language_code': 'ja',
-      'label': 'Japanese',
-      'countryCode': 'JP',
-      'value': LanguageSelectionChoice.ja
-    },
-    {
-      'language_code': 'ko',
-      'label': 'Korean',
-      'countryCode': 'KR',
-      'value': LanguageSelectionChoice.ko
-    },
-    {
-      'language_code': 'ms',
-      'label': 'Malaysian',
-      'countryCode': 'MY',
-      'value': LanguageSelectionChoice.ms
-    },
-    {
-      'language_code': 'pt',
-      'label': 'Portuguese',
-      'countryCode': 'PT',
-      'value': LanguageSelectionChoice.pt
-    },
-    {
-      'language_code': 'ru',
-      'label': 'Russian',
-      'countryCode': 'RU',
-      'value': LanguageSelectionChoice.ru
-    },
-    {
-      'language_code': 'es',
-      'label': 'Spanish',
-      'countryCode': 'ES',
-      'value': LanguageSelectionChoice.es
-    },
-    {
-      'language_code': 'sv',
-      'label': 'Swedish',
-      'countryCode': 'SE',
-      'value': LanguageSelectionChoice.sv
-    },
-    {
-      'language_code': 'tr',
-      'label': 'Turkish',
-      'countryCode': 'TR',
-      'value': LanguageSelectionChoice.tr
-    },
-    {
-      'language_code': 'th',
-      'label': 'Thai',
-      'countryCode': 'TH',
-      'value': LanguageSelectionChoice.th
-    },
-    {
-      'language_code': 'vi',
-      'label': 'Vietnamese',
-      'countryCode': 'VN',
-      'value': LanguageSelectionChoice.vi
-    },
-  ];
+  final List<dynamic> _languages = LANGUAGES_DATA;
 
   @override
   void initState() {
@@ -190,27 +54,39 @@ class _LanguageSelectionState extends State<LanguageSelection> {
       backgroundColor: AppTheme.background,
       body: SingleChildScrollView(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 15),
+          padding: EdgeInsets.symmetric(horizontal: 0, vertical: 15),
           child: Column(
             children: List.generate(
               _languages.length,
               (index) => Container(
-                margin: EdgeInsets.only(bottom: 5),
-                child: Card(
-                  child: RadioListTile<LanguageSelectionChoice>(
-                    title: Text(_languages[index]['label']),
-                    subtitle: Text(_languages[index]['label']),
-                    value: _languages[index]['value'],
-                    groupValue: _language,
-                    onChanged: (LanguageSelectionChoice value) {
-                      _appLanguage.changeLanguage(
-                        Locale(_languages[index]['language_code']),
-                      );
-                      setState(() {
-                        _language = value;
-                      });
-                    },
+                // margin: EdgeInsets.only(bottom: 5),
+                // child: Card(
+                child: RadioListTile<LanguageSelectionChoice>(
+                  title: Row(
+                    children: [
+                      Text(
+                        _languages[index]['language'] + ' - ',
+                      ),
+                      Text(
+                        _languages[index]['label'],
+                        style: TextStyle(
+                          color: Color(0xFF797979),
+                        ),
+                      ),
+                    ],
                   ),
+                  // subtitle: Text(_languages[index]['label']),
+                  value: _languages[index]['value'],
+                  groupValue: _language,
+                  onChanged: (LanguageSelectionChoice value) {
+                    _appLanguage.changeLanguage(
+                      Locale(_languages[index]['language_code']),
+                    );
+                    setState(() {
+                      _language = value;
+                    });
+                  },
+                  // ),
                 ),
               ),
             ),
