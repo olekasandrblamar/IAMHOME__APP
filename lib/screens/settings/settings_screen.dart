@@ -1,3 +1,4 @@
+import 'package:ceras/config/user_deviceinfo.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:ceras/config/app_localizations.dart';
@@ -6,8 +7,41 @@ import 'package:ceras/widgets/languageselection_widget.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/theme.dart';
+import 'package:package_info/package_info.dart';
 
-class SettingsScreen extends StatelessWidget {
+class SettingsScreen extends StatefulWidget {
+  @override
+  _SettingsScreenState createState() => _SettingsScreenState();
+}
+
+class _SettingsScreenState extends State<SettingsScreen> {
+  PackageInfo _packageInfo = PackageInfo(
+    appName: 'Unknown',
+    packageName: 'Unknown',
+    version: 'Unknown',
+    buildNumber: 'Unknown',
+  );
+
+  @override
+  void initState() {
+    super.initState();
+    _initPackageInfo();
+  }
+
+  Future<void> _initPackageInfo() async {
+    final PackageInfo info = await PackageInfo.fromPlatform();
+    setState(() {
+      _packageInfo = info;
+    });
+  }
+
+  _showAboutDialog() {
+    showAboutDialog(
+      context: context,
+      applicationVersion: _packageInfo.version,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final _appLocalization = AppLocalizations.of(context);
@@ -151,6 +185,26 @@ class SettingsScreen extends StatelessWidget {
               ),
             ),
           ],
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        bottom: true,
+        child: InkWell(
+          child: Container(
+            width: double.infinity,
+            // alignment: Alignment.center,
+            child: ListTile(
+              title: Text(
+                'App version',
+                textAlign: TextAlign.center,
+              ),
+              subtitle: Text(
+                _packageInfo.version + '+' + _packageInfo.buildNumber,
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ),
+          onTap: () => _showAboutDialog(),
         ),
       ),
     );

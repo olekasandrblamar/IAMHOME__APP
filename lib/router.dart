@@ -1,4 +1,3 @@
-import 'package:ceras/screens/settings/settings_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/screens/access/camera_screen.dart';
 import 'package:ceras/screens/access/locations_screen.dart';
@@ -10,6 +9,8 @@ import 'package:ceras/screens/setup/bluetooth_notfound_screen.dart';
 import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/screens/setup/setup_connect_screen.dart';
 import 'package:ceras/screens/setup/setup_search_screen.dart';
+import 'package:ceras/screens/selectlanguage_screen.dart';
+import 'package:ceras/screens/settings/settings_screen.dart';
 
 import 'constants/route_paths.dart';
 import 'screens/setup/setup_home_screen.dart';
@@ -20,6 +21,8 @@ Route<dynamic> generateRoute(
   switch (settings.name) {
     // case RootRoute:
     //   return MaterialPageRoute(builder: (context) => LoginScreen());
+    case SelectLanguageRoute:
+      return MaterialPageRoute(builder: (context) => SelectLanguageScreen());
     case NotificationsRoute:
       return MaterialPageRoute(builder: (context) => NotificationsScreen());
     case LocationsRoute:

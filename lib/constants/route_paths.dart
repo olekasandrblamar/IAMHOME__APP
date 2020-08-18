@@ -1,5 +1,6 @@
 const String RootRoute = '/';
 
+const String SelectLanguageRoute = '/selectLanguage';
 const String IntroRoute = '/intro';
 const String PrivacyRoute = '/privacy';
 
