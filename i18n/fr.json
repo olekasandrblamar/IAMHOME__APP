@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "Fermer",
+				"open": "Ouvrir"
+			},
+			"description": "Voulez-vous ouvrir les paramètres",
+			"title": "Permission refusée!"
+		},
+		"buttons": {
+			"imin": "j'en suis",
+			"nothanks": "Non merci"
+		},
+		"camera": {
+			"description": "Pour mieux communiquer avec vous, le plan de soins que vous sélectionnez nous oblige à vous envoyer les notifications. Rejoignez le programme de suivi du bien-être pour que Ceras puisse continuer à mettre à jour vos activités.",
+			"title": "Caméra"
+		},
+		"locations": {
+			"description": "Pour mieux communiquer avec vous, le plan de soins que vous sélectionnez nous oblige à vous envoyer les notifications. Rejoignez le programme de suivi du bien-être pour que Ceras puisse continuer à mettre à jour vos activités.",
+			"title": "Emplacement"
+		},
+		"notifications": {
+			"description": "Pour mieux communiquer avec vous, le plan de soins que vous sélectionnez nous oblige à vous envoyer les notifications. Rejoignez le programme de suivi du bien-être pour que Ceras puisse continuer à mettre à jour vos activités.",
+			"title": "Notification push"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "Suivant"
+		},
+		"page": {
+			"title": "Choisir la langue"
+		},
 		"title": "La langue"
 	},
+	"help": {
+		"buttons": {
+			"callus": "Appelez nous"
+		},
+		"description": "Pour mieux communiquer avec vous, le plan de soins que vous sélectionnez nous oblige à vous envoyer les notifications. Rejoignez le programme de suivi du bien-être afin que Ceras puisse continuer à mettre à jour vos activités.",
+		"header": {
+			"title": "Aidez-moi"
+		},
+		"title": "Contactez le support"
+	},
+	"intro": {
+		"always": {
+			"description": "Soyez connecté à votre médecin. Ayez l'esprit tranquille pendant que votre équipe soignante surveille votre santé 24h / 24 et 7j / 7. nous assurons votre expérience en matière de soins de santé.",
+			"title": "Toujours connecté"
+		},
+		"buttons": {
+			"letsgo": "Allons-y"
+		},
+		"conditions": {
+			"description": "Que vous ayez un problème aigu mineur ou une maladie chronique, laissez votre médecin gérer de manière proactive les conditions dans le confort de votre domicile.",
+			"title": "Conditions gérées"
+		},
+		"health": {
+			"description": "Enregistrez automatiquement vos données de bien-être à partir de l'appareil et envoyez-les à votre médecin pour qu'il examine votre état de santé. Portez-le et oubliez-le.",
+			"title": "Surveillance de la santé"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "Se mettre d'accord",
+			"view": "Vue"
+		},
+		"description1": "Avant d'utiliser l'application Ceras, veuillez lire attentivement les conditions suivantes.",
+		"description2": "Acceptez le contrat de licence utilisateur final et la politique de confidentialité.",
+		"title": "Nos termes et conditions"
+	},
 	"settings": {
+		"appversion": "Version de l'application",
 		"content": {
 			"language": "La langue",
 			"permissions": "Les permissions",
 			"review": "Écrire une critique"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "Caméra",
+				"location": "Emplacement",
+				"notifications": "Les notifications"
+			},
+			"permissionstatus": {
+				"denied": "Accès refusé",
+				"granted": "Accès autorisé",
+				"unknown": "Inconnu"
+			},
+			"title": "Les permissions"
+		},
 		"title": "Réglages"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "Appareil trouvé",
+			"lastconnected": "Dernière connexion",
+			"syncdata": "Synchroniser les données"
+		},
+		"connect": {
+			"last4": "Entrez les 4 derniers caractères de l'ID de l'appareil"
+		},
+		"home": {
+			"title": "Choisir un appareil"
+		}
 	}
 }

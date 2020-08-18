@@ -64,7 +64,7 @@ class _SelectLanguageScreenState extends State<SelectLanguageScreen> {
                     left: 25,
                   ),
                   child: Text(
-                    'Select Language',
+                    _appLocalization.translate('appLanguage.page.title'),
                     style: AppTheme.title,
                     textAlign: TextAlign.left,
                   ),
@@ -95,7 +95,7 @@ class _SelectLanguageScreenState extends State<SelectLanguageScreen> {
                       value: _languages[index]['value'],
                       groupValue: _language,
                       onChanged: (LanguageSelectionChoice value) {
-                        _appLanguage.changeLanguagePage(
+                        _appLanguage.changeLanguage(
                           Locale(_languages[index]['language_code']),
                         );
                         setState(() {
@@ -126,10 +126,12 @@ class _SelectLanguageScreenState extends State<SelectLanguageScreen> {
                 ),
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
-                child: Text('Start'),
+                child: Text(
+                  _appLocalization.translate('appLanguage.buttons.next'),
+                ),
                 onPressed: () {
                   return Navigator.of(context).pushReplacementNamed(
-                    routes.IntroRoute,
+                    routes.PrivacyRoute,
                   );
                 },
               ),

@@ -1,3 +1,4 @@
+import 'package:ceras/config/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:ceras/theme.dart';
@@ -25,6 +26,8 @@ class PrivacyScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _appLocalization = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: AppTheme.white,
       body: SafeArea(
@@ -58,7 +61,7 @@ class PrivacyScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
-                  'Our Terms and Conditions',
+                  _appLocalization.translate('privacy.title'),
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: AppTheme.title,
@@ -70,7 +73,9 @@ class PrivacyScreen extends StatelessWidget {
                   horizontal: 35.0,
                 ),
                 child: Text(
-                  'Before using the Ceras app, please read the following terms carefully. \n\n Agree to End User License Agreement & Privacy Policy.',
+                  _appLocalization.translate('privacy.description1') +
+                      '\n\n' +
+                      _appLocalization.translate('privacy.description2'),
                   textAlign: TextAlign.center,
                   style: AppTheme.subtitle,
                 ),
@@ -92,7 +97,7 @@ class PrivacyScreen extends StatelessWidget {
                       color: Color(0XFFE6E6E6),
                       textColor: Colors.black,
                       child: Text(
-                        'View',
+                        _appLocalization.translate('privacy.buttons.view'),
                         style: TextStyle(
                           fontSize: 14,
                         ),
@@ -111,7 +116,7 @@ class PrivacyScreen extends StatelessWidget {
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       child: Text(
-                        'Agree',
+                        _appLocalization.translate('privacy.buttons.agree'),
                         style: TextStyle(
                           fontSize: 14,
                         ),

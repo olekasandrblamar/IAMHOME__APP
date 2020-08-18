@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "Schließen",
+				"open": "Öffnen"
+			},
+			"description": "Möchten Sie Einstellungen öffnen?",
+			"title": "Zugang verweigert!"
+		},
+		"buttons": {
+			"imin": "ich bin dabei",
+			"nothanks": "Nein Danke"
+		},
+		"camera": {
+			"description": "Um sich besser mit Ihnen in Verbindung zu setzen, müssen wir Ihnen für den von Ihnen ausgewählten Pflegeplan die Benachrichtigungen senden. Nehmen Sie am Wellness-Tracker-Programm teil, damit Ceras Ihre Aktivitäten weiterhin aktualisieren kann.",
+			"title": "Kamera"
+		},
+		"locations": {
+			"description": "Um sich besser mit Ihnen in Verbindung zu setzen, müssen wir Ihnen für den von Ihnen ausgewählten Pflegeplan die Benachrichtigungen senden. Nehmen Sie am Wellness-Tracker-Programm teil, damit Ceras Ihre Aktivitäten weiterhin aktualisieren kann.",
+			"title": "Ort"
+		},
+		"notifications": {
+			"description": "Um sich besser mit Ihnen in Verbindung zu setzen, müssen wir Ihnen für den von Ihnen ausgewählten Pflegeplan die Benachrichtigungen senden. Nehmen Sie am Wellness-Tracker-Programm teil, damit Ceras Ihre Aktivitäten weiterhin aktualisieren kann.",
+			"title": "Push-Benachrichtigung"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "Nächster"
+		},
+		"page": {
+			"title": "Sprache auswählen"
+		},
 		"title": "Sprache"
 	},
+	"help": {
+		"buttons": {
+			"callus": "Rufen Sie uns an"
+		},
+		"description": "Um sich besser mit Ihnen in Verbindung zu setzen, müssen wir Ihnen für den von Ihnen ausgewählten Pflegeplan die Benachrichtigungen senden. Nehmen Sie am Wellness-Tracker-Programm teil, damit Ceras Ihre Aktivitäten weiterhin aktualisieren kann.",
+		"header": {
+			"title": "Hilfe"
+		},
+		"title": "Kontaktieren Sie Support"
+	},
+	"intro": {
+		"always": {
+			"description": "Seien Sie mit Ihrem Arzt verbunden. Seien Sie beruhigt, während Ihr Pflegeteam Ihre Gesundheit rund um die Uhr überwacht. Wir haben Ihre Erfahrung im Gesundheitswesen abgedeckt.",
+			"title": "Immer verbunden"
+		},
+		"buttons": {
+			"letsgo": "Lass uns gehen"
+		},
+		"conditions": {
+			"description": "Lassen Sie Ihren Arzt die Beschwerden bequem von zu Hause aus proaktiv behandeln, unabhängig davon, ob Sie ein geringfügiges akutes Problem oder eine chronische Erkrankung haben.",
+			"title": "Verwaltete Bedingungen"
+		},
+		"health": {
+			"description": "Zeichnen Sie Ihre Wellness-Daten automatisch vom Gerät auf und senden Sie sie zur Überprüfung Ihrer Gesundheit an Ihren Arzt. Trage es einfach und vergiss es.",
+			"title": "Gesundheitsüberwachung"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "Zustimmen",
+			"view": "Aussicht"
+		},
+		"description1": "Lesen Sie die folgenden Begriffe sorgfältig durch, bevor Sie die Ceras-App verwenden.",
+		"description2": "Stimmen Sie der Endbenutzer-Lizenzvereinbarung und den Datenschutzbestimmungen zu.",
+		"title": "Unsere Allgemeinen Geschäftsbedingungen"
+	},
 	"settings": {
+		"appversion": "App Version",
 		"content": {
 			"language": "Sprache",
 			"permissions": "Berechtigungen",
 			"review": "Eine Rezension schreiben"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "Kamera",
+				"location": "Ort",
+				"notifications": "Benachrichtigungen"
+			},
+			"permissionstatus": {
+				"denied": "Zugriff verweigert",
+				"granted": "Zugriff gewährt",
+				"unknown": "unbekannte"
+			},
+			"title": "Berechtigungen"
+		},
 		"title": "die Einstellungen"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "Gerät gefunden",
+			"lastconnected": "Zuletzt verbunden",
+			"syncdata": "Daten synchronisieren"
+		},
+		"connect": {
+			"last4": "Geben Sie die letzten 4 Zeichen der Geräte-ID ein"
+		},
+		"home": {
+			"title": "Gerät auswählen"
+		}
 	}
 }

@@ -195,7 +195,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             // alignment: Alignment.center,
             child: ListTile(
               title: Text(
-                'App version',
+                _appLocalization.translate('settings.appversion'),
                 textAlign: TextAlign.center,
               ),
               subtitle: Text(

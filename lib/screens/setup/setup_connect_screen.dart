@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:ceras/config/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
@@ -74,8 +75,13 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
   Future<void> _connectDevice() async {
     try {
-      final connectionInfo =
-          await platform.invokeMethod('connectDevice',<String, dynamic>{'deviceId': _deviceIdNumber,'deviceType': _deviceType}) as String;
+      final connectionInfo = await platform.invokeMethod(
+        'connectDevice',
+        <String, dynamic>{
+          'deviceId': _deviceIdNumber,
+          'deviceType': _deviceType
+        },
+      ) as String;
 
       print('Got response ' + connectionInfo);
 
@@ -109,6 +115,8 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final _appLocalization = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
         leading: BackButton(color: Colors.black),
@@ -187,7 +195,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                 padding: const EdgeInsets.all(10.0),
                 child: FittedBox(
                   child: Text(
-                    'Enter last 4 characters of device ID',
+                    _appLocalization.translate('setup.connect.last4'),
                     textAlign: TextAlign.center,
                     style: AppTheme.title,
                   ),

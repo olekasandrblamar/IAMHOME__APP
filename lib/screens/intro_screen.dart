@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ceras/config/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/data/intro_data.dart';
@@ -68,6 +69,8 @@ class _IntroScreenState extends State<IntroScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final _appLocalization = AppLocalizations.of(context);
+
     return Scaffold(
       // appBar: AppBar(
       //   title: Text('Home'),
@@ -125,7 +128,8 @@ class _IntroScreenState extends State<IntroScreen> {
                                 Container(
                                   padding: const EdgeInsets.all(10.0),
                                   child: Text(
-                                    _pages[i].title,
+                                    _appLocalization.translate(
+                                        'intro.' + _pages[i].type + '.title'),
                                     overflow: TextOverflow.ellipsis,
                                     textAlign: TextAlign.center,
                                     style: AppTheme.title,
@@ -137,7 +141,9 @@ class _IntroScreenState extends State<IntroScreen> {
                                     horizontal: 35.0,
                                   ),
                                   child: Text(
-                                    _pages[i].description,
+                                    _appLocalization.translate('intro.' +
+                                        _pages[i].type +
+                                        '.description'),
                                     textAlign: TextAlign.center,
                                     style: AppTheme.subtitle,
                                   ),
@@ -183,10 +189,12 @@ class _IntroScreenState extends State<IntroScreen> {
                 ),
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
-                child: Text('Let\'s Go'),
+                child: Text(
+                  _appLocalization.translate('intro.buttons.letsgo'),
+                ),
                 onPressed: () {
                   return Navigator.of(context).pushReplacementNamed(
-                    routes.PrivacyRoute,
+                    routes.SelectLanguageRoute,
                   );
                 },
               ),

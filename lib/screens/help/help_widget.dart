@@ -1,3 +1,4 @@
+import 'package:ceras/config/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -17,13 +18,15 @@ class HelpScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _appLocalization = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
         leading: CloseButton(color: Colors.black),
         backgroundColor: Colors.white,
         elevation: 0,
         title: Text(
-          'Help',
+          _appLocalization.translate('help.header.title'),
           style: TextStyle(
             color: Colors.black,
           ),
@@ -64,7 +67,7 @@ class HelpScreen extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(10.0),
                 child: Text(
-                  'Contact Support',
+                  _appLocalization.translate('help.title'),
                   overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.center,
                   style: AppTheme.title,
@@ -76,7 +79,7 @@ class HelpScreen extends StatelessWidget {
                   horizontal: 35.0,
                 ),
                 child: Text(
-                  'To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activites.',
+                  _appLocalization.translate('help.description'),
                   textAlign: TextAlign.center,
                   style: AppTheme.subtitle,
                 ),
@@ -98,7 +101,7 @@ class HelpScreen extends StatelessWidget {
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       child: Text(
-                        'Call Us',
+                        _appLocalization.translate('help.buttons.callus'),
                         style: TextStyle(
                           fontSize: 14,
                         ),

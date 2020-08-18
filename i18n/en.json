@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "Close",
+				"open": "Open"
+			},
+			"description": "Do you want to open settings",
+			"title": "Permission Denied!"
+		},
+		"buttons": {
+			"imin": "I'm In",
+			"nothanks": "No, Thanks"
+		},
+		"camera": {
+			"description": "To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activities.",
+			"title": "Camera"
+		},
+		"locations": {
+			"description": "To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activities.",
+			"title": "Location"
+		},
+		"notifications": {
+			"description": "To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activities.",
+			"title": "Push Notification"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "Next"
+		},
+		"page": {
+			"title": "Select Language"
+		},
 		"title": "Language"
 	},
+	"help": {
+		"buttons": {
+			"callus": "Call Us"
+		},
+		"description": "To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activites.",
+		"header": {
+			"title": "Help"
+		},
+		"title": "Contact Support"
+	},
+	"intro": {
+		"always": {
+			"description": "Be connected to your doctor. Have peace of mind while your care team monitors your health 24x7. we have your healthcare experience covered.",
+			"title": "Always Connected"
+		},
+		"buttons": {
+			"letsgo": "Let's Go"
+		},
+		"conditions": {
+			"description": "Whether you have a minor acute issue or a chronic condition, let your doctor proactively manage conditions from the convenience of your home.",
+			"title": "Conditions Managed"
+		},
+		"health": {
+			"description": "Automatically record your wellness data from the device and send them to your doctor for review of your health. Just wear it and forget it.",
+			"title": "Health Monitored"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "Agree",
+			"view": "View"
+		},
+		"description1": "Before using the Ceras app, please read the following terms carefully.",
+		"description2": "Agree to End User License Agreement & Privacy Policy.",
+		"title": "Our Terms and Conditions"
+	},
 	"settings": {
+		"appversion": "App version",
 		"content": {
 			"language": "language",
 			"permissions": "Permissions",
 			"review": "Write a review"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "Camera",
+				"location": "Location",
+				"notifications": "Notifications"
+			},
+			"permissionstatus": {
+				"denied": "Access Denied",
+				"granted": "Access Granted",
+				"unknown": "Unknown"
+			},
+			"title": "Permissions"
+		},
 		"title": "Settings"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "Device Found",
+			"lastconnected": "Last connected",
+			"syncdata": "Sync Data"
+		},
+		"connect": {
+			"last4": "Enter last 4 characters of device ID"
+		},
+		"home": {
+			"title": "Select Device"
+		}
 	}
 }

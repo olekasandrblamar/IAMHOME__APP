@@ -1,3 +1,4 @@
+import 'package:ceras/config/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/theme.dart';
@@ -42,6 +43,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final _appLocalization = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: SetupAppBar(),
       backgroundColor: AppTheme.white,
@@ -78,7 +81,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
             Container(
               padding: const EdgeInsets.all(10.0),
               child: Text(
-                'Device Found',
+                _appLocalization.translate('setup.active.devicefound'),
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: AppTheme.title,
@@ -90,7 +93,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
                 horizontal: 35.0,
               ),
               child: Text(
-                'Last connected ${_lastUpdated}.',
+                _appLocalization.translate('setup.active.lastconnected') +
+                    ' ${_lastUpdated}.',
                 textAlign: TextAlign.center,
                 style: AppTheme.subtitle,
               ),
@@ -109,7 +113,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
                 child: Text(
-                  'Sync Data',
+                  _appLocalization.translate('setup.active.syncdata'),
                   style: TextStyle(
                     fontSize: 14,
                   ),

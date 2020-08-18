@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "Vicino",
+				"open": "aperto"
+			},
+			"description": "Vuoi aprire le impostazioni",
+			"title": "Permesso negato!"
+		},
+		"buttons": {
+			"imin": "Sono dentro",
+			"nothanks": "No grazie"
+		},
+		"camera": {
+			"description": "Per connettersi meglio con te, il piano di assistenza che selezioni ci richiede di inviarti le notifiche. Partecipa al programma wellness tracker così Ceras può continuare ad aggiornare le tue attività.",
+			"title": "telecamera"
+		},
+		"locations": {
+			"description": "Per connettersi meglio con te, il piano di assistenza che selezioni ci richiede di inviarti le notifiche. Partecipa al programma wellness tracker così Ceras può continuare ad aggiornare le tue attività.",
+			"title": "Posizione"
+		},
+		"notifications": {
+			"description": "Per connettersi meglio con te, il piano di assistenza che selezioni ci richiede di inviarti le notifiche. Partecipa al programma wellness tracker così Ceras può continuare ad aggiornare le tue attività.",
+			"title": "Notifica push"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "Il prossimo"
+		},
+		"page": {
+			"title": "Seleziona la lingua"
+		},
 		"title": "linguaggio"
 	},
+	"help": {
+		"buttons": {
+			"callus": "CHIAMACI"
+		},
+		"description": "Per connettersi meglio con te, il piano di assistenza che selezioni ci richiede di inviarti le notifiche. Partecipa al programma wellness tracker così Ceras può continuare ad aggiornare le tue attività.",
+		"header": {
+			"title": "Aiuto"
+		},
+		"title": "Contatta il Supporto"
+	},
+	"intro": {
+		"always": {
+			"description": "Resta in contatto con il tuo medico. Stai tranquillo mentre il tuo team di assistenza monitora la tua salute 24x7. copriamo la tua esperienza sanitaria.",
+			"title": "Sempre connesso"
+		},
+		"buttons": {
+			"letsgo": "Andiamo"
+		},
+		"conditions": {
+			"description": "Che tu abbia un problema acuto minore o una condizione cronica, lascia che il tuo medico gestisca in modo proattivo le condizioni dalla comodità della tua casa.",
+			"title": "Condizioni gestite"
+		},
+		"health": {
+			"description": "Registra automaticamente i tuoi dati di benessere dal dispositivo e inviali al tuo medico per la revisione della tua salute. Basta indossarlo e dimenticarlo.",
+			"title": "Salute monitorata"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "Essere d'accordo",
+			"view": "vista"
+		},
+		"description1": "Prima di utilizzare l'app Ceras, leggere attentamente i seguenti termini.",
+		"description2": "Accetta il Contratto di licenza con l'utente finale e l'Informativa sulla privacy.",
+		"title": "I nostri termini e condizioni"
+	},
 	"settings": {
+		"appversion": "Versione dell'app",
 		"content": {
 			"language": "linguaggio",
 			"permissions": "permessi",
 			"review": "Scrivere una recensione"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "telecamera",
+				"location": "Posizione",
+				"notifications": "notifiche"
+			},
+			"permissionstatus": {
+				"denied": "Accesso negato",
+				"granted": "Accesso garantito",
+				"unknown": "sconosciuto"
+			},
+			"title": "permessi"
+		},
 		"title": "impostazioni"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "Dispositivo trovato",
+			"lastconnected": "Ultimo collegamento",
+			"syncdata": "Sincronizza dati"
+		},
+		"connect": {
+			"last4": "Immettere gli ultimi 4 caratteri dell'ID dispositivo"
+		},
+		"home": {
+			"title": "Seleziona dispositivo"
+		}
 	}
 }

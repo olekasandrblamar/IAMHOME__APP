@@ -1,3 +1,4 @@
+import 'package:ceras/config/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/models/access_model.dart';
 import 'package:ceras/theme.dart';
@@ -5,17 +6,21 @@ import 'package:ceras/theme.dart';
 class AccessWidget extends StatelessWidget {
   const AccessWidget({
     Key key,
+    @required this.type,
     @required this.accessData,
     @required this.onNothingSelected,
     @required this.onPermissionSelected,
   }) : super(key: key);
 
+  final String type;
   final AccessModel accessData;
   final VoidCallback onPermissionSelected;
   final VoidCallback onNothingSelected;
 
   @override
   Widget build(BuildContext context) {
+    final _appLocalization = AppLocalizations.of(context);
+
     return SafeArea(
       top: true,
       child: Padding(
@@ -47,7 +52,7 @@ class AccessWidget extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(10.0),
               child: Text(
-                accessData.title,
+                _appLocalization.translate('access.' + type + '.title'),
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: AppTheme.title,
@@ -59,7 +64,7 @@ class AccessWidget extends StatelessWidget {
                 horizontal: 35.0,
               ),
               child: Text(
-                accessData.description,
+                _appLocalization.translate('access.' + type + '.description'),
                 textAlign: TextAlign.center,
                 style: AppTheme.subtitle,
               ),
@@ -81,7 +86,7 @@ class AccessWidget extends StatelessWidget {
                     color: Color(0XFFE6E6E6),
                     textColor: Colors.black,
                     child: Text(
-                      'No, Thanks',
+                      _appLocalization.translate('access.buttons.nothanks'),
                       style: TextStyle(
                         fontSize: 14,
                       ),
@@ -100,7 +105,7 @@ class AccessWidget extends StatelessWidget {
                     color: Theme.of(context).primaryColor,
                     textColor: Colors.white,
                     child: Text(
-                      'I\'m In',
+                      _appLocalization.translate('access.buttons.imin'),
                       style: TextStyle(
                         fontSize: 14,
                       ),

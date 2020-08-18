@@ -33,6 +33,7 @@ class NotificationsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.white,
       body: AccessWidget(
+        type: 'notifications',
         accessData: locationData,
         onNothingSelected: () => _goToLocations(context),
         onPermissionSelected: () => _checkPermission(context),

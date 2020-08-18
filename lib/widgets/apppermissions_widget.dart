@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ceras/config/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
@@ -8,10 +9,12 @@ import 'package:ceras/theme.dart';
 class AppPermissions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final _appLocalization = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'Permissions',
+        title: Text(
+          _appLocalization.translate('settings.permissions.title'),
         ),
         actions: <Widget>[
           IconButton(
@@ -34,7 +37,8 @@ class AppPermissions extends StatelessWidget {
                         permission == Permission.location ||
                         permission == Permission.notification;
                   })
-                  .map((Permission permission) => PermissionWidget(permission))
+                  .map((Permission permission) =>
+                      PermissionWidget(permission, _appLocalization))
                   .toList()),
         ),
       ),
@@ -43,17 +47,20 @@ class AppPermissions extends StatelessWidget {
 }
 
 class PermissionWidget extends StatefulWidget {
-  const PermissionWidget(this._permission);
+  const PermissionWidget(this._permission, this._appLocalization);
 
   final Permission _permission;
+  final _appLocalization;
 
   @override
-  _PermissionState createState() => _PermissionState(_permission);
+  _PermissionState createState() =>
+      _PermissionState(_permission, _appLocalization);
 }
 
 class _PermissionState extends State<PermissionWidget> {
-  _PermissionState(this._permission);
+  _PermissionState(this._permission, this._appLocalization);
 
+  final AppLocalizations _appLocalization;
   final Permission _permission;
   PermissionStatus _permissionStatus = PermissionStatus.undetermined;
 
@@ -82,15 +89,18 @@ class _PermissionState extends State<PermissionWidget> {
 
   String get getPermissionName {
     if (_permission == Permission.camera) {
-      return 'Camera';
+      return _appLocalization
+          .translate('settings.permissions.permissionname.camera');
     }
 
     if (_permission == Permission.location) {
-      return 'Location';
+      return _appLocalization
+          .translate('settings.permissions.permissionname.location');
     }
 
     if (_permission == Permission.notification) {
-      return 'Notifications';
+      return _appLocalization
+          .translate('settings.permissions.permissionname.notifications');
     }
 
     return '';
@@ -99,11 +109,14 @@ class _PermissionState extends State<PermissionWidget> {
   String get getPermissionStatus {
     switch (_permissionStatus) {
       case PermissionStatus.denied:
-        return 'Access Denied';
+        return _appLocalization
+            .translate('settings.permissions.permissionstatus.denied');
       case PermissionStatus.granted:
-        return 'Access Granted';
+        return _appLocalization
+            .translate('settings.permissions.permissionstatus.granted');
       default:
-        return 'Unknown';
+        return _appLocalization
+            .translate('settings.permissions.permissionstatus.unknown');
     }
   }
 

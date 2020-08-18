@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "Dichtbij",
+				"open": "Open"
+			},
+			"description": "Wilt u instellingen openen",
+			"title": "Toestemming geweigerd!"
+		},
+		"buttons": {
+			"imin": "Ik doe mee",
+			"nothanks": "Nee bedankt"
+		},
+		"camera": {
+			"description": "Om een betere connectie met u te maken, vereist het zorgplan dat u selecteert, dat wij u de meldingen sturen. Sluit u aan bij het wellness-tracker-programma, zodat Ceras uw activiteiten kan blijven updaten.",
+			"title": "Camera"
+		},
+		"locations": {
+			"description": "Om een betere connectie met u te maken, vereist het zorgplan dat u selecteert, dat wij u de meldingen sturen. Sluit u aan bij het wellness-tracker-programma, zodat Ceras uw activiteiten kan blijven updaten.",
+			"title": "Plaats"
+		},
+		"notifications": {
+			"description": "Om een betere connectie met u te maken, vereist het zorgplan dat u selecteert, dat wij u de meldingen sturen. Sluit u aan bij het wellness-tracker-programma, zodat Ceras uw activiteiten kan blijven updaten.",
+			"title": "Push notificatie"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "volgende"
+		},
+		"page": {
+			"title": "Selecteer taal"
+		},
 		"title": "Taal"
 	},
+	"help": {
+		"buttons": {
+			"callus": "BEL ONS"
+		},
+		"description": "Om een betere connectie met u te maken, vereist het zorgplan dat u selecteert, dat wij u de meldingen sturen. Word lid van het wellness-tracker-programma, zodat Ceras uw activiteiten kan blijven updaten.",
+		"header": {
+			"title": "Helpen"
+		},
+		"title": "Contact opnemen met ondersteuning"
+	},
+	"intro": {
+		"always": {
+			"description": "Wees verbonden met uw arts. Wees gerust terwijl uw zorgteam uw gezondheid 24x7 bewaakt. wij hebben uw zorgervaring gedekt.",
+			"title": "Altijd verbonden"
+		},
+		"buttons": {
+			"letsgo": "Laten we gaan"
+		},
+		"conditions": {
+			"description": "Of u nu een klein acuut probleem heeft of een chronische aandoening, laat uw arts de aandoeningen proactief behandelen vanuit het gemak van uw huis.",
+			"title": "Voorwaarden beheerd"
+		},
+		"health": {
+			"description": "Registreer automatisch uw welzijnsgegevens van het apparaat en stuur ze naar uw arts voor beoordeling van uw gezondheid. Draag het gewoon en vergeet het.",
+			"title": "Gezondheid gecontroleerd"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "mee eens",
+			"view": "Uitzicht"
+		},
+		"description1": "Lees de volgende voorwaarden zorgvuldig door voordat u de Ceras-app gebruikt.",
+		"description2": "Ga akkoord met de licentieovereenkomst en het privacybeleid voor eindgebruikers.",
+		"title": "Onze algemene voorwaarden"
+	},
 	"settings": {
+		"appversion": "App versie",
 		"content": {
 			"language": "Taal",
 			"permissions": "machtigingen",
 			"review": "Schrijf een recensie"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "Camera",
+				"location": "Plaats",
+				"notifications": "meldingen"
+			},
+			"permissionstatus": {
+				"denied": "Toegang geweigerd",
+				"granted": "Toegang verleend",
+				"unknown": "Onbekend"
+			},
+			"title": "machtigingen"
+		},
 		"title": "instellingen"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "Apparaat gevonden",
+			"lastconnected": "Laatst verbonden",
+			"syncdata": "Synchroniseer gegevens"
+		},
+		"connect": {
+			"last4": "Voer de laatste 4 tekens van de apparaat-ID in"
+		},
+		"home": {
+			"title": "Selecteer apparaat"
+		}
 	}
 }

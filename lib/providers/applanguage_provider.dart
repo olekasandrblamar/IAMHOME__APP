@@ -125,15 +125,6 @@ class AppLanguageProvider extends ChangeNotifier {
   }
 
   void changeLanguage(Locale type) async {
-    _changeLanguage(type);
-    notifyListeners();
-  }
-
-  void changeLanguagePage(Locale type) async {
-    _changeLanguage(type);
-  }
-
-  void _changeLanguage(Locale type) async {
     var prefs = await SharedPreferences.getInstance();
     if (_appLocale == type) {
       return;
@@ -159,5 +150,7 @@ class AppLanguageProvider extends ChangeNotifier {
       await prefs.setString('language_code', 'en');
       await prefs.setString('countryCode', 'US');
     }
+
+    notifyListeners();
   }
 }

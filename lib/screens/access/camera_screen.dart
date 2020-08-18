@@ -33,6 +33,7 @@ class CameraScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.white,
       body: AccessWidget(
+        type: 'camera',
         accessData: cameraData,
         onNothingSelected: () => _goToHome(context),
         onPermissionSelected: () => _checkPermission(context),

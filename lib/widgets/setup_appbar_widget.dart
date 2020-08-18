@@ -1,3 +1,4 @@
+import 'package:ceras/config/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/screens/help/help_widget.dart';
 import 'package:ceras/widgets/apppermissions_widget.dart';
@@ -11,6 +12,7 @@ class SetupAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final _appLocalization = AppLocalizations.of(context);
     return AppBar(
       titleSpacing: 0.0,
       title: Row(children: [
@@ -24,7 +26,7 @@ class SetupAppBar extends StatelessWidget implements PreferredSizeWidget {
         Expanded(
           child: Center(
               child: Text(
-            'Select Device',
+            _appLocalization.translate('setup.home.title'),
             // style: TextStyle(
             //   color: Colors.black,
             // ),

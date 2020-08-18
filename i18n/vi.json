@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "Gần",
+				"open": "Mở"
+			},
+			"description": "Bạn có muốn mở cài đặt không",
+			"title": "Quyền bị từ chối!"
+		},
+		"buttons": {
+			"imin": "Tôi tham gia",
+			"nothanks": "Không, cám ơn"
+		},
+		"camera": {
+			"description": "Để kết nối với bạn tốt hơn, chương trình chăm sóc bạn chọn yêu cầu chúng tôi gửi thông báo cho bạn. Tham gia chương trình theo dõi sức khỏe để Ceras có thể tiếp tục cập nhật các hoạt động của bạn.",
+			"title": "Máy ảnh"
+		},
+		"locations": {
+			"description": "Để kết nối với bạn tốt hơn, chương trình chăm sóc bạn chọn yêu cầu chúng tôi gửi thông báo cho bạn. Tham gia chương trình theo dõi sức khỏe để Ceras có thể tiếp tục cập nhật các hoạt động của bạn.",
+			"title": "Vị trí"
+		},
+		"notifications": {
+			"description": "Để kết nối với bạn tốt hơn, chương trình chăm sóc bạn chọn yêu cầu chúng tôi gửi thông báo cho bạn. Tham gia chương trình theo dõi sức khỏe để Ceras có thể tiếp tục cập nhật các hoạt động của bạn.",
+			"title": "Thông báo đẩy"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "Kế tiếp"
+		},
+		"page": {
+			"title": "Chọn ngôn ngữ"
+		},
 		"title": "ngôn ngữ"
 	},
+	"help": {
+		"buttons": {
+			"callus": "Gọi cho chúng tôi"
+		},
+		"description": "Để kết nối với bạn tốt hơn, chương trình chăm sóc bạn chọn yêu cầu chúng tôi gửi thông báo cho bạn. Tham gia chương trình theo dõi sức khỏe để Ceras có thể tiếp tục cập nhật các hoạt động của bạn.",
+		"header": {
+			"title": "Cứu giúp"
+		},
+		"title": "Liên hệ hỗ trợ"
+	},
+	"intro": {
+		"always": {
+			"description": "Được kết nối với bác sĩ của bạn. Hãy yên tâm trong khi nhóm chăm sóc theo dõi sức khỏe của bạn 24x7. chúng tôi có kinh nghiệm chăm sóc sức khỏe của bạn được bảo hiểm.",
+			"title": "Luôn kết nối"
+		},
+		"buttons": {
+			"letsgo": "Đi nào"
+		},
+		"conditions": {
+			"description": "Cho dù bạn có một vấn đề cấp tính nhẹ hay một tình trạng mãn tính, hãy để bác sĩ của bạn chủ động quản lý các điều kiện thuận tiện tại nhà của bạn.",
+			"title": "Điều kiện được quản lý"
+		},
+		"health": {
+			"description": "Tự động ghi lại dữ liệu sức khỏe của bạn từ thiết bị và gửi chúng cho bác sĩ để xem xét sức khỏe của bạn. Chỉ cần mặc nó và quên nó đi.",
+			"title": "Theo dõi sức khỏe"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "Đồng ý",
+			"view": "Lượt xem"
+		},
+		"description1": "Trước khi sử dụng ứng dụng Ceras, vui lòng đọc kỹ các điều khoản sau.",
+		"description2": "Đồng ý với Thỏa thuận cấp phép người dùng cuối và Chính sách bảo mật.",
+		"title": "Điều khoản và Điều kiện của chúng tôi"
+	},
 	"settings": {
+		"appversion": "Phiên bản ứng dụng",
 		"content": {
 			"language": "ngôn ngữ",
 			"permissions": "Quyền",
 			"review": "Viết nhận xét"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "Máy ảnh",
+				"location": "Vị trí",
+				"notifications": "Thông báo"
+			},
+			"permissionstatus": {
+				"denied": "Quyền truy cập bị Từ chối",
+				"granted": "Chấp thuận quyền truy cập",
+				"unknown": "Không xác định"
+			},
+			"title": "Quyền"
+		},
 		"title": "Cài đặt"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "Thiết bị được tìm thấy",
+			"lastconnected": "Kết nối lần cuối",
+			"syncdata": "Đồng bộ dữ liệu"
+		},
+		"connect": {
+			"last4": "Nhập 4 ký tự cuối cùng của ID thiết bị"
+		},
+		"home": {
+			"title": "Chọn thiết bị"
+		}
 	}
 }

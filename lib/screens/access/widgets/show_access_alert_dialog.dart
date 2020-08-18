@@ -1,22 +1,33 @@
+import 'package:ceras/config/app_localizations.dart';
 import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void showAccessAlertDialog(context) {
+  final _appLocalization = AppLocalizations.of(context);
+
   showDialog(
     context: context,
     builder: (BuildContext context) {
       return AlertDialog(
-        title: Text('Permission Denied!'),
-        content: Text('Do you want to open settings'),
+        title: Text(
+          _appLocalization.translate('access.alert.title'),
+        ),
+        content: Text(
+          _appLocalization.translate('access.alert.description'),
+        ),
         actions: <Widget>[
           FlatButton(
-            child: Text('Close'),
+            child: Text(
+              _appLocalization.translate('access.alert.buttons.close'),
+            ),
             onPressed: () {
               Navigator.of(context).pop();
             },
           ),
           FlatButton(
-            child: Text('Open'),
+            child: Text(
+              _appLocalization.translate('access.alert.buttons.open'),
+            ),
             onPressed: () {
               Navigator.of(context).pop();
               openAppSettings();

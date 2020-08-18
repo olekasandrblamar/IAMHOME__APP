@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "閉じる",
+				"open": "開いた"
+			},
+			"description": "設定を開きますか",
+			"title": "アクセス拒否！"
+		},
+		"buttons": {
+			"imin": "私は入る",
+			"nothanks": "結構です"
+		},
+		"camera": {
+			"description": "あなたとのつながりを深めるために、選択したケアプランでは、通知を送信する必要があります。 Cerasがあなたの活動を更新し続けることができるように、ウェルネストラッカープログラムに参加してください。",
+			"title": "カメラ"
+		},
+		"locations": {
+			"description": "あなたとのつながりを深めるために、選択したケアプランでは、通知を送信する必要があります。 Cerasがあなたの活動を更新し続けることができるように、ウェルネストラッカープログラムに参加してください。",
+			"title": "ロケーション"
+		},
+		"notifications": {
+			"description": "あなたとのつながりを深めるために、選択したケアプランでは、通知を送信する必要があります。 Cerasがあなたの活動を更新し続けることができるように、ウェルネストラッカープログラムに参加してください。",
+			"title": "プッシュ通知"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "次"
+		},
+		"page": {
+			"title": "言語を選択する"
+		},
 		"title": "言語"
 	},
+	"help": {
+		"buttons": {
+			"callus": "お電話ください"
+		},
+		"description": "あなたとのつながりを深めるために、選択したケアプランでは、通知を送信する必要があります。ウェルネストラッカープログラムに参加して、Cerasが引き続きアクティビティを更新できるようにします。",
+		"header": {
+			"title": "助けて"
+		},
+		"title": "サポート問い合わせ先"
+	},
+	"intro": {
+		"always": {
+			"description": "医師に連絡してください。ケアチームが24時間年中無休であなたの健康を監視している間、安心してください。私たちはあなたの医療経験をカバーしています。",
+			"title": "常時接続"
+		},
+		"buttons": {
+			"letsgo": "行こう"
+		},
+		"conditions": {
+			"description": "軽度の急性の問題でも慢性の状態でも、自宅の都合から積極的に状態を管理してください。",
+			"title": "管理される条件"
+		},
+		"health": {
+			"description": "デバイスからウェルネスデータを自動的に記録し、健康状態を確認するために医師に送信します。履いて忘れてください。",
+			"title": "監視される健康"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "同意する",
+			"view": "見る"
+		},
+		"description1": "Cerasアプリを使用する前に、以下の条件を注意深くお読みください。",
+		"description2": "エンドユーザーライセンス契約とプライバシーポリシーに同意します。",
+		"title": "利用規約"
+	},
 	"settings": {
+		"appversion": "アプリのバージョン",
 		"content": {
 			"language": "言語",
 			"permissions": "許可",
 			"review": "レビューを書く"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "カメラ",
+				"location": "ロケーション",
+				"notifications": "通知"
+			},
+			"permissionstatus": {
+				"denied": "アクセスが拒否されました",
+				"granted": "アクセスが許可されました",
+				"unknown": "道の"
+			},
+			"title": "許可"
+		},
 		"title": "設定"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "デバイスが見つかりました",
+			"lastconnected": "最終接続",
+			"syncdata": "データの同期"
+		},
+		"connect": {
+			"last4": "デバイスIDの最後の4文字を入力してください"
+		},
+		"home": {
+			"title": "デバイスを選択"
+		}
 	}
 }

@@ -33,6 +33,7 @@ class LocationsScreen extends StatelessWidget {
     return Scaffold(
       backgroundColor: AppTheme.white,
       body: AccessWidget(
+        type: 'locations',
         accessData: locationData,
         onNothingSelected: () => _goToCamera(context),
         onPermissionSelected: () => _checkPermission(context),

@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "닫기",
+				"open": "열다"
+			},
+			"description": "설정을 열시겠습니까",
+			"title": "권한이 거부되었습니다!"
+		},
+		"buttons": {
+			"imin": "나는 ~ 안에있다",
+			"nothanks": "괜찮습니다"
+		},
+		"camera": {
+			"description": "귀하와 더 잘 연결하기 위해 귀하가 선택한 케어 플랜은 귀하에게 통지를 보내야합니다. Ceras가 귀하의 활동을 계속 업데이트 할 수 있도록 웰빙 트래커 프로그램에 가입하십시오.",
+			"title": "카메라"
+		},
+		"locations": {
+			"description": "귀하와 더 잘 연결하기 위해 귀하가 선택한 케어 플랜은 귀하에게 통지를 보내야합니다. Ceras가 귀하의 활동을 계속 업데이트 할 수 있도록 웰빙 트래커 프로그램에 가입하십시오.",
+			"title": "위치"
+		},
+		"notifications": {
+			"description": "귀하와 더 잘 연결하기 위해 귀하가 선택한 케어 플랜은 귀하에게 통지를 보내야합니다. Ceras가 귀하의 활동을 계속 업데이트 할 수 있도록 웰빙 트래커 프로그램에 가입하십시오.",
+			"title": "푸시 알림"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "다음 것"
+		},
+		"page": {
+			"title": "언어 선택"
+		},
 		"title": "언어"
 	},
+	"help": {
+		"buttons": {
+			"callus": "전화주세요"
+		},
+		"description": "귀하와 더 잘 연결하기 위해 귀하가 선택한 케어 플랜은 귀하에게 통지를 보내야합니다. Ceras가 귀하의 활동을 계속 업데이트 할 수 있도록 웰빙 트래커 프로그램에 가입하십시오.",
+		"header": {
+			"title": "도움"
+		},
+		"title": "연락처 지원"
+	},
+	"intro": {
+		"always": {
+			"description": "의사와 연결하십시오. 귀하의 케어 팀이 귀하의 건강을 연중 무휴로 모니터링하는 동안 안심하십시오. 우리는 귀하의 의료 경험을 보장합니다.",
+			"title": "항상 연결"
+		},
+		"buttons": {
+			"letsgo": "가자"
+		},
+		"conditions": {
+			"description": "경미한 급성 문제가 있든 만성 질환이 있든 상관없이 의사가 집에서 편리하게 상태를 사전에 관리하도록하십시오.",
+			"title": "관리되는 조건"
+		},
+		"health": {
+			"description": "장치에서 자동으로 건강 데이터를 기록하고 건강 검토를 위해 의사에게 보냅니다. 그냥 입고 잊어 버리세요.",
+			"title": "상태 모니터링"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "동의하다",
+			"view": "전망"
+		},
+		"description1": "Ceras 앱을 사용하기 전에 다음 약관을주의 깊게 읽으십시오.",
+		"description2": "최종 사용자 라이선스 계약 및 개인 정보 보호 정책에 동의합니다.",
+		"title": "이용 약관"
+	},
 	"settings": {
+		"appversion": "앱 버전",
 		"content": {
 			"language": "언어",
 			"permissions": "권한",
 			"review": "리뷰를 작성"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "카메라",
+				"location": "위치",
+				"notifications": "알림"
+			},
+			"permissionstatus": {
+				"denied": "접근 불가",
+				"granted": "액세스 허용",
+				"unknown": "알 수 없는"
+			},
+			"title": "권한"
+		},
 		"title": "설정"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "장치 발견",
+			"lastconnected": "마지막 연결",
+			"syncdata": "데이터 동기화"
+		},
+		"connect": {
+			"last4": "장치 ID의 마지막 4 자 입력"
+		},
+		"home": {
+			"title": "장치 선택"
+		}
 	}
 }

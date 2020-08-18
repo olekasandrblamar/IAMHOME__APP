@@ -1,9 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:ceras/theme.dart';
-
 import 'package:ceras/constants/route_paths.dart' as routes;
-import 'package:ceras/widgets/apppermissions_widget.dart';
+import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
+import 'package:flutter/material.dart';
 
 class SetupHomeScreen extends StatelessWidget {
   @override

@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "Tutup",
+				"open": "Buka"
+			},
+			"description": "Adakah anda mahu membuka tetapan",
+			"title": "Kebenaran Ditolak!"
+		},
+		"buttons": {
+			"imin": "Saya ikut",
+			"nothanks": "Tidak, Terima kasih"
+		},
+		"camera": {
+			"description": "Untuk berhubung dengan anda dengan lebih baik, rancangan penjagaan yang anda pilih memerlukan kami menghantar pemberitahuan kepada anda. Sertailah program pelacak kesihatan agar Ceras dapat terus mengemas kini aktiviti anda.",
+			"title": "Kamera"
+		},
+		"locations": {
+			"description": "Untuk berhubung dengan anda dengan lebih baik, rancangan penjagaan yang anda pilih memerlukan kami menghantar pemberitahuan kepada anda. Sertailah program pelacak kesihatan agar Ceras dapat terus mengemas kini aktiviti anda.",
+			"title": "Lokasi"
+		},
+		"notifications": {
+			"description": "Untuk berhubung dengan anda dengan lebih baik, rancangan penjagaan yang anda pilih memerlukan kami menghantar pemberitahuan kepada anda. Sertailah program pelacak kesihatan agar Ceras dapat terus mengemas kini aktiviti anda.",
+			"title": "Pemberitahuan Tolak"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "Seterusnya"
+		},
+		"page": {
+			"title": "Pilih Bahasa"
+		},
 		"title": "Bahasa"
 	},
+	"help": {
+		"buttons": {
+			"callus": "Hubungi Kami"
+		},
+		"description": "Untuk berhubung dengan anda dengan lebih baik, rancangan penjagaan yang anda pilih memerlukan kami menghantar pemberitahuan kepada anda. Sertailah program pelacak kesihatan agar Ceras dapat terus mengemas kini aktiviti anda.",
+		"header": {
+			"title": "HELP"
+		},
+		"title": "Hubungi sokongan"
+	},
+	"intro": {
+		"always": {
+			"description": "Berhubung dengan doktor anda. Ketenangan hati semasa pasukan penjagaan anda memantau kesihatan anda 24x7. kami mempunyai pengalaman penjagaan kesihatan anda.",
+			"title": "Sentiasa Bersambung"
+		},
+		"buttons": {
+			"letsgo": "Mari pergi"
+		},
+		"conditions": {
+			"description": "Sama ada anda mempunyai masalah akut kecil atau keadaan kronik, biarkan doktor anda menguruskan keadaan secara proaktif dari kemudahan rumah anda.",
+			"title": "Keadaan Terurus"
+		},
+		"health": {
+			"description": "Catat data kesihatan anda secara automatik dari peranti dan hantarkan kepada doktor anda untuk meninjau kesihatan anda. Pakai saja dan lupakan.",
+			"title": "Kesihatan Dipantau"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "Setuju",
+			"view": "Lihat"
+		},
+		"description1": "Sebelum menggunakan aplikasi Ceras, sila baca syarat berikut dengan teliti.",
+		"description2": "Setuju Perjanjian Lesen Pengguna Akhir & Dasar Privasi.",
+		"title": "Terma dan Syarat Kami"
+	},
 	"settings": {
+		"appversion": "Versi apl",
 		"content": {
 			"language": "Bahasa",
 			"permissions": "Kebenaran",
 			"review": "Menulis ulasan"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "Kamera",
+				"location": "Lokasi",
+				"notifications": "Pemberitahuan"
+			},
+			"permissionstatus": {
+				"denied": "Akses dinafikan",
+				"granted": "Akses Diberikan",
+				"unknown": "Tidak diketahui"
+			},
+			"title": "Kebenaran"
+		},
 		"title": "Tetapan"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "Peranti Dijumpai",
+			"lastconnected": "Terakhir bersambung",
+			"syncdata": "Segerakkan Data"
+		},
+		"connect": {
+			"last4": "Masukkan 4 watak terakhir ID peranti"
+		},
+		"home": {
+			"title": "Pilih Peranti"
+		}
 	}
 }

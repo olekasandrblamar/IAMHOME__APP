@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "关",
+				"open": "打开"
+			},
+			"description": "您要打开设置吗",
+			"title": "没有权限！"
+		},
+		"buttons": {
+			"imin": "算我一个",
+			"nothanks": "不用了，谢谢"
+		},
+		"camera": {
+			"description": "为了更好地与您联系，您选择的护理计划要求我们向您发送通知。加入健康追踪程序，Ceras可以继续更新您的活动。",
+			"title": "相机"
+		},
+		"locations": {
+			"description": "为了更好地与您联系，您选择的护理计划要求我们向您发送通知。加入健康追踪程序，Ceras可以继续更新您的活动。",
+			"title": "地点"
+		},
+		"notifications": {
+			"description": "为了更好地与您联系，您选择的护理计划要求我们向您发送通知。加入健康追踪程序，Ceras可以继续更新您的活动。",
+			"title": "推送通知"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "下一个"
+		},
+		"page": {
+			"title": "选择语言"
+		},
 		"title": "语言"
 	},
+	"help": {
+		"buttons": {
+			"callus": "打电话给我们"
+		},
+		"description": "为了更好地与您联系，您选择的护理计划要求我们向您发送通知。加入健康追踪器计划，以便Ceras可以继续更新您的活动。",
+		"header": {
+			"title": "救命"
+		},
+		"title": "联系支持"
+	},
+	"intro": {
+		"always": {
+			"description": "连接到您的医生。当您的护理团队全天候24x7监控您的健康时，请放心。我们涵盖了您的医疗保健经验。",
+			"title": "始终连接"
+		},
+		"buttons": {
+			"letsgo": "我们走吧"
+		},
+		"conditions": {
+			"description": "无论您是轻微的急性疾病还是慢性疾病，都可以让医生从家中方便地主动管理疾病。",
+			"title": "条件管理"
+		},
+		"health": {
+			"description": "自动从设备记录您的健康数据，并将其发送给医生，以检查您的健康状况。只是穿它而忘记它。",
+			"title": "健康监控"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "同意",
+			"view": "视图"
+		},
+		"description1": "在使用Ceras应用程序之前，请仔细阅读以下条款。",
+		"description2": "同意最终用户许可协议和隐私政策。",
+		"title": "我们的条款和条件"
+	},
 	"settings": {
+		"appversion": "应用版本",
 		"content": {
 			"language": "语言",
 			"permissions": "权限",
 			"review": "写评论"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "相机",
+				"location": "地点",
+				"notifications": "通知"
+			},
+			"permissionstatus": {
+				"denied": "拒绝访问",
+				"granted": "授予访问权限",
+				"unknown": "未知"
+			},
+			"title": "权限"
+		},
 		"title": "设置"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "找到设备",
+			"lastconnected": "最后连接",
+			"syncdata": "同步资料"
+		},
+		"connect": {
+			"last4": "输入设备ID的后4个字符"
+		},
+		"home": {
+			"title": "选择设备"
+		}
 	}
 }

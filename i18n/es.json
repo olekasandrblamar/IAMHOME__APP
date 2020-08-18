@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "Cerrar",
+				"open": "Abierto"
+			},
+			"description": "¿Quieres abrir la configuración?",
+			"title": "¡Permiso denegado!"
+		},
+		"buttons": {
+			"imin": "estoy dentro",
+			"nothanks": "No, gracias"
+		},
+		"camera": {
+			"description": "Para conectarse mejor con usted, el plan de atención que seleccione requiere que le enviemos las notificaciones. Únase al programa de seguimiento de bienestar para que Ceras pueda continuar actualizando sus actividades.",
+			"title": "Cámara"
+		},
+		"locations": {
+			"description": "Para conectarse mejor con usted, el plan de atención que seleccione requiere que le enviemos las notificaciones. Únase al programa de seguimiento de bienestar para que Ceras pueda continuar actualizando sus actividades.",
+			"title": "Ubicación"
+		},
+		"notifications": {
+			"description": "Para conectarse mejor con usted, el plan de atención que seleccione requiere que le enviemos las notificaciones. Únase al programa de seguimiento de bienestar para que Ceras pueda continuar actualizando sus actividades.",
+			"title": "Notificación de inserción"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "Siguiente"
+		},
+		"page": {
+			"title": "Seleccione el idioma"
+		},
 		"title": "idioma"
 	},
+	"help": {
+		"buttons": {
+			"callus": "LLÁMANOS"
+		},
+		"description": "Para conectarse mejor con usted, el plan de atención que seleccione requiere que le enviemos las notificaciones. Únase al programa de seguimiento de bienestar para que Ceras pueda continuar actualizando sus actividades.",
+		"header": {
+			"title": "Ayuda"
+		},
+		"title": "Soporte de contacto"
+	},
+	"intro": {
+		"always": {
+			"description": "Esté conectado con su médico. Tenga tranquilidad mientras su equipo de atención supervisa su salud las 24 horas, los 7 días de la semana. cubrimos su experiencia de atención médica.",
+			"title": "Siempre conectado"
+		},
+		"buttons": {
+			"letsgo": "Vamonos"
+		},
+		"conditions": {
+			"description": "Ya sea que tenga un problema agudo menor o una afección crónica, deje que su médico maneje las afecciones de manera proactiva desde la comodidad de su hogar.",
+			"title": "Condiciones gestionadas"
+		},
+		"health": {
+			"description": "Registre automáticamente sus datos de bienestar desde el dispositivo y envíelos a su médico para que revise su salud. Úselo y olvídese.",
+			"title": "Salud monitoreada"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "De acuerdo",
+			"view": "Ver"
+		},
+		"description1": "Antes de utilizar la aplicación Ceras, lea atentamente los siguientes términos.",
+		"description2": "Acepte el Acuerdo de licencia de usuario final y la Política de privacidad.",
+		"title": "Nuestros términos y condiciones"
+	},
 	"settings": {
+		"appversion": "Version de aplicacion",
 		"content": {
 			"language": "idioma",
 			"permissions": "Permisos",
 			"review": "Escribe una reseña"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "Cámara",
+				"location": "Ubicación",
+				"notifications": "Notificaciones"
+			},
+			"permissionstatus": {
+				"denied": "Acceso denegado",
+				"granted": "Acceso permitido",
+				"unknown": "Desconocido"
+			},
+			"title": "Permisos"
+		},
 		"title": "Ajustes"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "Dispositivo encontrado",
+			"lastconnected": "Última conexion",
+			"syncdata": "Sincronizar datos"
+		},
+		"connect": {
+			"last4": "Ingrese los últimos 4 caracteres del ID del dispositivo"
+		},
+		"home": {
+			"title": "Seleccione el dispositivo"
+		}
 	}
 }

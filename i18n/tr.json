@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "Kapat",
+				"open": "Açık"
+			},
+			"description": "Ayarları açmak istiyor musunuz",
+			"title": "İzin reddedildi!"
+		},
+		"buttons": {
+			"imin": "Varım",
+			"nothanks": "Hayır teşekkürler"
+		},
+		"camera": {
+			"description": "Sizinle daha iyi bağlantı kurabilmemiz için, seçtiğiniz bakım planı size bildirimleri göndermemizi gerektiriyor. Sağlık takip programına katılın, böylece Ceras faaliyetlerinizi güncellemeye devam edebilir.",
+			"title": "Kamera"
+		},
+		"locations": {
+			"description": "Sizinle daha iyi bağlantı kurabilmemiz için, seçtiğiniz bakım planı size bildirimleri göndermemizi gerektiriyor. Sağlık takip programına katılın, böylece Ceras faaliyetlerinizi güncellemeye devam edebilir.",
+			"title": "yer"
+		},
+		"notifications": {
+			"description": "Sizinle daha iyi bağlantı kurabilmemiz için, seçtiğiniz bakım planı size bildirimleri göndermemizi gerektiriyor. Sağlık takip programına katılın, böylece Ceras faaliyetlerinizi güncellemeye devam edebilir.",
+			"title": "Bildirim almak"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "Sonraki"
+		},
+		"page": {
+			"title": "Dil Seçin"
+		},
 		"title": "dil"
 	},
+	"help": {
+		"buttons": {
+			"callus": "Bizi arayın"
+		},
+		"description": "Sizinle daha iyi bağlantı kurabilmemiz için, seçtiğiniz bakım planı size bildirimleri göndermemizi gerektiriyor. Sağlık takip programına katılın, böylece Ceras etkinliklerinizi güncellemeye devam edebilir.",
+		"header": {
+			"title": "yardım et"
+		},
+		"title": "İletişim desteği"
+	},
+	"intro": {
+		"always": {
+			"description": "Doktorunuza bağlanın. Bakım ekibiniz 7 gün 24 saat sağlığınızı izlerken içiniz rahat olsun. sağlık deneyiminiz bizde.",
+			"title": "Her zaman bağlı"
+		},
+		"buttons": {
+			"letsgo": "Hadi gidelim"
+		},
+		"conditions": {
+			"description": "Küçük bir akut sorununuz ya da kronik bir durumunuz olsun, doktorunuzun evinizin rahatlığından koşulları proaktif olarak yönetmesine izin verin.",
+			"title": "Yönetilen Koşullar"
+		},
+		"health": {
+			"description": "Sağlık verilerinizi cihazdan otomatik olarak kaydedin ve sağlığınızın gözden geçirilmesi için doktorunuza gönderin. Sadece giy ve unut gitsin.",
+			"title": "Durum İzlendi"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "anlaşmak",
+			"view": "Görünüm"
+		},
+		"description1": "Ceras uygulamasını kullanmadan önce lütfen aşağıdaki şartları dikkatlice okuyun.",
+		"description2": "Son Kullanıcı Lisans Sözleşmesini ve Gizlilik Politikasını Kabul Edin.",
+		"title": "Hüküm ve Koşullarımız"
+	},
 	"settings": {
+		"appversion": "Uygulama sürümü",
 		"content": {
 			"language": "dil",
 			"permissions": "İzinler",
 			"review": "Bir değerlendirme yazın"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "Kamera",
+				"location": "yer",
+				"notifications": "Bildirimler"
+			},
+			"permissionstatus": {
+				"denied": "ERİŞİM REDDEDİLDİ",
+				"granted": "ERİŞİM İZNİ",
+				"unknown": "Bilinmeyen"
+			},
+			"title": "İzinler"
+		},
 		"title": "ayarlar"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "Aygıt bulundu",
+			"lastconnected": "son bağlantı",
+			"syncdata": "Verileri Senkronize Et"
+		},
+		"connect": {
+			"last4": "Cihaz kimliğinin son 4 karakterini girin"
+		},
+		"home": {
+			"title": "Cihaz seç"
+		}
 	}
 }

@@ -1,13 +1,108 @@
 {
+	"access": {
+		"alert": {
+			"buttons": {
+				"close": "Stänga",
+				"open": "Öppna"
+			},
+			"description": "Vill du öppna inställningar",
+			"title": "Åtkomst nekad!"
+		},
+		"buttons": {
+			"imin": "Jag är i",
+			"nothanks": "Nej tack"
+		},
+		"camera": {
+			"description": "För att få bättre kontakt med dig kräver vårdplanen du väljer att vi skickar meddelandena. Gå med i wellness tracker-programmet så att Ceras kan fortsätta uppdatera dina aktiviteter.",
+			"title": "Kamera"
+		},
+		"locations": {
+			"description": "För att få bättre kontakt med dig kräver vårdplanen du väljer att vi skickar meddelandena. Gå med i wellness tracker-programmet så att Ceras kan fortsätta uppdatera dina aktiviteter.",
+			"title": "Plats"
+		},
+		"notifications": {
+			"description": "För att få bättre kontakt med dig kräver vårdplanen du väljer att vi skickar meddelandena. Gå med i wellness tracker-programmet så att Ceras kan fortsätta uppdatera dina aktiviteter.",
+			"title": "Tryckmeddelande"
+		}
+	},
 	"appLanguage": {
+		"buttons": {
+			"next": "Nästa"
+		},
+		"page": {
+			"title": "Välj språk"
+		},
 		"title": "Språk"
 	},
+	"help": {
+		"buttons": {
+			"callus": "Ring oss"
+		},
+		"description": "För att få bättre kontakt med dig kräver vårdplanen du väljer att vi skickar meddelandena. Gå med i wellness tracker-programmet så att Ceras kan fortsätta uppdatera dina aktiviteter.",
+		"header": {
+			"title": "Hjälp"
+		},
+		"title": "kontakta supporten"
+	},
+	"intro": {
+		"always": {
+			"description": "Var ansluten till din läkare. Ha sinnesfrid medan ditt vårdteam övervakar din hälsa 24x7. vi har din vårdupplevelse täckt.",
+			"title": "Alltid ansluten"
+		},
+		"buttons": {
+			"letsgo": "nu går vi"
+		},
+		"conditions": {
+			"description": "Oavsett om du har en mindre akut problem eller ett kroniskt tillstånd, låt din läkare proaktivt hantera tillstånd från bekvämligheten i ditt hem.",
+			"title": "Villkor hanteras"
+		},
+		"health": {
+			"description": "Spela in dina wellnessdata automatiskt från enheten och skicka dem till din läkare för granskning av din hälsa. Bara bära det och glöm det.",
+			"title": "Hälsokontroll"
+		}
+	},
+	"privacy": {
+		"buttons": {
+			"agree": "Hålla med",
+			"view": "Se"
+		},
+		"description1": "Innan du använder Ceras-appen, läs följande villkor noggrant.",
+		"description2": "Godkänn licensavtalet för slutanvändare och sekretesspolicy.",
+		"title": "Våra villkor"
+	},
 	"settings": {
+		"appversion": "Appversion",
 		"content": {
 			"language": "Språk",
 			"permissions": "Behörigheter",
 			"review": "Skriva en recension"
 		},
+		"permissions": {
+			"permissionname": {
+				"camera": "Kamera",
+				"location": "Plats",
+				"notifications": "anmälningar"
+			},
+			"permissionstatus": {
+				"denied": "Tillträde beviljas ej",
+				"granted": "Tillgång beviljad",
+				"unknown": "Okänd"
+			},
+			"title": "Behörigheter"
+		},
 		"title": "Inställningar"
+	},
+	"setup": {
+		"active": {
+			"devicefound": "Enhet hittades",
+			"lastconnected": "Senast ansluten",
+			"syncdata": "Synkronisera data"
+		},
+		"connect": {
+			"last4": "Ange de sista fyra tecknen på enhets-ID"
+		},
+		"home": {
+			"title": "Välj enhet"
+		}
 	}
 }
