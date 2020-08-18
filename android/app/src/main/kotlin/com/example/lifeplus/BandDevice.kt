@@ -147,7 +147,7 @@ class BandDevice :BaseDevice(){
 
         private fun getDateFromTime(year:Int,month:Int,dayOfMonth:Int,hour:Int,minutes:Int):Date{
             val cal = Calendar.getInstance()
-            cal.set(year,month,dayOfMonth,hour,minutes,0)
+            cal.set(year,month-1,dayOfMonth,hour,minutes,0)
             cal.set(Calendar.MILLISECOND,0)
             return cal.time
         }

@@ -92,6 +92,7 @@ class DataSync {
         var request = URLRequest(url: completeUrl)
         request.httpMethod = "POST"
         request.httpBody = postData
+        NSLog("Uploading to \(url) with data \(String(data: postData, encoding: .utf8)!)")
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         let task = URLSession.shared.dataTask(with: request) { data, response, error in

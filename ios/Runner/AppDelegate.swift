@@ -5,7 +5,12 @@ import Flutter
 @objc class AppDelegate: FlutterAppDelegate {
     
     var watchData:WatchData = WatchData()
+    static var bandDevice:BandDevice? = nil
     static let dateFormatter = DateFormatter()
+    static var lastUpdated:Date? = nil
+    static var WATCH_TYPE = "WATCH"
+    static var BAND_TYPE = "BAND"
+    static var DEVICE_TYPE_KEY = "flutter.deviceType"
     
   override func application(
     _ application: UIApplication,
@@ -25,7 +30,8 @@ import Flutter
             }
             
             let deviceId:String = (args as? [String: Any])?["deviceId"] as! String
-            self?.connectDevice(result: result,deviceId: deviceId)
+            let deviceType:String = (args as? [String: Any])?["deviceType"] as! String
+            self?.connectDevice(result: result,deviceId: deviceId,deviceType: deviceType)
         } else if(call.method=="syncData"){
             
             guard let args = call.arguments else {
@@ -35,10 +41,23 @@ import Flutter
             let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
             NSLog("Got connection info %@", connectionInfo)
             do{
-                let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
-                UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
-                NSLog("Syncing data ")
-                self?.watchData.syncData(connectionInfo: connectionData)
+                var loadData = false
+                if(AppDelegate.lastUpdated == nil){
+                   loadData = true
+                }else {
+                    let current = Date()
+                    let diffComponents = Calendar.current.dateComponents([.second], from:AppDelegate.lastUpdated! , to: current)
+                    if(diffComponents.second!>5){
+                        loadData = true
+                    }
+                }
+                if(loadData){
+                    let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
+                    UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
+                    NSLog("Syncing data ")
+                    self?.syncData(connectionInfo: connectionData)
+                    //self?.watchData.syncData(connectionInfo: connectionData)
+                }
                 result("Load complete")
             }catch{
                 result("Error")
@@ -55,11 +74,31 @@ import Flutter
   }
     
     private func syncData(connectionInfo:ConnectionInfo){
-        self.watchData.syncData(connectionInfo: connectionInfo)
+        let deviceType = getDeviceType()
+        if(deviceType! == AppDelegate.WATCH_TYPE){
+            self.watchData.syncData(connectionInfo: connectionInfo)
+        }else if(deviceType! == AppDelegate.BAND_TYPE){
+            self.getBandDevice()?.syncData(connectionInfo: connectionInfo)
+        }
     }
     
-    private func connectDevice(result:@escaping FlutterResult,deviceId:String) {
-        self.watchData.startScan(result: result,deviceId:deviceId)
+    private func getDeviceType() -> String?{
+        return UserDefaults.standard.string(forKey: AppDelegate.DEVICE_TYPE_KEY)
+    }
+    
+    private func connectDevice(result:@escaping FlutterResult,deviceId:String, deviceType:String) {
+        if(deviceType==AppDelegate.WATCH_TYPE){
+            self.watchData.startScan(result: result,deviceId:deviceId)
+        }else if(deviceType==AppDelegate.BAND_TYPE){
+            getBandDevice()?.connectDevice(result: result, deviceId: deviceId)
+        }
+    }
+    
+    private func getBandDevice() -> BandDevice?{
+        if(AppDelegate.bandDevice==nil){
+            AppDelegate.bandDevice = BandDevice()
+        }
+        return AppDelegate.bandDevice
     }
 }
 

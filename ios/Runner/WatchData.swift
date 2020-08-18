@@ -94,6 +94,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 let deviceJson = try JSONEncoder().encode(connectionInfo)
                 let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
                 NSLog("Connection data \(connectionInfoData)")
+                UserDefaults.standard.set(AppDelegate.WATCH_TYPE,forKey: AppDelegate.DEVICE_TYPE_KEY)
                 result?(connectionInfoData)
             }catch{result?("Error")}
         }
