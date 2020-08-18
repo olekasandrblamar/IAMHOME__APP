@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ceras/providers/devices_provider.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -13,6 +14,7 @@ import 'package:provider/provider.dart';
 import 'package:ceras/providers/applanguage_provider.dart';
 
 import 'config/app_localizations.dart';
+import 'config/dynamiclinks_setup.dart';
 import 'config/navigation_service.dart';
 import 'constants/route_paths.dart' as routes;
 import 'router.dart' as router;
@@ -26,11 +28,12 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   final AppLanguageProvider appLanguage = AppLanguageProvider();
+  static FirebaseAnalytics analytics = FirebaseAnalytics();
 
   @override
   void initState() {
     // NotificationOneSignal().initialiseOneSignal();
-    // DynamicLinksSetup().initDynamicLinks();
+    DynamicLinksSetup().initDynamicLinks();
     // initalizeBackgroundFetch();
 
     appLanguage.fetchLocale();
@@ -91,6 +94,7 @@ class _MyAppState extends State<MyApp> {
             navigatorKey: NavigationService.navigatorKey,
             onGenerateRoute: (settings) => router.generateRoute(
               settings,
+              analytics,
             ),
             locale: appLanguage.appLocal,
             supportedLocales: [

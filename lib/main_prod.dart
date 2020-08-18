@@ -1,8 +1,11 @@
 import 'dart:async';
 
 // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:background_fetch/background_fetch.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ceras/config/background_fetch.dart';
 
 import 'app.dart';
 import 'config/env.dart';
@@ -10,7 +13,7 @@ import 'config/env.dart';
 void main() async {
   try {
     // Pass all uncaught errors from the framework to Crashlytics.
-    // FlutterError.onError = Crashlytics.instance.recordFlutterError;
+    FlutterError.onError = Crashlytics.instance.recordFlutterError;
 
     WidgetsFlutterBinding.ensureInitialized();
 
@@ -31,8 +34,13 @@ void main() async {
 
     runZoned<Future<void>>(() async {
       runApp(MyApp());
+
+      // Register to receive BackgroundFetch events after app is terminated.
+      // Requires {stopOnTerminate: false, enableHeadless: true}
+      await BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
     });
   } catch (error, stackTrace) {
+    Crashlytics.instance.recordError(error, stackTrace);
     print(error);
   }
 }

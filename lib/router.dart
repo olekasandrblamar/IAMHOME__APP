@@ -1,3 +1,5 @@
+import 'package:ceras/config/env.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/screens/access/camera_screen.dart';
 import 'package:ceras/screens/access/locations_screen.dart';
@@ -17,7 +19,12 @@ import 'screens/setup/setup_home_screen.dart';
 
 Route<dynamic> generateRoute(
   RouteSettings settings,
+  FirebaseAnalytics analytics,
 ) {
+  if (env.flavor == BuildFlavor.production) {
+    analytics.setCurrentScreen(screenName: settings.name);
+  }
+
   switch (settings.name) {
     // case RootRoute:
     //   return MaterialPageRoute(builder: (context) => LoginScreen());

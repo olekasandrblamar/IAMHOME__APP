@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "741785810462",
+    "firebase_url": "https://ceras-4aba7.firebaseio.com",
+    "project_id": "ceras-4aba7",
+    "storage_bucket": "ceras-4aba7.appspot.com"
+  },
+  "client": [{
+    "client_info": {
+      "mobilesdk_app_id": "1:741785810462:android:25c408e7b4cd541cf9a00f",
+      "android_client_info": {
+        "package_name": "com.cerashealth.ceras"
+      }
+    },
+    "oauth_client": [{
+      "client_id": "741785810462-omm44n3qcqsbggfc7lp7m0lqgdsriu35.apps.googleusercontent.com",
+      "client_type": 3
+    }],
+    "api_key": [{
+      "current_key": "AIzaSyDZ4EnQoiESz7rxRBpohPNTQE-P4H5KanM"
+    }],
+    "services": {
+      "appinvite_service": {
+        "other_platform_oauth_client": [{
+            "client_id": "741785810462-omm44n3qcqsbggfc7lp7m0lqgdsriu35.apps.googleusercontent.com",
+            "client_type": 3
+          },
+          {
+            "client_id": "741785810462-nbie2eraqq4f1n5gkmp723ned6p1u8h6.apps.googleusercontent.com",
+            "client_type": 2,
+            "ios_info": {
+              "bundle_id": "com.cerashealth.ceras"
+            }
+          }
+        ]
+      }
+    }
+  }],
+  "configuration_version": "1"
+}

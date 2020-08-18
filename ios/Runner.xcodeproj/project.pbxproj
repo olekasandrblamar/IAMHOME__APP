@@ -10,6 +10,7 @@
 		0332C9AC24B40CC700AAE8D1 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0332C9AB24B40CC700AAE8D1 /* ExternalAccessory.framework */; };
 		0332C9AE24B40CD100AAE8D1 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0332C9AD24B40CD100AAE8D1 /* HealthKit.framework */; };
 		036EF94224D904120002892D /* libHardManagerSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 036EF94124D903F00002892D /* libHardManagerSDK.a */; };
+		03D13CAA24EC80D2001D13F3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03D13CA924EC80D2001D13F3 /* GoogleService-Info.plist */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
 		5257E6C424D25E0900C2B1BA /* HardSDK in Resources */ = {isa = PBXBuildFile; fileRef = 5257E6C324D25E0900C2B1BA /* HardSDK */; };
@@ -56,6 +57,7 @@
 		0332C9AB24B40CC700AAE8D1 /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
 		0332C9AD24B40CD100AAE8D1 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
 		036EF94124D903F00002892D /* libHardManagerSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libHardManagerSDK.a; sourceTree = "<group>"; };
+		03D13CA924EC80D2001D13F3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		3743E58A645B153C66ABF74B /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
@@ -153,6 +155,7 @@
 				97C146FA1CF9000F007C117D /* Main.storyboard */,
 				97C146FD1CF9000F007C117D /* Assets.xcassets */,
 				97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */,
+				03D13CA924EC80D2001D13F3 /* GoogleService-Info.plist */,
 				97C147021CF9000F007C117D /* Info.plist */,
 				97C146F11CF9000F007C117D /* Supporting Files */,
 				1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */,
@@ -200,6 +203,7 @@
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				F27ACCE573F20208B80756DF /* [CP] Embed Pods Frameworks */,
 				52CF454B24EB0F1700AE177E /* CopyFiles */,
+				032E5DE924EC768B00E3AEE2 /* ShellScript */,
 			);
 			buildRules = (
 			);
@@ -253,12 +257,31 @@
 				3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */,
 				97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */,
 				97C146FC1CF9000F007C117D /* Main.storyboard in Resources */,
+				03D13CAA24EC80D2001D13F3 /* GoogleService-Info.plist in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		032E5DE924EC768B00E3AEE2 /* ShellScript */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"$(BUILT_PRODUCTS_DIR)/$(INFOPLIST_PATH)",
+			);
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "${PODS_ROOT}/Fabric/run\n";
+		};
 		3B06AD1E1E4923F5004D2608 /* Thin Binary */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -307,7 +330,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build";
+			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" build\n";
 		};
 		F27ACCE573F20208B80756DF /* [CP] Embed Pods Frameworks */ = {
 			isa = PBXShellScriptBuildPhase;

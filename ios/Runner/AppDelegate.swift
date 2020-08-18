@@ -1,5 +1,6 @@
 import UIKit
 import Flutter
+import Firebase
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -16,6 +17,7 @@ import Flutter
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    FirebaseApp.configure()
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     let deviceChannel = FlutterMethodChannel(name: "ceras.iamhome.mobile/device",binaryMessenger: controller.binaryMessenger)
     AppDelegate.dateFormatter.dateFormat = "MM/dd/yyyy hh:mm a"
