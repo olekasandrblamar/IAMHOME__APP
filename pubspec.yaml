@@ -79,6 +79,7 @@ flutter:
     - assets/images/connected.png
     - assets/images/support.png
     - assets/images/t&c.png
+    - assets/images/emptyImage.png
 
   fonts:
     - family: Roboto

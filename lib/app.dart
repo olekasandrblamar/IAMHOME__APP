@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ceras/providers/devices_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -63,6 +64,9 @@ class _MyAppState extends State<MyApp> {
         ),
         ChangeNotifierProvider.value(
           value: AuthProvider(),
+        ),
+        ChangeNotifierProvider.value(
+          value: DevicesProvider(),
         ),
       ],
       child: Consumer2<AuthProvider, AppLanguageProvider>(

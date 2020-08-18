@@ -65,7 +65,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
                   'assets/images/placeholder.jpg',
                 ),
                 image: AssetImage(
-                  _deviceType == 'WATCH'
+                  _deviceType == 'Watch'
                       ? 'assets/images/Picture1.jpg'
                       : 'assets/images/Picture2.jpg',
                 ),

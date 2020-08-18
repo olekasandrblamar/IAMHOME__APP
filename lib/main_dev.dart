@@ -15,7 +15,7 @@ void main() {
 
     BuildEnvironment.init(
       flavor: BuildFlavor.development,
-      baseUrl: 'https:///api',
+      baseUrl: 'https://devicemgmt.dev.myceras.com/api/v1/device/',
       baseUrl2: 'https:///api',
     );
 

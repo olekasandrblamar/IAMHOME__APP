@@ -24,6 +24,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   final TextEditingController _deviceIdController = TextEditingController();
 
   var _deviceType = '';
+  var _displayImage = '';
   var _isLoading = false;
   var _deviceIdNumber = '';
 
@@ -33,6 +34,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   void initState() {
     if (widget.routeArgs != null) {
       _deviceType = widget.routeArgs['deviceType'];
+      _displayImage = widget.routeArgs['displayImage'];
     }
 
     // TODO: implement initState
@@ -138,11 +140,13 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                   placeholder: AssetImage(
                     'assets/images/placeholder.jpg',
                   ),
-                  image: AssetImage(
-                    _deviceType == 'WATCH'
-                        ? 'assets/images/Picture1.jpg'
-                        : 'assets/images/Picture2.jpg',
-                  ),
+                  image: _displayImage != null
+                      ? NetworkImage(
+                          _displayImage,
+                        )
+                      : AssetImage(
+                          'assets/images/placeholder.jpg',
+                        ),
                   fit: BoxFit.contain,
                   alignment: Alignment.center,
                   fadeInDuration: Duration(milliseconds: 200),

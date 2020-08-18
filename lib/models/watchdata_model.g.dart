@@ -16,6 +16,7 @@ WatchModel _$WatchModelFromJson(Map<String, dynamic> json) {
         (json['additionalInformation'] as Map<String, dynamic>)?.map(
       (k, e) => MapEntry(k, e as String),
     ),
+    deviceType: json['deviceType'] as String,
   );
 }
 
@@ -25,5 +26,6 @@ Map<String, dynamic> _$WatchModelToJson(WatchModel instance) =>
       'deviceId': instance.deviceId,
       'deviceName': instance.deviceName,
       'message': instance.message,
+      'deviceType': instance.deviceType,
       'additionalInformation': instance.additionalInformation,
     };
