@@ -14,8 +14,8 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
 
     BuildEnvironment.init(
-      flavor: BuildFlavor.development,
-      baseUrl: 'https://devicemgmt.dev.myceras.com/api/v1/device/',
+      flavor: BuildFlavor.alpha,
+      baseUrl: 'https://devicemgmt.alpha.myceras.com/api/v1/device/',
       baseUrl2: 'https://api',
     );
 

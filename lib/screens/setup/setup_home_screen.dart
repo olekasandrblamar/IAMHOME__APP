@@ -11,7 +11,7 @@ class SetupHomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: SetupAppBar(),
-      backgroundColor: AppTheme.background,
+      backgroundColor: Colors.white,
       body: SafeArea(
         bottom: true,
         child: Container(

@@ -145,45 +145,45 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            Card(
-              child: Container(
-                padding: EdgeInsets.all(15),
-                child: GridTile(
-                  child: new InkResponse(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Icon(
-                            Icons.rate_review,
-                            size: 50,
-                            color: Theme.of(context).primaryColor,
-                          ),
-                        ),
-                        Container(
-                          height: 10,
-                        ),
-                      ],
-                    ),
-                    onTap: () => {
-                      LaunchReview.launch(
-                        // writeReview: false,
-                        androidAppId: "com.cerashealth.ceras",
-                        // iOSAppId: "1493080545",
-                      )
-                    },
-                  ),
-                  footer: Container(
-                    padding: EdgeInsets.only(top: 50),
-                    child: Center(
-                      child: Text(
-                        _appLocalization.translate('settings.content.review'),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            // Card(
+            //   child: Container(
+            //     padding: EdgeInsets.all(15),
+            //     child: GridTile(
+            //       child: new InkResponse(
+            //         child: Column(
+            //           mainAxisAlignment: MainAxisAlignment.center,
+            //           children: [
+            //             Expanded(
+            //               child: Icon(
+            //                 Icons.rate_review,
+            //                 size: 50,
+            //                 color: Theme.of(context).primaryColor,
+            //               ),
+            //             ),
+            //             Container(
+            //               height: 10,
+            //             ),
+            //           ],
+            //         ),
+            //         onTap: () => {
+            //           LaunchReview.launch(
+            //             // writeReview: false,
+            //             androidAppId: "com.cerashealth.ceras",
+            //             // iOSAppId: "1493080545",
+            //           )
+            //         },
+            //       ),
+            //       footer: Container(
+            //         padding: EdgeInsets.only(top: 50),
+            //         child: Center(
+            //           child: Text(
+            //             _appLocalization.translate('settings.content.review'),
+            //           ),
+            //         ),
+            //       ),
+            //     ),
+            //   ),
+            // ),
           ],
         ),
       ),

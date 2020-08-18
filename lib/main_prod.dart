@@ -17,7 +17,7 @@ void main() async {
     BuildEnvironment.init(
       flavor: BuildFlavor.production,
       baseUrl: 'https://devicemgmt.myceras.com/api/v1/device/',
-      baseUrl2: 'https:///api',
+      baseUrl2: 'https://api',
     );
 
     assert(env != null);

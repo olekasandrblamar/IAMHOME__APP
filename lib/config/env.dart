@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-enum BuildFlavor { production, development, staging }
+enum BuildFlavor { production, development, alpha }
 
 BuildEnvironment get env => _env;
 BuildEnvironment _env;
