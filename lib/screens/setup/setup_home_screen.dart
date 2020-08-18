@@ -101,8 +101,8 @@ class SetupHomeScreen extends StatelessWidget {
                                 routes.SetupConnectRoute,
                                 arguments: {
                                   'deviceType': hardwareDataSnapshot.data[index]
-                                          .deviceMaster['deviceType']
-                                      ['displayName'],
+                                      .deviceMaster['deviceType']['displayName']
+                                      .toUpperCase(),
                                   'displayImage': imageData,
                                 },
                               ),
