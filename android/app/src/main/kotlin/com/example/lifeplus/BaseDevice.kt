@@ -9,7 +9,7 @@ open class BaseDevice{
     open fun connectDevice(context: Context, result: MethodChannel.Result){
 
     }
-    open fun syncData(result: MethodChannel.Result, connectionInfo: ConnectionInfo, context: Context){
+    open fun syncData(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context){
 
     }
 

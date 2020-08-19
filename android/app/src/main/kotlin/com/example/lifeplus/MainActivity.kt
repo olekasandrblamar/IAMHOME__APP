@@ -4,19 +4,23 @@ package com.cerashealth.ceras
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.StrictMode
 
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.example.lifeplus.BaseDevice
 import com.google.gson.Gson
+import io.flutter.app.FlutterApplication
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugin.common.PluginRegistry
+import io.flutter.plugins.GeneratedPluginRegistrant
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MainActivity: FlutterActivity() {
+class MainActivity: FlutterActivity()  {
 
     private val CHANNEL = "ceras.iamhome.mobile/device"
     private var sycnDevice:BaseDevice? = null
@@ -46,6 +50,10 @@ class MainActivity: FlutterActivity() {
         } else {
             Log.i(TAG,"requestPermission,shouldShowRequestPermissionRationale hehe")
         }
+    }
+    
+    private fun scheduleBackgroundTaks(){
+        
     }
 
     private fun connectDeviceChannel(flutterEngine: FlutterEngine){
@@ -78,6 +86,7 @@ class MainActivity: FlutterActivity() {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        //GeneratedPluginRegistrant.registerWith(flutterEngine);
         // requestPermission()
         connectDeviceChannel(flutterEngine)
     }
@@ -108,4 +117,23 @@ class ConnectionInfo{
         }
     }
 
+}
+
+class Application:FlutterApplication(){
+    override fun onCreate() {
+//        StrictMode.setThreadPolicy(StrictMode.ThreadPolicy.Builder()
+//                .detectDiskReads()
+//                .detectDiskWrites()
+//                .detectAll()
+//                .penaltyLog()
+//                .build())
+//
+//        StrictMode.setVmPolicy(StrictMode.VmPolicy.Builder()
+//                .detectLeakedSqlLiteObjects()
+//                .detectLeakedClosableObjects()
+//                .penaltyLog()
+////                .penaltyDeath()
+//                .build())
+        super.onCreate()
+    }
 }

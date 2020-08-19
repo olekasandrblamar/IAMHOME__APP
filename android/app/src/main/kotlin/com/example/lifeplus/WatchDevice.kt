@@ -314,7 +314,7 @@ class WatchDevice:BaseDevice()     {
 
     //Sync the data from watch
     //This needs to be called in background from time to time
-    override fun syncData(result: MethodChannel.Result,connectionInfo: ConnectionInfo,context: Context){
+    override fun syncData(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
         Log.i(TAG,"Calling sync data")
 
         Log.i(TAG,"Is device connected ${HardSdk.getInstance().isDevConnected}")
@@ -343,7 +343,7 @@ class WatchDevice:BaseDevice()     {
                 HardSdk.getInstance().syncSleepData(0)
             }
             Log.i(TAG, "Data sync complete")
-            result.success("Load complete")
+            result?.success("Load complete")
         }
     }
 

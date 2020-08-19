@@ -312,7 +312,7 @@ class BandDevice :BaseDevice(){
 
     }
 
-    override fun syncData(result: MethodChannel.Result, connectionInfo: ConnectionInfo, context: Context){
+    override fun syncData(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context){
         currentDeviceId = connectionInfo.deviceId
         if(mBluetoothLe==null) {
             Log.i(TAG, "Bluetooth le is null initializing it")
@@ -330,13 +330,13 @@ class BandDevice :BaseDevice(){
                         loadData()
                 }
             })
-            result.success("Load complete")
+            result?.success("Load complete")
         }else{
             if (!mBluetoothLe!!.connected)
                 startDeviceConnection(context, null, connectionInfo.deviceId)
             else
                 loadData()
-            result.success("Load complete")
+            result?.success("Load complete")
         }
     }
 
