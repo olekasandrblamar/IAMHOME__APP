@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:ceras/models/devices_model.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/config/http.dart';
 import 'package:ceras/config/navigation_service.dart';
@@ -12,6 +13,7 @@ class AuthProvider with ChangeNotifier {
 
   WatchModel _watchInfo;
   String _deviceType;
+  DevicesModel _deviceData;
 
   bool get isAuth {
     return _watchInfo != null;
@@ -35,10 +37,29 @@ class AuthProvider with ChangeNotifier {
     _deviceType = deviceType;
   }
 
+  void setDeviceData(DevicesModel deviceData) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('deviceData', json.encode(deviceData));
+
+    _deviceData = deviceData;
+  }
+
+  Future<DevicesModel> get deviceData async {
+    final prefs = await SharedPreferences.getInstance();
+    final checkDeviceInfo = DevicesModel.fromJson(
+        json.decode(prefs.getString('deviceData')) as Map<String, dynamic>);
+
+    _deviceData = checkDeviceInfo;
+
+    return checkDeviceInfo;
+  }
+
   Future<WatchModel> get watchData async {
     final prefs = await SharedPreferences.getInstance();
-    final WatchModel checkWatchInfo = WatchModel.fromJson(
+    final checkWatchInfo = WatchModel.fromJson(
         json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>);
+
+    _watchInfo = checkWatchInfo;
 
     return checkWatchInfo;
   }

@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:ceras/theme.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
-import 'package:permission_handler/permission_handler.dart';
 
 class BluetoothNotfoundScreen extends StatelessWidget {
   @override

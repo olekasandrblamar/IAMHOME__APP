@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:ceras/config/app_localizations.dart';
+import 'package:ceras/models/devices_model.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
@@ -23,6 +24,7 @@ class SetupConnectScreen extends StatefulWidget {
 class _SetupConnectScreenState extends State<SetupConnectScreen> {
   final TextEditingController _deviceIdController = TextEditingController();
 
+  DevicesModel _deviceData = null;
   var _deviceType = '';
   var _displayImage = '';
   var _isLoading = false;
@@ -33,6 +35,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   @override
   void initState() {
     if (widget.routeArgs != null) {
+      _deviceData = widget.routeArgs['deviceData'];
       _deviceType = widget.routeArgs['deviceType'];
       _displayImage = widget.routeArgs['displayImage'];
     }
@@ -97,6 +100,9 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
       await Provider.of<AuthProvider>(context, listen: false)
           .setDeviceType(_deviceType);
+
+      await Provider.of<AuthProvider>(context, listen: false)
+          .setDeviceData(_deviceData);
 
       setState(() {
         _isLoading = false;
