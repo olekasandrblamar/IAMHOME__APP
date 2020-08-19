@@ -17,6 +17,7 @@ import 'config/app_localizations.dart';
 import 'config/dynamiclinks_setup.dart';
 import 'config/navigation_service.dart';
 import 'constants/route_paths.dart' as routes;
+import 'data/language_data.dart';
 import 'router.dart' as router;
 import 'theme.dart';
 // import 'config/locator.dart';
@@ -97,28 +98,7 @@ class _MyAppState extends State<MyApp> {
               analytics,
             ),
             locale: appLanguage.appLocal,
-            supportedLocales: [
-              const Locale('en', 'US'),
-              const Locale('hi', 'IN'),
-              const Locale('ar', 'AE'),
-              const Locale('zh', 'CN'),
-              const Locale('nl', 'NL'),
-              const Locale('fr', 'FR'),
-              const Locale('de', 'DE'),
-              const Locale('el', 'GR'),
-              const Locale('hi', 'IN'),
-              const Locale('it', 'IT'),
-              const Locale('ja', 'JP'),
-              const Locale('ko', 'KR'),
-              const Locale('ms', 'MY'),
-              const Locale('pt', 'PT'),
-              const Locale('ru', 'RU'),
-              const Locale('es', 'ES'),
-              const Locale('sv', 'SE'),
-              const Locale('tr', 'TR'),
-              const Locale('th', 'TH'),
-              const Locale('vi', 'VN'),
-            ],
+            supportedLocales: [...SupportedLocals],
             localizationsDelegates: [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
@@ -139,7 +119,7 @@ class _MyAppState extends State<MyApp> {
         builder: (ctx, authResultSnapshot) =>
             authResultSnapshot.connectionState == ConnectionState.waiting
                 ? SplashScreen()
-                : IntroScreen(),
+                : SetupActiveScreen(),
       );
     }
   }

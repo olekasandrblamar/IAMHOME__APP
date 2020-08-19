@@ -1,3 +1,4 @@
+import 'package:ceras/widgets/translateheader_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/data/access_data.dart';
 import 'package:ceras/models/access_model.dart';
@@ -31,6 +32,7 @@ class CameraScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: translateHeader(context),
       backgroundColor: AppTheme.white,
       body: AccessWidget(
         type: 'camera',

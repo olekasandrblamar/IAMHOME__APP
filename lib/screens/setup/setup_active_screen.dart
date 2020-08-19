@@ -56,10 +56,25 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget>[
             Container(
-              constraints: BoxConstraints(
-                maxHeight: 300.0,
+              height: 200.0,
+              width: 200.0,
+              padding: const EdgeInsets.all(40.0),
+              margin: const EdgeInsets.all(40.0),
+              decoration: BoxDecoration(
+                border: Border.all(
+                  width: 1.0,
+                  color: Colors.green,
+                ),
+                shape: BoxShape.circle,
+                color: Colors.white,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.green,
+                    blurRadius: 50.0,
+                    spreadRadius: 50.0,
+                  )
+                ],
               ),
-              padding: const EdgeInsets.all(10.0),
               child: FadeInImage(
                 placeholder: AssetImage(
                   'assets/images/placeholder.jpg',
@@ -76,22 +91,36 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
               ),
             ),
             SizedBox(
-              height: 25,
+              height: 35,
             ),
             Container(
-              padding: const EdgeInsets.all(10.0),
+              padding: const EdgeInsets.only(
+                bottom: 5.0,
+              ),
               child: Text(
-                _appLocalization.translate('setup.active.devicefound'),
+                // _appLocalization.translate('setup.active.devicefound'),
+                'bFit',
                 overflow: TextOverflow.ellipsis,
                 textAlign: TextAlign.center,
                 style: AppTheme.title,
               ),
             ),
             Container(
-              padding: const EdgeInsets.symmetric(
-                // vertical: 5.0,
-                horizontal: 35.0,
+              padding: const EdgeInsets.all(5.0),
+              child: Text(
+                // _appLocalization.translate('setup.active.devicefound'),
+                '32:32:23:23:23:32',
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontWeight: FontWeight.w500,
+                  fontSize: 18,
+                  letterSpacing: 0.18,
+                  color: Color(0xFF17262A),
+                ),
               ),
+            ),
+            Container(
               child: Text(
                 _appLocalization.translate('setup.active.lastconnected') +
                     ' ${_lastUpdated}.',
