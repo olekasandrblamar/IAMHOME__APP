@@ -18,6 +18,11 @@ import Firebase
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     FirebaseApp.configure()
+
+    if #available(iOS 10.0, *) {
+        UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+    }
+
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
     let deviceChannel = FlutterMethodChannel(name: "ceras.iamhome.mobile/device",binaryMessenger: controller.binaryMessenger)
     AppDelegate.dateFormatter.dateFormat = "MM/dd/yyyy hh:mm a"

@@ -1,3 +1,5 @@
+import 'package:flutter/material.dart';
+
 enum LanguageSelectionChoice {
   en,
   ar,
@@ -19,6 +21,29 @@ enum LanguageSelectionChoice {
   th,
   vi
 }
+
+final List<Locale> SupportedLocals = [
+  const Locale('en', 'US'),
+  const Locale('hi', 'IN'),
+  const Locale('ar', 'AE'),
+  const Locale('zh', 'CN'),
+  const Locale('nl', 'NL'),
+  const Locale('fr', 'FR'),
+  const Locale('de', 'DE'),
+  const Locale('el', 'GR'),
+  const Locale('hi', 'IN'),
+  const Locale('it', 'IT'),
+  const Locale('ja', 'JP'),
+  const Locale('ko', 'KR'),
+  const Locale('ms', 'MY'),
+  const Locale('pt', 'PT'),
+  const Locale('ru', 'RU'),
+  const Locale('es', 'ES'),
+  const Locale('sv', 'SE'),
+  const Locale('tr', 'TR'),
+  const Locale('th', 'TH'),
+  const Locale('vi', 'VN'),
+];
 
 final List<dynamic> LANGUAGES_DATA = [
   {

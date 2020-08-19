@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:ceras/config/app_localizations.dart';
+import 'package:ceras/widgets/languageselection_widget.dart';
+import 'package:ceras/widgets/translateheader_widget.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
@@ -73,9 +75,7 @@ class _IntroScreenState extends State<IntroScreen> {
     final _appLocalization = AppLocalizations.of(context);
 
     return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Home'),
-      // ),
+      appBar: translateHeader(context),
       backgroundColor: AppTheme.white,
       body: SafeArea(
         child: Column(

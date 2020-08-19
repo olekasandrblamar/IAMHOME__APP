@@ -1,4 +1,5 @@
 import 'package:ceras/config/app_localizations.dart';
+import 'package:ceras/widgets/translateheader_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:ceras/theme.dart';
@@ -29,6 +30,7 @@ class PrivacyScreen extends StatelessWidget {
     final _appLocalization = AppLocalizations.of(context);
 
     return Scaffold(
+      appBar: translateHeader(context),
       backgroundColor: AppTheme.white,
       body: SafeArea(
         top: true,

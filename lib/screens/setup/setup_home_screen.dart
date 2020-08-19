@@ -4,9 +4,25 @@ import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/nodata_widget.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
 
-class SetupHomeScreen extends StatelessWidget {
+import 'package:ceras/constants/route_paths.dart' as routes;
+
+import 'widgets/bluetooth_notfound_widget.dart';
+
+class SetupHomeScreen extends StatefulWidget {
+  @override
+  _SetupHomeScreenState createState() => _SetupHomeScreenState();
+}
+
+class _SetupHomeScreenState extends State<SetupHomeScreen> {
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -16,110 +32,122 @@ class SetupHomeScreen extends StatelessWidget {
         bottom: true,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          child: FutureBuilder(
-            future: Provider.of<DevicesProvider>(context, listen: false)
-                .fetchAllDevices(),
-            builder: (ctx, hardwareDataSnapshot) {
-              if (hardwareDataSnapshot.connectionState ==
-                  ConnectionState.waiting) {
-                return Center(child: CircularProgressIndicator());
-              } else {
-                if (hardwareDataSnapshot.error != null) {
-                  return Center(
-                    child: Text('An error occurred!'),
-                  );
-                } else {
-                  if (hardwareDataSnapshot.data != null) {
-                    return GridView.builder(
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                      ),
-                      itemCount: hardwareDataSnapshot.data.length,
-                      itemBuilder: (BuildContext context, int index) {
-                        var imageData = hardwareDataSnapshot
-                            .data[index].deviceMaster['displayImage'];
-                        return Card(
-                          margin: EdgeInsets.symmetric(
-                              vertical: 10, horizontal: 10),
-                          elevation: 5,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          child: InkWell(
-                            child: Container(
-                              padding: EdgeInsets.all(5),
-                              child: GridTile(
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    Expanded(
-                                      child: FadeInImage(
-                                        placeholder: AssetImage(
-                                          'assets/images/placeholder.jpg',
-                                        ),
-                                        image: imageData != null
-                                            ? NetworkImage(
-                                                imageData,
-                                              )
-                                            : AssetImage(
-                                                'assets/images/placeholder.jpg',
-                                              ),
-                                        fit: BoxFit.contain,
-                                        alignment: Alignment.center,
-                                        fadeInDuration:
-                                            Duration(milliseconds: 200),
-                                        fadeInCurve: Curves.easeIn,
-                                        width: double.infinity,
-                                        height: double.infinity,
-                                      ),
-                                    ),
-                                    Container(
-                                      // color: Colors.black.withOpacity(0.7),
-                                      height: 30,
-                                      width: double.infinity,
-                                      child: Center(
-                                        child: Text(
-                                          hardwareDataSnapshot.data[index]
-                                              .deviceMaster['displayName'],
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            // color: Colors.white,
-                                            fontWeight: FontWeight.bold,
-                                            fontSize: 16,
-                                            fontFamily: 'Regular',
-                                          ),
-                                        ),
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              ),
-                            ),
-                            onTap: () => {
-                              Navigator.of(context).pushNamed(
-                                routes.SetupConnectRoute,
-                                arguments: {
-                                  'deviceType': hardwareDataSnapshot.data[index]
-                                          .deviceMaster['deviceType']
-                                      ['displayName'],
-                                  'displayImage': imageData,
-                                },
-                              ),
-                            },
-                          ),
-                        );
-                      },
-                    );
-                  } else {
-                    return NoDataFoundWidget();
-                  }
-                }
+          child: StreamBuilder<BluetoothState>(
+            stream: FlutterBlue.instance.state,
+            initialData: BluetoothState.unknown,
+            builder: (c, snapshot) {
+              final state = snapshot.data;
+              if (state == BluetoothState.on) {
+                return buildDevicesList(context);
               }
+              return buildBluetoothOff(context);
             },
           ),
         ),
       ),
+    );
+  }
+
+  Widget buildDevicesList(context) {
+    return FutureBuilder(
+      future: Provider.of<DevicesProvider>(context, listen: false)
+          .fetchAllDevices(),
+      builder: (ctx, hardwareDataSnapshot) {
+        if (hardwareDataSnapshot.connectionState == ConnectionState.waiting) {
+          return Center(child: CircularProgressIndicator());
+        } else {
+          if (hardwareDataSnapshot.error != null) {
+            return Center(
+              child: Text('An error occurred!'),
+            );
+          } else {
+            if (hardwareDataSnapshot.data != null) {
+              return GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                ),
+                itemCount: hardwareDataSnapshot.data.length,
+                itemBuilder: (BuildContext context, int index) {
+                  var imageData = hardwareDataSnapshot
+                      .data[index].deviceMaster['displayImage'];
+                  return Card(
+                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
+                    elevation: 5,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(10.0),
+                    ),
+                    child: InkWell(
+                      child: Container(
+                        padding: EdgeInsets.all(5),
+                        child: GridTile(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: FadeInImage(
+                                  placeholder: AssetImage(
+                                    'assets/images/placeholder.jpg',
+                                  ),
+                                  image: imageData != null
+                                      ? NetworkImage(
+                                          imageData,
+                                        )
+                                      : AssetImage(
+                                          'assets/images/placeholder.jpg',
+                                        ),
+                                  fit: BoxFit.contain,
+                                  alignment: Alignment.center,
+                                  fadeInDuration: Duration(milliseconds: 200),
+                                  fadeInCurve: Curves.easeIn,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                ),
+                              ),
+                              Container(
+                                // color: Colors.black.withOpacity(0.7),
+                                height: 30,
+                                width: double.infinity,
+                                child: Center(
+                                  child: Text(
+                                    hardwareDataSnapshot.data[index]
+                                        .deviceMaster['displayName'],
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      // color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                      fontFamily: 'Regular',
+                                    ),
+                                  ),
+                                ),
+                              )
+                            ],
+                          ),
+                        ),
+                      ),
+                      onTap: () => {
+                        Navigator.of(context).pushNamed(
+                          routes.SetupConnectRoute,
+                          arguments: {
+                            'deviceData': hardwareDataSnapshot.data[index],
+                            'deviceType': hardwareDataSnapshot.data[index]
+                                .deviceMaster['deviceType']['displayName']
+                                .toUpperCase(),
+                            'displayImage': imageData,
+                          },
+                        ),
+                      },
+                    ),
+                  );
+                },
+              );
+            } else {
+              return NoDataFoundWidget();
+            }
+          }
+        }
+      },
     );
   }
 }

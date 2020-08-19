@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/providers/auth_provider.dart';
@@ -17,6 +19,7 @@ import 'config/app_localizations.dart';
 import 'config/dynamiclinks_setup.dart';
 import 'config/navigation_service.dart';
 import 'constants/route_paths.dart' as routes;
+import 'data/language_data.dart';
 import 'router.dart' as router;
 import 'theme.dart';
 // import 'config/locator.dart';
@@ -29,10 +32,12 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final AppLanguageProvider appLanguage = AppLanguageProvider();
   static FirebaseAnalytics analytics = FirebaseAnalytics();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   @override
   void initState() {
     // NotificationOneSignal().initialiseOneSignal();
+
     DynamicLinksSetup().initDynamicLinks();
     // initalizeBackgroundFetch();
 
@@ -40,6 +45,21 @@ class _MyAppState extends State<MyApp> {
 
     // TODO: implement initState
     super.initState();
+
+    _firebaseMessaging.configure(
+      onMessage: (Map<String, dynamic> message) async {
+        print("onMessage: $message");
+        // _showItemDialog(message);
+      },
+      onLaunch: (Map<String, dynamic> message) async {
+        print("onLaunch: $message");
+        // _navigateToItemDetail(message);
+      },
+      onResume: (Map<String, dynamic> message) async {
+        print("onResume: $message");
+        // _navigateToItemDetail(message);
+      },
+    );
   }
 
   initalizeBackgroundFetch() async {
@@ -97,28 +117,7 @@ class _MyAppState extends State<MyApp> {
               analytics,
             ),
             locale: appLanguage.appLocal,
-            supportedLocales: [
-              const Locale('en', 'US'),
-              const Locale('hi', 'IN'),
-              const Locale('ar', 'AE'),
-              const Locale('zh', 'CN'),
-              const Locale('nl', 'NL'),
-              const Locale('fr', 'FR'),
-              const Locale('de', 'DE'),
-              const Locale('el', 'GR'),
-              const Locale('hi', 'IN'),
-              const Locale('it', 'IT'),
-              const Locale('ja', 'JP'),
-              const Locale('ko', 'KR'),
-              const Locale('ms', 'MY'),
-              const Locale('pt', 'PT'),
-              const Locale('ru', 'RU'),
-              const Locale('es', 'ES'),
-              const Locale('sv', 'SE'),
-              const Locale('tr', 'TR'),
-              const Locale('th', 'TH'),
-              const Locale('vi', 'VN'),
-            ],
+            supportedLocales: [...SupportedLocals],
             localizationsDelegates: [
               AppLocalizations.delegate,
               GlobalMaterialLocalizations.delegate,
