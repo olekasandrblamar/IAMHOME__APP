@@ -25,7 +25,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
 
   @override
   void initState() {
-    // _changeLastUpdated();
+    _changeLastUpdated();
     _syncDataFromDevice();
     super.initState();
   }
@@ -48,7 +48,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
   }
 
   void _syncDataFromDevice() async {
-    // await syncDataFromDevice();
+    await syncDataFromDevice();
     await _changeLastUpdated();
   }
 
