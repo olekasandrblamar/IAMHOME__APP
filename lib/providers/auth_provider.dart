@@ -44,22 +44,10 @@ class AuthProvider with ChangeNotifier {
     _deviceData = deviceData;
   }
 
-  Future<DevicesModel> get deviceData async {
-    final prefs = await SharedPreferences.getInstance();
-    final checkDeviceInfo = DevicesModel.fromJson(
-        json.decode(prefs.getString('deviceData')) as Map<String, dynamic>);
-
-    _deviceData = checkDeviceInfo;
-
-    return checkDeviceInfo;
-  }
-
   Future<WatchModel> get watchData async {
     final prefs = await SharedPreferences.getInstance();
-    final checkWatchInfo = WatchModel.fromJson(
+    final WatchModel checkWatchInfo = WatchModel.fromJson(
         json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>);
-
-    _watchInfo = checkWatchInfo;
 
     return checkWatchInfo;
   }
