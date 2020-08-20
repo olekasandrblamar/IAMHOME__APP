@@ -97,15 +97,15 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
             decoration: BoxDecoration(
               border: Border.all(
                 width: 1.0,
-                color: Colors.green,
+                color: Color(0xff008bc6),
               ),
               shape: BoxShape.circle,
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.green,
-                  blurRadius: 50.0,
-                  spreadRadius: 50.0,
+                  color: Color(0xff008bc6),
+                  blurRadius: 60.0,
+                  spreadRadius: 30.0,
                 )
               ],
             ),

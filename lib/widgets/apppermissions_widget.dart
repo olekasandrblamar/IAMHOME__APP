@@ -79,9 +79,9 @@ class _PermissionState extends State<PermissionWidget> {
   Color getPermissionColor() {
     switch (_permissionStatus) {
       case PermissionStatus.denied:
-        return Colors.red;
+        return Color(0xffc10b03);
       case PermissionStatus.granted:
-        return Colors.green;
+        return Color(0xff008bc6);
       default:
         return Colors.grey;
     }
@@ -141,11 +141,11 @@ class _PermissionState extends State<PermissionWidget> {
                     trailing: _permissionStatus == PermissionStatus.granted
                         ? Icon(
                             Icons.check_circle,
-                            color: Colors.green,
+                            color: Color(0xff008bc6),
                           )
                         : Icon(
                             Icons.remove_circle,
-                            color: Colors.red,
+                            color: Color(0xffc10b03),
                           ),
                   ),
                   // Divider(

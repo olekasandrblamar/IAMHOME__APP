@@ -35,8 +35,10 @@ PODS:
     - Fabric
     - Firebase/Core
     - Flutter
-  - firebase_dynamic_links (0.1.0):
-    - Firebase/DynamicLinks
+  - firebase_dynamic_links (0.6.0):
+    - Firebase/CoreOnly (~> 6.26.0)
+    - Firebase/DynamicLinks (~> 6.26.0)
+    - firebase_core
     - Flutter
   - firebase_messaging (7.0.0):
     - Firebase/CoreOnly (~> 6.26.0)
@@ -264,7 +266,7 @@ SPEC CHECKSUMS:
   firebase_analytics: 3ad65aa7be059752b2c1a6392bfafe030b4ab9fa
   firebase_core: 3134fe79d257d430f163b558caf52a10a87efe8a
   firebase_crashlytics: cc468e94e5a637364aeeeec5c8a96d92ea75ec7b
-  firebase_dynamic_links: 6aa278fc5e6e8cca17d5aa4c7aa46283f2b94749
+  firebase_dynamic_links: ca1f5d7e2661f0fdee16e4db0c01d97fb31eae45
   firebase_messaging: 6061cbdfe4463502a0d4d7049820c25d1757a095
   firebase_performance: 485c41797720010a4722a4016ba341537c58a330
   FirebaseABTesting: 821a3a3e4a145987e80fee3657c4de1cb9adf693
