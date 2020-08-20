@@ -12,6 +12,7 @@ class BandDevice{
     
     static var currentDeviceMac:String? = nil
     static var currentDeviceId:String? = nil
+    static var syncing = true
     let btProvider = ZHJBLEManagerProvider.shared
     let syncTimeProcessor = ZHJSyncTimeProcessor()
     let deviceConfigProcessor = ZHJDeviceConfigProcessor()
@@ -139,8 +140,8 @@ class BandDevice{
             }
             DataSync.uploadTemparatures(temps: uploadTemps)
             self?.readHeartRate()
-        },historyDoneHandle: { (obj) in
-           
+        },historyDoneHandle: { [weak self] (obj) in
+           self?.readHeartRate()
         })
     }
     
@@ -175,7 +176,8 @@ class BandDevice{
             DataSync.uploadHeartRateInfo(heartRates: hrUploads)
             DataSync.uploadOxygenLevels(oxygenLevels: oxygenUploads)
             self?.syncSteps()
-            },historyDoneHandle: {(obj) in
+            },historyDoneHandle: {[weak self] (obj) in
+                self?.syncSteps()
             NSLog("blood pressure complete")
         })
     }
@@ -188,6 +190,8 @@ class BandDevice{
         user.age = 25
         self.userInfoProcessor.writeUserInfo(user) {[weak self] (result) in
             guard let `self` = self else { return }
+            NSLog("Updated user info with \(result == .correct)")
+            self.readTemperature()
             guard result == .correct else {
                 return
             }
@@ -209,25 +213,66 @@ class BandDevice{
                 dailyCalories+=step.calories
                 return StepUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dateFormat, timeStr: step.dateTime), steps: step.step, deviceId: BandDevice.currentDeviceMac!)
             }
-            let dailyStepsUpload = StepUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dayFormat, timeStr: stepModel.dateTime), steps: dailySteps, deviceId: BandDevice.currentDeviceMac!)
-            let dailyCaloryUpload = CaloriesUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dayFormat, timeStr: stepModel.dateTime),calories: dailyCalories,deviceId: BandDevice.currentDeviceMac!)
             NSLog("Got steps \(stepModel.dateTime)")
-            DataSync.uploadSteps(steps: stepUploads)
-            DataSync.uploadDailySteps(dailySteps: dailyStepsUpload)
-            DataSync.uploadCalories(calories: dailyCaloryUpload)
+            if(dailySteps>0){
+                let dailyStepsUpload = StepUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dayFormat, timeStr: stepModel.dateTime), steps: dailySteps, deviceId: BandDevice.currentDeviceMac!)
+                DataSync.uploadDailySteps(dailySteps: dailyStepsUpload)
+            }
+            if(dailyCalories>0){
+                let dailyCaloryUpload = CaloriesUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dayFormat, timeStr: stepModel.dateTime),calories: dailyCalories,deviceId: BandDevice.currentDeviceMac!)
+                DataSync.uploadCalories(calories: dailyCaloryUpload)
+            }
+            if(stepUploads.count>0){
+                DataSync.uploadSteps(steps: stepUploads)
+            }
+            
+            
             },historyDoneHandle: {(obj) in
                 NSLog("steps complete")
             })
     }
     
+    func processDeviceConfig(){
+        deviceConfigProcessor.readDeviceConfig{[weak self] (config) in
+            NSLog("Got device config \(config)")
+            config.temperatureUnit = ZHJTemperatureUnit.fahrenheit
+            config.timeMode = ZHJTimeMode.hour12
+            config.trunWrist = true
+            config.unit = ZHJUnit.imperial
+            self?.deviceConfigProcessor.writeDeviceConfig(config, setHandle: {[weak self] (result) in
+                NSLog("Config updated with result \(result == .correct)")
+                delay(by: 0.5){
+                    self?.syncUserInfo()
+                }
+            })
+        }
+    }
+    
     func syncData(connectionInfo:ConnectionInfo){
         BandDevice.currentDeviceMac = connectionInfo.deviceId
         btProvider.autoReconnect(success: { [weak self] (p) in
-            NSLog("Auto reconnect \(p.state)")
-            
+            NSLog("Auto reconnect \(p.state.rawValue)")
+            NSLog("Device state \(ZHJBLEManagerProvider.shared.deviceState.rawValue)")
             delay(by: 0.5){
-                NSLog("Device state \(ZHJBLEManagerProvider.shared.deviceState)")
-                self?.readTemperature()
+                self?.temperatureProcessor.setAutoDetectTemperature(interval: 5, isOn: false, setHandle: {[weak self] (result) in
+                    NSLog("Temp interval set")
+                    self?.HR_BP_BOProcessor.setAutoDetectHeartRate(interval: 5, isOn: false, setHandle: {[weak self] (result) in
+                        NSLog("Heart Rate set")
+                        let user = ZHJUserInfo()
+                        user.sex = 0
+                        user.height = 170
+                        user.weight = 600
+                        user.age = 25
+                        self?.userInfoProcessor.writeUserInfo(user) {[weak self] (result) in
+                            guard let `self` = self else { return }
+                            self.processDeviceConfig()
+                            guard result == .correct else {
+                                return
+                            }
+                        }
+                    })
+                })
+                
             }
             
         }) { (p, err) in
