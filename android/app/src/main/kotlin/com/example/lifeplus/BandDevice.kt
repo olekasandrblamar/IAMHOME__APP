@@ -46,7 +46,7 @@ class ConnectionListener:OnLeConnectListener(){
         BandDevice.isConnecting = false
         BluetoothLe.getDefault().clearDeviceCache()
         Log.i(BandDevice.TAG,"Device Services discovered")
-        BandDevice.syncDevice()
+        BandDevice.enableTemp(null)
 
         //Load the data from device
         BandDevice.device?.let{ bleDevice->
@@ -75,7 +75,7 @@ class BandDevice :BaseDevice(){
         var isSyncing = false
         var lastSyncTime:Date? = null
 
-        private fun setStatus(){
+        private fun setStatus(next: (() -> Unit)?){
             Log.i(TAG,"setting device status")
             BleSdkWrapper.getDeviceState(object:OnLeWriteCharacteristicListener(){
                 override fun onSuccess(result: HandlerBleDataResult?) {
@@ -91,12 +91,12 @@ class BandDevice :BaseDevice(){
                         BleSdkWrapper.setDeviceState(deviceStatus, object : OnLeWriteCharacteristicListener() {
                             override fun onSuccess(p0: HandlerBleDataResult?) {
                                 Log.i(TAG, "Device state success")
-                                syncUserInfo()
+                                syncUserInfo(next)
                             }
 
                             override fun onFailed(ex: WriteBleException?) {
                                 Log.e(TAG, "Error while setting device Info ${ex}")
-                                syncUserInfo()
+                                syncUserInfo(next)
                             }
 
                         })
@@ -110,18 +110,32 @@ class BandDevice :BaseDevice(){
             })
         }
 
-        fun syncDevice(){
-            Log.i(TAG,"setting time")
-            isSyncing=true
-            BleSdkWrapper.setTime(object:OnLeWriteCharacteristicListener(){
+        fun setTempOn(next: (() -> Unit)?){
+            BleSdkWrapper.setTempTest(true,object:OnLeWriteCharacteristicListener(){
                 override fun onSuccess(result: HandlerBleDataResult?) {
-                    Log.i(TAG, "Time is set ${result?.data}")
-                    setStatus()
+                    Log.i(TAG, "Temp set ${result?.data}")
+                    setStatus(next)
                 }
 
                 override fun onFailed(ex: WriteBleException?) {
                     Log.e(BandDevice.TAG, "Time set failed ${ex}")
-                    setStatus()
+                    setStatus(next)
+                }
+            })
+        }
+
+        fun enableTemp(next: (() -> Unit)?){
+            Log.i(TAG,"setting time")
+            isSyncing=true
+            BleSdkWrapper.setHeartTest(true,object:OnLeWriteCharacteristicListener(){
+                override fun onSuccess(result: HandlerBleDataResult?) {
+                    Log.i(TAG, "Heart rate set ${result?.data}")
+                    setTempOn(next)
+                }
+
+                override fun onFailed(ex: WriteBleException?) {
+                    Log.e(BandDevice.TAG, "Time set failed ${ex}")
+                    setTempOn(next)
                 }
             })
         }
@@ -136,11 +150,13 @@ class BandDevice :BaseDevice(){
                 isSyncing = true
                 lastSyncTime = Calendar.getInstance().time
                 DataSync.sendHeartBeat(HeartBeat(deviceId = device?.mDeviceName, macAddress = currentDeviceId!!))
-                syncTemperature() {
-                    syncHeartRate() {
-                        syncSteps() {
-                            Log.i(TAG, "Data sync complete")
-                            isSyncing = false
+                enableTemp() {
+                    syncTemperature() {
+                        syncHeartRate() {
+                            syncSteps() {
+                                Log.i(TAG, "Data sync complete")
+                                isSyncing = false
+                            }
                         }
                     }
                 }
@@ -169,7 +185,7 @@ class BandDevice :BaseDevice(){
                                 val steps = mutableListOf<StepUpload>()
                                 val dailyCalories = mutableListOf<CaloriesUpload>()
                                 var totalSteps = 0
-                                var totalCalories = 0
+                                var totalCalories = 0.0
                                 exerciseDataSets.filter { it!=null&&it.stepCount>0 }.forEach {
                                     Log.i(TAG,"Got Step data ${it} ${it.hour} ${it.minuter} ")
                                     val readingTime = getDateFromTime(it.year,it.month,it.day,it.hour,it.minuter)
@@ -183,7 +199,7 @@ class BandDevice :BaseDevice(){
 
 
                                 if(totalCalories>0){
-                                    dailyCalories.add(CaloriesUpload(measureTime = dailyTime.time,deviceId = currentDeviceId!!, calories = totalCalories))
+                                    dailyCalories.add(CaloriesUpload(measureTime = dailyTime.time,deviceId = currentDeviceId!!, calories = totalCalories.toInt()))
                                     DataSync.uploadCalories(dailyCalories)
                                 }
                                 if(totalSteps>0) {
@@ -210,7 +226,7 @@ class BandDevice :BaseDevice(){
             })
         }
 
-        private fun syncUserInfo(){
+        private fun syncUserInfo(next: (() -> Unit)?){
             val userInfo =UserBean()
             userInfo.age = 25
             userInfo.gender=0
@@ -220,12 +236,18 @@ class BandDevice :BaseDevice(){
             BleSdkWrapper.setUserInfo(userInfo, object: OnLeWriteCharacteristicListener(){
                 override fun onSuccess(p0: HandlerBleDataResult?) {
                     Log.i(TAG, "User Info Success")
-                    isSyncing=false
+                    if(next==null)
+                        isSyncing=false
+                    else
+                        next()
                 }
 
                 override fun onFailed(p0: WriteBleException?) {
                    Log.i(TAG, "User Info failed")
-                    isSyncing=false
+                    if(next==null)
+                        isSyncing=false
+                    else
+                        next()
                 }
 
             })
