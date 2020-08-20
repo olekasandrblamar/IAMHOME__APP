@@ -234,17 +234,20 @@ class BandDevice{
     
     func processDeviceConfig(){
         deviceConfigProcessor.readDeviceConfig{[weak self] (config) in
-            NSLog("Got device config \(config)")
-            config.temperatureUnit = ZHJTemperatureUnit.fahrenheit
-            config.timeMode = ZHJTimeMode.hour12
+            NSLog("Got device config \(config.temperatureUnit == .celsius)")
+            config.temperatureUnit = .fahrenheit
+            config.timeMode = .hour12
             config.trunWrist = true
-            config.unit = ZHJUnit.imperial
-            self?.deviceConfigProcessor.writeDeviceConfig(config, setHandle: {[weak self] (result) in
-                NSLog("Config updated with result \(result == .correct)")
-                delay(by: 0.5){
-                    self?.syncUserInfo()
-                }
-            })
+            config.unit = .imperial
+            delay(by: 0.5){
+                self?.deviceConfigProcessor.writeDeviceConfig(config, setHandle: {[weak self] (result) in
+                    NSLog("Updated config  with \(result == .correct)")
+                    NSLog("Config updated with result \(result == .correct)")
+                    delay(by: 0.5){
+                        self?.readTemperature()
+                    }
+                })
+            }
         }
     }
     
@@ -254,10 +257,10 @@ class BandDevice{
             NSLog("Auto reconnect \(p.state == .connected)")
             NSLog("Device state \(ZHJBLEManagerProvider.shared.deviceState == .connected)")
             delay(by: 0.5){
-                self?.temperatureProcessor.setAutoDetectTemperature(interval: 5, isOn: false, setHandle: {[weak self] (result) in
-                    NSLog("Temp interval set")
-                    self?.HR_BP_BOProcessor.setAutoDetectHeartRate(interval: 5, isOn: false, setHandle: {[weak self] (result) in
-                        NSLog("Heart Rate set")
+                self?.temperatureProcessor.setAutoDetectTemperature(interval: 5, isOn: true, setHandle: {[weak self] (result) in
+                    NSLog("Temp interval set \(result == .correct)")
+                    self?.HR_BP_BOProcessor.setAutoDetectHeartRate(interval: 5, isOn: true, setHandle: {[weak self] (result) in
+                        NSLog("Heart Rate set \(result == .correct)")
                         let user = ZHJUserInfo()
                         user.sex = 0
                         user.height = 170
