@@ -76,7 +76,7 @@ class MainActivity: FlutterActivity()  {
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
                 val deviceType = context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
-                BaseDevice.getDeviceImpl(deviceType).syncData(result,deviceData,this)
+                BaseDevice.getDeviceImpl(deviceType?.toUpperCase()).syncData(result,deviceData,this)
             }
             else {
                 result.notImplemented()
