@@ -18,6 +18,7 @@ class BandDevice{
     let temperatureProcessor = ZHJTemperatureProcessor()
     let HR_BP_BOProcessor = ZHJHR_BP_BOProcessor()
     let stepAndSleepProcessor = ZHJStepAndSleepProcessor()
+    let userInfoProcessor = ZHJUserInfoProcessor()
     
     
     let MAC_ADDRESS_NAME = "flutter.device_macid"
@@ -81,17 +82,20 @@ class BandDevice{
         NSLog("Syncing time")
         syncTimeProcessor.writeTime(ZHJSyncTime.init(Date())) {[weak self] (result) in
             guard let `self` = self else { return }
-            self.syncDeviceConfig()
+            delay(by: 0.5) {
+                self.syncDeviceConfig()
+            }
             NSLog("Got result \(result.rawValue)")
             guard result == .correct else {
-                NSLog("Time Sync success")
+                NSLog("Time Sync failure")
                 return
             }
-            NSLog("Time Sync Failure")
+            NSLog("Time Sync Success")
         }
     }
     
     func syncDeviceConfig(){
+        NSLog("Syncing config")
         deviceConfigProcessor.readDeviceConfig{[weak self] (config) in
             NSLog("Got device config \(config)")
             config.temperatureUnit = ZHJTemperatureUnit.fahrenheit
@@ -100,6 +104,9 @@ class BandDevice{
             config.unit = ZHJUnit.imperial
             self?.deviceConfigProcessor.writeDeviceConfig(config, setHandle: {[weak self] (result) in
                 NSLog("Config updated with result \(result)")
+                delay(by: 0.5){
+                    self?.syncUserInfo()
+                }
             })
         }
     }
@@ -171,6 +178,20 @@ class BandDevice{
             },historyDoneHandle: {(obj) in
             NSLog("blood pressure complete")
         })
+    }
+    
+    func syncUserInfo() {
+        let user = ZHJUserInfo()
+        user.sex = 0
+        user.height = 170
+        user.weight = 600
+        user.age = 25
+        self.userInfoProcessor.writeUserInfo(user) {[weak self] (result) in
+            guard let `self` = self else { return }
+            guard result == .correct else {
+                return
+            }
+        }
     }
     
     func syncSteps(){
