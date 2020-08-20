@@ -251,8 +251,8 @@ class BandDevice{
     func syncData(connectionInfo:ConnectionInfo){
         BandDevice.currentDeviceMac = connectionInfo.deviceId
         btProvider.autoReconnect(success: { [weak self] (p) in
-            NSLog("Auto reconnect \(p.state.rawValue)")
-            NSLog("Device state \(ZHJBLEManagerProvider.shared.deviceState.rawValue)")
+            NSLog("Auto reconnect \(p.state == .connected)")
+            NSLog("Device state \(ZHJBLEManagerProvider.shared.deviceState == .connected)")
             delay(by: 0.5){
                 self?.temperatureProcessor.setAutoDetectTemperature(interval: 5, isOn: false, setHandle: {[weak self] (result) in
                     NSLog("Temp interval set")
