@@ -46,7 +46,7 @@ class ConnectionListener:OnLeConnectListener(){
         BandDevice.isConnecting = false
         BluetoothLe.getDefault().clearDeviceCache()
         Log.i(BandDevice.TAG,"Device Services discovered")
-        BandDevice.enableTemp(null)
+        BandDevice.enableHeartRate(null)
 
         //Load the data from device
         BandDevice.device?.let{ bleDevice->
@@ -124,7 +124,7 @@ class BandDevice :BaseDevice(){
             })
         }
 
-        fun enableTemp(next: (() -> Unit)?){
+        fun enableHeartRate(next: (() -> Unit)?){
             Log.i(TAG,"setting time")
             isSyncing=true
             BleSdkWrapper.setHeartTest(true,object:OnLeWriteCharacteristicListener(){
@@ -150,7 +150,7 @@ class BandDevice :BaseDevice(){
                 isSyncing = true
                 lastSyncTime = Calendar.getInstance().time
                 DataSync.sendHeartBeat(HeartBeat(deviceId = device?.mDeviceName, macAddress = currentDeviceId!!))
-                enableTemp() {
+                enableHeartRate() {
                     syncTemperature() {
                         syncHeartRate() {
                             syncSteps() {
