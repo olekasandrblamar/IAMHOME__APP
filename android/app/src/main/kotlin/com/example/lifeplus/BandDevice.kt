@@ -84,9 +84,10 @@ class BandDevice :BaseDevice(){
                         val deviceStatus = result?.data as DeviceState
 
                         deviceStatus.apply {
-                            tempUnit = 1 //Set to imperial units
+                            tempUnit = 1 //Set to fahrenheit
                             timeFormat = 1 // Set to 12 hour format
                             upHander = 1 //Raise hand for device brightness
+                            unit= 1 //Set to imperial units
                         }
                         BleSdkWrapper.setDeviceState(deviceStatus, object : OnLeWriteCharacteristicListener() {
                             override fun onSuccess(p0: HandlerBleDataResult?) {
