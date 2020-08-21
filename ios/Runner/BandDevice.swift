@@ -239,6 +239,7 @@ class BandDevice{
             config.timeMode = .hour12
             config.trunWrist = true
             config.unit = .imperial
+            config.wearStyle = .leftHand
             delay(by: 0.5){
                 self?.deviceConfigProcessor.writeDeviceConfig(config, setHandle: {[weak self] (result) in
                     NSLog("Updated config  with \(result == .correct)")
@@ -253,7 +254,7 @@ class BandDevice{
     
     func syncData(connectionInfo:ConnectionInfo){
         BandDevice.currentDeviceMac = connectionInfo.deviceId
-        DataSync.sendHeartBeat(heartBeat: HeartBeat(deviceId: connectionInfo.deviceId, macAddress: getMacId()))
+        DataSync.sendHeartBeat(heartBeat: HeartBeat(deviceId: connectionInfo.deviceId, macAddress: connectionInfo.deviceId))
         btProvider.autoReconnect(success: { [weak self] (p) in
             NSLog("Auto reconnect \(p.state == .connected)")
             NSLog("Device state \(ZHJBLEManagerProvider.shared.deviceState == .connected)")
