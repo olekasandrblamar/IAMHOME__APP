@@ -29,12 +29,14 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   var _displayImage = '';
   var _isLoading = false;
   var _deviceIdNumber = '';
+  String _deviceTag = '';
 
   static const platform = MethodChannel('ceras.iamhome.mobile/device');
 
   @override
   void initState() {
     if (widget.routeArgs != null) {
+      _deviceTag = widget.routeArgs['tag'];
       _deviceData = widget.routeArgs['deviceData'];
       _deviceType = widget.routeArgs['deviceType'];
       _displayImage = widget.routeArgs['displayImage'];
@@ -142,21 +144,25 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                   maxHeight: 300.0,
                 ),
                 padding: const EdgeInsets.all(10.0),
-                child: FadeInImage(
-                  placeholder: AssetImage(
-                    'assets/images/placeholder.jpg',
+                child: Hero(
+                  transitionOnUserGestures: true,
+                  tag: _deviceTag,
+                  child: FadeInImage(
+                    placeholder: AssetImage(
+                      'assets/images/placeholder.jpg',
+                    ),
+                    image: _displayImage != null
+                        ? NetworkImage(
+                            _displayImage,
+                          )
+                        : AssetImage(
+                            'assets/images/placeholder.jpg',
+                          ),
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
+                    fadeInDuration: Duration(milliseconds: 200),
+                    fadeInCurve: Curves.easeIn,
                   ),
-                  image: _displayImage != null
-                      ? NetworkImage(
-                          _displayImage,
-                        )
-                      : AssetImage(
-                          'assets/images/placeholder.jpg',
-                        ),
-                  fit: BoxFit.contain,
-                  alignment: Alignment.center,
-                  fadeInDuration: Duration(milliseconds: 200),
-                  fadeInCurve: Curves.easeIn,
                 ),
               ),
               SizedBox(
