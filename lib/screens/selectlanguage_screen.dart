@@ -47,6 +47,15 @@ class _SelectLanguageScreenState extends State<SelectLanguageScreen> {
     final _appLocalization = AppLocalizations.of(context);
 
     return Scaffold(
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        // elevation: 0,
+        title: Image.asset(
+          'assets/images/ceraswithletter.png',
+          fit: BoxFit.contain,
+          height: 50,
+        ),
+      ),
       backgroundColor: AppTheme.white,
       body: SafeArea(
         top: true,

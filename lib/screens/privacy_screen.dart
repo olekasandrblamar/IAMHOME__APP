@@ -34,105 +34,102 @@ class PrivacyScreen extends StatelessWidget {
       backgroundColor: AppTheme.white,
       body: SafeArea(
         top: true,
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                constraints: BoxConstraints(
-                  maxHeight: 300.0,
-                ),
-                padding: const EdgeInsets.all(10.0),
-                child: FadeInImage(
-                  placeholder: AssetImage(
-                    'assets/images/placeholder.jpg',
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  constraints: BoxConstraints(
+                    maxHeight: 300.0,
                   ),
-                  image: AssetImage(
-                    'assets/images/t&c.png',
-                  ),
-                  fit: BoxFit.contain,
-                  alignment: Alignment.center,
-                  fadeInDuration: Duration(milliseconds: 200),
-                  fadeInCurve: Curves.easeIn,
-                ),
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              Container(
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  _appLocalization.translate('privacy.title'),
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: AppTheme.title,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  // vertical: 5.0,
-                  horizontal: 35.0,
-                ),
-                child: Text(
-                  _appLocalization.translate('privacy.description1') +
-                      '\n\n' +
-                      _appLocalization.translate('privacy.description2'),
-                  textAlign: TextAlign.center,
-                  style: AppTheme.subtitle,
-                ),
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    width: 150,
-                    height: 75,
-                    padding: EdgeInsets.all(10),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.5),
-                      ),
-                      color: Color(0XFFE6E6E6),
-                      textColor: Colors.black,
-                      child: Text(
-                        _appLocalization.translate('privacy.buttons.view'),
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      onPressed: () => _openBrowser(),
+                  padding: const EdgeInsets.all(10.0),
+                  child: FadeInImage(
+                    placeholder: AssetImage(
+                      'assets/images/placeholder.jpg',
                     ),
-                  ),
-                  Container(
-                    width: 150,
-                    height: 75,
-                    padding: EdgeInsets.all(10),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.5),
-                      ),
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      child: Text(
-                        _appLocalization.translate('privacy.buttons.agree'),
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      onPressed: () {
-                        return Navigator.of(context).pushReplacementNamed(
-                          routes.NotificationsRoute,
-                        );
-                      },
+                    image: AssetImage(
+                      'assets/images/t&c.png',
                     ),
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
+                    fadeInDuration: Duration(milliseconds: 200),
+                    fadeInCurve: Curves.easeIn,
                   ),
-                ],
-              )
-            ],
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    _appLocalization.translate('privacy.title'),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: AppTheme.title,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    // vertical: 5.0,
+                    horizontal: 35.0,
+                  ),
+                  child: Text(
+                    _appLocalization.translate('privacy.description1') +
+                        '\n\n' +
+                        _appLocalization.translate('privacy.description2'),
+                    textAlign: TextAlign.center,
+                    style: AppTheme.subtitle,
+                  ),
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                Container(
+                  width: 180,
+                  height: 75,
+                  padding: EdgeInsets.all(10),
+                  child: RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4.5),
+                    ),
+                    color: Theme.of(context).primaryColor,
+                    textColor: Colors.white,
+                    child: Text(
+                      _appLocalization.translate('privacy.buttons.agree'),
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                    onPressed: () {
+                      return Navigator.of(context).pushReplacementNamed(
+                        routes.NotificationsRoute,
+                      );
+                    },
+                  ),
+                ),
+                Container(
+                  width: 180,
+                  height: 75,
+                  padding: EdgeInsets.all(10),
+                  child: RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4.5),
+                    ),
+                    color: Color(0XFFE6E6E6),
+                    textColor: Colors.black,
+                    child: Text(
+                      _appLocalization.translate('privacy.buttons.view'),
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
+                    onPressed: () => _openBrowser(),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

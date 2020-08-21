@@ -84,23 +84,27 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Expanded(
-                                child: FadeInImage(
-                                  placeholder: AssetImage(
-                                    'assets/images/placeholder.jpg',
+                                child: Hero(
+                                  transitionOnUserGestures: true,
+                                  tag: 'imageHero' + index.toString(),
+                                  child: FadeInImage(
+                                    placeholder: AssetImage(
+                                      'assets/images/placeholder.jpg',
+                                    ),
+                                    image: imageData != null
+                                        ? NetworkImage(
+                                            imageData,
+                                          )
+                                        : AssetImage(
+                                            'assets/images/placeholder.jpg',
+                                          ),
+                                    fit: BoxFit.contain,
+                                    alignment: Alignment.center,
+                                    fadeInDuration: Duration(milliseconds: 200),
+                                    fadeInCurve: Curves.easeIn,
+                                    width: double.infinity,
+                                    height: double.infinity,
                                   ),
-                                  image: imageData != null
-                                      ? NetworkImage(
-                                          imageData,
-                                        )
-                                      : AssetImage(
-                                          'assets/images/placeholder.jpg',
-                                        ),
-                                  fit: BoxFit.contain,
-                                  alignment: Alignment.center,
-                                  fadeInDuration: Duration(milliseconds: 200),
-                                  fadeInCurve: Curves.easeIn,
-                                  width: double.infinity,
-                                  height: double.infinity,
                                 ),
                               ),
                               Container(
@@ -130,6 +134,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                         Navigator.of(context).pushNamed(
                           routes.SetupConnectRoute,
                           arguments: {
+                            'tag': 'imageHero' + index.toString(),
                             'deviceData': hardwareDataSnapshot.data[index],
                             'deviceType': hardwareDataSnapshot.data[index]
                                 .deviceMaster['deviceType']['displayName']
