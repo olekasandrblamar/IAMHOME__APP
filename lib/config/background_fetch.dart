@@ -19,7 +19,7 @@ void backgroundFetchHeadlessTask(String taskId) async {
       break;
     case 'com.transistorsoft.dataupdate':
       print("Calling data update");
-      await loadDataFromDevice();
+      await syncDataFromDevice();
       print("Received custom update task");
       break;
     default:
