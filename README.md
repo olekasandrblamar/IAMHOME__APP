@@ -16,11 +16,13 @@ For help getting started with Flutter, view our
 samples, guidance on mobile development, and a full API reference.
 
 ## commands
+
 - flutter create .
 - flutter analyze -v
 - flutter doctor -v
 - flutter build apk --debug
 - flutter build apk -t lib/main_dev.dart --debug
+- flutter build apk -t lib/main_alpha.dart --debug
 - flutter build apk --verbose
 - flutter clean
 - flutter build apk
@@ -30,6 +32,7 @@ flutter build appbundle -t lib/main_prod.dart
 
 ios build
 flutter build ios -t lib/main_prod.dart
+flutter build ios -t lib/main_alpha.dart
 
 <!-- https://www.youtube.com/watch?v=FdgDgcrDeNI -->
 <!-- ref: https://kobiton.com/topics/develop-deploy-and-test-flutter-apps/ -->
@@ -135,6 +138,6 @@ https://fireship.io/snippets/dart-how-to-get-the-index-on-array-loop-map/
 https://github.com/ResoCoder/flutter_localization_tutorial/blob/master/lib/main.dart
 https://github.com/mohamedHassanKa/flutter_internationalization/blob/master/lib/main.dart
 
-
 ## state
+
 https://medium.com/@baranmichal25_54778/scaling-up-simple-app-state-management-6c22d0a83da5
