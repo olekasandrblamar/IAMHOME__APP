@@ -253,6 +253,7 @@ class BandDevice{
     
     func syncData(connectionInfo:ConnectionInfo){
         BandDevice.currentDeviceMac = connectionInfo.deviceId
+        DataSync.sendHeartBeat(heartBeat: HeartBeat(deviceId: connectionInfo.deviceId, macAddress: getMacId()))
         btProvider.autoReconnect(success: { [weak self] (p) in
             NSLog("Auto reconnect \(p.state == .connected)")
             NSLog("Device state \(ZHJBLEManagerProvider.shared.deviceState == .connected)")
