@@ -17,6 +17,7 @@ open class BaseDevice{
 
         const val WATCH_DEVICE:String = "WATCH"
         const val BAND_DEVICE:String = "BAND"
+        var isBackground = false
 
         fun getDeviceImpl(deviceName:String?): BaseDevice {
             return when(deviceName){

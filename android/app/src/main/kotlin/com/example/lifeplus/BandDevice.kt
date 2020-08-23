@@ -29,31 +29,33 @@ class ConnectionListener:OnLeConnectListener(){
 
     override fun onDeviceDisconnected() {
         BandDevice.isConnecting = false
-        Log.i(BandDevice.TAG,"Device disconnected")
+        Log.i(BandDevice.TAG, "Device disconnected")
     }
 
     override fun onDeviceConnectFail(p0: ConnBleException?) {
         BandDevice.isConnecting = false
-        Log.i(BandDevice.TAG,"Device Connection failed")
+        Log.i(BandDevice.TAG, "Device Connection failed")
     }
 
     override fun onDeviceConnected() {
         BandDevice.isConnecting = false
-        Log.i(BandDevice.TAG,"Device Connected connected")
+        Log.i(BandDevice.TAG, "Device Connected connected")
     }
 
     override fun onServicesDiscovered(bluetoothGatt: BluetoothGatt?) {
         BandDevice.isConnecting = false
         BluetoothLe.getDefault().clearDeviceCache()
-        Log.i(BandDevice.TAG,"Device Services discovered")
-        BandDevice.enableHeartRate(null)
+        Log.i(BandDevice.TAG, "Device Services discovered")
+        BandDevice.enableHeartRate(){
+            BandDevice.callDataSync()
+        }
 
         //Load the data from device
         BandDevice.device?.let{ bleDevice->
             BandDevice.currentDeviceId =  bleDevice.mDeviceAddress
-            result?.let{methodResult->
-                methodResult.success(ConnectionInfo.createResponse(message = "Connected",connected = true,deviceId = bleDevice.mDeviceAddress,
-                        deviceName = bleDevice.mDeviceName,additionalInfo = mapOf("factoryName" to bleDevice.mDeviceName),deviceType = BaseDevice.BAND_DEVICE))
+            result?.let{ methodResult->
+                methodResult.success(ConnectionInfo.createResponse(message = "Connected", connected = true, deviceId = bleDevice.mDeviceAddress,
+                        deviceName = bleDevice.mDeviceName, additionalInfo = mapOf("factoryName" to bleDevice.mDeviceName), deviceType = BaseDevice.BAND_DEVICE))
             }
         }
     }
@@ -76,8 +78,8 @@ class BandDevice :BaseDevice(){
         var lastSyncTime:Date? = null
 
         private fun setStatus(next: (() -> Unit)?){
-            Log.i(TAG,"setting device status")
-            BleSdkWrapper.getDeviceState(object:OnLeWriteCharacteristicListener(){
+            Log.i(TAG, "setting device status")
+            BleSdkWrapper.getDeviceState(object : OnLeWriteCharacteristicListener() {
                 override fun onSuccess(result: HandlerBleDataResult?) {
                     Log.i(TAG, "Got status ${result?.data}")
                     if (result?.data is DeviceState) {
@@ -87,7 +89,7 @@ class BandDevice :BaseDevice(){
                             tempUnit = 1 //Set to fahrenheit
                             timeFormat = 1 // Set to 12 hour format
                             upHander = 1 //Raise hand for device brightness
-                            unit= 1 //Set to imperial units
+                            unit = 1 //Set to imperial units
                         }
                         BleSdkWrapper.setDeviceState(deviceStatus, object : OnLeWriteCharacteristicListener() {
                             override fun onSuccess(p0: HandlerBleDataResult?) {
@@ -105,14 +107,14 @@ class BandDevice :BaseDevice(){
                 }
 
                 override fun onFailed(ex: WriteBleException?) {
-                    Log.e(TAG,"Error while getting device Info ${ex}")
+                    Log.e(TAG, "Error while getting device Info ${ex}")
                 }
 
             })
         }
 
         fun setTempOn(next: (() -> Unit)?){
-            BleSdkWrapper.setTempTest(true,object:OnLeWriteCharacteristicListener(){
+            BleSdkWrapper.setTempTest(true, object : OnLeWriteCharacteristicListener() {
                 override fun onSuccess(result: HandlerBleDataResult?) {
                     Log.i(TAG, "Temp set ${result?.data}")
                     setStatus(next)
@@ -126,9 +128,9 @@ class BandDevice :BaseDevice(){
         }
 
         fun enableHeartRate(next: (() -> Unit)?){
-            Log.i(TAG,"setting time")
+            Log.i(TAG, "setting time")
             isSyncing=true
-            BleSdkWrapper.setHeartTest(true,object:OnLeWriteCharacteristicListener(){
+            BleSdkWrapper.setHeartTest(true, object : OnLeWriteCharacteristicListener() {
                 override fun onSuccess(result: HandlerBleDataResult?) {
                     Log.i(TAG, "Heart rate set ${result?.data}")
                     setTempOn(next)
@@ -141,86 +143,90 @@ class BandDevice :BaseDevice(){
             })
         }
 
+        fun callDataSync(){
+            syncTemperature() {
+                syncHeartRate() {
+                    syncSteps() {
+                        Log.i(TAG, "Data sync complete")
+                        isSyncing = false
+                    }
+                }
+            }
+        }
+
         fun loadData(){
             val currentTime = Calendar.getInstance().timeInMillis
             lastSyncTime?.let {
-                Log.i(TAG,"Difference ${currentTime - it.time}")
+                Log.i(TAG, "Difference ${currentTime - it.time}")
             }
-            Log.i(TAG,"Is device syncing $isSyncing")
+            Log.i(TAG, "Is device syncing $isSyncing")
             if((lastSyncTime==null|| currentTime - lastSyncTime!!.time  > 1000) && !isSyncing) {
                 isSyncing = true
                 lastSyncTime = Calendar.getInstance().time
                 DataSync.sendHeartBeat(HeartBeat(deviceId = device?.mDeviceName, macAddress = currentDeviceId!!))
                 enableHeartRate() {
-                    syncTemperature() {
-                        syncHeartRate() {
-                            syncSteps() {
-                                Log.i(TAG, "Data sync complete")
-                                isSyncing = false
-                            }
-                        }
-                    }
+                    callDataSync()
                 }
             }
 
         }
 
-        private fun getDateFromTime(year:Int,month:Int,dayOfMonth:Int,hour:Int,minutes:Int):Date{
+        private fun getDateFromTime(year: Int, month: Int, dayOfMonth: Int, hour: Int, minutes: Int):Date{
             val cal = Calendar.getInstance()
-            cal.set(year,month-1,dayOfMonth,hour,minutes,0)
-            cal.set(Calendar.MILLISECOND,0)
+            cal.set(year, month - 1, dayOfMonth, hour, minutes, 0)
+            cal.set(Calendar.MILLISECOND, 0)
             return cal.time
         }
 
         private fun syncSteps(next: (() -> Unit)?){
             val cal = Calendar.getInstance()
-            Log.i(TAG,"Syncing steps")
-            BleSdkWrapper.getStepOrSleepHistory(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH), object : OnLeWriteCharacteristicListener() {
+            Log.i(TAG, "Syncing steps")
+            BleSdkWrapper.getStepOrSleepHistory(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), object : OnLeWriteCharacteristicListener() {
                 override fun onSuccess(handlerBleDataResult: HandlerBleDataResult) {
-                    if(handlerBleDataResult.isComplete ){
-                        try{
-                            Log.i(TAG,"Got Step result ${handlerBleDataResult.data}")
-                            if(handlerBleDataResult.data is List<*> && handlerBleDataResult.hasNext){
+                    if (handlerBleDataResult.isComplete) {
+                        try {
+                            Log.i(TAG, "Got Step result ${handlerBleDataResult.data}")
+                            if (handlerBleDataResult.data is List<*> && handlerBleDataResult.hasNext) {
                                 val exerciseDataSets = handlerBleDataResult.data as List<HealthSportItem>
                                 val dailySteps = mutableListOf<DailyStepUpload>()
                                 val steps = mutableListOf<StepUpload>()
                                 val dailyCalories = mutableListOf<CaloriesUpload>()
                                 var totalSteps = 0
                                 var totalCalories = 0.0
-                                exerciseDataSets.filter { it!=null&&it.stepCount>0 }.forEach {
-                                    Log.i(TAG,"Got Step data ${it} ${it.hour} ${it.minuter} ")
-                                    val readingTime = getDateFromTime(it.year,it.month,it.day,it.hour,it.minuter)
-                                    totalSteps+=it.stepCount
-                                    totalCalories+=it.calory
-                                    steps.add(StepUpload(measureTime = readingTime,deviceId = currentDeviceId!!,steps = it.stepCount))
+                                exerciseDataSets.filter { it != null && it.stepCount > 0 }.forEach {
+                                    Log.i(TAG, "Got Step data ${it} ${it.hour} ${it.minuter} ")
+                                    val readingTime = getDateFromTime(it.year, it.month, it.day, it.hour, it.minuter)
+                                    totalSteps += it.stepCount
+                                    totalCalories += it.calory
+                                    steps.add(StepUpload(measureTime = readingTime, deviceId = currentDeviceId!!, steps = it.stepCount))
                                 }
                                 val dailyTime = Calendar.getInstance()
-                                dailyTime.set(cal.get(Calendar.YEAR),cal.get(Calendar.MONTH),cal.get(Calendar.DAY_OF_MONTH),0,0,0)
-                                dailyTime.set(Calendar.MILLISECOND,0)
+                                dailyTime.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), 0, 0, 0)
+                                dailyTime.set(Calendar.MILLISECOND, 0)
 
 
-                                if(totalCalories>0){
-                                    dailyCalories.add(CaloriesUpload(measureTime = dailyTime.time,deviceId = currentDeviceId!!, calories = totalCalories.toInt()))
+                                if (totalCalories > 0) {
+                                    dailyCalories.add(CaloriesUpload(measureTime = dailyTime.time, deviceId = currentDeviceId!!, calories = totalCalories.toInt()))
                                     DataSync.uploadCalories(dailyCalories)
                                 }
-                                if(totalSteps>0) {
-                                    dailySteps.add(DailyStepUpload(measureTime = dailyTime.time,deviceId = currentDeviceId!!,steps = totalSteps))
+                                if (totalSteps > 0) {
+                                    dailySteps.add(DailyStepUpload(measureTime = dailyTime.time, deviceId = currentDeviceId!!, steps = totalSteps))
                                     DataSync.uploadDailySteps(dailySteps)
                                 }
-                                if(steps.isNotEmpty())
+                                if (steps.isNotEmpty())
                                     DataSync.uploadStepInfo(steps)
                             }
-                        }catch(ex:Exception){
-                            Log.e(TAG,"Error while reading temp ",ex)
+                        } catch (ex: Exception) {
+                            Log.e(TAG, "Error while reading temp ", ex)
                         }
-                        if(next!=null)
+                        if (next != null)
                             next()
                     }
                 }
 
                 override fun onFailed(p0: WriteBleException?) {
-                    Log.i(TAG,"Step Sync failed")
-                    if(next!=null)
+                    Log.i(TAG, "Step Sync failed")
+                    if (next != null)
                         next()
                 }
 
@@ -234,19 +240,19 @@ class BandDevice :BaseDevice(){
             userInfo.height=170
             userInfo.weight=700
 
-            BleSdkWrapper.setUserInfo(userInfo, object: OnLeWriteCharacteristicListener(){
+            BleSdkWrapper.setUserInfo(userInfo, object : OnLeWriteCharacteristicListener() {
                 override fun onSuccess(p0: HandlerBleDataResult?) {
                     Log.i(TAG, "User Info Success")
-                    if(next==null)
-                        isSyncing=false
+                    if (next == null)
+                        isSyncing = false
                     else
                         next()
                 }
 
                 override fun onFailed(p0: WriteBleException?) {
-                   Log.i(TAG, "User Info failed")
-                    if(next==null)
-                        isSyncing=false
+                    Log.i(TAG, "User Info failed")
+                    if (next == null)
+                        isSyncing = false
                     else
                         next()
                 }
@@ -256,38 +262,39 @@ class BandDevice :BaseDevice(){
         }
 
         private fun syncHeartRate(next: (() -> Unit)?){
-            Log.i(TAG,"Syncing heart rate")
+            Log.i(TAG, "Syncing heart rate")
             val cal = Calendar.getInstance()
-            BleSdkWrapper.getHistoryHeartRateData(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH), object : OnLeWriteCharacteristicListener() {
+            BleSdkWrapper.getHistoryHeartRateData(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), object : OnLeWriteCharacteristicListener() {
                 override fun onSuccess(handlerBleDataResult: HandlerBleDataResult) {
                     if (handlerBleDataResult.isComplete) {
-                        Log.i(TAG,"Got Heart result ${handlerBleDataResult.data}")
-                        try{
-                            if(handlerBleDataResult.data is List<*>  && handlerBleDataResult.hasNext){
+                        Log.i(TAG, "Got Heart result ${handlerBleDataResult.data}")
+                        try {
+                            if (handlerBleDataResult.data is List<*> && handlerBleDataResult.hasNext) {
                                 val heartRateInfos = handlerBleDataResult.data as List<HealthHeartRateItem>
                                 val oxygenUploads = mutableListOf<OxygenLevelUpload>()
                                 val bloodPressureUploads = mutableListOf<BpUpload>()
-                                val heartRateUploads = heartRateInfos.filter { it!=null&&it.heartRaveValue>0 }.map {
-                                    Log.i(TAG,"Got HR Data ${it} ${it.hour} ${it.minuter} ")
-                                    val readingTime = getDateFromTime(it.year,it.month,it.day,it.hour,it.minuter)
-                                    bloodPressureUploads.add(BpUpload(measureTime = readingTime,systolic = it.ss,distolic = it.fz,deviceId = currentDeviceId!!))
-                                    oxygenUploads.add(OxygenLevelUpload(measureTime = readingTime,oxygenLevel = it.oxygen,deviceId = currentDeviceId!!))
-                                    HeartRateUpload(measureTime = readingTime,deviceId = currentDeviceId!!,heartRate = it.heartRaveValue)
+                                val heartRateUploads = heartRateInfos.filter { it != null && it.heartRaveValue > 0 }.map {
+                                    Log.i(TAG, "Got HR Data ${it} ${it.hour} ${it.minuter} ")
+                                    val readingTime = getDateFromTime(it.year, it.month, it.day, it.hour, it.minuter)
+                                    bloodPressureUploads.add(BpUpload(measureTime = readingTime, systolic = it.ss, distolic = it.fz, deviceId = currentDeviceId!!))
+                                    oxygenUploads.add(OxygenLevelUpload(measureTime = readingTime, oxygenLevel = it.oxygen, deviceId = currentDeviceId!!))
+                                    HeartRateUpload(measureTime = readingTime, deviceId = currentDeviceId!!, heartRate = it.heartRaveValue)
                                 }
                                 DataSync.uploadHeartRate(heartRateUploads)
                                 DataSync.uploadBloodPressure(bloodPressureUploads)
                                 DataSync.uploadOxygenData(oxygenUploads)
                             }
-                        }catch(ex:Exception){
-                            Log.e(TAG,"Error while reading temp ",ex)
+                        } catch (ex: Exception) {
+                            Log.e(TAG, "Error while reading temp ", ex)
                         }
-                        if(next!=null)
+                        if (next != null)
                             next()
                     }
                 }
+
                 override fun onFailed(e: WriteBleException) {
-                    Log.i(TAG,"Heart Sync failed")
-                    if(next!=null)
+                    Log.i(TAG, "Heart Sync failed")
+                    if (next != null)
                         next()
                 }
             })
@@ -295,8 +302,8 @@ class BandDevice :BaseDevice(){
 
         private fun syncTemperature(next: (() -> Unit)?){
             val cal = Calendar.getInstance()
-            Log.i(TAG,"Syncing temperatue")
-            BleSdkWrapper.getHistoryTemp(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH)+1, cal.get(Calendar.DAY_OF_MONTH), object : OnLeWriteCharacteristicListener() {
+            Log.i(TAG, "Syncing temperatue")
+            BleSdkWrapper.getHistoryTemp(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), object : OnLeWriteCharacteristicListener() {
                 override fun onSuccess(handlerBleDataResult: HandlerBleDataResult) {
                     if (handlerBleDataResult.isComplete) {
                         try {
@@ -312,16 +319,17 @@ class BandDevice :BaseDevice(){
                                 }
                                 DataSync.uploadTemperature(tempUploads)
                             }
-                        }catch(ex:Exception){
-                            Log.e(TAG,"Error while reading temp ",ex)
+                        } catch (ex: Exception) {
+                            Log.e(TAG, "Error while reading temp ", ex)
                         }
-                        if(next!=null)
+                        if (next != null)
                             next()
                     }
                 }
+
                 override fun onFailed(e: WriteBleException) {
-                    Log.i(TAG,"Temp Sync failed")
-                    if(next!=null)
+                    Log.i(TAG, "Temp Sync failed")
+                    if (next != null)
                         next()
                 }
             })
@@ -329,56 +337,77 @@ class BandDevice :BaseDevice(){
         }
     }
 
-    private fun startDeviceConnection(context: Context, result: MethodChannel.Result?,deviceId:String? = null){
-        mBluetoothLe!!.setOnConnectListener(TAG,ConnectionListener())
+    private fun startDeviceConnection(context: Context, result: MethodChannel.Result?, deviceId: String? = null){
+        mBluetoothLe!!.setOnConnectListener(TAG, ConnectionListener())
         isConnecting = true
         deviceId?.let {
             mBluetoothLe = mBluetoothLe?.setScanWithDeviceAddress(it)
+            Log.i(TAG,"scanning with device $it")
         }
-        mBluetoothLe!!.setScanPeriod(50000)
-                .setReportDelay(0)
-                .startScan(context, object : OnLeScanListener() {
-                    override fun onScanResult(bluetoothDevice: BluetoothDevice, rssi: Int, scanRecord: ScanRecord) {
-                        device = BLEDevice()
-                        device?.let {bleDevice->
-                            bleDevice.mDeviceAddress = bluetoothDevice.address
-                            bleDevice.mDeviceName = bluetoothDevice.name
-                            bleDevice.mRssi = rssi
-                            ConnectionListener.result = result
-                            mBluetoothLe!!.startConnect(bleDevice.mDeviceAddress)
+        Log.i(TAG,"Got scanning with device $deviceId")
+//        if(currentDeviceId!=null){
+//            mBluetoothLe?.reconnect(context)
+//        }else {
+        val scanPeriod = if(isBackground) 2000 else 50000
+        Log.i(TAG,"scanning with scan period $scanPeriod")
+            mBluetoothLe!!.setScanPeriod(scanPeriod)
+                    .setStopScanAfterConnected(true)
+                    .setReportDelay(20)
+                    .startScan(context, object : OnLeScanListener() {
+                        override fun onScanResult(bluetoothDevice: BluetoothDevice, rssi: Int, scanRecord: ScanRecord) {
+                            Log.i(TAG,"Device found with address ")
+                            connectDevice(bluetoothDevice, rssi, scanRecord)
+                        }
+
+                        private fun connectDevice(bluetoothDevice: BluetoothDevice, rssi: Int, scanRecord: ScanRecord){
+                            device = BLEDevice().apply {
+                                mDeviceAddress = bluetoothDevice.address
+                                mDeviceName = bluetoothDevice.name
+                                mRssi = rssi
+                                ConnectionListener.result = result
+                            }
+                            mBluetoothLe!!.startConnect(bluetoothDevice.address)
+                            onScanCompleted()
+                        }
+
+                        override fun onBatchScanResults(results: List<ScanResult>) {
+                            Log.i(TAG, "Got batch results results ：$results")
+                            val filteredData = if(deviceId==null) results else results.filter { it.a().address==deviceId }
+                            if(filteredData.count()>0){
+                                val scanResult = filteredData.first()
+                                connectDevice(scanResult.a(),scanResult.c(),scanResult.b())
+                            }
+                        }
+
+                        override fun onScanCompleted() {
+                            Log.i(TAG,"Scan Completed")
+                            mBluetoothLe!!.scanFaildCount=0
                             mBluetoothLe!!.stopScan()
                         }
-                    }
 
-                    override fun onBatchScanResults(results: List<ScanResult>) {
-                        Log.i(TAG, "Got results ：$results")
-                    }
-
-                    override fun onScanCompleted() {
-                        mBluetoothLe!!.stopScan()
-                    }
-
-                    override fun onScanFailed(e: ScanBleException) {
-                        Log.e(TAG, "Sa failed：$e")
-                        onScanCompleted()
-                        mBluetoothLe!!.stopScan()
-                    }
-                })
+                        override fun onScanFailed(e: ScanBleException) {
+                            Log.e(TAG, "scan failed：$e")
+//                           mBluetoothLe!!.scanFaildCount++
+//                            if(mBluetoothLe!!.scanFaildCount>3)
+                                onScanCompleted()
+                        }
+                    })
+//        }
     }
 
     override fun connectDevice(context: Context, result: MethodChannel.Result) {
-        Log.i(TAG,"The package id is ${context.packageName}")
+        Log.i(TAG, "The package id is ${context.packageName}")
         if(mBluetoothLe==null) {
-            Log.i(TAG,"Bluetooth le is null initializing it")
-            BluetoothLe.getDefault().init(context, object: BleCallbackWrapper(){
+            Log.i(TAG, "Bluetooth le is null initializing it")
+            BluetoothLe.getDefault().init(context, object : BleCallbackWrapper() {
                 override fun setSuccess() {
-                    Log.i(TAG,"Init success")
+                    Log.i(TAG, "Init success")
                 }
 
                 override fun complete(resultCode: Int, data: Any?) {
                     mBluetoothLe = BluetoothLe.getDefault()
-                    Log.i(TAG,"Init complete ${mBluetoothLe}")
-                    startDeviceConnection(context,result)
+                    Log.i(TAG, "Init complete ${mBluetoothLe}")
+                    startDeviceConnection(context, result)
                 }
 
             })
@@ -387,7 +416,7 @@ class BandDevice :BaseDevice(){
     }
 
     override fun syncData(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context){
-        Log.i(TAG,"Syncing band data")
+        Log.i(TAG, "Syncing band data")
         currentDeviceId = connectionInfo.deviceId
         if(mBluetoothLe==null) {
             Log.i(TAG, "Bluetooth le is null initializing it")
@@ -401,18 +430,24 @@ class BandDevice :BaseDevice(){
 
                     Log.i(TAG, "Init complete ${mBluetoothLe}")
                     if (!mBluetoothLe!!.connected)
+                    //mBluetoothLe!!.reconnect(context)
                         startDeviceConnection(context, null, connectionInfo.deviceId)
                     else
                         loadData()
+                }
+
+                override fun setFaild() {
+                    Log.e(TAG, "failed to enable bluetooth le")
                 }
             })
             result?.success("Load complete")
         }else{
             if (!mBluetoothLe!!.connected) {
-                Log.i(TAG,"Bluetooth le is not connected, connecting device")
+                Log.i(TAG, "Bluetooth le is not connected, connecting device")
+                //mBluetoothLe!!.reconnect(context)
                 startDeviceConnection(context, null, connectionInfo.deviceId)
             }else {
-                Log.i(TAG,"Loading data")
+                Log.i(TAG, "Loading data")
                 loadData()
             }
             result?.success("Load complete")

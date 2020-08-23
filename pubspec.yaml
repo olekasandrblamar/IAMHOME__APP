@@ -38,7 +38,7 @@ dependencies:
   flutter_blue: ^0.7.2
   permission_handler: "^5.0.1+1"
   permission_handler_platform_interface: "2.0.1"
-  background_fetch: "^0.6.0"
+  #background_fetch: "^0.6.0"
   flutter_inappwebview: ^4.0.0+4
   url_launcher: ^5.5.0
   launch_review: ^2.0.0
