@@ -17,11 +17,11 @@
 			"title": "Kamera"
 		},
 		"locations": {
-			"description": "För att få bättre kontakt med dig kräver vårdplanen du väljer att vi skickar meddelandena. Gå med i wellness tracker-programmet så att Ceras kan fortsätta uppdatera dina aktiviteter.",
+			"description": "Genom att ge platsbehörigheter kan appen kommunicera din plats till din läkare eller vårdteam i nödsituationer.",
 			"title": "Plats"
 		},
 		"notifications": {
-			"description": "För att få bättre kontakt med dig kräver vårdplanen du väljer att vi skickar meddelandena. Gå med i wellness tracker-programmet så att Ceras kan fortsätta uppdatera dina aktiviteter.",
+			"description": "Meddelanden kan innehålla viktiga hälsovarningar och påminnelser när något ser ut. Det är enkelt att ändra dem när som helst i inställningar.",
 			"title": "Tryckmeddelande"
 		}
 	},
@@ -57,7 +57,7 @@
 			"title": "Villkor hanteras"
 		},
 		"health": {
-			"description": "Spela in dina wellnessdata automatiskt från enheten och skicka dem till din läkare för granskning av din hälsa. Bara bära det och glöm det.",
+			"description": "Din information laddas omedelbart från din enhet och skickas till din läkare.",
 			"title": "Hälsokontroll"
 		}
 	},
@@ -66,7 +66,7 @@
 			"agree": "Hålla med",
 			"view": "Se"
 		},
-		"description1": "Innan du använder Ceras-appen, läs följande villkor noggrant.",
+		"description1": "Läs och godkänn Ceras Health-appen. Slutanvändarlicensavtal och integritetspolicy fortsätter.",
 		"description2": "Godkänn licensavtalet för slutanvändare och sekretesspolicy.",
 		"title": "Våra villkor"
 	},

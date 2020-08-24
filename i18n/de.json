@@ -17,11 +17,11 @@
 			"title": "Kamera"
 		},
 		"locations": {
-			"description": "Um sich besser mit Ihnen in Verbindung zu setzen, müssen wir Ihnen für den von Ihnen ausgewählten Pflegeplan die Benachrichtigungen senden. Nehmen Sie am Wellness-Tracker-Programm teil, damit Ceras Ihre Aktivitäten weiterhin aktualisieren kann.",
+			"description": "Durch die Erteilung von Standortberechtigungen kann die App Ihren Standort im Notfall Ihrem Arzt oder Pflegeteam mitteilen.",
 			"title": "Ort"
 		},
 		"notifications": {
-			"description": "Um sich besser mit Ihnen in Verbindung zu setzen, müssen wir Ihnen für den von Ihnen ausgewählten Pflegeplan die Benachrichtigungen senden. Nehmen Sie am Wellness-Tracker-Programm teil, damit Ceras Ihre Aktivitäten weiterhin aktualisieren kann.",
+			"description": "Benachrichtigungen können wichtige Gesundheitswarnungen und Erinnerungen enthalten, wenn etwas nicht stimmt. Es ist einfach, sie jederzeit in den Einstellungen zu ändern.",
 			"title": "Push-Benachrichtigung"
 		}
 	},
@@ -57,7 +57,7 @@
 			"title": "Verwaltete Bedingungen"
 		},
 		"health": {
-			"description": "Zeichnen Sie Ihre Wellness-Daten automatisch vom Gerät auf und senden Sie sie zur Überprüfung Ihrer Gesundheit an Ihren Arzt. Trage es einfach und vergiss es.",
+			"description": "Ihre Daten werden sofort von Ihrem Gerät hochgeladen und an Ihren Arzt gesendet.",
 			"title": "Gesundheitsüberwachung"
 		}
 	},
@@ -66,7 +66,7 @@
 			"agree": "Zustimmen",
 			"view": "Aussicht"
 		},
-		"description1": "Lesen Sie die folgenden Begriffe sorgfältig durch, bevor Sie die Ceras-App verwenden.",
+		"description1": "Bitte lesen Sie die Ceras Health App und stimmen Sie ihr zu. Endbenutzer-Lizenzvereinbarung und Datenschutzrichtlinie, um fortzufahren.",
 		"description2": "Stimmen Sie der Endbenutzer-Lizenzvereinbarung und den Datenschutzbestimmungen zu.",
 		"title": "Unsere Allgemeinen Geschäftsbedingungen"
 	},

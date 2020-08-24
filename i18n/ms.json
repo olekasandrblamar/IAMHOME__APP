@@ -17,11 +17,11 @@
 			"title": "Kamera"
 		},
 		"locations": {
-			"description": "Untuk berhubung dengan anda dengan lebih baik, rancangan penjagaan yang anda pilih memerlukan kami menghantar pemberitahuan kepada anda. Sertailah program pelacak kesihatan agar Ceras dapat terus mengemas kini aktiviti anda.",
+			"description": "Pemberian kebenaran lokasi membolehkan aplikasi memberitahu lokasi anda kepada doktor atau pasukan penjagaan anda sekiranya berlaku kecemasan.",
 			"title": "Lokasi"
 		},
 		"notifications": {
-			"description": "Untuk berhubung dengan anda dengan lebih baik, rancangan penjagaan yang anda pilih memerlukan kami menghantar pemberitahuan kepada anda. Sertailah program pelacak kesihatan agar Ceras dapat terus mengemas kini aktiviti anda.",
+			"description": "Pemberitahuan mungkin merangkumi amaran dan peringatan kesihatan yang penting apabila ada yang tidak kelihatan. Sangat mudah untuk mengubahnya setiap saat dalam tetapan.",
 			"title": "Pemberitahuan Tolak"
 		}
 	},
@@ -57,7 +57,7 @@
 			"title": "Keadaan Terurus"
 		},
 		"health": {
-			"description": "Catat data kesihatan anda secara automatik dari peranti dan hantarkan kepada doktor anda untuk meninjau kesihatan anda. Pakai saja dan lupakan.",
+			"description": "Maklumat anda segera dimuat naik dari peranti anda dan dihantar ke doktor anda.",
 			"title": "Kesihatan Dipantau"
 		}
 	},
@@ -66,7 +66,7 @@
 			"agree": "Setuju",
 			"view": "Lihat"
 		},
-		"description1": "Sebelum menggunakan aplikasi Ceras, sila baca syarat berikut dengan teliti.",
+		"description1": "Sila baca dan setuju dengan aplikasi Ceras Health. Perjanjian Lesen Pengguna Akhir & Dasar Privasi untuk meneruskan.",
 		"description2": "Setuju Perjanjian Lesen Pengguna Akhir & Dasar Privasi.",
 		"title": "Terma dan Syarat Kami"
 	},

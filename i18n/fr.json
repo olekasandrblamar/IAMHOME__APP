@@ -17,11 +17,11 @@
 			"title": "Caméra"
 		},
 		"locations": {
-			"description": "Pour mieux communiquer avec vous, le plan de soins que vous sélectionnez nous oblige à vous envoyer les notifications. Rejoignez le programme de suivi du bien-être pour que Ceras puisse continuer à mettre à jour vos activités.",
+			"description": "L'octroi d'autorisations de localisation permet à l'application de communiquer votre position à votre médecin ou à votre équipe de soins en cas d'urgence.",
 			"title": "Emplacement"
 		},
 		"notifications": {
-			"description": "Pour mieux communiquer avec vous, le plan de soins que vous sélectionnez nous oblige à vous envoyer les notifications. Rejoignez le programme de suivi du bien-être pour que Ceras puisse continuer à mettre à jour vos activités.",
+			"description": "Les notifications peuvent inclure des alertes de santé importantes et des rappels lorsque quelque chose ne va pas. Il est simple de les modifier à tout moment dans les paramètres.",
 			"title": "Notification push"
 		}
 	},
@@ -57,7 +57,7 @@
 			"title": "Conditions gérées"
 		},
 		"health": {
-			"description": "Enregistrez automatiquement vos données de bien-être à partir de l'appareil et envoyez-les à votre médecin pour qu'il examine votre état de santé. Portez-le et oubliez-le.",
+			"description": "Vos informations sont instantanément téléchargées depuis votre appareil et envoyées à votre médecin.",
 			"title": "Surveillance de la santé"
 		}
 	},
@@ -66,7 +66,7 @@
 			"agree": "Se mettre d'accord",
 			"view": "Vue"
 		},
-		"description1": "Avant d'utiliser l'application Ceras, veuillez lire attentivement les conditions suivantes.",
+		"description1": "Veuillez lire et accepter l'application Ceras Health. Contrat de licence utilisateur final et politique de confidentialité pour continuer.",
 		"description2": "Acceptez le contrat de licence utilisateur final et la politique de confidentialité.",
 		"title": "Nos termes et conditions"
 	},
