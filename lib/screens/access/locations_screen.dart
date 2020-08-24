@@ -23,7 +23,7 @@ class LocationsScreen extends StatelessWidget {
 
   dynamic _goToCamera(context) {
     return Navigator.of(context).pushReplacementNamed(
-      routes.CameraRoute,
+      routes.SetupHomeRoute,
     );
   }
 
