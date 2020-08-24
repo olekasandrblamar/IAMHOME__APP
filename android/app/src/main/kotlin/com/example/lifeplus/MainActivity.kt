@@ -27,6 +27,7 @@ class MainActivity: FlutterActivity()  {
     companion object{
         var lastConnected: Calendar = Calendar.getInstance()
         val TAG = MainActivity::class.java.simpleName
+        private const val BACKGROUND_JOB = "background_bluetooth"
         var deviceId = ""
         const val SharedPrefernces = "FlutterSharedPreferences"
         val displayDateFormat = SimpleDateFormat("MM/dd/yyyy hh:mm a")
@@ -58,12 +59,13 @@ class MainActivity: FlutterActivity()  {
 //                .setDelay(5)//Delay by 5 minutes
                 .setIsFetchTask(true)
                 .setMinimumFetchInterval(15)// Every five minutes
-                .setTaskId("background_bluetooth")
+                .setTaskId(BACKGROUND_JOB)
                 .setStopOnTerminate(false)
                 .setJobService(CerasBluetoothSync::class.java.name)
                 .build()
         BackgroundFetch.getInstance(context).configure(config) {
-            Log.d(TAG, "Completed $it")
+            Log.i(TAG,"Executing background job")
+            CerasBluetoothSync(context, BACKGROUND_JOB)
         }
 
     }
@@ -165,18 +167,24 @@ class CerasBluetoothSync{
     }
 
     fun onFetch(applicationContext: Context,taskId:String){
-        if(ContextCompat.checkSelfPermission(applicationContext,
-                Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED) {
-            BaseDevice.isBackground = true
-            Log.i(TAG, "Doing background work")
-            val deviceDataString = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.watchInfo", "")
-            val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString, ConnectionInfo::class.java)
-            val deviceType = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.deviceType", null)
-            MainActivity.deviceId = deviceData.deviceId ?: ""
-            BaseDevice.getDeviceImpl(deviceType?.toUpperCase()).syncData(null, deviceData, applicationContext)
-        }else{
-            Log.e(TAG,"No location permission")
+        try {
+            if (ContextCompat.checkSelfPermission(applicationContext,
+                            Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                BaseDevice.isBackground = true
+                Log.i(TAG, "Doing background work")
+                val deviceDataString = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.watchInfo", "")
+                val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString, ConnectionInfo::class.java)
+                val deviceType = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.deviceType", null)
+                MainActivity.deviceId = deviceData.deviceId ?: ""
+                BaseDevice.getDeviceImpl(deviceType?.toUpperCase()).syncData(null, deviceData, applicationContext)
+            } else {
+                Log.e(TAG, "No location permission")
+            }
+        }catch(ex:Exception){
+            Log.e(TAG,"Error syncing health data",ex)
         }
+        BackgroundFetch.getInstance(applicationContext).finish(taskId)
+
     }
 }
 
