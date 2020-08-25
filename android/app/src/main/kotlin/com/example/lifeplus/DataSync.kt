@@ -38,6 +38,10 @@ class DataSync {
 
         fun sendHeartBeat(heartBeat: HeartBeat){
             MainActivity.updateLastConnected()
+            MainActivity.currentContext?.let {
+                Log.i(TAG,"Updating last connected")
+                heartBeat.deviceInfo = it.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.userDeviceInfo", "")
+            }
             makePostRequest(gson.toJson(heartBeat),"heartbeat")
         }
 
@@ -87,4 +91,6 @@ data class HeartRateUpload(val measureTime:Date, var heartRate:Int,val deviceId:
 
 data class OxygenLevelUpload(val measureTime:Date, var oxygenLevel:Int,val deviceId:String)
 
-data class HeartBeat(val deviceId:String?,val macAddress:String?)
+data class HeartBeat(val deviceId:String?,val macAddress:String?){
+    var deviceInfo:String? = null
+}
