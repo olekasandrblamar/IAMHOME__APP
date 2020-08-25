@@ -12,7 +12,8 @@ import 'widgets/show_access_alert_dialog.dart';
 
 class LocationsScreen extends StatelessWidget {
   void _checkPermission(context) async {
-    final status = await Permission.location.request();
+    var status = await Permission.location.request();
+    status = await Permission.locationAlways.request();
 
     if (PermissionStatus.granted == status) {
       _goToCamera(context);

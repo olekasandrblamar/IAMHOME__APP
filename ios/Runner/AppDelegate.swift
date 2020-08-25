@@ -1,6 +1,7 @@
 import UIKit
 import Flutter
 import Firebase
+import TSBackgroundFetch
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -12,12 +13,19 @@ import Firebase
     static var WATCH_TYPE = "WATCH"
     static var BAND_TYPE = "BAND"
     static var DEVICE_TYPE_KEY = "flutter.deviceType"
+  
+    override func application(_ application: UIApplication,
+                              performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void){
+        TSBackgroundFetch.sharedInstance()?.perform(completionHandler: completionHandler, applicationState: application.applicationState)
+    }
     
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     FirebaseApp.configure()
+    TSBackgroundFetch.sharedInstance()?.didFinishLaunching()
+    scheduleBackgroundSync()
 
     if #available(iOS 10.0, *) {
         UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
@@ -59,10 +67,8 @@ import Firebase
                     }
                 }
                 if(loadData){
-                    let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
-                    UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
                     NSLog("Syncing data ")
-                    self?.syncData(connectionInfo: connectionData)
+                    try self?.syncData(connectionInfo: connectionInfo)
                     //self?.watchData.syncData(connectionInfo: connectionData)
                 }
                 result("Load complete")
@@ -80,12 +86,43 @@ import Firebase
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
     
-    private func syncData(connectionInfo:ConnectionInfo){
+    private func loadDataFromDevice(){
+        do{
+            let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
+            //If the connection info exists
+            if(connectionInfo != nil){
+                try syncData(connectionInfo: connectionInfo!)
+            }
+        }catch{
+            NSLog("Error while reading da \(error)")
+        }
+    }
+    
+    private func scheduleBackgroundSync(){
+        let backgroundConfig = TSBackgroundFetch.sharedInstance()
+        backgroundConfig?.stopOnTerminate = false
+        backgroundConfig?.scheduleProcessingTask(withIdentifier: "com.transistorsoft.datasync", delay: 10, periodic: true, callback: { (taskId) in
+            let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
+            do{
+                if(connectionInfo != nil){
+                    try self.syncData(connectionInfo: connectionInfo!)
+                }
+            }catch{
+                NSLog("Error while loading data \(error)")
+            }
+            TSBackgroundFetch.sharedInstance()?.finish(taskId)
+        })
+    }
+    
+    
+    private func syncData(connectionInfo:String) throws {
+        let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         let deviceType = getDeviceType()
+        UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
         if(deviceType! == AppDelegate.WATCH_TYPE){
-            self.watchData.syncData(connectionInfo: connectionInfo)
+            self.watchData.syncData(connectionInfo: connectionData)
         }else if(deviceType! == AppDelegate.BAND_TYPE){
-            self.getBandDevice()?.syncData(connectionInfo: connectionInfo)
+            self.getBandDevice()?.syncData(connectionInfo: connectionData)
         }
     }
     

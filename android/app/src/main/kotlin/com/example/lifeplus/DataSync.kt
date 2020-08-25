@@ -65,7 +65,9 @@ class DataSync {
                 }
 
                 override fun onResponse(call: Call, response: Response) {
-                    Log.i(TAG,"Success for call ${call.request().url}")
+                    Log.i(TAG,"Got response ${response.isSuccessful} for call ${call.request().url}")
+                    response.body?.close()
+                    response.close()
                 }
 
             })

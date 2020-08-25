@@ -1,7 +1,7 @@
 import 'dart:async';
 
 // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:background_fetch/background_fetch.dart';
+//import 'package:background_fetch/background_fetch.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -37,7 +37,7 @@ void main() async {
 
       // Register to receive BackgroundFetch events after app is terminated.
       // Requires {stopOnTerminate: false, enableHeadless: true}
-      await BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
+      //await BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
     });
   } catch (error, stackTrace) {
     Crashlytics.instance.recordError(error, stackTrace);

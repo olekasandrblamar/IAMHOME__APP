@@ -29,10 +29,10 @@ allprojects {
         flatDir {
             dirs project(':app').file('libs')
         }
-        maven {
-           // [required] background_fetch
-           url "${project(':background_fetch').projectDir}/libs"
-        }
+//        maven {
+//           // [required] background_fetch
+//           //url "${project(':background_fetch').projectDir}/libs"
+//        }
     }
 }
 
