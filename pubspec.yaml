@@ -29,9 +29,9 @@ dependencies:
   provider: ^4.3.2+1
   intl: ^0.16.1
   dio: ^3.0.10
-  package_info: ^0.4.1
-  device_info: ^0.4.2+6
-  shared_preferences: ^0.5.8
+  package_info: ^0.4.3
+  device_info: ^0.4.2+7
+  shared_preferences: ^0.5.10
   json_annotation: ^3.0.1
   progress_dialog: ^1.2.4
   cupertino_icons: ^0.1.3
