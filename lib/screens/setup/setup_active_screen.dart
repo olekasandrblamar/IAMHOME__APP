@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/devices_model.dart';
+import 'package:ceras/models/watchdata_model.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/theme.dart';
@@ -23,6 +24,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   String _lastUpdated = null;
   String _deviceType = null;
   DevicesModel _deviceData = null;
+  String _deviceId = null;
+  bool _connected = true;
 
   @override
   void initState() {
@@ -89,12 +92,21 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       _deviceData = deviceData;
     });
     final connectionInfo = prefs.getString('watchInfo');
-    BackgroundFetchData.platform.invokeMethod('deviceStatus',
+    final connectionStatus = await BackgroundFetchData.platform.invokeMethod('deviceStatus',
       //'connectDevice',
       <String, dynamic>{'connectionInfo': connectionInfo},
-    ).then((value) => {
-      print("Got connection info response ${value}")
-    });
+    ) as String;
+    if(connectionStatus != "Error") {
+      print("Got connection info response ${connectionStatus}");
+      final WatchModel connectionStatusData = WatchModel.fromJson(
+          json.decode(connectionStatus) as Map<String, dynamic>);
+      setState(() {
+        _connected = connectionStatusData.connected;
+        _deviceId = connectionStatusData.deviceId;
+      });
+    }
+
+
   }
 
   void _syncDataFromDevice() async {
@@ -147,13 +159,13 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
             decoration: BoxDecoration(
               border: Border.all(
                 width: 1.0,
-                color: Color(0xff008bc6),
+                color:  _connected? Color(0xff008bc6): Colors.red,
               ),
               shape: BoxShape.circle,
               color: Colors.white,
               boxShadow: [
                 BoxShadow(
-                  color: Color(0xff008bc6),
+                  color: _connected? Color(0xff008bc6): Colors.red,
                   blurRadius: 60.0,
                   spreadRadius: 30.0,
                 )
@@ -191,21 +203,21 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
               style: AppTheme.title,
             ),
           ),
-          // Container(
-          //   padding: const EdgeInsets.all(5.0),
-          //   child: Text(
-          //     // _appLocalization.translate('setup.active.devicefound'),
-          //     '-',
-          //     overflow: TextOverflow.ellipsis,
-          //     textAlign: TextAlign.center,
-          //     style: TextStyle(
-          //       fontWeight: FontWeight.w500,
-          //       fontSize: 18,
-          //       letterSpacing: 0.18,
-          //       color: Color(0xFF17262A),
-          //     ),
-          //   ),
-          // ),
+           Container(
+             padding: const EdgeInsets.all(5.0),
+             child: Text(
+               // _appLocalization.translate('setup.active.devicefound'),
+               'Device Id - ${_deviceId}',
+               overflow: TextOverflow.ellipsis,
+               textAlign: TextAlign.center,
+               style: TextStyle(
+                 fontWeight: FontWeight.w500,
+                 fontSize: 18,
+                 letterSpacing: 0.18,
+                 color: Color(0xFF17262A),
+               ),
+             ),
+           ),
           Container(
             child: Text(
               _appLocalization.translate('setup.active.lastconnected') +
