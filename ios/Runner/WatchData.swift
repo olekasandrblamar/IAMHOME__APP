@@ -95,8 +95,13 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
                 NSLog("Connection data \(connectionInfoData)")
                 UserDefaults.standard.set(AppDelegate.WATCH_TYPE,forKey: AppDelegate.DEVICE_TYPE_KEY)
+                //If it not the first time load the device Data
                 result?(connectionInfoData)
             }catch{result?("Error")}
+        }else{
+            if(result == nil){
+                loadData(deviceId: WatchData.currentDeviceId)
+            }
         }
     }
     
@@ -167,6 +172,18 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         DataSync.uploadDailySteps(dailySteps: dailyStepsUpload)
     }
     
+    private func loadData(deviceId:String?){
+        DataSync.sendHeartBeat(heartBeat: HeartBeat(deviceId: deviceId, macAddress: getMacId()))
+        let last24Hours = Calendar.current.date(byAdding: .hour,value: -24, to: Date())
+        HardManagerSDK.shareBLEManager().getHardExercise(with: last24Hours)
+        HardManagerSDK.shareBLEManager().getHardStepDaysAgo(0)
+        for days:Int32 in 0...2{
+            HardManagerSDK.shareBLEManager().getHardHeartDaysAgo(days)
+        }
+        let last2Days = Calendar.current.date(byAdding: .day,value: -2, to: Date())
+        HardManagerSDK.shareBLEManager()?.getHardHistoryBodyTemperature(last2Days)
+    }
+    
     func syncData(connectionInfo:ConnectionInfo){
         
         NSLog("Device connected \(HardManagerSDK.shareBLEManager().isConnected)")
@@ -176,15 +193,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connectionInfo.deviceId)
         }else if(HardManagerSDK.shareBLEManager().isConnected && !HardManagerSDK.shareBLEManager().isSyncing){
             NSLog("Syncing data")
-            DataSync.sendHeartBeat(heartBeat: HeartBeat(deviceId: connectionInfo.deviceId, macAddress: getMacId()))
-            let last24Hours = Calendar.current.date(byAdding: .hour,value: -24, to: Date())
-            HardManagerSDK.shareBLEManager().getHardExercise(with: last24Hours)
-            HardManagerSDK.shareBLEManager().getHardStepDaysAgo(0)
-            for days:Int32 in 0...2{
-                HardManagerSDK.shareBLEManager().getHardHeartDaysAgo(days)
-            }
-            let last2Days = Calendar.current.date(byAdding: .day,value: -2, to: Date())
-            HardManagerSDK.shareBLEManager()?.getHardHistoryBodyTemperature(last2Days)
+            loadData(deviceId: connectionInfo.deviceId)
         }
     }
     
