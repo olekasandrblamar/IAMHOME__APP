@@ -29,7 +29,6 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
   @override
   void initState() {
-    _changeLastUpdated();
     _syncDataFromDevice();
     super.initState();
 
@@ -61,7 +60,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
   void onResumed() {
     print('resumed');
-    _changeLastUpdated();
+    _syncDataFromDevice();
   }
 
   void onPaused() {
