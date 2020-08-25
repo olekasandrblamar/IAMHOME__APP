@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:ceras/config/user_deviceinfo.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/config/http.dart';
@@ -68,6 +69,9 @@ class AuthProvider with ChangeNotifier {
     if (!prefs.containsKey('watchInfo')) {
       return false;
     }
+
+    final userDeviceInfo = await getUserDeviceInfo();
+    prefs.setString('userDeviceInfo', json.encode(userDeviceInfo));
 
     final WatchModel checkwatchInfo = WatchModel.fromJson(
         json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>);
