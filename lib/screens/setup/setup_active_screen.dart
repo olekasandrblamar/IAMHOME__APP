@@ -18,7 +18,8 @@ class SetupActiveScreen extends StatefulWidget {
   _SetupActiveScreenState createState() => _SetupActiveScreenState();
 }
 
-class _SetupActiveScreenState extends State<SetupActiveScreen> {
+class _SetupActiveScreenState extends State<SetupActiveScreen>
+    with WidgetsBindingObserver {
   String _lastUpdated = null;
   String _deviceType = null;
   DevicesModel _deviceData = null;
@@ -28,6 +29,48 @@ class _SetupActiveScreenState extends State<SetupActiveScreen> {
     _changeLastUpdated();
     _syncDataFromDevice();
     super.initState();
+
+    WidgetsBinding.instance.addObserver(this);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        onResumed();
+        break;
+      case AppLifecycleState.inactive:
+        onPaused();
+        break;
+      case AppLifecycleState.paused:
+        onInactive();
+        break;
+      case AppLifecycleState.detached:
+        onDetached();
+        break;
+    }
+  }
+
+  void onResumed() {
+    print('resumed');
+    _changeLastUpdated();
+  }
+
+  void onPaused() {
+    print('paused');
+  }
+
+  void onInactive() {
+    print('inactive');
+  }
+
+  void onDetached() {
+    print('detach');
   }
 
   void _changeLastUpdated() async {
