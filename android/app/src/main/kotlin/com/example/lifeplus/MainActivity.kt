@@ -26,12 +26,24 @@ class MainActivity: FlutterActivity()  {
 
     companion object{
         var lastConnected: Calendar = Calendar.getInstance()
+        var currentContext:Context? = null
         val TAG = MainActivity::class.java.simpleName
         private const val BACKGROUND_JOB = "background_bluetooth"
         var deviceId = ""
         const val SharedPrefernces = "FlutterSharedPreferences"
-        val displayDateFormat = SimpleDateFormat("MM/dd/yyyy hh:mm a")
+        private val displayDateFormat = SimpleDateFormat("MM/dd/yyyy hh:mm a")
         private const val MY_PERMISSIONS_REQUEST_BLUETOOTH:Int = 0x55;
+
+        fun updateLastConnected(){
+            lastConnected = Calendar.getInstance()
+            Log.i(TAG,"Current context is null ${currentContext == null}")
+            currentContext?.let {
+                Log.i(TAG,"Updating last connected")
+                it.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).edit()
+                        .putString("flutter.last_sync",displayDateFormat.format(lastConnected.time))
+                        .commit()
+            }
+        }
     }
 
     private fun requestPermission() {
@@ -72,6 +84,7 @@ class MainActivity: FlutterActivity()  {
 
     private fun connectDeviceChannel(flutterEngine: FlutterEngine){
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
+            currentContext = context
             if(call.method=="connectDevice"){
                 val deviceType = call.argument<String>("deviceType")
                 //For now connect to watch
@@ -83,20 +96,16 @@ class MainActivity: FlutterActivity()  {
 
                 BaseDevice.isBackground = false
                 val deviceDataString = call.argument<String>("connectionInfo")
-                lastConnected = Calendar.getInstance()
-                context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).edit()
-                        .putString("flutter.last_sync",displayDateFormat.format(lastConnected.time))
-                        .commit()
-                Log.i(MainActivity.TAG,"last Updated ${context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).all}")
+                updateLastConnected()
+                Log.i(TAG,"last Updated ${context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).all}")
                 Log.i(TAG,"got sync data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
                 val deviceType = context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceType?.toUpperCase()).syncData(result,deviceData,this)
             }else if(call.method =="deviceStatus"){
-
                 val deviceDataString = call.argument<String>("connectionInfo")
-                Log.i(TAG,"got sync data with arguments $deviceDataString")
+                Log.i(TAG,"got device status data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
                 val deviceType = context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
@@ -170,6 +179,7 @@ class CerasBluetoothSync{
     }
 
     constructor(applicationContext: Context,taskId:String){
+        MainActivity.currentContext = applicationContext
         Log.i(TAG,"constructor background")
         onFetch(applicationContext,taskId)
     }
