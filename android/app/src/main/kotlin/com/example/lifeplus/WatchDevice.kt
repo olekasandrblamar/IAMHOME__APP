@@ -347,6 +347,21 @@ class WatchDevice:BaseDevice()     {
         }
     }
 
+    override fun getDeviceInfo(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
+        val connectionStatus = HardSdk.getInstance().isDevConnected
+        if(!connectionStatus){
+            HardSdk.getInstance().init(context)
+            HardSdk.getInstance().bindBracelet(
+                    connectionInfo.additionalInformation["factoryName"],
+                    connectionInfo.deviceName,
+                    connectionInfo.deviceId
+            )
+        }
+        sendConnectionResponse(connectionInfo.deviceId,connectionStatus,result)
+    }
+
+
+
 }
 
 class WatchDataCallBack : IHardScanCallback {

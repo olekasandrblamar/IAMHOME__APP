@@ -88,6 +88,13 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       _deviceType = deviceType;
       _deviceData = deviceData;
     });
+    final connectionInfo = prefs.getString('watchInfo');
+    BackgroundFetchData.platform.invokeMethod('deviceStatus',
+      //'connectDevice',
+      <String, dynamic>{'connectionInfo': connectionInfo},
+    ).then((value) => {
+      print("Got connection info response ${value}")
+    });
   }
 
   void _syncDataFromDevice() async {

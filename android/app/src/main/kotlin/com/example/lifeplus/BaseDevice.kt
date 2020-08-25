@@ -13,6 +13,15 @@ open class BaseDevice{
 
     }
 
+    open fun getDeviceInfo(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
+
+    }
+
+    fun sendConnectionResponse(deviceId:String?,status:Boolean,result: MethodChannel.Result?){
+        result?.success(ConnectionInfo.createResponse(message = "Success", connected = status, deviceId = deviceId,
+                deviceName = "", additionalInfo = mapOf(), deviceType = ""))
+    }
+
     companion object{
 
         const val WATCH_DEVICE:String = "WATCH"

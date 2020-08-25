@@ -415,6 +415,40 @@ class BandDevice :BaseDevice(){
 
     }
 
+    override fun getDeviceInfo(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
+        val connData = ConnectionInfo()
+        connData.deviceId = connectionInfo.deviceId
+        if(mBluetoothLe==null) {
+            Log.i(TAG, "Bluetooth le is null initializing it")
+            BluetoothLe.getDefault().init(context, object : BleCallbackWrapper() {
+                override fun setSuccess() {
+                    Log.i(TAG, "Init success")
+                }
+
+                override fun complete(resultCode: Int, data: Any?) {
+                    mBluetoothLe = BluetoothLe.getDefault()
+                    Log.i(TAG, "Init complete ${mBluetoothLe}")
+                    if (!mBluetoothLe!!.connected)
+                        startDeviceConnection(context, null, connectionInfo.deviceId)
+                    sendConnectionResponse(connectionInfo.deviceId,mBluetoothLe!!.connected,result)
+                }
+
+                override fun setFaild() {
+                    Log.e(TAG, "failed to enable bluetooth le")
+                    sendConnectionResponse(connectionInfo.deviceId,false,result)
+                }
+            })
+            result?.success("Load complete")
+        }else{
+            if (!mBluetoothLe!!.connected) {
+                Log.i(TAG, "Bluetooth le is not connected, connecting device")
+                //mBluetoothLe!!.reconnect(context)
+                startDeviceConnection(context, null, connectionInfo.deviceId)
+            }
+            sendConnectionResponse(connectionInfo.deviceId,mBluetoothLe!!.connected,result)
+        }
+    }
+
     override fun syncData(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context){
         Log.i(TAG, "Syncing band data")
         currentDeviceId = connectionInfo.deviceId

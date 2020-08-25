@@ -75,6 +75,17 @@ import TSBackgroundFetch
             }catch{
                 result("Error")
             }
+        }else if(call.method=="deviceStatus"){
+            guard let args = call.arguments else {
+              result("iOS could not recognize flutter arguments in method: (sendParams)")
+              return
+            }
+            let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
+            do{
+                try self?.getDeviceInfo(result: result, connectionInfo: connectionInfo)
+            }catch{
+                result("Error")
+            }
         }
         else {
           result(FlutterMethodNotImplemented)
@@ -138,6 +149,17 @@ import TSBackgroundFetch
         }
     }
     
+    private func getDeviceInfo(result:@escaping FlutterResult,connectionInfo:String) throws {
+        let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
+        NSLog("Getting device info ")
+        let deviceType = getDeviceType()
+        if(deviceType! == AppDelegate.WATCH_TYPE){
+            self.watchData.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+        }else if(deviceType! == AppDelegate.BAND_TYPE){
+            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+        }
+    }
+    
     private func getBandDevice() -> BandDevice?{
         if(AppDelegate.bandDevice==nil){
             AppDelegate.bandDevice = BandDevice()
@@ -149,7 +171,7 @@ import TSBackgroundFetch
 struct ConnectionInfo:Codable {
     var deviceId:String?
     var deviceName:String?
-    var connected = false
+    var connected:Bool? = false
     var message:String?
     var additionalInformation: [String:String] = [:]
 }

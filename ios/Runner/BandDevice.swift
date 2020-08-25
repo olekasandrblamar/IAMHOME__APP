@@ -232,6 +232,35 @@ class BandDevice{
             })
     }
     
+    func getCurrentDeviceStatus(connInfo: ConnectionInfo,result:@escaping FlutterResult){
+        var connectionInfo = ConnectionInfo()
+        connectionInfo.deviceId = connInfo.deviceId
+        btProvider.autoReconnect(success: { (device) in
+            if(device.state == .connected){
+                connectionInfo.connected = true
+            }else{
+                connectionInfo.connected = false
+            }
+            do{
+                let deviceJson = try JSONEncoder().encode(connectionInfo)
+                let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                NSLog("Connection data \(connectionInfoData)")
+                UserDefaults.standard.set(AppDelegate.BAND_TYPE,forKey: AppDelegate.DEVICE_TYPE_KEY)
+                result(connectionInfoData)
+            }catch{result("Error")}
+        }) { (device, e) in
+            NSLog("Failed with error \(e.debugDescription)")
+            connectionInfo.connected = false
+            do{
+               let deviceJson = try JSONEncoder().encode(connectionInfo)
+               let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+               NSLog("Connection data \(connectionInfoData)")
+               UserDefaults.standard.set(AppDelegate.BAND_TYPE,forKey: AppDelegate.DEVICE_TYPE_KEY)
+               result(connectionInfoData)
+           }catch{result("Error")}
+        }
+    }
+    
     func processDeviceConfig(){
         deviceConfigProcessor.readDeviceConfig{[weak self] (config) in
             NSLog("Got device config \(config.temperatureUnit == .celsius)")

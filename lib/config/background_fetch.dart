@@ -131,7 +131,7 @@ Future<void> syncDataFromDevice() async {
   try {
     final prefs = await SharedPreferences.getInstance();
     //Send the connection info we got from connect device
-    final connectionInfo = prefs.getString('watchInfo');
+    final connectionInfo = prefs.getString('deviceStatus');
     if(connectionInfo!=null) {
       print('Sending connection info ${connectionInfo}');
 

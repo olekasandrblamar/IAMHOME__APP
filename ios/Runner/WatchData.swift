@@ -67,6 +67,26 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         }
     }
     
+    func getCurrentDeviceStatus(connInfo: ConnectionInfo, result:@escaping FlutterResult){
+        var connectionInfo = ConnectionInfo()
+        connectionInfo.deviceId = getMacId()
+        NSLog("Got mac id \(connectionInfo.deviceId)")
+        connectionInfo.connected = HardManagerSDK.shareBLEManager()?.isConnected
+        if(connectionInfo.connected == nil || !connectionInfo.connected!){
+            HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connInfo.deviceId!)
+        }
+        do{
+            let deviceJson = try JSONEncoder().encode(connectionInfo)
+            let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+            NSLog("Sending Connection data back from device info \(connectionInfoData)")
+            result(connectionInfoData)
+        }catch{
+            NSLog("Error getting watch info from getDeviceInfo \(error)")
+            result("Error")
+            
+        }
+    }
+    
     func deviceDidConnected() {
         NSLog("Device connected")
         HardManagerSDK.shareBLEManager()?.stopScanDevice()
