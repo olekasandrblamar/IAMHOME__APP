@@ -120,7 +120,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     private func syncTemparature(tempArray:[[String:String]]){
         let deviceId = getMacId()
         let temperatureUploads = tempArray.map { (tempMap) -> TemperatureUpload in
-            let measureDate = dateTimeFormat.date(from: tempMap["timePoint"]!)!
+            let measureDate = dateTimeFormat.date(from: tempMap["timePoint"]!)!.addingTimeInterval(60)
             let celsius = Double(tempMap["temperature"]!)
             return TemperatureUpload(measureTime: measureDate, celsius: celsius!, deviceId: deviceId)
         }
