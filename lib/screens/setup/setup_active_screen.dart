@@ -141,7 +141,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   Widget buildDeviceConnect(context) {
     final _appLocalization = AppLocalizations.of(context);
 
-    var imageData = _deviceData?.deviceMaster != null
+    var imageData = (_deviceData?.deviceMaster != null &&
+            _deviceData?.deviceMaster['displayImage'] != null)
         ? _deviceData?.deviceMaster['displayImage']
         : null;
 
@@ -198,7 +199,10 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
             ),
             child: Text(
               // _appLocalization.translate('setup.active.devicefound'),
-              _deviceData?.deviceMaster['displayName'] ?? '',
+              (_deviceData?.deviceMaster != null &&
+                      _deviceData?.deviceMaster['displayName'] != null)
+                  ? _deviceData?.deviceMaster['displayName']
+                  : '',
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: AppTheme.title,
