@@ -34,6 +34,8 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Connected")
             HardSdk.getInstance().stopScan()
+            HardSdk.getInstance().setTimeUnitAndUserProfile(true,true,GlobalValue.SEX_BOY,32,80,178,140, 90, 180)
+            HardSdk.getInstance().setTimeAndClock()
             HardSdk.getInstance().bindNotice()
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Disconnected")
@@ -126,6 +128,10 @@ class DataCallBack : SimpleDeviceCallback {
         }
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Connected")
+            HardSdk.getInstance().setTimeUnitAndUserProfile(true,true,GlobalValue.SEX_BOY,32,80,178,140, 90, 180)
+            HardSdk.getInstance().setTimeAndClock()
+            //Set weather to celsius
+            HardSdk.getInstance().setWeatherType(true,GlobalValue.Unit_Fahrenheit)
             //Set the auto health test to true
             HardSdk.getInstance().setAutoHealthTest(true)
             HardSdk.getInstance().setAutoTemperatureStatus(true)

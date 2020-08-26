@@ -73,8 +73,9 @@ class DataSync {
     
     static func sendHeartBeat(heartBeat:HeartBeat){
         do{
-            heartBeat.deviceInfo = UserDefaults.standard.string(forKey: "flutter.userDeviceInfo")
-            makePostApiCall(url: "heartbeat", postData: try encoder.encode(heartBeat))
+            var updatedHBeat = heartBeat
+            updatedHBeat.deviceInfo = UserDefaults.standard.string(forKey: "flutter.userDeviceInfo")
+            makePostApiCall(url: "heartbeat", postData: try encoder.encode(updatedHBeat))
         }catch{
             NSLog("Error while Uploading Data \(error)")
         }
@@ -125,7 +126,7 @@ struct TemperatureUpload:Codable {
 struct HeartBeat:Codable{
     let deviceId:String?
     let macAddress:String?
-    let deviceInfo:String?
+    var deviceInfo:String? = nil
 }
 
 struct BpUpload:Codable {

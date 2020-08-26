@@ -1,5 +1,6 @@
 package com.cerashealth.ceras
 
+import android.content.Context
 import android.util.Log
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -40,7 +41,7 @@ class DataSync {
             MainActivity.updateLastConnected()
             MainActivity.currentContext?.let {
                 Log.i(TAG,"Updating last connected")
-                heartBeat.deviceInfo = it.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.userDeviceInfo", "")
+                heartBeat.deviceInfo = it.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.userDeviceInfo", "")
             }
             makePostRequest(gson.toJson(heartBeat),"heartbeat")
         }
