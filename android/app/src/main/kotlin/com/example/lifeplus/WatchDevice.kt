@@ -23,6 +23,10 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
 
     private var retries = 1;
 
+    companion object{
+        var currentCallBack:ConnectDeviceCallBack? = null
+    }
+
     private val result: MethodChannel.Result
 
     constructor(result: MethodChannel.Result) {
@@ -34,9 +38,12 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Connected")
             HardSdk.getInstance().stopScan()
-            HardSdk.getInstance().setTimeUnitAndUserProfile(true,true,GlobalValue.SEX_BOY,32,80,178,140, 90, 180)
-            HardSdk.getInstance().setTimeAndClock()
-            HardSdk.getInstance().bindNotice()
+            currentCallBack?.let {
+                HardSdk.getInstance().removeHardSdkCallback(currentCallBack)
+            }
+
+//            HardSdk.getInstance().reset()
+            WatchDevice.initializeWatch()
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Disconnected")
             HardSdk.getInstance().startScan()
@@ -53,6 +60,7 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
             }
         }
     }
+
 
 }
 
@@ -79,8 +87,9 @@ class DataCallBack : SimpleDeviceCallback {
             val measureTime = tempTimeFormat.parse(it.testMomentTime)
             val tempCal = Calendar.getInstance()
             tempCal.time = measureTime
-            tempCal.add(Calendar.HOUR,-1)
-            println("Time ${tempCal}")
+            if(TimeZone.getDefault().inDaylightTime(tempCal.time))
+                tempCal.add(Calendar.HOUR,-1)
+//            Log.d(WatchDevice.TAG,"Time ${tempCal}")
             TemperatureUpload(measureTime = tempCal.time,deviceId = MainActivity.deviceId,celsius = celsius.toDouble(),fahrenheit = fahrenheit.toDouble())
         }
         DataSync.uploadTemperature(tempUploads)
@@ -128,14 +137,7 @@ class DataCallBack : SimpleDeviceCallback {
         }
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Connected")
-            HardSdk.getInstance().setTimeUnitAndUserProfile(true,true,GlobalValue.SEX_BOY,32,80,178,140, 90, 180)
-            HardSdk.getInstance().setTimeAndClock()
-            //Set weather to celsius
-            HardSdk.getInstance().setWeatherType(true,GlobalValue.Unit_Fahrenheit)
-            //Set the auto health test to true
-            HardSdk.getInstance().setAutoHealthTest(true)
-            HardSdk.getInstance().setAutoTemperatureStatus(true)
-            HardSdk.getInstance().setAutoTemperatureStatus(true)
+            WatchDevice.initializeWatch()
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Disconnected")
         } else if (flag == GlobalValue.CONNECT_TIME_OUT_MSG) {
@@ -206,27 +208,31 @@ class DataCallBack : SimpleDeviceCallback {
     }
 
     private fun uploadBloodPressureInfo(){
-        val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
+
         val tempTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val bloodPressureUpload = mutableListOf<BpUpload>()
         val oxygenLevels = mutableListOf<OxygenLevelUpload>()
         val heartRates = mutableListOf<HeartRateUpload>()
-        HardSdk.getInstance().queryOneDayBP(beforeTime).forEach {
-            try {
-                val heartRateAdditional = HeartRateAdditional(
-                        TimeUtil.detaiTimeToStamp(it.testMomentTime) / 1000,
-                        it.currentRate,
-                        162,
-                        56,
-                        0,
-                        30
-                )
-                val measureTime = tempTimeFormat.parse(it.testMomentTime)
-                bloodPressureUpload.add(BpUpload(measureTime = measureTime,systolic = heartRateAdditional._systolic_blood_pressure,distolic = heartRateAdditional._diastolic_blood_pressure,deviceId = MainActivity.deviceId))
-                heartRates.add(HeartRateUpload(measureTime = measureTime,deviceId = MainActivity.deviceId,heartRate = it.currentRate))
-                oxygenLevels.add(OxygenLevelUpload(measureTime = measureTime,deviceId = MainActivity.deviceId,oxygenLevel = heartRateAdditional._blood_oxygen))
-            } catch (e: ParseException) {
-                e.printStackTrace()
+        (0..2).forEach {
+            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), it);
+            HardSdk.getInstance().queryOneDayBP(beforeTime).forEach {
+                try {
+                    val heartRateAdditional = HeartRateAdditional(
+                            TimeUtil.detaiTimeToStamp(it.testMomentTime) / 1000,
+                            it.currentRate,
+                            162,
+                            56,
+                            0,
+                            30
+                    )
+                    val measureTime = tempTimeFormat.parse(it.testMomentTime)
+                    Log.d(WatchDevice.TAG, "Heart Time ${measureTime}")
+                    bloodPressureUpload.add(BpUpload(measureTime = measureTime, systolic = heartRateAdditional._systolic_blood_pressure, distolic = heartRateAdditional._diastolic_blood_pressure, deviceId = MainActivity.deviceId))
+                    heartRates.add(HeartRateUpload(measureTime = measureTime, deviceId = MainActivity.deviceId, heartRate = it.currentRate))
+                    oxygenLevels.add(OxygenLevelUpload(measureTime = measureTime, deviceId = MainActivity.deviceId, oxygenLevel = heartRateAdditional._blood_oxygen))
+                } catch (e: ParseException) {
+                    e.printStackTrace()
+                }
             }
         }
         if(bloodPressureUpload.isNotEmpty())
@@ -307,13 +313,26 @@ class WatchDevice:BaseDevice()     {
         var isTestingHeart = false;
         val TAG = BaseDevice::class.java.simpleName
         var dataCallback: DataCallBack? = null
+
+        fun initializeWatch(){
+            HardSdk.getInstance().setTimeUnitAndUserProfile(true,true,GlobalValue.SEX_BOY,32,80,178,140, 90, 180)
+            HardSdk.getInstance().setTimeAndClock()
+            //Set weather to celsius
+            HardSdk.getInstance().setWeatherType(true,GlobalValue.Unit_Fahrenheit)
+            //Set the auto health test to true
+            HardSdk.getInstance().setAutoHealthTest(true)
+            HardSdk.getInstance().bindNotice()
+        }
     }
+
+
 
     override fun connectDevice(context: Context, result: MethodChannel.Result) {
         HardSdk.getInstance().init(context)
         val watchDataCallBack = WatchDataCallBack(context, result)
         HardSdk.getInstance().setHardScanCallback(watchDataCallBack)
-        HardSdk.getInstance().setHardSdkCallback(ConnectDeviceCallBack(result))
+        ConnectDeviceCallBack.currentCallBack = ConnectDeviceCallBack(result)
+        HardSdk.getInstance().setHardSdkCallback(ConnectDeviceCallBack.currentCallBack)
         if (HardSdk.getInstance().isBleEnabled)
             HardSdk.getInstance().startScan()
     }
@@ -328,6 +347,7 @@ class WatchDevice:BaseDevice()     {
         if(!HardSdk.getInstance().isDevConnected &&
                 !HardSdk.getInstance().isConnecting){
             HardSdk.getInstance().init(context)
+            HardSdk.getInstance().setHardSdkCallback(DataCallBack(result))
             HardSdk.getInstance().bindBracelet(
                     connectionInfo.additionalInformation["factoryName"],
                     connectionInfo.deviceName,

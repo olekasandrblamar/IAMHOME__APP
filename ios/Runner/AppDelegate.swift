@@ -113,14 +113,17 @@ import TSBackgroundFetch
         let backgroundConfig = TSBackgroundFetch.sharedInstance()
         backgroundConfig?.stopOnTerminate = false
         backgroundConfig?.scheduleProcessingTask(withIdentifier: "com.transistorsoft.datasync", delay: 10, periodic: true, callback: { (taskId) in
+            NSLog("Executing task \(taskId)")
             let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
+            NSLog("Got connection info in background \(connectionInfo)")
             do{
                 if(connectionInfo != nil){
                     try self.syncData(connectionInfo: connectionInfo!)
                 }
             }catch{
-                NSLog("Error while loading data \(error)")
+                NSLog("Error while loading data for task \(taskId) \(error)")
             }
+            NSLog("Completing task \(taskId)")
             TSBackgroundFetch.sharedInstance()?.finish(taskId)
         })
     }
@@ -129,6 +132,7 @@ import TSBackgroundFetch
     private func syncData(connectionInfo:String) throws {
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         let deviceType = getDeviceType()
+        NSLog("Syncing data for device \(deviceType)")
         UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
         if(deviceType! == AppDelegate.WATCH_TYPE){
             self.watchData.syncData(connectionInfo: connectionData)
