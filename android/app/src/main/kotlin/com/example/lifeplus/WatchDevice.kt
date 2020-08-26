@@ -138,6 +138,8 @@ class DataCallBack : SimpleDeviceCallback {
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Connected")
             WatchDevice.initializeWatch()
+            WatchDevice.syncData()
+
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Disconnected")
         } else if (flag == GlobalValue.CONNECT_TIME_OUT_MSG) {
@@ -323,6 +325,17 @@ class WatchDevice:BaseDevice()     {
             HardSdk.getInstance().setAutoHealthTest(true)
             HardSdk.getInstance().bindNotice()
         }
+
+        fun syncData(){
+            dataCallback?.let {
+                HardSdk.getInstance().syncLatestBodyTemperature(0)
+                HardSdk.getInstance().syncLatestWristTemperature(0)
+                HardSdk.getInstance().syncHeartRateData(0)
+                HardSdk.getInstance().syncExerciseData(0)
+                HardSdk.getInstance().syncStepData(0)
+                HardSdk.getInstance().syncSleepData(0)
+            }
+        }
     }
 
 
@@ -341,13 +354,17 @@ class WatchDevice:BaseDevice()     {
     //This needs to be called in background from time to time
     override fun syncData(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
         Log.i(TAG,"Calling sync data")
-
+        DataSync.sendHeartBeat(HeartBeat(macAddress = connectionInfo.deviceId,deviceId = connectionInfo.deviceName))
         Log.i(TAG,"Is device connected ${HardSdk.getInstance().isDevConnected}")
         //If the device is not connected  try to connect
         if(!HardSdk.getInstance().isDevConnected &&
                 !HardSdk.getInstance().isConnecting){
             HardSdk.getInstance().init(context)
-            HardSdk.getInstance().setHardSdkCallback(DataCallBack(result))
+            if(dataCallback==null) {
+                dataCallback = DataCallBack(result)
+                //Load the data from device
+            }
+            HardSdk.getInstance().setHardSdkCallback(dataCallback)
             HardSdk.getInstance().bindBracelet(
                     connectionInfo.additionalInformation["factoryName"],
                     connectionInfo.deviceName,
@@ -357,21 +374,14 @@ class WatchDevice:BaseDevice()     {
             if(dataCallback==null) {
                 dataCallback = DataCallBack(result)
                 //Load the data from device
-                HardSdk.getInstance().setHardSdkCallback(dataCallback)
             }
-            DataSync.sendHeartBeat(HeartBeat(macAddress = connectionInfo.deviceId,deviceId = connectionInfo.deviceName))
-            dataCallback?.let {
-                HardSdk.getInstance().syncLatestBodyTemperature(0)
-                HardSdk.getInstance().syncLatestWristTemperature(0)
-                HardSdk.getInstance().syncHeartRateData(0)
-                HardSdk.getInstance().syncExerciseData(0)
-                HardSdk.getInstance().syncStepData(0)
-                HardSdk.getInstance().syncSleepData(0)
-            }
+            HardSdk.getInstance().setHardSdkCallback(dataCallback)
             Log.i(TAG, "Data sync complete")
             result?.success("Load complete")
+            syncData()
         }
     }
+
 
     override fun getDeviceInfo(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
         val connectionStatus = HardSdk.getInstance().isDevConnected
