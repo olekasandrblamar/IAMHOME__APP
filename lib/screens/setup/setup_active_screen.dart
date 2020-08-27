@@ -106,11 +106,24 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
         _deviceId = connectionStatusData.deviceId;
       });
     }
+
+    _showSuccessMessage();
   }
 
   void _syncDataFromDevice() async {
     await syncDataFromDevice();
     await _changeLastUpdated();
+  }
+
+  void _showSuccessMessage() {
+    Scaffold.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          'Data is transmitted',
+        ),
+        duration: Duration(seconds: 1),
+      ),
+    );
   }
 
   @override
