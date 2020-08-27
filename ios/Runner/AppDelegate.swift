@@ -13,6 +13,7 @@ import TSBackgroundFetch
     static var WATCH_TYPE = "WATCH"
     static var BAND_TYPE = "BAND"
     static var DEVICE_TYPE_KEY = "flutter.deviceType"
+    static let BG_SYNC_TASK = "com.cerashealth.datasync"
   
     override func application(_ application: UIApplication,
                               performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void){
@@ -79,6 +80,7 @@ import TSBackgroundFetch
                 result("Error")
             }
         }else if(call.method=="deviceStatus"){
+            
             guard let args = call.arguments else {
               result("iOS could not recognize flutter arguments in method: (sendParams)")
               return
@@ -133,6 +135,7 @@ import TSBackgroundFetch
     
     override func applicationDidEnterBackground(_ application: UIApplication) {
         if #available(iOS 13.0, *){
+            BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: AppDelegate.BG_SYNC_TASK)
             scheduleSyncTask()
         }
     }
@@ -140,12 +143,13 @@ import TSBackgroundFetch
     
     @available(iOS 13.0, *)
     private func configureNativeBackground(){
+        NSLog("Configuring background tasks")
         BGTaskScheduler.shared.register(
-            forTaskWithIdentifier: "com.cerashealth.datasync",
+            forTaskWithIdentifier: AppDelegate.BG_SYNC_TASK,
             using: DispatchQueue.global()
         ) { task in
-            NSLog("Executing tasl \(task.identifier)")
-            if(task.identifier=="com.cerashealth.datasync"){
+            NSLog("Executing task \(task.identifier)")
+            if(task.identifier==AppDelegate.BG_SYNC_TASK){
                 self.scheduleSyncTask()
                 NSLog("Executing bg task at \(Date())")
                 task.expirationHandler = {[weak task] in
@@ -169,7 +173,7 @@ import TSBackgroundFetch
     
     @available(iOS 13.0,*)
     private func scheduleSyncTask(){
-        let task = BGProcessingTaskRequest(identifier: "com.cerashealth.datasync")
+        let task = BGProcessingTaskRequest(identifier: AppDelegate.BG_SYNC_TASK)
         task.requiresExternalPower=false
         task.requiresNetworkConnectivity = true
         task.earliestBeginDate = Date(timeIntervalSinceNow: 5*60)
