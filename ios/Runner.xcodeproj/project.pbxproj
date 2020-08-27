@@ -13,8 +13,8 @@
 		03D13CAA24EC80D2001D13F3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03D13CA924EC80D2001D13F3 /* GoogleService-Info.plist */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
 		3B3967161E833CAA004F5970 /* AppFrameworkInfo.plist in Resources */ = {isa = PBXBuildFile; fileRef = 3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */; };
-		523BA1C124F57DB300EF58B9 /* TrusangBluetooth.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 52CF454924EB0EC900AE177E /* TrusangBluetooth.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		523BA1C424F5819F00EF58B9 /* TSBackgroundFetch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 523BA1BA24F34B0300EF58B9 /* TSBackgroundFetch.framework */; };
+		523BA1D324F6E98100EF58B9 /* TrusangBluetooth.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 52CF454924EB0EC900AE177E /* TrusangBluetooth.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		523BA1D724F6EDAA00EF58B9 /* TSBackgroundFetch.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 523BA1CC24F6DB9800EF58B9 /* TSBackgroundFetch.framework */; };
 		5257E6C424D25E0900C2B1BA /* HardSDK in Resources */ = {isa = PBXBuildFile; fileRef = 5257E6C324D25E0900C2B1BA /* HardSDK */; };
 		5257E6C624D25EB900C2B1BA /* CoreBluetooth.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5257E6C524D25EB900C2B1BA /* CoreBluetooth.framework */; };
 		5257E6CA24D632CC00C2B1BA /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5257E6C924D2693100C2B1BA /* libc++.tbd */; };
@@ -37,7 +37,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				523BA1C124F57DB300EF58B9 /* TrusangBluetooth.framework in CopyFiles */,
+				523BA1D324F6E98100EF58B9 /* TrusangBluetooth.framework in CopyFiles */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -63,7 +63,7 @@
 		1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = GeneratedPluginRegistrant.m; sourceTree = "<group>"; };
 		3743E58A645B153C66ABF74B /* Pods-Runner.profile.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.profile.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.profile.xcconfig"; sourceTree = "<group>"; };
 		3B3967151E833CAA004F5970 /* AppFrameworkInfo.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; name = AppFrameworkInfo.plist; path = Flutter/AppFrameworkInfo.plist; sourceTree = "<group>"; };
-		523BA1BA24F34B0300EF58B9 /* TSBackgroundFetch.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = TSBackgroundFetch.framework; sourceTree = "<group>"; };
+		523BA1CC24F6DB9800EF58B9 /* TSBackgroundFetch.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = TSBackgroundFetch.framework; sourceTree = "<group>"; };
 		5257E6C324D25E0900C2B1BA /* HardSDK */ = {isa = PBXFileReference; lastKnownFileType = folder; path = HardSDK; sourceTree = "<group>"; };
 		5257E6C524D25EB900C2B1BA /* CoreBluetooth.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreBluetooth.framework; path = System/Library/Frameworks/CoreBluetooth.framework; sourceTree = SDKROOT; };
 		5257E6C924D2693100C2B1BA /* libc++.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = "libc++.tbd"; path = "usr/lib/libc++.tbd"; sourceTree = SDKROOT; };
@@ -92,7 +92,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				523BA1C424F5819F00EF58B9 /* TSBackgroundFetch.framework in Frameworks */,
+				523BA1D724F6EDAA00EF58B9 /* TSBackgroundFetch.framework in Frameworks */,
 				52CF454A24EB0EC900AE177E /* TrusangBluetooth.framework in Frameworks */,
 				5257E6CA24D632CC00C2B1BA /* libc++.tbd in Frameworks */,
 				0332C9AE24B40CD100AAE8D1 /* HealthKit.framework in Frameworks */,
@@ -109,7 +109,6 @@
 		8034CB520AAA3844753050C0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				523BA1BA24F34B0300EF58B9 /* TSBackgroundFetch.framework */,
 				036EF94124D903F00002892D /* libHardManagerSDK.a */,
 				5257E6C924D2693100C2B1BA /* libc++.tbd */,
 				5257E6C524D25EB900C2B1BA /* CoreBluetooth.framework */,
@@ -134,6 +133,7 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
+				523BA1CC24F6DB9800EF58B9 /* TSBackgroundFetch.framework */,
 				52CF454924EB0EC900AE177E /* TrusangBluetooth.framework */,
 				5257E6C324D25E0900C2B1BA /* HardSDK */,
 				9740EEB11CF90186004384FC /* Flutter */,

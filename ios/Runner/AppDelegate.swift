@@ -16,7 +16,7 @@ import TSBackgroundFetch
   
     override func application(_ application: UIApplication,
                               performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void){
-        TSBackgroundFetch.sharedInstance()?.perform(completionHandler: completionHandler, applicationState: application.applicationState)
+        //TSBackgroundFetch.sharedInstance()?.perform(completionHandler: completionHandler, applicationState: application.applicationState)
     }
     
   override func application(
@@ -24,11 +24,14 @@ import TSBackgroundFetch
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
     FirebaseApp.configure()
-    TSBackgroundFetch.sharedInstance()?.didFinishLaunching()
-    scheduleBackgroundSync()
+    //scheduleBackgroundSync()
 
     if #available(iOS 10.0, *) {
         UNUserNotificationCenter.current().delegate = self as? UNUserNotificationCenterDelegate
+    }
+    
+    if #available(iOS 13.0, *){
+        configureNativeBackground()
     }
 
     let controller : FlutterViewController = window?.rootViewController as! FlutterViewController
@@ -112,20 +115,70 @@ import TSBackgroundFetch
     private func scheduleBackgroundSync(){
         let backgroundConfig = TSBackgroundFetch.sharedInstance()
         backgroundConfig?.stopOnTerminate = false
-        backgroundConfig?.scheduleProcessingTask(withIdentifier: "com.transistorsoft.datasync", delay: 10, periodic: true, callback: { (taskId) in
+        NSLog("Scheduling background sync")
+        backgroundConfig?.addListener("com.transistorsoft.datasync", callback: { (taskId) in
             NSLog("Executing task \(taskId)")
-            let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
-            NSLog("Got connection info in background \(connectionInfo)")
-            do{
-                if(connectionInfo != nil){
-                    try self.syncData(connectionInfo: connectionInfo!)
-                }
-            }catch{
-                NSLog("Error while loading data for task \(taskId) \(error)")
-            }
-            NSLog("Completing task \(taskId)")
             TSBackgroundFetch.sharedInstance()?.finish(taskId)
         })
+        backgroundConfig?.configure(60, callback: { (status) in
+            if(status != .available){
+                NSLog("Ceras Sync Background job failed to start, status: \(status.rawValue)");
+            }
+            NSLog("Ceras Sync Background config scheduling complete with \(status.rawValue)")
+        })
+        backgroundConfig?.didFinishLaunching()
+        backgroundConfig?.start(nil)
+        
+    }
+    
+    override func applicationDidEnterBackground(_ application: UIApplication) {
+        if #available(iOS 13.0, *){
+            scheduleSyncTask()
+        }
+    }
+    
+    
+    @available(iOS 13.0, *)
+    private func configureNativeBackground(){
+        BGTaskScheduler.shared.register(
+            forTaskWithIdentifier: "com.cerashealth.datasync",
+            using: DispatchQueue.global()
+        ) { task in
+            NSLog("Executing tasl \(task.identifier)")
+            if(task.identifier=="com.cerashealth.datasync"){
+                self.scheduleSyncTask()
+                NSLog("Executing bg task at \(Date())")
+                task.expirationHandler = {[weak task] in
+                    NSLog("Task expired without completion at \(Date())")
+                    task?.setTaskCompleted(success: false)
+                }
+                let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
+                NSLog("Got connection info in background \(connectionInfo)")
+                do{
+                    if(connectionInfo != nil){
+                        try self.syncData(connectionInfo: connectionInfo!)
+                    }
+                }catch{
+                    NSLog("Error while loading data for task \(task.identifier) \(error)")
+                }
+                NSLog("Completing task \(task.identifier) at \(Date())")
+                task.setTaskCompleted(success: true)
+            }
+        }
+    }
+    
+    @available(iOS 13.0,*)
+    private func scheduleSyncTask(){
+        let task = BGProcessingTaskRequest(identifier: "com.cerashealth.datasync")
+        task.requiresExternalPower=false
+        task.requiresNetworkConnectivity = true
+        task.earliestBeginDate = Date(timeIntervalSinceNow: 5*60)
+        do {
+            NSLog("Task scheduled for ceras sync for \(task.earliestBeginDate)")
+            try BGTaskScheduler.shared.submit(task)
+        } catch {
+            print("Could not schedule image fetch: \(error)")
+        }
     }
     
     

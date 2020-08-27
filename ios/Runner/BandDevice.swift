@@ -247,6 +247,7 @@ class BandDevice{
                 NSLog("Connection data \(connectionInfoData)")
                 UserDefaults.standard.set(AppDelegate.BAND_TYPE,forKey: AppDelegate.DEVICE_TYPE_KEY)
                 result(connectionInfoData)
+                self.syncData(connectionInfo:connInfo)
             }catch{result("Error")}
         }) { (device, e) in
             NSLog("Failed with error \(e.debugDescription)")
