@@ -26,6 +26,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   DevicesModel _deviceData = null;
   String _deviceId = null;
   bool _connected = true;
+  bool isLoading = true;
 
   @override
   void initState() {
@@ -111,6 +112,10 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   }
 
   void _syncDataFromDevice() async {
+    setState(() {
+      isLoading = true;
+    });
+
     await syncDataFromDevice();
     await _changeLastUpdated();
   }
@@ -124,6 +129,10 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
         duration: Duration(seconds: 1),
       ),
     );
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -206,44 +215,9 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
           SizedBox(
             height: 35,
           ),
-          Container(
-            padding: const EdgeInsets.only(
-              bottom: 5.0,
-            ),
-            child: Text(
-              // _appLocalization.translate('setup.active.devicefound'),
-              (_deviceData?.deviceMaster != null &&
-                      _deviceData?.deviceMaster['displayName'] != null)
-                  ? _deviceData?.deviceMaster['displayName']
-                  : '',
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: AppTheme.title,
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(5.0),
-            child: Text(
-              // _appLocalization.translate('setup.active.devicefound'),
-              'Device Id - ${_deviceId}',
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontWeight: FontWeight.w500,
-                fontSize: 18,
-                letterSpacing: 0.18,
-                color: Color(0xFF17262A),
-              ),
-            ),
-          ),
-          Container(
-            child: Text(
-              _appLocalization.translate('setup.active.lastconnected') +
-                  ' ${_lastUpdated}.',
-              textAlign: TextAlign.center,
-              style: AppTheme.subtitle,
-            ),
-          ),
+          isLoading
+              ? CircularProgressIndicator()
+              : _buildInfo(_appLocalization),
           SizedBox(
             height: 25,
           ),
@@ -274,5 +248,48 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
         ],
       ),
     );
+  }
+
+  _buildInfo(_appLocalization) {
+    return [
+      Container(
+        padding: const EdgeInsets.only(
+          bottom: 5.0,
+        ),
+        child: Text(
+          // _appLocalization.translate('setup.active.devicefound'),
+          (_deviceData?.deviceMaster != null &&
+                  _deviceData?.deviceMaster['displayName'] != null)
+              ? _deviceData?.deviceMaster['displayName']
+              : '',
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          style: AppTheme.title,
+        ),
+      ),
+      Container(
+        padding: const EdgeInsets.all(5.0),
+        child: Text(
+          // _appLocalization.translate('setup.active.devicefound'),
+          'Device Id - ${_deviceId}',
+          overflow: TextOverflow.ellipsis,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontWeight: FontWeight.w500,
+            fontSize: 18,
+            letterSpacing: 0.18,
+            color: Color(0xFF17262A),
+          ),
+        ),
+      ),
+      Container(
+        child: Text(
+          _appLocalization.translate('setup.active.lastconnected') +
+              ' ${_lastUpdated}.',
+          textAlign: TextAlign.center,
+          style: AppTheme.subtitle,
+        ),
+      ),
+    ];
   }
 }

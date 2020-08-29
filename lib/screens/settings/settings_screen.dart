@@ -1,4 +1,5 @@
 import 'package:ceras/config/user_deviceinfo.dart';
+import 'package:ceras/screens/settings/debug_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:ceras/config/app_localizations.dart';
@@ -51,6 +52,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(
           _appLocalization.translate('settings.title'),
         ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.bug_report),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<Null>(
+                  builder: (BuildContext context) {
+                    return DebugScreen();
+                  },
+                  fullscreenDialog: true,
+                ),
+              );
+            },
+          )
+        ],
       ),
       // drawer: HardwareAppDrawer(routes.SettingsRoute),
       backgroundColor: AppTheme.background,
