@@ -66,12 +66,12 @@ class AuthProvider with ChangeNotifier {
   Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
 
+    final userDeviceInfo = await getUserDeviceInfo();
+    prefs.setString('userDeviceInfo', json.encode(userDeviceInfo));
+
     if (!prefs.containsKey('watchInfo')) {
       return false;
     }
-
-    final userDeviceInfo = await getUserDeviceInfo();
-    prefs.setString('userDeviceInfo', json.encode(userDeviceInfo));
 
     final WatchModel checkwatchInfo = WatchModel.fromJson(
         json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>);
