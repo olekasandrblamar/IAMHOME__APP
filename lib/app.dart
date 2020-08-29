@@ -110,7 +110,7 @@ class _MyAppState extends State<MyApp> {
             // darkTheme: ThemeData.dark(),
             // theme: myTheme,
             theme: AppTheme.lightTheme,
-            darkTheme: AppTheme.darkTheme,
+            // darkTheme: AppTheme.darkTheme,
             initialRoute: routes.RootRoute,
             home: _buildHomeWidget(auth),
             navigatorKey: NavigationService.navigatorKey,
