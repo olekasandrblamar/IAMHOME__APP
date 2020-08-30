@@ -10,6 +10,12 @@
       "type": "dart"
     },
     {
+      "name": "alpha",
+      "program": "lib/main_alpha.dart",
+      "request": "launch",
+      "type": "dart"
+    },
+    {
       "name": "production",
       "program": "lib/main_prod.dart",
       "request": "launch",

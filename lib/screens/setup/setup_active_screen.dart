@@ -21,6 +21,8 @@ class SetupActiveScreen extends StatefulWidget {
 
 class _SetupActiveScreenState extends State<SetupActiveScreen>
     with WidgetsBindingObserver {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
+
   String _lastUpdated = null;
   String _deviceType = null;
   DevicesModel _deviceData = null;
@@ -30,7 +32,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
   @override
   void initState() {
-    _changeLastUpdated();
+    // _changeLastUpdated();
     _syncDataFromDevice();
     super.initState();
 
@@ -121,14 +123,13 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   }
 
   void _showSuccessMessage() {
-    Scaffold.of(context).showSnackBar(
-      SnackBar(
-        content: Text(
-          'Data is transmitted',
-        ),
-        duration: Duration(seconds: 1),
+    final snackBar = SnackBar(
+      content: Text(
+        'Data is transmitted',
       ),
+      duration: Duration(seconds: 1),
     );
+    _scaffoldKey.currentState.showSnackBar(snackBar);
 
     setState(() {
       isLoading = false;
@@ -138,6 +139,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      key: _scaffoldKey,
       appBar: SetupAppBar(),
       backgroundColor: AppTheme.white,
       body: SafeArea(
@@ -215,9 +217,10 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
           SizedBox(
             height: 35,
           ),
-          isLoading
-              ? CircularProgressIndicator()
-              : _buildInfo(_appLocalization),
+          if (isLoading)
+            CircularProgressIndicator()
+          else
+            ..._buildInfo(_appLocalization),
           SizedBox(
             height: 25,
           ),
@@ -250,7 +253,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     );
   }
 
-  _buildInfo(_appLocalization) {
+  List<Widget> _buildInfo(_appLocalization) {
     return [
       Container(
         padding: const EdgeInsets.only(
@@ -271,7 +274,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
         padding: const EdgeInsets.all(5.0),
         child: Text(
           // _appLocalization.translate('setup.active.devicefound'),
-          'Device Id - ${_deviceId}',
+          // Device Id -
+          '${_deviceId}',
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -284,8 +288,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       ),
       Container(
         child: Text(
-          _appLocalization.translate('setup.active.lastconnected') +
-              ' ${_lastUpdated}.',
+          // _appLocalization.translate('setup.active.lastconnected') +
+          '${_lastUpdated}.',
           textAlign: TextAlign.center,
           style: AppTheme.subtitle,
         ),

@@ -2,11 +2,9 @@
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class BackgroundFetchData{
+class BackgroundFetchData {
   static const platform = MethodChannel('ceras.iamhome.mobile/device');
 }
-
-
 
 /// This "Headless Task" is run when app is terminated.
 void backgroundFetchHeadlessTask(String taskId) async {
@@ -100,7 +98,8 @@ Future<void> initPlatformState(mounted) async {
 
 /// Load the data from the device
 Future loadDataFromDevice() async {
-  final result = await BackgroundFetchData.platform.invokeMethod('loadData') as String;
+  final result =
+      await BackgroundFetchData.platform.invokeMethod('loadData') as String;
 
   print('Got load Data ' + result);
 }
@@ -132,7 +131,7 @@ Future<void> syncDataFromDevice() async {
     final prefs = await SharedPreferences.getInstance();
     //Send the connection info we got from connect device
     final connectionInfo = prefs.getString('watchInfo');
-    if(connectionInfo!=null) {
+    if (connectionInfo != null) {
       print('Sending connection info ${connectionInfo}');
 
       final result = await BackgroundFetchData.platform.invokeMethod(
