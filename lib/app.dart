@@ -135,17 +135,24 @@ class _MyAppState extends State<MyApp> {
   Widget _buildHomeWidget(AuthProvider auth) {
     if (auth.isAuth) {
       return SetupActiveScreen();
-    }
-    // else if (!auth.isWalthrough) {
-    //   return SetupHomeScreen();
-    // }
-    else {
+    } else {
       return FutureBuilder(
-        future: auth.tryAutoLogin(),
-        builder: (ctx, authResultSnapshot) =>
-            authResultSnapshot.connectionState == ConnectionState.waiting
-                ? SplashScreen()
-                : IntroScreen(),
+        future: Future.wait([auth.checkWalthrough(), auth.tryAutoLogin()]),
+        builder: (ctx, authResultSnapshot) {
+          if (authResultSnapshot.connectionState == ConnectionState.done) {
+            if (authResultSnapshot.data[0]) {
+              if (authResultSnapshot.data[1]) {
+                return SetupHomeScreen();
+              } else {
+                return IntroScreen();
+              }
+            } else {
+              return SetupHomeScreen();
+            }
+          } else {
+            return SplashScreen();
+          }
+        },
       );
     }
   }

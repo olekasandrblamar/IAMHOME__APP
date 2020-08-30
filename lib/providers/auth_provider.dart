@@ -89,17 +89,13 @@ class AuthProvider with ChangeNotifier {
     return _userDeviceInfo;
   }
 
-  Future<bool> _checkWalthrough() async {
+  Future<bool> checkWalthrough() async {
     final prefs = await SharedPreferences.getInstance();
 
-    // if (!prefs.containsKey('walkthrough')) {
-    //   return true;
-    // }
+    final walthrough = prefs.getBool('walthrough');
+    _walthrough = walthrough ?? true;
 
-    final walthrough = prefs.getBool('walthrough') ?? true;
-    _walthrough = walthrough;
-
-    notifyListeners();
+    // notifyListeners();
 
     return _walthrough;
   }
@@ -116,7 +112,7 @@ class AuthProvider with ChangeNotifier {
 
     final checkwatchInfo = await _checkWatchInfo();
     if (checkwatchInfo == null) {
-      await logout();
+      // await logout();
       return false;
     }
 
