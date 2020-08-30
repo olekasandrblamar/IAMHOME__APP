@@ -1,4 +1,5 @@
 import 'package:ceras/config/user_deviceinfo.dart';
+import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/screens/settings/debug_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:launch_review/launch_review.dart';
@@ -9,6 +10,7 @@ import 'package:ceras/widgets/languageselection_widget.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/theme.dart';
 import 'package:package_info/package_info.dart';
+import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -23,10 +25,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     buildNumber: 'Unknown',
   );
 
+  bool _watchInfo = false;
+
   @override
   void initState() {
     super.initState();
     _initPackageInfo();
+    _checkWatchInfo();
   }
 
   Future<void> _initPackageInfo() async {
@@ -36,11 +41,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  _showAboutDialog() {
+  void _showAboutDialog() {
     showAboutDialog(
       context: context,
       applicationVersion: _packageInfo.version,
     );
+  }
+
+  void _checkWatchInfo() async {
+    final isValid =
+        await Provider.of<AuthProvider>(context, listen: false).isAuth;
+
+    print(isValid);
+    setState(() {
+      _watchInfo = isValid;
+    });
+  }
+
+  void _logout() async {
+    await Provider.of<AuthProvider>(context, listen: false).logout();
   }
 
   @override
@@ -161,6 +180,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
+            if (_watchInfo)
+              Card(
+                color: Theme.of(context).primaryColor,
+                child: Container(
+                  padding: EdgeInsets.all(15),
+                  child: GridTile(
+                    child: InkResponse(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Icon(
+                                Icons.exit_to_app,
+                                size: 50,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Container(
+                              height: 10,
+                            ),
+                          ],
+                        ),
+                        onTap: () => _logout()),
+                    footer: Container(
+                      padding: EdgeInsets.only(top: 50),
+                      child: Center(
+                        child: Text(
+                          'Logout',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             // Card(
             //   child: Container(
             //     padding: EdgeInsets.all(15),

@@ -21,6 +21,7 @@ import 'config/navigation_service.dart';
 import 'constants/route_paths.dart' as routes;
 import 'data/language_data.dart';
 import 'router.dart' as router;
+import 'screens/setup/setup_home_screen.dart';
 import 'theme.dart';
 // import 'config/locator.dart';
 
@@ -134,7 +135,11 @@ class _MyAppState extends State<MyApp> {
   Widget _buildHomeWidget(AuthProvider auth) {
     if (auth.isAuth) {
       return SetupActiveScreen();
-    } else {
+    }
+    // else if (!auth.isWalthrough) {
+    //   return SetupHomeScreen();
+    // }
+    else {
       return FutureBuilder(
         future: auth.tryAutoLogin(),
         builder: (ctx, authResultSnapshot) =>

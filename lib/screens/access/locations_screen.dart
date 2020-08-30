@@ -7,6 +7,7 @@ import 'package:ceras/theme.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'widgets/show_access_alert_dialog.dart';
 
@@ -22,7 +23,10 @@ class LocationsScreen extends StatelessWidget {
     }
   }
 
-  dynamic _goToCamera(context) {
+  dynamic _goToCamera(context) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setBool('walthrough', false);
+
     return Navigator.of(context).pushReplacementNamed(
       routes.SetupHomeRoute,
     );

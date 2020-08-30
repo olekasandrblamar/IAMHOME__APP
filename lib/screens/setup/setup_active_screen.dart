@@ -104,9 +104,11 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       print("Got connection info response ${connectionStatus}");
       final WatchModel connectionStatusData = WatchModel.fromJson(
           json.decode(connectionStatus) as Map<String, dynamic>);
+
       setState(() {
         _connected = connectionStatusData.connected;
         _deviceId = connectionStatusData.deviceId;
+        isLoading = false;
       });
     }
 

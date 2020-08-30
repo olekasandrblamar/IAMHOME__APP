@@ -32,23 +32,13 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
         bottom: true,
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          child: StreamBuilder<BluetoothState>(
-            stream: FlutterBlue.instance.state,
-            initialData: BluetoothState.unknown,
-            builder: (c, snapshot) {
-              final state = snapshot.data;
-              if (state == BluetoothState.on) {
-                return buildDevicesList(context);
-              }
-              return buildBluetoothOff(context);
-            },
-          ),
+          child: _buildDevicesList(context),
         ),
       ),
     );
   }
 
-  Widget buildDevicesList(context) {
+  Widget _buildDevicesList(context) {
     return FutureBuilder(
       future: Provider.of<DevicesProvider>(context, listen: false)
           .fetchAllDevices(),

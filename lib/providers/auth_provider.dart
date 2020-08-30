@@ -15,9 +15,14 @@ class AuthProvider with ChangeNotifier {
   WatchModel _watchInfo;
   String _deviceType;
   DevicesModel _deviceData;
+  bool _walthrough = true;
 
   bool get isAuth {
     return _watchInfo != null;
+  }
+
+  bool get isWalthrough {
+    return _walthrough;
   }
 
   WatchModel get watchInfo {
@@ -63,25 +68,57 @@ class AuthProvider with ChangeNotifier {
     return true;
   }
 
-  Future<bool> tryAutoLogin() async {
+  Future<WatchModel> _checkWatchInfo() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    final WatchModel checkwatchInfo = WatchModel.fromJson(
+        json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>);
+
+    _watchInfo = checkwatchInfo;
+
+    return _watchInfo;
+  }
+
+  Future<dynamic> _checkUserDeviceInfo() async {
     final prefs = await SharedPreferences.getInstance();
 
     final userDeviceInfo = await getUserDeviceInfo();
-    prefs.setString('userDeviceInfo', json.encode(userDeviceInfo));
+    final _userDeviceInfo =
+        prefs.setString('userDeviceInfo', json.encode(userDeviceInfo));
+
+    return _userDeviceInfo;
+  }
+
+  Future<bool> _checkWalthrough() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    // if (!prefs.containsKey('walkthrough')) {
+    //   return true;
+    // }
+
+    final walthrough = prefs.getBool('walthrough') ?? true;
+    _walthrough = walthrough;
+
+    notifyListeners();
+
+    return _walthrough;
+  }
+
+  Future<bool> tryAutoLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await _checkUserDeviceInfo();
+    // await _checkWalthrough();
 
     if (!prefs.containsKey('watchInfo')) {
       return false;
     }
 
-    final WatchModel checkwatchInfo = WatchModel.fromJson(
-        json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>);
-
+    final checkwatchInfo = await _checkWatchInfo();
     if (checkwatchInfo == null) {
-      logout();
+      await logout();
       return false;
     }
-
-    _watchInfo = checkwatchInfo;
 
     notifyListeners();
     return true;
