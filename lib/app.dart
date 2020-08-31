@@ -37,16 +37,18 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
-    PushNotificationsManager().init();
-
-    DynamicLinksSetup().initDynamicLinks();
-    // initalizeBackgroundFetch();
+    _handleStartUpLogic();
 
     appLanguage.fetchLocale();
   }
 
-  initalizeBackgroundFetch() async {
-    await initPlatformState(false);
+  Future<void> _handleStartUpLogic() async {
+    await PushNotificationsManager().init();
+
+    DynamicLinksSetup().initDynamicLinks();
+    // initalizeBackgroundFetch();
+
+    // await initPlatformState(false);
   }
 
   @override

@@ -12,7 +12,6 @@ class PushNotificationsManager {
   bool _initialized = false;
 
   Future<void> init() async {
-    print('yes');
     if (!_initialized) {
       // For iOS request permission first.
       // _firebaseMessaging.requestNotificationPermissions();
@@ -20,7 +19,7 @@ class PushNotificationsManager {
       _firebaseMessaging.configure(
         onMessage: (Map<String, dynamic> message) async {
           print("onMessage: $message");
-          // _showItemDialog(message);
+          // _handleNotification(message);
         },
         onLaunch: (Map<String, dynamic> message) async {
           print("onLaunch: $message");
@@ -38,5 +37,12 @@ class PushNotificationsManager {
 
       _initialized = true;
     }
+  }
+
+  Future<void> _handleNotification(
+    Map<dynamic, dynamic> message,
+  ) async {
+    var data = message['data'] ?? message;
+    String expectedAttribute = data['expectedAttribute'];
   }
 }
