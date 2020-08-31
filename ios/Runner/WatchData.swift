@@ -27,7 +27,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     func startScan(result:@escaping FlutterResult,deviceId:String) {
         self.result = result
         self.deviceId = deviceId
-        NSLog("Scanning for devices")
+        NSLog("Scanning for devices with result")
         HardManagerSDK.shareBLEManager()?.scanDevices(["ITPOWER01"])
        
     }
@@ -35,7 +35,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     func didFindDevice(_ device: CBPeripheral!) {
         let deviceName = device.name
         let deviceUUID = device.identifier.uuidString
-        NSLog("Got device \(deviceName ?? "No name ") - \(deviceUUID)")
+        NSLog("Got device in dif find device \(deviceName ?? "No name ") - \(deviceUUID)")
     }
     
     func gettingFallBack(_ option: HardGettingOption, values: [AnyHashable : Any]!) {
@@ -113,10 +113,11 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             do{
                 let deviceJson = try JSONEncoder().encode(connectionInfo)
                 let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
-                NSLog("Connection data \(connectionInfoData)")
+                NSLog("Connection data after initial connection \(connectionInfoData)")
                 UserDefaults.standard.set(AppDelegate.WATCH_TYPE,forKey: AppDelegate.DEVICE_TYPE_KEY)
                 //If it not the first time load the device Data
                 result?(connectionInfoData)
+                loadData(deviceId: WatchData.currentDeviceId)
             }catch{result?("Error")}
         }else{
             if(result == nil){
@@ -208,9 +209,9 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     }
     
     func syncData(connectionInfo:ConnectionInfo){
-        
         NSLog("Device connected \(HardManagerSDK.shareBLEManager().isConnected)")
         if(!HardManagerSDK.shareBLEManager().isConnected){
+            result = nil
             //WatchData.currentDeviceId = connectionInfo.additionalInformation["macId"]
             WatchData.currentDeviceId = connectionInfo.deviceId
             HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connectionInfo.deviceId)
@@ -224,7 +225,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         let peripharal = deviceDict["peripheral"] as? CBPeripheral
         let uuid = peripharal?.identifier.uuidString
         let deviceName = peripharal?.name
-        NSLog("Got device \(deviceName ?? "No name ") - \(uuid)")
+        NSLog("Got device in dict \(deviceName ?? "No name ") - \(uuid)")
         let stringLength:Int = deviceId?.count ?? 4
         let deviceSuffix = String(uuid?.suffix(stringLength) as! Substring)
         

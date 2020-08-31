@@ -85,6 +85,7 @@ class MainActivity: FlutterActivity()  {
     private fun connectDeviceChannel(flutterEngine: FlutterEngine){
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             currentContext = context
+            BaseDevice.isBackground = false
             if(call.method=="connectDevice"){
                 val deviceType = call.argument<String>("deviceType")
                 //For now connect to watch
@@ -93,8 +94,6 @@ class MainActivity: FlutterActivity()  {
                     it.connectDevice(this,result)
                 }
             } else if(call.method =="syncData"){
-
-                BaseDevice.isBackground = false
                 val deviceDataString = call.argument<String>("connectionInfo")
                 updateLastConnected()
                 Log.i(TAG,"last Updated ${context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).all}")
@@ -181,6 +180,7 @@ class CerasBluetoothSync{
     constructor(applicationContext: Context,taskId:String){
         MainActivity.currentContext = applicationContext
         Log.i(TAG,"constructor background")
+        MainActivity
         onFetch(applicationContext,taskId)
     }
 

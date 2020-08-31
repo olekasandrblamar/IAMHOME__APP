@@ -2,14 +2,12 @@ package com.cerashealth.ceras
 
 import android.content.Context
 import android.util.Log
-import com.google.gson.Gson
+import com.example.lifeplus.BaseDevice
 import com.google.gson.GsonBuilder
-import com.google.gson.JsonArray
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
-import java.text.DateFormat
 import java.util.*
 
 class DataSync {
@@ -20,21 +18,50 @@ class DataSync {
         private val jsonMediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
         val baseUrl = "https://device.alpha.myceras.com/api/v1/device"
         private val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create()
+        private val LAST_UPDATE_VAL = "flutter.last_sync_updates"
 
         fun uploadTemperature(temperatures:List<TemperatureUpload>){
             makePostRequest(gson.toJson(temperatures),"temperature")
         }
 
+        fun updateLastSync(type:String, lastMeasure:Date){
+            MainActivity.currentContext?.let {currentContext->
+                var lastUpdatedDate:MutableMap<String,String> = mutableMapOf()
+                val existingData = currentContext.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString(LAST_UPDATE_VAL,"")
+                if(existingData?.length!! > 0){
+                    lastUpdatedDate = gson.fromJson(existingData,lastUpdatedDate::class.java)
+                }
+
+                lastUpdatedDate[type] = gson.toJson(mapOf("lastupdated" to Date(),"lastMeasure" to lastMeasure))
+                currentContext.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).edit()
+                        .putString(LAST_UPDATE_VAL, gson.toJson(lastUpdatedDate)).commit()
+
+            }
+        }
+
         fun uploadOxygenData(oxygenLevels:List<OxygenLevelUpload>){
-            makePostRequest(gson.toJson(oxygenLevels),"oxygen")
+            val type = "oxygen"
+            makePostRequest(gson.toJson(oxygenLevels),type)
+            val lastMeasure = oxygenLevels.maxBy { it.measureTime }
+            lastMeasure?.let {
+                updateLastSync(type,lastMeasure = lastMeasure?.measureTime)
+            }
         }
 
         fun uploadBloodPressure(bpLevels:List<BpUpload>){
             makePostRequest(gson.toJson(bpLevels),"bloodpressure")
+            val lastMeasure = bpLevels.maxBy { it.measureTime }
+            lastMeasure?.let {
+                updateLastSync("bloodpressure",lastMeasure = lastMeasure?.measureTime)
+            }
         }
 
         fun uploadHeartRate(heartRates:List<HeartRateUpload>){
             makePostRequest(gson.toJson(heartRates),"heartrate")
+            val lastMeasure = heartRates.maxBy { it.measureTime }
+            lastMeasure?.let {
+                updateLastSync("heartrate",lastMeasure = lastMeasure?.measureTime)
+            }
         }
 
         fun sendHeartBeat(heartBeat: HeartBeat){
@@ -43,24 +70,40 @@ class DataSync {
                 Log.i(TAG,"Updating last connected")
                 heartBeat.deviceInfo = it.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.userDeviceInfo", "")
             }
+            heartBeat.background = BaseDevice.isBackground
             makePostRequest(gson.toJson(heartBeat),"heartbeat")
         }
 
         fun uploadStepInfo(stepInfo:List<StepUpload>){
             makePostRequest(gson.toJson(stepInfo),"steps")
+            val lastMeasure = stepInfo.maxBy { it.measureTime }
+            lastMeasure?.let {
+                updateLastSync("steps",lastMeasure = lastMeasure?.measureTime)
+            }
         }
 
         fun uploadDailySteps(dailySteps:List<DailyStepUpload>){
             makePostRequest(gson.toJson(dailySteps),"dailySteps")
+            val lastMeasure = dailySteps.maxBy { it.measureTime }
+            lastMeasure?.let {
+                updateLastSync("dailySteps",lastMeasure = lastMeasure?.measureTime)
+            }
         }
 
         fun uploadCalories(calories:List<CaloriesUpload>){
             makePostRequest(gson.toJson(calories),"calories")
+            val lastMeasure = calories.maxBy { it.measureTime }
+            lastMeasure?.let {
+                updateLastSync("calories",lastMeasure = lastMeasure?.measureTime)
+            }
         }
 
         private fun makePostRequest(postData:String,url:String){
             Log.d(TAG,"Uploading data to $url with data $postData")
-            val postReq = Request.Builder().url("$baseUrl/$url").post(postData.toRequestBody(jsonMediaType)).build()
+            val postReq = Request.Builder().url("$baseUrl/$url")
+                    .post(postData.toRequestBody(jsonMediaType))
+                    .addHeader("BACKGROUND_STATUS",BaseDevice.isBackground.toString())
+                    .build()
             okHttp.newCall(postReq).enqueue(object: Callback{
                 override fun onFailure(call: Call, e: IOException) {
                     Log.e(TAG,"Failed calling ${call.request().url}",e)
@@ -94,4 +137,5 @@ data class OxygenLevelUpload(val measureTime:Date, var oxygenLevel:Int,val devic
 
 data class HeartBeat(val deviceId:String?,val macAddress:String?){
     var deviceInfo:String? = null
+    var background = false
 }

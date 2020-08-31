@@ -13,7 +13,7 @@ class _DebugScreenState extends State<DebugScreen> {
   bool isLoading = true;
   SharedPreferences prefs;
 
-  List data = ['userDeviceInfo', 'watchInfo', 'countryCode', 'language_code'];
+  List data = ['userDeviceInfo', 'watchInfo', 'countryCode', 'language_code','device_macid',"last_sync_updates"];
 
   @override
   void initState() {
@@ -33,7 +33,7 @@ class _DebugScreenState extends State<DebugScreen> {
   @override
   Widget build(BuildContext context) {
     final _appLocalization = AppLocalizations.of(context);
-
+    _getSharedPref();
     return Scaffold(
       appBar: AppBar(
         title: Text(

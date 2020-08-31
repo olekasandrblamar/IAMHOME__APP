@@ -1,7 +1,8 @@
 import UIKit
 import Flutter
 import Firebase
-import TSBackgroundFetch
+import BackgroundTasks
+//import TSBackgroundFetch
 
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
@@ -41,6 +42,7 @@ import TSBackgroundFetch
     //Register the methods
     deviceChannel.setMethodCallHandler({
       [weak self] (call: FlutterMethodCall, result: @escaping FlutterResult) -> Void in
+        DataSync.BACKGROUND = false
         if(call.method=="connectDevice"){
             
             guard let args = call.arguments else {
@@ -115,27 +117,30 @@ import TSBackgroundFetch
     }
     
     private func scheduleBackgroundSync(){
-        let backgroundConfig = TSBackgroundFetch.sharedInstance()
-        backgroundConfig?.stopOnTerminate = false
-        NSLog("Scheduling background sync")
-        backgroundConfig?.addListener("com.transistorsoft.datasync", callback: { (taskId) in
-            NSLog("Executing task \(taskId)")
-            TSBackgroundFetch.sharedInstance()?.finish(taskId)
-        })
-        backgroundConfig?.configure(60, callback: { (status) in
-            if(status != .available){
-                NSLog("Ceras Sync Background job failed to start, status: \(status.rawValue)");
-            }
-            NSLog("Ceras Sync Background config scheduling complete with \(status.rawValue)")
-        })
-        backgroundConfig?.didFinishLaunching()
-        backgroundConfig?.start(nil)
+//        let backgroundConfig = TSBackgroundFetch.sharedInstance()
+//        backgroundConfig?.stopOnTerminate = false
+//        NSLog("Scheduling background sync")
+//        backgroundConfig?.addListener("com.transistorsoft.datasync", callback: { (taskId) in
+//            NSLog("Executing task \(taskId)")
+//            TSBackgroundFetch.sharedInstance()?.finish(taskId)
+//        })
+//        backgroundConfig?.configure(60, callback: { (status) in
+//            if(status != .available){
+//                NSLog("Ceras Sync Background job failed to start, status: \(status.rawValue)");
+//            }
+//            NSLog("Ceras Sync Background config scheduling complete with \(status.rawValue)")
+//        })
+//        backgroundConfig?.didFinishLaunching()
+//        backgroundConfig?.start(nil)
         
     }
     
     override func applicationDidEnterBackground(_ application: UIApplication) {
+        NSLog("Application going into background")
         if #available(iOS 13.0, *){
+            NSLog("Application did enter background")
             BGTaskScheduler.shared.cancel(taskRequestWithIdentifier: AppDelegate.BG_SYNC_TASK)
+            NSLog("Cancelled all old tasks")
             scheduleSyncTask()
         }
     }
@@ -150,6 +155,7 @@ import TSBackgroundFetch
         ) { task in
             NSLog("Executing task \(task.identifier)")
             if(task.identifier==AppDelegate.BG_SYNC_TASK){
+                DataSync.BACKGROUND = true
                 self.scheduleSyncTask()
                 NSLog("Executing bg task at \(Date())")
                 task.expirationHandler = {[weak task] in
@@ -173,16 +179,24 @@ import TSBackgroundFetch
     
     @available(iOS 13.0,*)
     private func scheduleSyncTask(){
+        NSLog("Scheduling sync tasks")
         let task = BGProcessingTaskRequest(identifier: AppDelegate.BG_SYNC_TASK)
         task.requiresExternalPower=false
-        task.requiresNetworkConnectivity = true
+        task.requiresNetworkConnectivity = false
         task.earliestBeginDate = Date(timeIntervalSinceNow: 5*60)
         do {
             NSLog("Task scheduled for ceras sync for \(task.earliestBeginDate)")
             try BGTaskScheduler.shared.submit(task)
         } catch {
-            print("Could not schedule image fetch: \(error)")
+            NSLog("Could not schedule ceras task: \(error)")
         }
+    }
+    
+    /**
+        This is called when the app is terminated
+     */
+    override func applicationWillTerminate(_ application: UIApplication) {
+        //Make a call to backend to send the terminate signal
     }
     
     
@@ -203,8 +217,11 @@ import TSBackgroundFetch
     }
     
     private func connectDevice(result:@escaping FlutterResult,deviceId:String, deviceType:String) {
+        NSLog("Connecting device \(deviceType)")
         if(deviceType==AppDelegate.WATCH_TYPE){
+            NSLog("Connecting Watch")
             self.watchData.startScan(result: result,deviceId:deviceId)
+            NSLog("completed Connecting Watch")
         }else if(deviceType==AppDelegate.BAND_TYPE){
             getBandDevice()?.connectDevice(result: result, deviceId: deviceId)
         }

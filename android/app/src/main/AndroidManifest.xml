@@ -7,10 +7,10 @@
          FlutterApplication and put your custom class here. -->
 
     <application
+        tools:replace="android:icon,android:label"
         android:name=".Application"
         android:label="lifeplus"
         android:icon="@mipmap/launcher_icon"
-        tools:replace="android:icon,android:label"
         >
         <activity
             android:name=".MainActivity"

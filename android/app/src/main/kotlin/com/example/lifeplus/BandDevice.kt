@@ -400,11 +400,14 @@ class BandDevice :BaseDevice(){
         if(mBluetoothLe==null) {
             Log.i(TAG, "Bluetooth le is null initializing it")
             BluetoothLe.getDefault().init(context, object : BleCallbackWrapper() {
+
+
                 override fun setSuccess() {
                     Log.i(TAG, "Init success")
                 }
 
                 override fun complete(resultCode: Int, data: Any?) {
+                    BleSdkWrapper.init(context)
                     mBluetoothLe = BluetoothLe.getDefault()
                     Log.i(TAG, "Init complete ${mBluetoothLe}")
                     startDeviceConnection(context, result)

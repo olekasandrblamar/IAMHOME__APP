@@ -82,6 +82,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
   Future<void> _connectDevice() async {
     try {
+      print('Backing backend call to connect device');
       final connectionInfo = await platform.invokeMethod(
         'connectDevice',
         <String, dynamic>{
@@ -90,7 +91,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         },
       ) as String;
 
-      print('Got response ' + connectionInfo);
+      print('Got response from os code for connection' + connectionInfo);
 
       final connectionData = WatchModel.fromJson(
         json.decode(connectionInfo) as Map<String, dynamic>,
