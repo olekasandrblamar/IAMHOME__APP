@@ -10,7 +10,7 @@ import 'package:ceras/config/background_fetch.dart';
 import 'app.dart';
 import 'config/env.dart';
 
-void main() async {
+void main() {
   try {
     // Pass all uncaught errors from the framework to Crashlytics.
     FlutterError.onError = Crashlytics.instance.recordFlutterError;
