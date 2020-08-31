@@ -18,6 +18,7 @@ import 'package:ceras/providers/applanguage_provider.dart';
 import 'config/app_localizations.dart';
 import 'config/dynamiclinks_setup.dart';
 import 'config/navigation_service.dart';
+import 'config/push_notifications.dart';
 import 'constants/route_paths.dart' as routes;
 import 'data/language_data.dart';
 import 'router.dart' as router;
@@ -33,34 +34,15 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final AppLanguageProvider appLanguage = AppLanguageProvider();
   static FirebaseAnalytics analytics = FirebaseAnalytics();
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
 
   @override
   void initState() {
-    // NotificationOneSignal().initialiseOneSignal();
+    PushNotificationsManager().init();
 
     DynamicLinksSetup().initDynamicLinks();
     // initalizeBackgroundFetch();
 
     appLanguage.fetchLocale();
-
-    // TODO: implement initState
-    super.initState();
-
-    _firebaseMessaging.configure(
-      onMessage: (Map<String, dynamic> message) async {
-        print("onMessage: $message");
-        // _showItemDialog(message);
-      },
-      onLaunch: (Map<String, dynamic> message) async {
-        print("onLaunch: $message");
-        // _navigateToItemDetail(message);
-      },
-      onResume: (Map<String, dynamic> message) async {
-        print("onResume: $message");
-        // _navigateToItemDetail(message);
-      },
-    );
   }
 
   initalizeBackgroundFetch() async {
