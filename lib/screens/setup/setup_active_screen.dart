@@ -129,7 +129,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   void _showSuccessMessage() {
     final snackBar = SnackBar(
       content: Text(
-        'Data is transmitted',
+        'Sending Data To Your Doctor',
       ),
       duration: Duration(seconds: 1),
     );
@@ -148,18 +148,20 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       backgroundColor: AppTheme.white,
       body: SafeArea(
         bottom: true,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          child: StreamBuilder<BluetoothState>(
-            stream: FlutterBlue.instance.state,
-            initialData: BluetoothState.unknown,
-            builder: (c, snapshot) {
-              final state = snapshot.data;
-              if (state == BluetoothState.on) {
-                return buildDeviceConnect(context);
-              }
-              return buildBluetoothOff(context);
-            },
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+            child: StreamBuilder<BluetoothState>(
+              stream: FlutterBlue.instance.state,
+              initialData: BluetoothState.unknown,
+              builder: (c, snapshot) {
+                final state = snapshot.data;
+                if (state == BluetoothState.on) {
+                  return buildDeviceConnect(context);
+                }
+                return buildBluetoothOff(context);
+              },
+            ),
           ),
         ),
       ),
@@ -181,6 +183,9 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: <Widget>[
+          SizedBox(
+            height: 35,
+          ),
           Container(
             height: 200.0,
             width: 200.0,
@@ -238,10 +243,13 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
               ),
               color: Theme.of(context).primaryColor,
               textColor: Colors.white,
-              child: Text(
-                _appLocalization.translate('setup.active.syncdata'),
-                style: TextStyle(
-                  fontSize: 14,
+              child: FittedBox(
+                child: Text(
+                  // _appLocalization.translate('setup.active.syncdata'),
+                  'Send Data',
+                  style: TextStyle(
+                    fontSize: 14,
+                  ),
                 ),
               ),
               onPressed: () async {

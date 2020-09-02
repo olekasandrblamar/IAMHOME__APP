@@ -38,80 +38,82 @@ class HelpScreen extends StatelessWidget {
       backgroundColor: AppTheme.white,
       body: SafeArea(
         top: true,
-        child: Container(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Container(
-                constraints: BoxConstraints(
-                  maxHeight: 300.0,
-                ),
-                padding: const EdgeInsets.all(10.0),
-                child: FadeInImage(
-                  placeholder: AssetImage(
-                    'assets/images/placeholder.jpg',
+        child: SingleChildScrollView(
+          child: Container(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Container(
+                  constraints: BoxConstraints(
+                    maxHeight: 300.0,
                   ),
-                  image: AssetImage(
-                    'assets/images/support.png',
-                  ),
-                  fit: BoxFit.contain,
-                  alignment: Alignment.center,
-                  fadeInDuration: Duration(milliseconds: 200),
-                  fadeInCurve: Curves.easeIn,
-                ),
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              Container(
-                padding: const EdgeInsets.all(10.0),
-                child: Text(
-                  _appLocalization.translate('help.title'),
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.center,
-                  style: AppTheme.title,
-                ),
-              ),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  // vertical: 5.0,
-                  horizontal: 35.0,
-                ),
-                child: Text(
-                  _appLocalization.translate('help.description'),
-                  textAlign: TextAlign.center,
-                  style: AppTheme.subtitle,
-                ),
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    width: 150,
-                    height: 75,
-                    padding: EdgeInsets.all(10),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.5),
-                      ),
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      child: Text(
-                        _appLocalization.translate('help.buttons.callus'),
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                      onPressed: () => _callUs(),
+                  padding: const EdgeInsets.all(10.0),
+                  child: FadeInImage(
+                    placeholder: AssetImage(
+                      'assets/images/placeholder.jpg',
                     ),
+                    image: AssetImage(
+                      'assets/images/support.png',
+                    ),
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
+                    fadeInDuration: Duration(milliseconds: 200),
+                    fadeInCurve: Curves.easeIn,
                   ),
-                ],
-              )
-            ],
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                Container(
+                  padding: const EdgeInsets.all(10.0),
+                  child: Text(
+                    _appLocalization.translate('help.title'),
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: AppTheme.title,
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    // vertical: 5.0,
+                    horizontal: 35.0,
+                  ),
+                  child: Text(
+                    _appLocalization.translate('help.description'),
+                    textAlign: TextAlign.center,
+                    style: AppTheme.subtitle,
+                  ),
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      width: 150,
+                      height: 75,
+                      padding: EdgeInsets.all(10),
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.5),
+                        ),
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        child: Text(
+                          _appLocalization.translate('help.buttons.callus'),
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                        onPressed: () => _callUs(),
+                      ),
+                    ),
+                  ],
+                )
+              ],
+            ),
           ),
         ),
       ),

@@ -1,4 +1,5 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 
 class PushNotificationsManager {
   PushNotificationsManager._();
@@ -9,6 +10,8 @@ class PushNotificationsManager {
       PushNotificationsManager._();
 
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  static FirebaseInAppMessaging fiam = FirebaseInAppMessaging();
+
   bool _initialized = false;
 
   Future<void> init() async {
@@ -42,7 +45,16 @@ class PushNotificationsManager {
   Future<void> _handleNotification(
     Map<dynamic, dynamic> message,
   ) async {
-    var data = message['data'] ?? message;
-    String expectedAttribute = data['expectedAttribute'];
+    var notificationData = message['data'] ?? message;
+
+    var view = notificationData['view'];
+
+    if (view != null) {
+      // Navigate to the create post view
+      if (view == 'create_post') {
+        // _navigationService.navigateTo(CreatePostViewRoute);
+      }
+      // If there's no view it'll just open the app on the first view
+    }
   }
 }
