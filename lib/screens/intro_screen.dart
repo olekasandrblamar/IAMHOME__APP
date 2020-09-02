@@ -110,17 +110,10 @@ class _IntroScreenState extends State<IntroScreen> {
                                   //   maxHeight: 200.0,
                                   // ),
                                   padding: const EdgeInsets.all(10.0),
-                                  child: FadeInImage(
-                                    placeholder: AssetImage(
-                                      'assets/images/placeholder.jpg',
-                                    ),
-                                    image: AssetImage(
-                                      _pages[i].image,
-                                    ),
+                                  child: Image.asset(
+                                    _pages[i].image,
                                     fit: BoxFit.contain,
                                     alignment: Alignment.center,
-                                    fadeInDuration: Duration(milliseconds: 200),
-                                    fadeInCurve: Curves.easeIn,
                                   ),
                                 ),
                                 SizedBox(
