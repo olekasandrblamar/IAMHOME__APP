@@ -19,12 +19,14 @@ class DataSync {
         val baseUrl = "https://device.alpha.myceras.com/api/v1/device"
         private val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create()
         private val LAST_UPDATE_VAL = "flutter.last_sync_updates"
+        private val USER_PROFILE = "flutter.user_profile_data"
+        var CURRENT_MAC_ADDRESS:String? = null
 
         fun uploadTemperature(temperatures:List<TemperatureUpload>){
             makePostRequest(gson.toJson(temperatures),"temperature")
         }
 
-        fun updateLastSync(type:String, lastMeasure:Date){
+        private fun updateLastSync(type:String, lastMeasure:Date){
             MainActivity.currentContext?.let {currentContext->
                 var lastUpdatedDate:MutableMap<String,String> = mutableMapOf()
                 val existingData = currentContext.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString(LAST_UPDATE_VAL,"")
@@ -35,6 +37,68 @@ class DataSync {
                 lastUpdatedDate[type] = gson.toJson(mapOf("lastupdated" to Date(),"lastMeasure" to lastMeasure))
                 currentContext.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).edit()
                         .putString(LAST_UPDATE_VAL, gson.toJson(lastUpdatedDate)).commit()
+
+            }
+        }
+
+        fun getUserInfo():UserProfile?{
+            MainActivity.currentContext?.let { currentContext ->
+                currentContext.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString(USER_PROFILE,"")?.let { existingUserData->
+                    if(existingUserData.isNotEmpty()){
+                        Log.i(TAG,"returning existing user info $existingUserData")
+                        return gson.fromJson(existingUserData,UserProfile::class.java)
+                    }
+                }
+            }
+            return null
+        }
+
+        private fun checkAndLoadProfile(){
+            MainActivity.currentContext?.let { currentContext ->
+                var loadProfileData = true
+                currentContext.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString(USER_PROFILE,"")?.let { existingUserData->
+                    if(existingUserData.isNotEmpty()){
+                        Log.i(TAG,"Existing profile info $existingUserData")
+                        val userProfile = gson.fromJson(existingUserData,UserProfile::class.java)
+                        val currentTime = Calendar.getInstance()
+                        val timeDiffInHours = (currentTime.timeInMillis-userProfile.lastUpdated.time)/(1000*60*60)
+                        Log.i(TAG,"Time Diff $timeDiffInHours")
+                        //If the last update time is less than 24 hours
+                        if(timeDiffInHours > 24){
+                            loadProfileData = false
+                        }
+                    }
+                }
+                Log.i(TAG,"Loading profile info $loadProfileData")
+                //If profile data needs to be loaded
+                if(loadProfileData){
+                    Log.d(TAG,"Loading profile")
+                    CURRENT_MAC_ADDRESS?.let {
+                        val postReq = Request.Builder().url("$baseUrl/profileInfo?deviceId=$it")
+                                .get()
+                                .addHeader("BACKGROUND_STATUS",BaseDevice.isBackground.toString())
+                                .build()
+                        okHttp.newCall(postReq).enqueue(object: Callback{
+                            override fun onFailure(call: Call, e: IOException) {
+                                Log.e(TAG,"Failed calling ${call.request().url}",e)
+                            }
+
+                            override fun onResponse(call: Call, response: Response) {
+                                Log.i(TAG,"Got response ${response.isSuccessful} for call ${call.request().url}")
+                                val userProfile = gson.fromJson<UserProfile>(response.body?.string(),UserProfile::class.java)
+                                userProfile.lastUpdated = Date()
+                                currentContext.getSharedPreferences(MainActivity
+                                        .SharedPrefernces,Context.MODE_PRIVATE).edit()
+                                        .putString(USER_PROFILE,gson.toJson(userProfile)).commit()
+                                response.body?.close()
+                                response.close()
+                            }
+
+                        })
+                    }
+
+                }
+
 
             }
         }
@@ -72,6 +136,7 @@ class DataSync {
             }
             heartBeat.background = BaseDevice.isBackground
             makePostRequest(gson.toJson(heartBeat),"heartbeat")
+            checkAndLoadProfile()
         }
 
         fun uploadStepInfo(stepInfo:List<StepUpload>){
@@ -119,6 +184,14 @@ class DataSync {
         }
     }
 
+}
+
+class UserProfile{
+    var age = 0
+    var weightInKgs = 0.0
+    var heightInCm = 0
+    var sex:String = ""
+    var lastUpdated = Date()
 }
 
 data class TemperatureUpload(val measureTime:Date, var celsius:Double, val fahrenheit:Double, val deviceId:String)

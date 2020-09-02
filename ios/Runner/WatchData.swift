@@ -15,7 +15,6 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var dayFormat = DateFormatter()
     var dateTimeFormat = DateFormatter()
     static var currentDeviceId:String? = nil
-    let MAC_ADDRESS_NAME = "flutter.device_macid"
     
     override init() {
         super.init()
@@ -63,7 +62,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     func connectedDeviceMacDidUpdate(_ hardManager: HardManagerSDK!) {
         NSLog("Mac updated \(hardManager.connectedDeviceMAC)")
         if(hardManager.connectedDeviceMAC != nil){
-            UserDefaults.standard.set(hardManager.connectedDeviceMAC!,forKey: MAC_ADDRESS_NAME)
+            UserDefaults.standard.set(hardManager.connectedDeviceMAC!,forKey: DataSync.MAC_ADDRESS_NAME)
         }
     }
     
@@ -91,7 +90,20 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         NSLog("Device connected")
         HardManagerSDK.shareBLEManager()?.stopScanDevice()
         NSLog("Scanning connected")
-        HardManagerSDK.shareBLEManager()?.setHardTimeUnitAndUserProfileIs12(true, isMeter: false, sex: 0, age: 32, weight: 80, height: 178)
+        
+        var userSex = 0
+        var age:Int = 32
+        var height:Int = 170
+        var weight:Int = 60
+        let userProfileData = DataSync.getUserInfo()
+        if(userProfileData != nil){
+            NSLog("updating user info from local storage")
+            userSex = userProfileData!.sex.uppercased() == "MALE" ? 0:1
+            age = userProfileData!.age
+            height = userProfileData!.heightInCm
+            weight = Int(userProfileData!.weightInKgs)
+        }
+        HardManagerSDK.shareBLEManager()?.setHardTimeUnitAndUserProfileIs12(true, isMeter: false, sex: Int32(userSex), age: Int32(age), weight: Int32(weight), height: Int32(height))
         //Enable auto heart rate test
         HardManagerSDK.shareBLEManager()?.setHardAutoHeartTest(true)
         //Enable Temp type to F
@@ -131,7 +143,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     }
     
     private func getMacId() -> String{
-        let macAddress = UserDefaults.standard.string(forKey: MAC_ADDRESS_NAME)
+        let macAddress = UserDefaults.standard.string(forKey: DataSync.MAC_ADDRESS_NAME)
         if(macAddress != nil){
             return macAddress!
         }

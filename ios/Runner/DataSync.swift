@@ -23,8 +23,11 @@ class DataSync {
     private static let baseUrl = "https://device.alpha.myceras.com/api/v1/device/"
     private static let encoder = CustomEncoder()
     private static let LAST_UPDATES = "flutter.last_sync_updates"
+    static let USER_PROFILE_DATA = "flutter.user_profile_data"
     static var BACKGROUND = false
     private static let urlDeletegate = CustomUrlDelegate()
+    private static let getProfileDelegate = UserDataUrlDelegate()
+    static let MAC_ADDRESS_NAME = "flutter.device_macid"
     
     
     static func uploadHeartRateInfo(heartRates:[HeartRateUpload]){
@@ -130,6 +133,11 @@ class DataSync {
             NSLog("Error updating last sync for \(type) with \(error)")
         }
         NSLog("completed setting last updates for \(type)")
+        
+    }
+    
+    static func readUserInfo(){
+        
     }
     
     static func sendHeartBeat(heartBeat:HeartBeat){
@@ -138,6 +146,7 @@ class DataSync {
             updatedHBeat.background = BACKGROUND
             updatedHBeat.deviceInfo = UserDefaults.standard.string(forKey: "flutter.userDeviceInfo")
             makePostApiCall(url: "heartbeat", postData: try encoder.encode(updatedHBeat))
+            checkAndLoadUserProfile()
         }catch{
             NSLog("Error while Uploading Data \(error)")
         }
@@ -149,6 +158,64 @@ class DataSync {
         }catch{
             NSLog("Error while Uploading Data \(error)")
         }
+    }
+    
+    private static func checkAndLoadUserProfile(){
+        UserDefaults.standard.synchronize()
+        let userProfileData = UserDefaults.standard.object(forKey: DataSync.USER_PROFILE_DATA) as! String?
+        do{
+            var loadProfile = true
+            NSLog("Got old profile data \(userProfileData)")
+            if(userProfileData != nil){
+                NSLog("Reading old profile data \(userProfileData!.data(using: .utf8)!)")
+                let userProfile = try JSONDecoder().decode(UserProfile.self, from: userProfileData!.data(using: .utf8)!)
+                if(userProfile.lastUpdate != nil){
+                    NSLog("Last Update is not empty \(userProfile.lastUpdate)")
+                    AppDelegate.dateFormatter.timeZone = TimeZone.current
+                    let lastUpdated = AppDelegate.dateFormatter.date(from: userProfile.lastUpdate!)
+                    NSLog("Last Update is not empty with lst updated \(lastUpdated)")
+                    let timeDiff = Calendar.current.dateComponents([.hour], from: lastUpdated!,to: Date())
+                    NSLog("Got profile time diff \(timeDiff.hour!)")
+                    if(timeDiff.hour! < 24){
+                        loadProfile = false
+                    }
+                }
+            }
+            NSLog("Load profile \(loadProfile)")
+            //If profile needs to be loaded
+            if(loadProfile){
+                NSLog("Loading profile \(loadProfile)")
+                let macAddress = UserDefaults.standard.string(forKey: DataSync.MAC_ADDRESS_NAME)
+                if(macAddress != nil){
+                    let profileUrl = URL(string: baseUrl+"profileInfo?deviceId="+macAddress!)!
+                    NSLog("Calling profile url \(profileUrl)")
+                    var request = URLRequest(url: profileUrl)
+                    request.httpMethod = "GET"
+                    request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                    request.setValue("application/json", forHTTPHeaderField: "Accept")
+                    request.setValue(BACKGROUND.description , forHTTPHeaderField: "BACKGROUND_STATUS")
+                    let config = URLSessionConfiguration.background(withIdentifier: "profileInfo")
+                    let session = URLSession(configuration: config, delegate: getProfileDelegate, delegateQueue: nil)
+                    let task = session.dataTask(with: request)
+                    task.resume()
+                }
+            }
+        }catch{
+            NSLog("Error loading profile \(error)")
+        }
+    }
+    
+    static func getUserInfo() -> UserProfile?{
+        let userProfileData = UserDefaults.standard.object(forKey: DataSync.USER_PROFILE_DATA) as! String?
+        NSLog("Getting user info with \(userProfileData)")
+        if(userProfileData != nil){
+            do{
+                return try JSONDecoder().decode(UserProfile.self, from: userProfileData!.data(using: .utf8)!)
+            }catch{
+                NSLog("Error while getting user info \(error)")
+            }
+        }
+        return nil
     }
     
     private static func makePostApiCall(url:String,postData:Data){
@@ -165,9 +232,40 @@ class DataSync {
         let config = URLSessionConfiguration.background(withIdentifier: url)
         let session = URLSession(configuration: config, delegate: urlDeletegate, delegateQueue: nil)
         let task = session.dataTask(with: request)
-
+        
         task.resume()
 
+    }
+    
+}
+
+class UserDataUrlDelegate: NSObject,URLSessionTaskDelegate,URLSessionDataDelegate{
+    
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        let httpReseponse = dataTask.response as! HTTPURLResponse
+        if(httpReseponse.statusCode == 200){
+            do{
+                let userProfile = String.init(data: data, encoding: .utf8)
+                NSLog("Got profile data \(userProfile)")
+                var userData = try JSONDecoder().decode(UserProfile.self, from: data)
+                userData.lastUpdate = AppDelegate.dateFormatter.string(from: Date())
+                let encodedDataString = String.init(data: try JSONEncoder().encode(userData),encoding: .utf8)
+                NSLog("Saving profile data \(encodedDataString)")
+                UserDefaults.standard.set(encodedDataString, forKey: DataSync.USER_PROFILE_DATA)
+                NSLog("Synchronize status \(UserDefaults.standard.synchronize())")
+                let userProfileData = UserDefaults.standard.object(forKey: DataSync.USER_PROFILE_DATA)
+                NSLog("Got profile data after saving \(userProfileData)")
+            }catch{
+                NSLog("Error loading user profile ")
+            }
+        }
+    }
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        if(error != nil){
+            let currentUrl = task.currentRequest?.url?.absoluteString
+            print("Got error for \(currentUrl) with \(error)")
+        }
     }
     
 }
@@ -190,6 +288,16 @@ class CustomUrlDelegate: NSObject,URLSessionTaskDelegate,URLSessionDelegate,URLS
     
     
     
+    
+    
+}
+
+struct UserProfile:Codable{
+    var age:Int
+    var weightInKgs:Double
+    var sex:String
+    var heightInCm:Int
+    var lastUpdate:String? = nil
 }
 
 struct TemperatureUpload:Codable {

@@ -21,8 +21,7 @@ class BandDevice{
     let stepAndSleepProcessor = ZHJStepAndSleepProcessor()
     let userInfoProcessor = ZHJUserInfoProcessor()
     
-    
-    let MAC_ADDRESS_NAME = "flutter.device_macid"
+
     
     /**
         Used to connect the device
@@ -61,6 +60,7 @@ class BandDevice{
                     var connectionInfo = ConnectionInfo(deviceId: device.mac, deviceName: device.name, connected: true, message: "connected")
                     connectionInfo.additionalInformation["factoryName"] = device.model
                     connectionInfo.additionalInformation["macId"] = device.mac
+                    UserDefaults.standard.set(device.mac,forKey: DataSync.MAC_ADDRESS_NAME)
                     do{
                         let deviceJson = try JSONEncoder().encode(connectionInfo)
                         let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
@@ -188,7 +188,7 @@ class BandDevice{
         user.height = 170
         user.weight = 600
         user.age = 25
-        self.userInfoProcessor.writeUserInfo(user) {[weak self] (result) in
+        self.userInfoProcessor.writeUserInfo(updateUserInfo(user: user)) {[weak self] (result) in
             guard let `self` = self else { return }
             NSLog("Updated user info with \(result == .correct)")
             self.readTemperature()
@@ -282,6 +282,18 @@ class BandDevice{
         }
     }
     
+    private func updateUserInfo(user:ZHJUserInfo)->ZHJUserInfo{
+        let userInfo = DataSync.getUserInfo()
+        if(userInfo != nil){
+            NSLog("updating user info from local storage")
+            user.sex = userInfo!.sex.uppercased() == "MALE" ? 0:1
+            user.height = userInfo!.heightInCm
+            user.weight = Int(userInfo!.weightInKgs*10)
+            user.age = userInfo!.age
+        }
+        return user
+    }
+    
     func syncData(connectionInfo:ConnectionInfo){
         BandDevice.currentDeviceMac = connectionInfo.deviceId
         DataSync.sendHeartBeat(heartBeat: HeartBeat(deviceId: connectionInfo.deviceId, macAddress: connectionInfo.deviceId))
@@ -298,7 +310,8 @@ class BandDevice{
                         user.height = 170
                         user.weight = 600
                         user.age = 25
-                        self?.userInfoProcessor.writeUserInfo(user) {[weak self] (result) in
+                        
+                        self?.userInfoProcessor.writeUserInfo((self?.updateUserInfo(user: user))!) {[weak self] (result) in
                             guard let `self` = self else { return }
                             self.processDeviceConfig()
                             guard result == .correct else {

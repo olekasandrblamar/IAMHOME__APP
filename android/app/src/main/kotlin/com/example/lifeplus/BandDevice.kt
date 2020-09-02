@@ -77,6 +77,10 @@ class BandDevice :BaseDevice(){
         var isSyncing = false
         var lastSyncTime:Date? = null
 
+        private fun setTime(next: (() -> Unit)?){
+            
+        }
+
         private fun setStatus(next: (() -> Unit)?){
             Log.i(TAG, "setting device status")
             BleSdkWrapper.getDeviceState(object : OnLeWriteCharacteristicListener() {
@@ -121,7 +125,7 @@ class BandDevice :BaseDevice(){
                 }
 
                 override fun onFailed(ex: WriteBleException?) {
-                    Log.e(BandDevice.TAG, "Time set failed ${ex}")
+                    Log.e(BandDevice.TAG, "Temp set failed ${ex}")
                     setStatus(next)
                 }
             })
@@ -137,7 +141,7 @@ class BandDevice :BaseDevice(){
                 }
 
                 override fun onFailed(ex: WriteBleException?) {
-                    Log.e(BandDevice.TAG, "Time set failed ${ex}")
+                    Log.e(TAG, "HR auto set failed ${ex}")
                     setTempOn(next)
                 }
             })
@@ -239,6 +243,12 @@ class BandDevice :BaseDevice(){
             userInfo.gender=0
             userInfo.height=170
             userInfo.weight=700
+            DataSync.getUserInfo()?.let {
+                userInfo.age = it.age
+                userInfo.gender = if(it.sex.toLowerCase() == "male") 0 else 1
+                userInfo.weight = (it.weightInKgs*10).toInt()
+                userInfo.height = it.heightInCm
+            }
 
             BleSdkWrapper.setUserInfo(userInfo, object : OnLeWriteCharacteristicListener() {
                 override fun onSuccess(p0: HandlerBleDataResult?) {
@@ -366,6 +376,7 @@ class BandDevice :BaseDevice(){
                                 mRssi = rssi
                                 ConnectionListener.result = result
                             }
+                            DataSync.CURRENT_MAC_ADDRESS = bluetoothDevice.address
                             mBluetoothLe!!.startConnect(bluetoothDevice.address)
                             onScanCompleted()
                         }
@@ -421,6 +432,7 @@ class BandDevice :BaseDevice(){
     override fun getDeviceInfo(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
         val connData = ConnectionInfo()
         connData.deviceId = connectionInfo.deviceId
+        DataSync.CURRENT_MAC_ADDRESS = connectionInfo.deviceId
         if(mBluetoothLe==null) {
             Log.i(TAG, "Bluetooth le is null initializing it")
             BluetoothLe.getDefault().init(context, object : BleCallbackWrapper() {
@@ -455,6 +467,7 @@ class BandDevice :BaseDevice(){
     override fun syncData(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context){
         Log.i(TAG, "Syncing band data")
         currentDeviceId = connectionInfo.deviceId
+        DataSync.CURRENT_MAC_ADDRESS = connectionInfo.deviceId
         if(mBluetoothLe==null) {
             Log.i(TAG, "Bluetooth le is null initializing it")
             BluetoothLe.getDefault().init(context, object : BleCallbackWrapper() {

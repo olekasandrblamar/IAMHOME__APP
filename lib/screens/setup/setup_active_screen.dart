@@ -108,9 +108,11 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       setState(() {
         _connected = connectionStatusData.connected;
         _deviceId = connectionStatusData.deviceId;
-        isLoading = false;
       });
     }
+    setState(() {
+      isLoading = false;
+    });
 
     _showSuccessMessage();
   }
