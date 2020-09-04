@@ -24,6 +24,7 @@ class _DebugScreenState extends State<DebugScreen> {
 
   void _getSharedPref() async {
     prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
 
     setState(() {
       isLoading = false;

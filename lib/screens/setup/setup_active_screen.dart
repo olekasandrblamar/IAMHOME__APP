@@ -79,6 +79,23 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     print('detach');
   }
 
+  void getDeviceStatus(String connectionInfo) async {
+      final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
+        'deviceStatus',
+        <String, dynamic>{'connectionInfo': connectionInfo},
+      ) as String;
+      if (connectionStatus != "Error") {
+        print("Got connection info response ${connectionStatus}");
+        final WatchModel connectionStatusData = WatchModel.fromJson(
+            json.decode(connectionStatus) as Map<String, dynamic>);
+
+        setState(() {
+          _connected = connectionStatusData.connected;
+          _deviceId = connectionStatusData.deviceId;
+        });
+      }
+  }
+
   void _changeLastUpdated() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
@@ -95,23 +112,14 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       _deviceData = deviceData;
     });
     final connectionInfo = prefs.getString('watchInfo');
-    final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
-      'deviceStatus',
-      //'connectDevice',
-      <String, dynamic>{'connectionInfo': connectionInfo},
-    ) as String;
-    if (connectionStatus != "Error") {
-      print("Got connection info response ${connectionStatus}");
-      final WatchModel connectionStatusData = WatchModel.fromJson(
-          json.decode(connectionStatus) as Map<String, dynamic>);
-
-      setState(() {
-        _connected = connectionStatusData.connected;
-        _deviceId = connectionStatusData.deviceId;
-      });
-    }
     setState(() {
-      isLoading = false;
+      isLoading = true;
+    });
+    Future.delayed(Duration(seconds: 3),(){
+      getDeviceStatus(connectionInfo);
+      setState(() {
+        isLoading = false;
+      });
     });
 
     _showSuccessMessage();

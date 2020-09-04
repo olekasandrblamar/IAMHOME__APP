@@ -78,7 +78,7 @@ class BandDevice :BaseDevice(){
         var lastSyncTime:Date? = null
 
         private fun setTime(next: (() -> Unit)?){
-            
+
         }
 
         private fun setStatus(next: (() -> Unit)?){
@@ -185,6 +185,7 @@ class BandDevice :BaseDevice(){
         private fun syncSteps(next: (() -> Unit)?){
             val cal = Calendar.getInstance()
             Log.i(TAG, "Syncing steps")
+            
             BleSdkWrapper.getStepOrSleepHistory(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH) + 1, cal.get(Calendar.DAY_OF_MONTH), object : OnLeWriteCharacteristicListener() {
                 override fun onSuccess(handlerBleDataResult: HandlerBleDataResult) {
                     if (handlerBleDataResult.isComplete) {
@@ -210,7 +211,7 @@ class BandDevice :BaseDevice(){
 
 
                                 if (totalCalories > 0) {
-                                    dailyCalories.add(CaloriesUpload(measureTime = dailyTime.time, deviceId = currentDeviceId!!, calories = totalCalories.toInt()))
+                                    dailyCalories.add(CaloriesUpload(measureTime = dailyTime.time, deviceId = currentDeviceId!!, calories = (totalCalories/10.0).toInt()))
                                     DataSync.uploadCalories(dailyCalories)
                                 }
                                 if (totalSteps > 0) {
@@ -237,6 +238,27 @@ class BandDevice :BaseDevice(){
             })
         }
 
+        private fun syncTime(next: (() -> Unit)?){
+            BleSdkWrapper.setDeviceData(object : OnLeWriteCharacteristicListener() {
+                override fun onSuccess(p0: HandlerBleDataResult?) {
+                    Log.i(TAG, "Sync time Success")
+                    if (next == null)
+                        isSyncing = false
+                    else
+                        next()
+                }
+
+                override fun onFailed(p0: WriteBleException?) {
+                    Log.i(TAG, "sync time failed")
+                    if (next == null)
+                        isSyncing = false
+                    else
+                        next()
+                }
+
+            })
+        }
+
         private fun syncUserInfo(next: (() -> Unit)?){
             val userInfo =UserBean()
             userInfo.age = 25
@@ -249,22 +271,15 @@ class BandDevice :BaseDevice(){
                 userInfo.weight = (it.weightInKgs*10).toInt()
                 userInfo.height = it.heightInCm
             }
-
             BleSdkWrapper.setUserInfo(userInfo, object : OnLeWriteCharacteristicListener() {
                 override fun onSuccess(p0: HandlerBleDataResult?) {
                     Log.i(TAG, "User Info Success")
-                    if (next == null)
-                        isSyncing = false
-                    else
-                        next()
+                    syncTime(next)
                 }
 
                 override fun onFailed(p0: WriteBleException?) {
                     Log.i(TAG, "User Info failed")
-                    if (next == null)
-                        isSyncing = false
-                    else
-                        next()
+                    syncTime(next)
                 }
 
             })
@@ -320,7 +335,9 @@ class BandDevice :BaseDevice(){
                             Log.i(TAG, "Got temperature result ${handlerBleDataResult.data}")
                             if (handlerBleDataResult.data is List<*> && handlerBleDataResult.hasNext) {
                                 val tempInfos = handlerBleDataResult.data as List<TempInfo?>
+
                                 val tempUploads = tempInfos.filter { tempInfo ->
+                                    println("Off time ${tempInfo?.offTime} remark ${tempInfo?.remark}")
                                     tempInfo != null && tempInfo.tmpHandler > 0
                                 }.map {
                                     val celsius: Double = it!!.tmpHandler / 100.0

@@ -16,10 +16,10 @@ class DataSync {
         private val TAG = DataSync::class.java.simpleName
         private val okHttp = OkHttpClient()
         private val jsonMediaType = "application/json; charset=utf-8".toMediaTypeOrNull()
-        val baseUrl = "https://device.alpha.myceras.com/api/v1/device"
+        private const val baseUrl = "https://device.alpha.myceras.com/api/v1/device"
         private val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create()
-        private val LAST_UPDATE_VAL = "flutter.last_sync_updates"
-        private val USER_PROFILE = "flutter.user_profile_data"
+        private const val LAST_UPDATE_VAL = "flutter.last_sync_updates"
+        private const val USER_PROFILE = "flutter.user_profile_data"
         var CURRENT_MAC_ADDRESS:String? = null
 
         fun uploadTemperature(temperatures:List<TemperatureUpload>){

@@ -88,9 +88,9 @@ dependencies {
 
     def work_version = "2.4.0"
     implementation "androidx.work:work-runtime-ktx:$work_version"
-
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation fileTree(dir: "libs", include: ["*.jar"])
+
     implementation files('libs/vpprotocol_2.1.27.15.jar')//Extension for bFIT
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
     implementation(name: 'hardsdkk_1.20', ext: 'aar')// For bWell
@@ -101,6 +101,9 @@ dependencies {
     implementation(name:'tsbackgroundfetch-0.4.5',ext: 'aar')
     implementation 'com.google.firebase:firebase-analytics:17.5.0'
     implementation 'com.google.firebase:firebase-messaging:20.2.4'
+    implementation 'com.google.guava:guava:27.0.1-android'
+    implementation 'com.google.code.gson:gson:2.7'
+
 }
 
 // ADD THIS AT THE BOTTOM
