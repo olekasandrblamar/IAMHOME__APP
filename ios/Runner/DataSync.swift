@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 class CustomEncoder: JSONEncoder{
     
@@ -145,6 +146,15 @@ class DataSync {
             var updatedHBeat = heartBeat
             updatedHBeat.background = BACKGROUND
             updatedHBeat.deviceInfo = UserDefaults.standard.string(forKey: "flutter.userDeviceInfo")
+            
+            let locationManager = CLLocationManager()
+            if(CLLocationManager.authorizationStatus() == .authorizedWhenInUse ||
+            CLLocationManager.authorizationStatus() == .authorizedAlways) {
+                let location = locationManager.location
+                updatedHBeat.latitude = location?.coordinate.latitude
+                updatedHBeat.longitude = location?.coordinate.longitude
+            }
+            
             makePostApiCall(url: "heartbeat", postData: try encoder.encode(updatedHBeat))
             checkAndLoadUserProfile()
         }catch{
@@ -319,6 +329,8 @@ struct HeartBeat:Codable{
     let macAddress:String?
     var deviceInfo:String? = nil
     var background:Bool = false
+    var longitude:Double? = nil
+    var latitude:Double? = nil
 }
 
 struct BpUpload:Codable {
