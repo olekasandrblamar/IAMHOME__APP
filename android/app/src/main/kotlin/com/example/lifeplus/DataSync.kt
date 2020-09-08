@@ -1,7 +1,11 @@
 package com.cerashealth.ceras
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
+import android.location.LocationManager
 import android.util.Log
+import androidx.core.content.ContextCompat
 import com.example.lifeplus.BaseDevice
 import com.google.gson.GsonBuilder
 import okhttp3.*
@@ -130,10 +134,21 @@ class DataSync {
 
         fun sendHeartBeat(heartBeat: HeartBeat){
             MainActivity.updateLastConnected()
-            MainActivity.currentContext?.let {
+            MainActivity.currentContext?.let {context->
                 Log.i(TAG,"Updating last connected")
-                heartBeat.deviceInfo = it.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.userDeviceInfo", "")
+                heartBeat.deviceInfo = context.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.userDeviceInfo", "")
+                val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                if(locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+                        && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED){
+                    val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
+                    heartBeat.apply {
+                        latitude = location.latitude
+                        longitude = location.longitude
+                    }
+                }
             }
+
             heartBeat.background = BaseDevice.isBackground
             makePostRequest(gson.toJson(heartBeat),"heartbeat")
             checkAndLoadProfile()
@@ -211,4 +226,6 @@ data class OxygenLevelUpload(val measureTime:Date, var oxygenLevel:Int,val devic
 data class HeartBeat(val deviceId:String?,val macAddress:String?){
     var deviceInfo:String? = null
     var background = false
+    var latitude:Double? = null
+    var longitude:Double? = null
 }
