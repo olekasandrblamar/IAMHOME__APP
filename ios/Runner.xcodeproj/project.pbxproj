@@ -8,7 +8,6 @@
 
 /* Begin PBXBuildFile section */
 		0332C9AC24B40CC700AAE8D1 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0332C9AB24B40CC700AAE8D1 /* ExternalAccessory.framework */; };
-		0332C9AE24B40CD100AAE8D1 /* HealthKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0332C9AD24B40CD100AAE8D1 /* HealthKit.framework */; };
 		036EF94224D904120002892D /* libHardManagerSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 036EF94124D903F00002892D /* libHardManagerSDK.a */; };
 		03D13CAA24EC80D2001D13F3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03D13CA924EC80D2001D13F3 /* GoogleService-Info.plist */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
@@ -96,7 +95,6 @@
 			files = (
 				52CF454A24EB0EC900AE177E /* TrusangBluetooth.framework in Frameworks */,
 				5257E6CA24D632CC00C2B1BA /* libc++.tbd in Frameworks */,
-				0332C9AE24B40CD100AAE8D1 /* HealthKit.framework in Frameworks */,
 				0332C9AC24B40CC700AAE8D1 /* ExternalAccessory.framework in Frameworks */,
 				5257E6C624D25EB900C2B1BA /* CoreBluetooth.framework in Frameworks */,
 				6C530F2A96B548B28B29ADCB /* Pods_Runner.framework in Frameworks */,
