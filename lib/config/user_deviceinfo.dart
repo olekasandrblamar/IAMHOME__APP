@@ -19,6 +19,11 @@ Future<Map<String, dynamic>> getUserDeviceInfo() async {
         'utsname': iosDeviceInfo.utsname.sysname,
         'identifierForVendor': iosDeviceInfo.identifierForVendor,
         'isPhysicalDevice': iosDeviceInfo.isPhysicalDevice,
+        'utsname.sysname': iosDeviceInfo.utsname.sysname,
+        'utsname.nodename': iosDeviceInfo.utsname.nodename,
+        'utsname.release': iosDeviceInfo.utsname.release,
+        'utsname.version': iosDeviceInfo.utsname.version,
+        'utsname.machine': iosDeviceInfo.utsname.machine,
       },
       'appInfo': {
         'appName': packageInfo.appName,
