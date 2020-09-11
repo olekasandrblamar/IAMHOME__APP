@@ -85,7 +85,13 @@ class DataSync {
     }
     static func uploadOxygenLevels(oxygenLevels: [OxygenLevelUpload]){
         do{
-            makePostApiCall(url: "oxygen", postData: try encoder.encode(oxygenLevels))
+            let userInfo = getUserInfo()
+            let updatedLevels = oxygenLevels.map({ (OxygenLevelUpload) -> OxygenLevelUpload in
+                var upload = OxygenLevelUpload
+                upload.userProfile = userInfo
+                return upload
+            })
+            makePostApiCall(url: "oxygen", postData: try encoder.encode(updatedLevels))
             let latestValue = oxygenLevels.max { (first, second) -> Bool in
                 first.measureTime < second.measureTime
             }
@@ -99,7 +105,13 @@ class DataSync {
     
     static func uploadBloodPressure(bpLevels: [BpUpload]){
         do{
-            makePostApiCall(url: "bloodpressure", postData: try encoder.encode(bpLevels))
+            let userInfo = getUserInfo()
+            let updatedLevels = bpLevels.map({ (BpUpload) -> BpUpload in
+                var upload = BpUpload
+                upload.userProfile = userInfo
+                return upload
+            })
+            makePostApiCall(url: "bloodpressure", postData: try encoder.encode(updatedLevels))
             let latestValue = bpLevels.max { (first, second) -> Bool in
                 first.measureTime < second.measureTime
             }
@@ -338,12 +350,14 @@ struct BpUpload:Codable {
     let distolic:Int
     let systolic:Int
     let deviceId:String
+    var userProfile:UserProfile?
 }
 
 struct OxygenLevelUpload:Codable{
     let measureTime:Date
     let oxygenLevel:Int
     let deviceId:String
+    var userProfile:UserProfile?
 }
 
 struct StepUpload:Codable {
