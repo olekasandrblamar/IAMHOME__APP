@@ -80,6 +80,26 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
     }
   }
 
+  void showConnectionErrorDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Connection Failed!'),
+        content: Text(
+          'Unable to connect device',
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   Future<void> _connectDevice() async {
     try {
       print('Backing backend call to connect device');
@@ -90,6 +110,16 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           'deviceType': _deviceType
         },
       ) as String;
+
+      await Future.delayed(
+        const Duration(minutes: 2),
+        () => {
+          if (connectionInfo == null)
+            {
+              _resetWithError(),
+            }
+        },
+      );
 
       print('Got response from os code for connection' + connectionInfo);
 
@@ -112,7 +142,21 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
       });
 
       _redirectTo();
-    } on PlatformException catch (e) {}
+    } on PlatformException catch (e) {
+      _resetWithError();
+    }
+  }
+
+  void _resetWithError() {
+    _deviceIdController.text = '';
+    setState(
+      () {
+        _deviceIdNumber = '';
+        _isLoading = false;
+      },
+    );
+
+    showConnectionErrorDialog();
   }
 
   void _redirectTo() {

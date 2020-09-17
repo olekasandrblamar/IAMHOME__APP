@@ -80,20 +80,20 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   }
 
   void getDeviceStatus(String connectionInfo) async {
-      final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
-        'deviceStatus',
-        <String, dynamic>{'connectionInfo': connectionInfo},
-      ) as String;
-      if (connectionStatus != "Error") {
-        print("Got connection info response ${connectionStatus}");
-        final WatchModel connectionStatusData = WatchModel.fromJson(
-            json.decode(connectionStatus) as Map<String, dynamic>);
+    final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
+      'deviceStatus',
+      <String, dynamic>{'connectionInfo': connectionInfo},
+    ) as String;
+    if (connectionStatus != "Error") {
+      print("Got connection info response ${connectionStatus}");
+      final WatchModel connectionStatusData = WatchModel.fromJson(
+          json.decode(connectionStatus) as Map<String, dynamic>);
 
-        setState(() {
-          _connected = connectionStatusData.connected;
-          _deviceId = connectionStatusData.deviceId;
-        });
-      }
+      setState(() {
+        _connected = connectionStatusData.connected;
+        _deviceId = connectionStatusData.deviceId;
+      });
+    }
   }
 
   void _changeLastUpdated() async {
@@ -115,7 +115,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     setState(() {
       isLoading = true;
     });
-    Future.delayed(Duration(seconds: 3),(){
+
+    Future.delayed(Duration(seconds: 3), () {
       getDeviceStatus(connectionInfo);
       setState(() {
         isLoading = false;
@@ -152,7 +153,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: SetupAppBar(),
+      appBar: SetupAppBar(name: 'Selected Device'),
       backgroundColor: AppTheme.white,
       body: SafeArea(
         bottom: true,
@@ -238,36 +239,36 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
             CircularProgressIndicator()
           else
             ..._buildInfo(_appLocalization),
-          SizedBox(
-            height: 25,
-          ),
-          Container(
-            width: 150,
-            height: 75,
-            padding: EdgeInsets.all(10),
-            child: RaisedButton(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(4.5),
-              ),
-              color: Theme.of(context).primaryColor,
-              textColor: Colors.white,
-              child: FittedBox(
-                child: Text(
-                  // _appLocalization.translate('setup.active.syncdata'),
-                  'Send Data',
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-              onPressed: () async {
-//                  return Navigator.of(context).pushReplacementNamed(
-//                    routes.SetupHomeRoute,
-//                  );
-                await _syncDataFromDevice();
-              },
-            ),
-          ),
+          // SizedBox(
+          //   height: 25,
+          // ),
+//           Container(
+//             width: 150,
+//             height: 75,
+//             padding: EdgeInsets.all(10),
+//             child: RaisedButton(
+//               shape: RoundedRectangleBorder(
+//                 borderRadius: BorderRadius.circular(4.5),
+//               ),
+//               color: Theme.of(context).primaryColor,
+//               textColor: Colors.white,
+//               child: FittedBox(
+//                 child: Text(
+//                   // _appLocalization.translate('setup.active.syncdata'),
+//                   'Send Data',
+//                   style: TextStyle(
+//                     fontSize: 14,
+//                   ),
+//                 ),
+//               ),
+//               onPressed: () async {
+// //                  return Navigator.of(context).pushReplacementNamed(
+// //                    routes.SetupHomeRoute,
+// //                  );
+//                 await _syncDataFromDevice();
+//               },
+//             ),
+//           ),
         ],
       ),
     );
@@ -294,8 +295,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
         padding: const EdgeInsets.all(5.0),
         child: Text(
           // _appLocalization.translate('setup.active.devicefound'),
-          // Device Id -
-          '${_deviceId}',
+          'Device Id - ${_deviceId}',
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
           style: TextStyle(
@@ -308,8 +308,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       ),
       Container(
         child: Text(
-          // _appLocalization.translate('setup.active.lastconnected') +
-          '${_lastUpdated}.',
+          _appLocalization.translate('setup.active.lastconnected') +
+              ' ${_lastUpdated}.',
           textAlign: TextAlign.center,
           style: AppTheme.subtitle,
         ),
