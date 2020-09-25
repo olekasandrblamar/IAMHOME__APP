@@ -1,4 +1,4 @@
-package com.example.lifeplus
+package com.example.ceras
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt

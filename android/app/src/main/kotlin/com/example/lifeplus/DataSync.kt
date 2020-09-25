@@ -6,7 +6,7 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.example.lifeplus.BaseDevice
+import com.example.ceras.BaseDevice
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull

@@ -8,7 +8,7 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.lifeplus.BaseDevice
+import com.example.ceras.BaseDevice
 import com.google.gson.Gson
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetch
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetchConfig
