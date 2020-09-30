@@ -109,6 +109,8 @@ class DataSync {
 
         fun uploadOxygenData(oxygenLevels:List<OxygenLevelUpload>){
             val type = "oxygen"
+            val userProfile = getUserInfo()
+            oxygenLevels.forEach { it.userProfile =  userProfile}
             makePostRequest(gson.toJson(oxygenLevels),type)
             val lastMeasure = oxygenLevels.maxBy { it.measureTime }
             lastMeasure?.let {
@@ -117,6 +119,8 @@ class DataSync {
         }
 
         fun uploadBloodPressure(bpLevels:List<BpUpload>){
+            val userProfile = getUserInfo()
+            bpLevels.forEach { it.userProfile =  userProfile}
             makePostRequest(gson.toJson(bpLevels),"bloodpressure")
             val lastMeasure = bpLevels.maxBy { it.measureTime }
             lastMeasure?.let {
@@ -217,11 +221,11 @@ data class DailyStepUpload(val measureTime:Date, var steps:Int,val deviceId:Stri
 
 data class CaloriesUpload(val measureTime:Date, var calories:Int,val deviceId:String)
 
-data class BpUpload(val measureTime:Date, var distolic:Int,var systolic:Int,val deviceId:String)
+data class BpUpload(val measureTime:Date, var distolic:Int,var systolic:Int,val deviceId:String,var userProfile:UserProfile? = null)
 
 data class HeartRateUpload(val measureTime:Date, var heartRate:Int,val deviceId:String)
 
-data class OxygenLevelUpload(val measureTime:Date, var oxygenLevel:Int,val deviceId:String)
+data class OxygenLevelUpload(val measureTime:Date, var oxygenLevel:Int,val deviceId:String,var userProfile:UserProfile? = null)
 
 data class HeartBeat(val deviceId:String?,val macAddress:String?){
     var deviceInfo:String? = null
