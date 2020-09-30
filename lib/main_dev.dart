@@ -13,16 +13,13 @@ import 'config/env.dart';
 
 void main() {
   try {
-    // Set `enableInDevMode` to true to see reports while in debug mode
-    // This is only to be used for confirming that reports are being
-    // submitted as expected. It is not intended to be used for everyday
-    // development.
-    Crashlytics.instance.enableInDevMode = true;
+    WidgetsFlutterBinding.ensureInitialized();
 
     // Pass all uncaught errors from the framework to Crashlytics.
-    FlutterError.onError = Crashlytics.instance.recordFlutterError;
-
-    WidgetsFlutterBinding.ensureInitialized();
+    FlutterError.onError = (FlutterErrorDetails errorDetails) async {
+      await FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
+      // Forward to original handler.
+    };
 
     BuildEnvironment.init(
       flavor: BuildFlavor.development,
@@ -48,7 +45,7 @@ void main() {
       //await BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
     });
   } catch (error, stackTrace) {
-    Crashlytics.instance.recordError(error, stackTrace);
+    FirebaseCrashlytics.instance.recordError(error, stackTrace);
     print(error);
   }
 

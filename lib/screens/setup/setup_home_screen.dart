@@ -26,7 +26,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: SetupAppBar(),
+      appBar: SetupAppBar(name: 'Select Device'),
       backgroundColor: Colors.white,
       body: SafeArea(
         bottom: true,

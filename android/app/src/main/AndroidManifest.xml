@@ -9,7 +9,7 @@
     <application
         tools:replace="android:icon,android:label"
         android:name=".Application"
-        android:label="lifeplus"
+        android:label="ceras"
         android:icon="@mipmap/launcher_icon"
         >
         <activity

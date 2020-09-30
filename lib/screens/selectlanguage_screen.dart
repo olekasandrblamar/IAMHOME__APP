@@ -59,64 +59,96 @@ class _SelectLanguageScreenState extends State<SelectLanguageScreen> {
       backgroundColor: AppTheme.white,
       body: SafeArea(
         top: true,
-        child: SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 0, vertical: 15),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(
-                  height: 20,
+        child: Container(
+          // padding: EdgeInsets.symmetric(horizontal: 0, vertical: 15),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height: 20,
+              ),
+              Container(
+                margin: EdgeInsets.only(
+                  left: 25,
                 ),
-                Container(
-                  margin: EdgeInsets.only(
-                    left: 25,
-                  ),
-                  child: Text(
-                    _appLocalization.translate('appLanguage.page.title'),
-                    style: AppTheme.title,
-                    textAlign: TextAlign.left,
-                  ),
+                child: Text(
+                  _appLocalization.translate('appLanguage.page.title'),
+                  style: AppTheme.title,
+                  textAlign: TextAlign.left,
                 ),
-                SizedBox(
-                  height: 20,
-                ),
-                ...List.generate(
-                  _languages.length,
-                  (index) => Container(
-                    // margin: EdgeInsets.only(bottom: 5),
-                    // child: Card(
-                    child: RadioListTile<LanguageSelectionChoice>(
-                      title: Row(
-                        children: [
-                          Text(
-                            _languages[index]['language'] + ' - ',
-                          ),
-                          Text(
-                            _languages[index]['label'],
-                            style: TextStyle(
-                              color: Color(0xFF797979),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Expanded(
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+                  child: GridView.builder(
+                    shrinkWrap: true,
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 3,
+                    ),
+                    itemCount: _languages.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return Card(
+                        margin:
+                            EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                        elevation: 0,
+                        color: _language == _languages[index]['value']
+                            ? Theme.of(context).primaryColor
+                            : Color(0xffd5d5d6),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: InkWell(
+                          child: Container(
+                            padding: EdgeInsets.all(5),
+                            child: GridTile(
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                    // color: Colors.black.withOpacity(0.7),
+                                    height: 30,
+                                    width: double.infinity,
+                                    child: Center(
+                                      child: FittedBox(
+                                        child: Text(
+                                          _languages[index]['language'],
+                                          maxLines: 1,
+                                          style: TextStyle(
+                                            color: _language ==
+                                                    _languages[index]['value']
+                                                ? Colors.white
+                                                : Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                            fontFamily: 'Regular',
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  )
+                                ],
+                              ),
                             ),
                           ),
-                        ],
-                      ),
-                      // subtitle: Text(_languages[index]['label']),
-                      value: _languages[index]['value'],
-                      groupValue: _language,
-                      onChanged: (LanguageSelectionChoice value) {
-                        _appLanguage.changeLanguage(
-                          Locale(_languages[index]['language_code']),
-                        );
-                        setState(() {
-                          _language = value;
-                        });
-                      },
-                      // ),
-                    ),
+                          onTap: () {
+                            _appLanguage.changeLanguage(
+                              Locale(_languages[index]['language_code']),
+                            );
+
+                            setState(() {
+                              _language = _languages[index]['value'];
+                            });
+                          },
+                        ),
+                      );
+                    },
                   ),
-                )
-              ],
-            ),
+                ),
+              ),
+            ],
           ),
         ),
       ),
