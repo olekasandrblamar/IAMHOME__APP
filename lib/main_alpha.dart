@@ -19,7 +19,10 @@ void main() {
     Crashlytics.instance.enableInDevMode = false;
 
     // Pass all uncaught errors from the framework to Crashlytics.
-    FlutterError.onError = Crashlytics.instance.recordFlutterError;
+    FlutterError.onError = (FlutterErrorDetails errorDetails) async {
+      await FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
+      // Forward to original handler.
+    };
 
     WidgetsFlutterBinding.ensureInitialized();
 
@@ -47,7 +50,7 @@ void main() {
       //await BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
     });
   } catch (error, stackTrace) {
-    Crashlytics.instance.recordError(error, stackTrace);
+    FirebaseCrashlytics.instance.recordError(error, stackTrace);
     print(error);
   }
 }

@@ -12,10 +12,15 @@ import 'config/env.dart';
 
 void main() {
   try {
-    // Pass all uncaught errors from the framework to Crashlytics.
-    FlutterError.onError = Crashlytics.instance.recordFlutterError;
-
     WidgetsFlutterBinding.ensureInitialized();
+
+    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+
+    // Pass all uncaught errors from the framework to Crashlytics.
+    FlutterError.onError = (FlutterErrorDetails errorDetails) async {
+      await FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
+      // Forward to original handler.
+    };
 
     BuildEnvironment.init(
       flavor: BuildFlavor.production,
@@ -40,7 +45,7 @@ void main() {
       //await BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
     });
   } catch (error, stackTrace) {
-    Crashlytics.instance.recordError(error, stackTrace);
+    FirebaseCrashlytics.instance.recordError(error, stackTrace);
     print(error);
   }
 }
