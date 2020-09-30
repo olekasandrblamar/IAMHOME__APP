@@ -29,6 +29,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   var _displayImage = '';
   var _isLoading = false;
   var _deviceIdNumber = '';
+  String connectionInfo = null;
   String _deviceTag = '';
 
   static const platform = MethodChannel('ceras.iamhome.mobile/device');
@@ -103,7 +104,18 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   Future<void> _connectDevice() async {
     try {
       print('Backing backend call to connect device');
-      final connectionInfo = await platform.invokeMethod(
+
+      Future.delayed(
+        const Duration(seconds: 30),
+            () => {
+          if (connectionInfo == null)
+            {
+              _resetWithError(),
+            }
+        },
+      );
+
+      connectionInfo = await platform.invokeMethod(
         'connectDevice',
         <String, dynamic>{
           'deviceId': _deviceIdNumber,
@@ -111,15 +123,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         },
       ) as String;
 
-      await Future.delayed(
-        const Duration(minutes: 2),
-        () => {
-          if (connectionInfo == null)
-            {
-              _resetWithError(),
-            }
-        },
-      );
+
 
       print('Got response from os code for connection' + connectionInfo);
 
