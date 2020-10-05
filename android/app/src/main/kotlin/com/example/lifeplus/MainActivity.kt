@@ -110,6 +110,9 @@ class MainActivity: FlutterActivity()  {
                 val deviceType = context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceType?.toUpperCase()).getDeviceInfo(result,deviceData,this)
+            }else if(call.method =="disconnect"){
+                val deviceType = call.argument<String>("deviceType")
+                BaseDevice.getDeviceImpl(deviceType).disconnectDevice(result)
             }
             else {
                 result.notImplemented()

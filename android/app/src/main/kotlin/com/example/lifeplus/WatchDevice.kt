@@ -346,6 +346,14 @@ class WatchDevice:BaseDevice()     {
         }
     }
 
+    override fun disconnectDevice(result: MethodChannel.Result?) {
+        if(HardSdk.getInstance().isDevConnected) {
+            HardSdk.getInstance().reset()
+            HardSdk.getInstance().disconnect()
+        }
+        result?.success("Success")
+    }
+
 
 
     override fun connectDevice(context: Context, result: MethodChannel.Result,deviceId:String?) {

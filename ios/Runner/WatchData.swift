@@ -86,6 +86,13 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         }
     }
     
+    func disconnect(result:@escaping FlutterResult){
+        if(HardManagerSDK.shareBLEManager().isConnected){
+            HardManagerSDK.shareBLEManager()?.disconnectHardDevice()
+        }
+        result("Success")
+    }
+    
     func deviceDidConnected() {
         NSLog("Device connected")
         HardManagerSDK.shareBLEManager()?.stopScanDevice()

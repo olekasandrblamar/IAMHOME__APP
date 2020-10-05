@@ -19,6 +19,10 @@ open class BaseDevice{
 
     }
 
+    open fun disconnectDevice(result: MethodChannel.Result?){
+        
+    }
+
     fun sendConnectionResponse(deviceId:String?,status:Boolean,result: MethodChannel.Result?){
         try {
             result?.success(ConnectionInfo.createResponse(message = "Success", connected = status, deviceId = deviceId,
