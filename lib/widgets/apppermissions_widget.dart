@@ -42,6 +42,31 @@ class AppPermissions extends StatelessWidget {
                   .toList()),
         ),
       ),
+      bottomNavigationBar: SafeArea(
+        bottom: true,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              width: 200,
+              height: 90,
+              padding: EdgeInsets.all(20),
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.5),
+                ),
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+                child: Text('Open Settings'),
+                onPressed: () {
+                  var hasOpened = openAppSettings();
+                  debugPrint('App Settings opened: ' + hasOpened.toString());
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
