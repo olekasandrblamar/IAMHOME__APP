@@ -15,6 +15,9 @@ import com.walnutin.hardsdk.ProductNeed.Jinterface.IHardScanCallback
 import com.walnutin.hardsdk.ProductNeed.Jinterface.SimpleDeviceCallback
 import com.walnutin.hardsdk.ProductNeed.entity.*
 import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -25,9 +28,11 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
 
     companion object{
         var currentCallBack:ConnectDeviceCallBack? = null
+        var deviceId:String? = null
     }
 
     private val result: MethodChannel.Result
+    private var deviceId: String? = null
 
     constructor(result: MethodChannel.Result) {
         this.result = result
@@ -49,12 +54,13 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.CONNECT_TIME_OUT_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Time out")
             //retry 3 times for disconnect
-            if (retries < 3) {
+            if (retries < 2) {
                 retries++
                 Log.i(WatchDevice.TAG,"retrying scan")
                 HardSdk.getInstance().stopScan()
                 HardSdk.getInstance().startScan()
             } else {
+                HardSdk.getInstance().stopScan()
                 result.success(ConnectionInfo.createResponse(message = "Timeout"))
             }
         }
@@ -342,14 +348,19 @@ class WatchDevice:BaseDevice()     {
 
 
 
-    override fun connectDevice(context: Context, result: MethodChannel.Result) {
+    override fun connectDevice(context: Context, result: MethodChannel.Result,deviceId:String?) {
         HardSdk.getInstance().init(context)
-        val watchDataCallBack = WatchDataCallBack(context, result)
+        val watchDataCallBack = WatchDataCallBack(context, result,deviceId)
         HardSdk.getInstance().setHardScanCallback(watchDataCallBack)
         ConnectDeviceCallBack.currentCallBack = ConnectDeviceCallBack(result)
         HardSdk.getInstance().setHardSdkCallback(ConnectDeviceCallBack.currentCallBack)
-        if (HardSdk.getInstance().isBleEnabled)
+        if (HardSdk.getInstance().isBleEnabled) {
             HardSdk.getInstance().startScan()
+            GlobalScope.launch {
+                delay(40000)
+                HardSdk.getInstance().stopScan()
+            }
+        }
     }
 
     //Sync the data from watch
@@ -407,9 +418,17 @@ class WatchDataCallBack : IHardScanCallback {
 
     private val result: MethodChannel.Result
 
+    private var deviceId:String? = null
+
     constructor(context: Context, result: MethodChannel.Result) {
         this.context = context
         this.result = result
+    }
+
+    constructor(context: Context, result: MethodChannel.Result,deviceId:String?) {
+        this.context = context
+        this.result = result
+        this.deviceId = deviceId
     }
 
     companion object {
@@ -473,7 +492,18 @@ class WatchDataCallBack : IHardScanCallback {
                 )
         )
         val connState = value.substring(26, 28)
-        if (!TextUtils.isEmpty(device.name) && deviceName == null) {
+        var connect = true
+        deviceId?.let {enteredDeviceId->
+            connect = false
+            Log.d(TAG,"entered device id $enteredDeviceId with $device.address")
+            val lastFour = device.address.substring(device.address.length - 5).replace(":","")
+            Log.d(TAG,"entered device id $enteredDeviceId with $deviceAddr with last four $lastFour")
+            if(lastFour.toLowerCase()==enteredDeviceId.toLowerCase()){
+                connect = true
+            }
+
+        }
+        if (!TextUtils.isEmpty(device.name) && deviceName == null && connect) {
             Log.d(TAG, "Found device ${device.name}")
             deviceName = device.name
             deviceAddr = device.address

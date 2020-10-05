@@ -88,10 +88,11 @@ class MainActivity: FlutterActivity()  {
             BaseDevice.isBackground = false
             if(call.method=="connectDevice"){
                 val deviceType = call.argument<String>("deviceType")
+                val deviceId = call.argument<String>("deviceId")
                 //For now connect to watch
                 sycnDevice = BaseDevice.getDeviceImpl(deviceType)
                 sycnDevice?.let {
-                    it.connectDevice(this,result)
+                    it.connectDevice(this,result,deviceId)
                 }
             } else if(call.method =="syncData"){
                 val deviceDataString = call.argument<String>("connectionInfo")
@@ -193,8 +194,8 @@ class CerasBluetoothSync{
                 val deviceDataString = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.watchInfo", "")
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString, ConnectionInfo::class.java)
                 val deviceType = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.deviceType", null)
-                MainActivity.deviceId = deviceData.deviceId ?: ""
-                BaseDevice.getDeviceImpl(deviceType?.toUpperCase()).syncData(null, deviceData, applicationContext)
+                MainActivity.deviceId = deviceData?.deviceId ?: ""
+                BaseDevice.getDeviceImpl(deviceType?.toUpperCase())?.syncData(null, deviceData, applicationContext)
             } else {
                 Log.e(TAG, "No location permission")
             }
