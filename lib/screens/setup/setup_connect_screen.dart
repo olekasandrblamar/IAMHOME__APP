@@ -33,6 +33,9 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   String connectionInfo = null;
   String _deviceTag = '';
 
+  var _statusTitle = '';
+  var _statusDescription = '';
+
   static const platform = MethodChannel('ceras.iamhome.mobile/device');
 
   @override
@@ -102,9 +105,41 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
     );
   }
 
+  void _loadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => SimpleDialog(
+        title: Text(
+          _statusTitle,
+          textAlign: TextAlign.center,
+        ),
+        children: <Widget>[
+          Text(
+            _statusDescription,
+            textAlign: TextAlign.center,
+          ),
+        ],
+        // backgroundColor: Colors.blueAccent,
+        elevation: 4,
+        shape: StadiumBorder(
+          side: BorderSide(
+            style: BorderStyle.none,
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _connectDevice() async {
     try {
       print('Backing backend call to connect device');
+      setState(() {
+        _statusTitle = 'Checking Bluetooth';
+        _statusDescription = 'Loading.....';
+      });
+
+      _loadingDialog();
 
       FlutterBlue flutterBlue = FlutterBlue.instance;
       var checkAvailability = await flutterBlue.isOn;
@@ -122,6 +157,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         () => {
           if (connectionInfo == null)
             {
+              Navigator.of(context).pop(),
               _resetWithError(),
               showConnectionErrorDialog(
                 'Connection Fail!',
@@ -130,6 +166,11 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
             }
         },
       );
+
+      setState(() {
+        _statusTitle = 'Checking Device';
+        _statusDescription = 'Loading.....';
+      });
 
       connectionInfo = await platform.invokeMethod(
         'connectDevice',
@@ -161,6 +202,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
       _redirectTo();
     } on PlatformException catch (e) {
+      Navigator.of(context).pop();
       _resetWithError();
       showConnectionErrorDialog(
         'Connection Fail!',
@@ -173,6 +215,8 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
     _deviceIdController.text = '';
     setState(
       () {
+        _statusTitle = '';
+        _statusDescription = '';
         _deviceIdNumber = '';
         _isLoading = false;
       },
@@ -180,6 +224,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   }
 
   void _redirectTo() {
+    Navigator.of(context).pop();
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (BuildContext context) => SetupActiveScreen(),
