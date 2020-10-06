@@ -177,26 +177,39 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           _statusDescription = 'Verifying.....';
         });
 
-        //TODO - Add code to check the result and add actions based on that
-        await Provider.of<AuthProvider>(context, listen: false)
-            .saveWatchInfo(connectionData);
+        if (connectionData.connected) {
+          setState(() {
+            _statusTitle = 'Device Found';
+            _statusDescription = 'Connecting.....';
+          });
 
-        await Provider.of<AuthProvider>(context, listen: false)
-            .setDeviceType(_deviceType);
+          //TODO - Add code to check the result and add actions based on that
+          await Provider.of<AuthProvider>(context, listen: false)
+              .saveWatchInfo(connectionData);
 
-        await Provider.of<AuthProvider>(context, listen: false)
-            .setDeviceData(_deviceData);
+          await Provider.of<AuthProvider>(context, listen: false)
+              .setDeviceType(_deviceType);
 
-        setState(() {
-          _isLoading = false;
-        });
+          await Provider.of<AuthProvider>(context, listen: false)
+              .setDeviceData(_deviceData);
 
-        _redirectTo();
+          setState(() {
+            _isLoading = false;
+          });
+
+          _redirectTo();
+        } else {
+          _resetWithError();
+          showConnectionErrorDialog(
+            'Connection Fail!',
+            'Unable to Connect device',
+          );
+        }
       } else {
         _resetWithError();
         showConnectionErrorDialog(
           'Connection Fail!',
-          'Unable to locate or connect to device',
+          'Unable to Find device',
         );
       }
     } on PlatformException catch (e) {
