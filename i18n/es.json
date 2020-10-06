@@ -66,7 +66,7 @@
 			"agree": "De acuerdo",
 			"view": "Ver"
 		},
-		"description1": "Lea y acepte la aplicación Ceras Health. Acuerdo de licencia de usuario final y política de privacidad para continuar.",
+		"description1": "Lea y acepte la aplicación Ceras Health. Acuerdo de licencia de usuario final y política de privacidad para continuar",
 		"description2": "Acepte el Acuerdo de licencia de usuario final y la Política de privacidad.",
 		"title": "Nuestros términos y condiciones"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "idioma",
 			"permissions": "Permisos",
+			"privacy": "intimidad",
 			"review": "Escribe una reseña"
 		},
 		"permissions": {

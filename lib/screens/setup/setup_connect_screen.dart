@@ -10,6 +10,7 @@ import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/theme.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
 
 class SetupConnectScreen extends StatefulWidget {
@@ -31,6 +32,9 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   var _deviceIdNumber = '';
   String connectionInfo = null;
   String _deviceTag = '';
+
+  var _statusTitle = '';
+  var _statusDescription = '';
 
   static const platform = MethodChannel('ceras.iamhome.mobile/device');
 
@@ -81,13 +85,13 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
     }
   }
 
-  void showConnectionErrorDialog() {
+  void showConnectionErrorDialog(String title, String description) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Connection Fail!'),
+        title: Text(title),
         content: Text(
-          'Unable to locate or connect to device',
+          description,
         ),
         actions: <Widget>[
           FlatButton(
@@ -101,9 +105,52 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
     );
   }
 
+  void _loadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => SimpleDialog(
+        title: Text(
+          _statusTitle,
+          textAlign: TextAlign.center,
+        ),
+        children: <Widget>[
+          Text(
+            _statusDescription,
+            textAlign: TextAlign.center,
+          ),
+        ],
+        // backgroundColor: Colors.blueAccent,
+        elevation: 4,
+        shape: StadiumBorder(
+          side: BorderSide(
+            style: BorderStyle.none,
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _connectDevice() async {
     try {
       print('Backing backend call to connect device');
+      setState(() {
+        _statusTitle = 'Checking Bluetooth';
+        _statusDescription = 'Loading.....';
+      });
+
+      _loadingDialog();
+
+      FlutterBlue flutterBlue = FlutterBlue.instance;
+      var checkAvailability = await flutterBlue.isOn;
+
+      if (!checkAvailability) {
+        _resetWithError();
+        return showConnectionErrorDialog(
+          'Bluetooth Connection Fail!',
+          'Turn on your bluetooth',
+        );
+      }
 
       Future.delayed(
         const Duration(seconds: 30),
@@ -111,9 +158,18 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           if (connectionInfo == null)
             {
               _resetWithError(),
+              showConnectionErrorDialog(
+                'Connection Fail!',
+                'Unable to locate or connect to device',
+              ),
             }
         },
       );
+
+      setState(() {
+        _statusTitle = 'Checking Device';
+        _statusDescription = 'Verifying.....';
+      });
 
       connectionInfo = await platform.invokeMethod(
         'connectDevice',
@@ -146,22 +202,28 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
       _redirectTo();
     } on PlatformException catch (e) {
       _resetWithError();
+      showConnectionErrorDialog(
+        'Connection Fail!',
+        'Unable to locate or connect to device',
+      );
     }
   }
 
   void _resetWithError() {
+    Navigator.of(context).pop();
     _deviceIdController.text = '';
     setState(
       () {
+        _statusTitle = '';
+        _statusDescription = '';
         _deviceIdNumber = '';
         _isLoading = false;
       },
     );
-
-    showConnectionErrorDialog();
   }
 
   void _redirectTo() {
+    Navigator.of(context).pop();
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (BuildContext context) => SetupActiveScreen(),

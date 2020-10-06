@@ -66,7 +66,7 @@
 			"agree": "Đồng ý",
 			"view": "Lượt xem"
 		},
-		"description1": "Vui lòng đọc và đồng ý với ứng dụng Ceras Health. Thỏa thuận Giấy phép Người dùng Cuối & Chính sách Bảo mật để tiếp tục.",
+		"description1": "Vui lòng đọc và đồng ý với Ceras Health APP. Thỏa thuận Giấy phép Người dùng Cuối & Chính sách Bảo mật để tiếp tục",
 		"description2": "Đồng ý với Thỏa thuận cấp phép người dùng cuối và Chính sách bảo mật.",
 		"title": "Điều khoản và Điều kiện của chúng tôi"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "ngôn ngữ",
 			"permissions": "Quyền",
+			"privacy": "Riêng tư",
 			"review": "Viết nhận xét"
 		},
 		"permissions": {

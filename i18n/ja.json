@@ -66,7 +66,7 @@
 			"agree": "同意する",
 			"view": "見る"
 		},
-		"description1": "Ceras Healthアプリを読んで同意してください。続行するには、エンドユーザー使用許諾契約とプライバシーポリシーが必要です。",
+		"description1": "Ceras Health APPを読み、同意してください。エンドユーザー使用許諾契約とプライバシーポリシーを続行するには",
 		"description2": "エンドユーザーライセンス契約とプライバシーポリシーに同意します。",
 		"title": "利用規約"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "言語",
 			"permissions": "許可",
+			"privacy": "プライバシー",
 			"review": "レビューを書く"
 		},
 		"permissions": {

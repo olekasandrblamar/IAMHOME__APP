@@ -66,7 +66,7 @@
 			"agree": "mee eens",
 			"view": "Uitzicht"
 		},
-		"description1": "Lees en ga akkoord met de Ceras Health-app. Licentieovereenkomst voor eindgebruikers en privacybeleid om door te gaan.",
+		"description1": "Lees en ga akkoord met Ceras Health APP. Licentieovereenkomst voor eindgebruikers en privacybeleid om door te gaan",
 		"description2": "Ga akkoord met de licentieovereenkomst en het privacybeleid voor eindgebruikers.",
 		"title": "Onze algemene voorwaarden"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "Taal",
 			"permissions": "machtigingen",
+			"privacy": "Privacy",
 			"review": "Schrijf een recensie"
 		},
 		"permissions": {
