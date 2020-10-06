@@ -80,7 +80,7 @@ class _MyAppState extends State<MyApp> {
       child: Consumer2<AuthProvider, AppLanguageProvider>(
         builder: (ctx, auth, appLanguage, _) {
           return MaterialApp(
-            title: 'ceras',
+            title: 'CERAS',
             debugShowCheckedModeBanner: false,
             // theme: ThemeData(
             //   primarySwatch: Colors.blue,

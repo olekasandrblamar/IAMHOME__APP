@@ -85,9 +85,9 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Connection Failed!'),
+        title: Text('Connection Fail!'),
         content: Text(
-          'Unable to connect device',
+          'Unable to locate or connect to device',
         ),
         actions: <Widget>[
           FlatButton(
@@ -107,7 +107,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
       Future.delayed(
         const Duration(seconds: 30),
-            () => {
+        () => {
           if (connectionInfo == null)
             {
               _resetWithError(),
@@ -122,8 +122,6 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           'deviceType': _deviceType
         },
       ) as String;
-
-
 
       print('Got response from os code for connection' + connectionInfo);
 

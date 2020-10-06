@@ -71,21 +71,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(
           _appLocalization.translate('settings.title'),
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.bug_report),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute<Null>(
-                  builder: (BuildContext context) {
-                    return DebugScreen();
-                  },
-                  fullscreenDialog: true,
-                ),
-              );
-            },
-          )
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.bug_report),
+        //     onPressed: () {
+        //       Navigator.of(context).push(
+        //         MaterialPageRoute<Null>(
+        //           builder: (BuildContext context) {
+        //             return DebugScreen();
+        //           },
+        //           fullscreenDialog: true,
+        //         ),
+        //       );
+        //     },
+        //   )
+        // ],
       ),
       // drawer: HardwareAppDrawer(routes.SettingsRoute),
       backgroundColor: AppTheme.background,

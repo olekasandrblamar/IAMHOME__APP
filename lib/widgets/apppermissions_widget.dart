@@ -16,15 +16,15 @@ class AppPermissions extends StatelessWidget {
         title: Text(
           _appLocalization.translate('settings.permissions.title'),
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              var hasOpened = openAppSettings();
-              debugPrint('App Settings opened: ' + hasOpened.toString());
-            },
-          )
-        ],
+        // actions: <Widget>[
+        //   IconButton(
+        //     icon: const Icon(Icons.settings),
+        //     onPressed: () {
+        //       var hasOpened = openAppSettings();
+        //       debugPrint('App Settings opened: ' + hasOpened.toString());
+        //     },
+        //   )
+        // ],
       ),
       backgroundColor: AppTheme.background,
       body: Container(

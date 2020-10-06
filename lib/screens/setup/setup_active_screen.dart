@@ -295,7 +295,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
         padding: const EdgeInsets.all(5.0),
         child: Text(
           // _appLocalization.translate('setup.active.devicefound'),
-          'Device Id - ${_deviceId}',
+          'Device ID - ${_deviceId}',
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
           style: TextStyle(
