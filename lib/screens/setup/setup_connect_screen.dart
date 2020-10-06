@@ -152,20 +152,6 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         );
       }
 
-      Future.delayed(
-        const Duration(seconds: 30),
-        () => {
-          if (connectionInfo == null)
-            {
-              _resetWithError(),
-              showConnectionErrorDialog(
-                'Connection Fail!',
-                'Unable to locate or connect to device',
-              ),
-            }
-        },
-      );
-
       setState(() {
         _statusTitle = 'Checking Device';
         _statusDescription = 'Finding.....';
@@ -190,23 +176,29 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           _statusTitle = 'Device Found';
           _statusDescription = 'Verifying.....';
         });
+
+        //TODO - Add code to check the result and add actions based on that
+        await Provider.of<AuthProvider>(context, listen: false)
+            .saveWatchInfo(connectionData);
+
+        await Provider.of<AuthProvider>(context, listen: false)
+            .setDeviceType(_deviceType);
+
+        await Provider.of<AuthProvider>(context, listen: false)
+            .setDeviceData(_deviceData);
+
+        setState(() {
+          _isLoading = false;
+        });
+
+        _redirectTo();
+      } else {
+        _resetWithError();
+        showConnectionErrorDialog(
+          'Connection Fail!',
+          'Unable to locate or connect to device',
+        );
       }
-
-      //TODO - Add code to check the result and add actions based on that
-      await Provider.of<AuthProvider>(context, listen: false)
-          .saveWatchInfo(connectionData);
-
-      await Provider.of<AuthProvider>(context, listen: false)
-          .setDeviceType(_deviceType);
-
-      await Provider.of<AuthProvider>(context, listen: false)
-          .setDeviceData(_deviceData);
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      _redirectTo();
     } on PlatformException catch (e) {
       _resetWithError();
       showConnectionErrorDialog(
