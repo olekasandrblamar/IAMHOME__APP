@@ -8,7 +8,7 @@ import com.cerashealth.ceras.WatchDevice
 import io.flutter.plugin.common.MethodChannel
 
 open class BaseDevice{
-    open fun connectDevice(context: Context, result: MethodChannel.Result){
+    open fun connectDevice(context: Context, result: MethodChannel.Result,deviceId: String?){
 
     }
     open fun syncData(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context){
@@ -17,6 +17,10 @@ open class BaseDevice{
 
     open fun getDeviceInfo(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
 
+    }
+
+    open fun disconnectDevice(result: MethodChannel.Result?){
+        
     }
 
     fun sendConnectionResponse(deviceId:String?,status:Boolean,result: MethodChannel.Result?){

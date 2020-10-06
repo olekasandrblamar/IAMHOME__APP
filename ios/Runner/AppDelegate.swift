@@ -93,6 +93,9 @@ import BackgroundTasks
             }catch{
                 result("Error")
             }
+        }else if(call.method=="disconnect"){
+            let deviceType:String = (args as? [String: Any])?["deviceType"] as! String
+            self?.disconectDevice(result: result, deviceType: deviceType)
         }
         else {
           result(FlutterMethodNotImplemented)
@@ -214,6 +217,17 @@ import BackgroundTasks
     
     private func getDeviceType() -> String?{
         return UserDefaults.standard.string(forKey: AppDelegate.DEVICE_TYPE_KEY)
+    }
+    
+    private func disconectDevice(result:@escaping FlutterResult, deviceType:String){
+        NSLog("disconnecting device \(deviceType)")
+        if(deviceType==AppDelegate.WATCH_TYPE){
+            NSLog("disonnecting Watch")
+            self.watchData.disconnect(result: result)
+            NSLog("completed Connecting Watch")
+        }else if(deviceType==AppDelegate.BAND_TYPE){
+            //TODO - implement band disconnect
+        }
     }
     
     private func connectDevice(result:@escaping FlutterResult,deviceId:String, deviceType:String) {

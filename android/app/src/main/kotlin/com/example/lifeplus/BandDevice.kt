@@ -375,7 +375,7 @@ class BandDevice :BaseDevice(){
 //        if(currentDeviceId!=null){
 //            mBluetoothLe?.reconnect(context)
 //        }else {
-        val scanPeriod = if(isBackground) 2000 else 50000
+        val scanPeriod = if(isBackground) 2000 else 30000
         Log.i(TAG,"scanning with scan period $scanPeriod")
             mBluetoothLe!!.setScanPeriod(scanPeriod)
                     .setStopScanAfterConnected(true)
@@ -423,7 +423,7 @@ class BandDevice :BaseDevice(){
 //        }
     }
 
-    override fun connectDevice(context: Context, result: MethodChannel.Result) {
+    override fun connectDevice(context: Context, result: MethodChannel.Result,deviceId: String?) {
         Log.i(TAG, "The package id is ${context.packageName}")
         if(mBluetoothLe==null) {
             Log.i(TAG, "Bluetooth le is null initializing it")

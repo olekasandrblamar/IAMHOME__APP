@@ -86,6 +86,13 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         }
     }
     
+    func disconnect(result:@escaping FlutterResult){
+        if(HardManagerSDK.shareBLEManager().isConnected){
+            HardManagerSDK.shareBLEManager()?.disconnectHardDevice()
+        }
+        result("Success")
+    }
+    
     func deviceDidConnected() {
         NSLog("Device connected")
         HardManagerSDK.shareBLEManager()?.stopScanDevice()
@@ -115,6 +122,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             let deviceName = device?.name
             let uuid = device?.identifier.uuidString
             
+            
             NSLog("Device connected \(deviceName ?? "No name ") - \(uuid)")
             var connectionInfo = ConnectionInfo(deviceId: uuid, deviceName: deviceName, connected: true, message: "connected")
             connectionInfo.additionalInformation["factoryName"] = device!.description
@@ -131,6 +139,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 result?(connectionInfoData)
                 loadData(deviceId: WatchData.currentDeviceId)
             }catch{result?("Error")}
+            
         }else{
             if(result == nil){
                 loadData(deviceId: WatchData.currentDeviceId)
@@ -239,16 +248,16 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         let deviceName = peripharal?.name
         NSLog("Got device in dict \(deviceName ?? "No name ") - \(uuid)")
         let stringLength:Int = deviceId?.count ?? 4
-        let deviceSuffix = String(uuid?.suffix(stringLength) as! Substring)
+        let deviceSuffix = String(deviceName?.suffix(stringLength) as! Substring)
         
-        //6987
-        //if( deviceSuffix == deviceId){
-        if(self.device == nil){
-            self.device = peripharal
-            NSLog("Connecting to device \(deviceName ?? "No name ") - \(uuid)")
-            HardManagerSDK.shareBLEManager()?.startConnectDevice(withUUID: uuid)
+        
+        if( deviceSuffix.lowercased() == deviceId?.lowercased()){
+            if(self.device == nil){
+                self.device = peripharal
+                NSLog("Connecting to device \(deviceName ?? "No name ") - \(uuid)")
+                HardManagerSDK.shareBLEManager()?.startConnectDevice(withUUID: uuid)
+            }
         }
-        //}
         
         
     }
