@@ -94,6 +94,10 @@ import BackgroundTasks
                 result("Error")
             }
         }else if(call.method=="disconnect"){
+            guard let args = call.arguments else {
+              result("iOS could not recognize flutter arguments in method: (sendParams)")
+              return
+            }
             let deviceType:String = (args as? [String: Any])?["deviceType"] as! String
             self?.disconectDevice(result: result, deviceType: deviceType)
         }
