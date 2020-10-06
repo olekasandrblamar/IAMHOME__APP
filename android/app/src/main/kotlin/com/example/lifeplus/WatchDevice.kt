@@ -365,8 +365,10 @@ class WatchDevice:BaseDevice()     {
         if (HardSdk.getInstance().isBleEnabled) {
             HardSdk.getInstance().startScan()
             GlobalScope.launch {
-                delay(40000)
-                HardSdk.getInstance().stopScan()
+                delay(25000)
+                watchDataCallBack.stopScanning()
+                if(!watchDataCallBack.deviceConnected)
+                result.success(ConnectionInfo.createResponse(message = "Failed", connected = false, deviceFound = watchDataCallBack.deviceFound))
             }
         }
     }
@@ -424,9 +426,13 @@ class WatchDataCallBack : IHardScanCallback {
 
     private var context: Context? = null
 
-    private val result: MethodChannel.Result
+    private val result: MethodChannel.Result?
 
     private var deviceId:String? = null
+
+    var deviceFound = false
+
+    var deviceConnected = true
 
     constructor(context: Context, result: MethodChannel.Result) {
         this.context = context
@@ -500,6 +506,7 @@ class WatchDataCallBack : IHardScanCallback {
                 )
         )
         val connState = value.substring(26, 28)
+        deviceFound = true
         var connect = true
         deviceId?.let {enteredDeviceId->
             connect = false
@@ -530,8 +537,11 @@ class WatchDataCallBack : IHardScanCallback {
             DataSync.CURRENT_MAC_ADDRESS = deviceAddr
             Log.d(TAG, "Got data $factoryNameByUUID device ${device.name} address ${device.address}")
             stopScanning()
-            result.success(ConnectionInfo.createResponse(message = "Connected",connected = true,deviceId = deviceAddr,deviceName = deviceName,
-                    additionalInfo = mapOf("factoryName" to targetDevice!!.factoryName),deviceType = BaseDevice.WATCH_DEVICE))
+            deviceConnected = true
+            result?.let {
+                result.success(ConnectionInfo.createResponse(message = "Connected", connected = true, deviceId = deviceAddr, deviceName = deviceName,
+                        additionalInfo = mapOf("factoryName" to targetDevice!!.factoryName), deviceType = BaseDevice.WATCH_DEVICE, deviceFound = deviceFound))
+            }
         }
         if (deviceName != null) {
             HardSdk.getInstance().stopScan();
@@ -543,7 +553,7 @@ class WatchDataCallBack : IHardScanCallback {
 
     }
 
-    private fun stopScanning() {
+    fun stopScanning() {
         HardSdk.getInstance().stopScan()
         HardSdk.getInstance().removeHardScanCallback(this)
     }

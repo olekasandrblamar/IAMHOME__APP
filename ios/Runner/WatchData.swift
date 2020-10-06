@@ -14,6 +14,8 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var device:CBPeripheral? = nil
     var dayFormat = DateFormatter()
     var dateTimeFormat = DateFormatter()
+    var deviceFound = false
+    var deviceConected = false
     static var currentDeviceId:String? = nil
     
     override init() {
@@ -26,8 +28,26 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     func startScan(result:@escaping FlutterResult,deviceId:String) {
         self.result = result
         self.deviceId = deviceId
+        self.deviceFound = false
+        self.deviceConected = false
         NSLog("Scanning for devices with result")
         HardManagerSDK.shareBLEManager()?.scanDevices(["ITPOWER01"])
+        DispatchQueue.main.asyncAfter(deadline: .now() + 25) {
+            //Stop the scanning after 25 seconds
+            HardManagerSDK.shareBLEManager()?.stopScanDevice()
+            if(!self.deviceConected){
+                var connectionInfo = ConnectionInfo(deviceId: "", deviceName: "", connected: false, deviceFound: self.deviceFound, message: "failed")
+                do{
+                    let deviceJson = try JSONEncoder().encode(connectionInfo)
+                    let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                    NSLog("Sending Connection data back from device info \(connectionInfoData)")
+                    result(connectionInfoData)
+                }catch{
+                    NSLog("Error getting watch info from getDeviceInfo \(error)")
+                    result("Error")
+                }
+            }
+        }
        
     }
     
@@ -87,6 +107,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     }
     
     func disconnect(result:@escaping FlutterResult){
+        NSLog("Is connected \(HardManagerSDK.shareBLEManager().isConnected)")
         if(HardManagerSDK.shareBLEManager().isConnected){
             HardManagerSDK.shareBLEManager()?.disconnectHardDevice()
         }
@@ -124,7 +145,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             
             
             NSLog("Device connected \(deviceName ?? "No name ") - \(uuid)")
-            var connectionInfo = ConnectionInfo(deviceId: uuid, deviceName: deviceName, connected: true, message: "connected")
+            var connectionInfo = ConnectionInfo(deviceId: uuid, deviceName: deviceName, connected: true, deviceFound: self.deviceFound, message: "connected")
             connectionInfo.additionalInformation["factoryName"] = device!.description
             connectionInfo.additionalInformation["macId"] = macId
             if(uuid != nil){
@@ -246,6 +267,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         let peripharal = deviceDict["peripheral"] as? CBPeripheral
         let uuid = peripharal?.identifier.uuidString
         let deviceName = peripharal?.name
+        self.deviceFound = true
         NSLog("Got device in dict \(deviceName ?? "No name ") - \(uuid)")
         let stringLength:Int = deviceId?.count ?? 4
         let deviceSuffix = String(deviceName?.suffix(stringLength) as! Substring)

@@ -134,13 +134,14 @@ class ConnectionInfo{
     var deviceId:String? = null
     var deviceName:String? = null
     var connected = false
+    var deviceFound = false
     var message:String? = null
     var additionalInformation = mapOf<String,String>()
     var deviceType:String? = null
 
     companion object{
         fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null
-                           ,additionalInfo: Map<String, String> = mapOf<String,String>(),deviceType:String? = null):String{
+                           ,additionalInfo: Map<String, String> = mapOf<String,String>(),deviceType:String? = null,deviceFound:Boolean = true):String{
             val connectionData =  Gson().toJson(ConnectionInfo().apply {
                 this.deviceId = deviceId
                 this.connected = connected
@@ -148,6 +149,7 @@ class ConnectionInfo{
                 this.deviceName = deviceName
                 this.additionalInformation = additionalInfo
                 this.deviceType = deviceType
+                this.deviceFound = deviceFound
             })
             Log.i(MainActivity.TAG,"Sending connection data back $connectionData")
             return connectionData

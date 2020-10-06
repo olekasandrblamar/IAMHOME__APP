@@ -98,6 +98,7 @@ import BackgroundTasks
               result("iOS could not recognize flutter arguments in method: (sendParams)")
               return
             }
+            NSLog("Disconnecting device")
             let deviceType:String = (args as? [String: Any])?["deviceType"] as! String
             self?.disconectDevice(result: result, deviceType: deviceType)
         }
@@ -268,6 +269,7 @@ struct ConnectionInfo:Codable {
     var deviceId:String?
     var deviceName:String?
     var connected:Bool? = false
+    var deviceFound:Bool? = false
     var message:String?
     var additionalInformation: [String:String] = [:]
 }
