@@ -275,7 +275,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       padding: EdgeInsets.only(top: 50),
                       child: Center(
                         child: Text(
-                          'Logout',
+                          'Disconnect',
                           style: TextStyle(
                             color: Colors.white,
                           ),
