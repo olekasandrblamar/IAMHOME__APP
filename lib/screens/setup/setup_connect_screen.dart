@@ -168,7 +168,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
       setState(() {
         _statusTitle = 'Checking Device';
-        _statusDescription = 'Loading.....';
+        _statusDescription = 'Verifying.....';
       });
 
       connectionInfo = await platform.invokeMethod(
