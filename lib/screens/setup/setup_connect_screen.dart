@@ -157,7 +157,6 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         () => {
           if (connectionInfo == null)
             {
-              Navigator.of(context).pop(),
               _resetWithError(),
               showConnectionErrorDialog(
                 'Connection Fail!',
@@ -202,7 +201,6 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
       _redirectTo();
     } on PlatformException catch (e) {
-      Navigator.of(context).pop();
       _resetWithError();
       showConnectionErrorDialog(
         'Connection Fail!',
@@ -212,6 +210,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   }
 
   void _resetWithError() {
+    Navigator.of(context).pop();
     _deviceIdController.text = '';
     setState(
       () {
