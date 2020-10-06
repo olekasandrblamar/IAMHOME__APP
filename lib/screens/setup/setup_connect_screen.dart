@@ -10,6 +10,7 @@ import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/theme.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
 
 class SetupConnectScreen extends StatefulWidget {
@@ -81,13 +82,13 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
     }
   }
 
-  void showConnectionErrorDialog() {
+  void showConnectionErrorDialog(String title, String description) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('Connection Fail!'),
+        title: Text(title),
         content: Text(
-          'Unable to locate or connect to device',
+          description,
         ),
         actions: <Widget>[
           FlatButton(
@@ -105,12 +106,27 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
     try {
       print('Backing backend call to connect device');
 
+      FlutterBlue flutterBlue = FlutterBlue.instance;
+      var checkAvailability = await flutterBlue.isOn;
+
+      if (!checkAvailability) {
+        _resetWithError();
+        return showConnectionErrorDialog(
+          'Bluetooth Connection Fail!',
+          'Turn on your bluetooth',
+        );
+      }
+
       Future.delayed(
         const Duration(seconds: 30),
         () => {
           if (connectionInfo == null)
             {
               _resetWithError(),
+              showConnectionErrorDialog(
+                'Connection Fail!',
+                'Unable to locate or connect to device',
+              ),
             }
         },
       );
@@ -146,6 +162,10 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
       _redirectTo();
     } on PlatformException catch (e) {
       _resetWithError();
+      showConnectionErrorDialog(
+        'Connection Fail!',
+        'Unable to locate or connect to device',
+      );
     }
   }
 
@@ -157,8 +177,6 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         _isLoading = false;
       },
     );
-
-    showConnectionErrorDialog();
   }
 
   void _redirectTo() {
