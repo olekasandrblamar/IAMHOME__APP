@@ -2,6 +2,7 @@ import 'package:ceras/config/user_deviceinfo.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/screens/settings/debug_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/widgets/apppermissions_widget.dart';
@@ -18,6 +19,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  static const platform = MethodChannel('ceras.iamhome.mobile/device');
+
   PackageInfo _packageInfo = PackageInfo(
     appName: 'Unknown',
     packageName: 'Unknown',
@@ -36,6 +39,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
   Future<void> _initPackageInfo() async {
     final PackageInfo info = await PackageInfo.fromPlatform();
+
     setState(() {
       _packageInfo = info;
     });
@@ -59,7 +63,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }
 
   void _logout() async {
-    await Provider.of<AuthProvider>(context, listen: false).logout();
+    var deviceType =
+        await Provider.of<AuthProvider>(context, listen: false).deviceType;
+
+    if (deviceType != null) {
+      var disconnect = await platform.invokeMethod(
+        'disconnect',
+        <String, dynamic>{'deviceType': deviceType},
+      ) as String;
+
+      if (disconnect != null) {
+        await Provider.of<AuthProvider>(context, listen: false).logout();
+      }
+    }
   }
 
   @override
