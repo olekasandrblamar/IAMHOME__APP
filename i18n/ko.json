@@ -66,7 +66,7 @@
 			"agree": "동의하다",
 			"view": "전망"
 		},
-		"description1": "Ceras Health 앱을 읽고 동의하세요. 계속하려면 최종 사용자 사용권 계약 및 개인 정보 보호 정책.",
+		"description1": "Ceras Health APP을 읽고 동의하십시오. 계속하려면 최종 사용자 라이센스 계약 및 개인 정보 보호 정책",
 		"description2": "최종 사용자 라이선스 계약 및 개인 정보 보호 정책에 동의합니다.",
 		"title": "이용 약관"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "언어",
 			"permissions": "권한",
+			"privacy": "은둔",
 			"review": "리뷰를 작성"
 		},
 		"permissions": {

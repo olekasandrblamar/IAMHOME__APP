@@ -66,7 +66,7 @@
 			"agree": "Agree",
 			"view": "View"
 		},
-		"description1": "Please read and agree to Ceras Health app.  End User License Agreement & Privacy Policy to continue.",
+		"description1": "Please read and agree to Ceras Health APP.  End User License Agreement & Privacy Policy to continue",
 		"description2": "Agree to End User License Agreement & Privacy Policy.",
 		"title": "Terms & Conditions"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "language",
 			"permissions": "Permissions",
+			"privacy": "Privacy",
 			"review": "Write a review"
 		},
 		"permissions": {

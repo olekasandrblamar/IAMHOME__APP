@@ -66,7 +66,7 @@
 			"agree": "Zustimmen",
 			"view": "Aussicht"
 		},
-		"description1": "Bitte lesen Sie die Ceras Health App und stimmen Sie ihr zu. Endbenutzer-Lizenzvereinbarung und Datenschutzrichtlinie, um fortzufahren.",
+		"description1": "Bitte lesen Sie die Ceras Health APP und stimmen Sie ihr zu. Endbenutzer-Lizenzvereinbarung und Datenschutzrichtlinie, um fortzufahren",
 		"description2": "Stimmen Sie der Endbenutzer-Lizenzvereinbarung und den Datenschutzbestimmungen zu.",
 		"title": "Unsere Allgemeinen Geschäftsbedingungen"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "Sprache",
 			"permissions": "Berechtigungen",
+			"privacy": "Privatsphäre",
 			"review": "Eine Rezension schreiben"
 		},
 		"permissions": {

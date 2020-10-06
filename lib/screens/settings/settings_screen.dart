@@ -3,6 +3,7 @@ import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/screens/settings/debug_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/widgets/apppermissions_widget.dart';
@@ -76,6 +77,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
         await Provider.of<AuthProvider>(context, listen: false).logout();
       }
     }
+  }
+
+  void _openBrowser() {
+    final browser = InAppBrowser();
+    browser.openFile(
+      // url: 'https://flutter.io',
+      assetFilePath: "assets/privacy/index.html",
+      // options: InAppBrowserClassOptions(
+      // inAppWebViewGroupOptions: InAppWebViewGroupOptions(
+      // crossPlatform: InAppWebViewOptions(
+      // useShouldOverrideUrlLoading: true,
+      // useOnLoadResource: true,
+      // transparentBackground: true,
+      // applicationNameForUserAgent: 'Ceras',
+      // ),
+      // ),
+      // ),
+    );
   }
 
   @override
@@ -190,6 +209,39 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       child: Text(
                         _appLocalization
                             .translate('settings.content.permissions'),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Card(
+              child: Container(
+                padding: EdgeInsets.all(15),
+                child: GridTile(
+                  child: InkResponse(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Icon(
+                            Icons.policy,
+                            size: 50,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                        Container(
+                          height: 10,
+                        ),
+                      ],
+                    ),
+                    onTap: () => _openBrowser(),
+                  ),
+                  footer: Container(
+                    padding: EdgeInsets.only(top: 50),
+                    child: Center(
+                      child: Text(
+                        _appLocalization.translate('settings.content.privacy'),
                       ),
                     ),
                   ),
