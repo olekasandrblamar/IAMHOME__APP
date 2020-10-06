@@ -168,7 +168,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
       setState(() {
         _statusTitle = 'Checking Device';
-        _statusDescription = 'Verifying.....';
+        _statusDescription = 'Finding.....';
       });
 
       connectionInfo = await platform.invokeMethod(
@@ -184,6 +184,13 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
       final connectionData = WatchModel.fromJson(
         json.decode(connectionInfo) as Map<String, dynamic>,
       );
+
+      if (connectionData.deviceFound) {
+        setState(() {
+          _statusTitle = 'Device Found';
+          _statusDescription = 'Verifying.....';
+        });
+      }
 
       //TODO - Add code to check the result and add actions based on that
       await Provider.of<AuthProvider>(context, listen: false)
