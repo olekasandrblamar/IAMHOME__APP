@@ -19,6 +19,9 @@ import com.zhj.bluetooth.zhjbluetoothsdk.ble.bluetooth.exception.WriteBleExcepti
 import com.zhj.bluetooth.zhjbluetoothsdk.ble.bluetooth.scanner.ScanRecord
 import com.zhj.bluetooth.zhjbluetoothsdk.ble.bluetooth.scanner.ScanResult
 import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.*
 
 class ConnectionListener:OnLeConnectListener(){
@@ -76,6 +79,8 @@ class BandDevice :BaseDevice(){
         var mBluetoothLe: BluetoothLe? = null
         var isSyncing = false
         var lastSyncTime:Date? = null
+        var deviceFound = false
+        var deviceConnected = false
 
         private fun setTime(next: (() -> Unit)?){
 
@@ -364,9 +369,11 @@ class BandDevice :BaseDevice(){
         }
     }
 
-    private fun startDeviceConnection(context: Context, result: MethodChannel.Result?, deviceId: String? = null){
+    private fun startDeviceConnection(context: Context, result: MethodChannel.Result?, deviceId: String? = null,inputDeviceId:String? = null){
         mBluetoothLe!!.setOnConnectListener(TAG, ConnectionListener())
         isConnecting = true
+        deviceFound = false
+        deviceConnected = false
         deviceId?.let {
             mBluetoothLe = mBluetoothLe?.setScanWithDeviceAddress(it)
             Log.i(TAG,"scanning with device $it")
@@ -393,6 +400,7 @@ class BandDevice :BaseDevice(){
                                 mRssi = rssi
                                 ConnectionListener.result = result
                             }
+                            deviceConnected = true
                             DataSync.CURRENT_MAC_ADDRESS = bluetoothDevice.address
                             mBluetoothLe!!.startConnect(bluetoothDevice.address)
                             onScanCompleted()
@@ -400,7 +408,15 @@ class BandDevice :BaseDevice(){
 
                         override fun onBatchScanResults(results: List<ScanResult>) {
                             Log.i(TAG, "Got batch results results ：$results")
-                            val filteredData = if(deviceId==null) results else results.filter { it.a().address==deviceId }
+                            deviceFound = true
+                            val filteredData =  if(inputDeviceId !=null )
+                                                    results.filter {
+                                                        val address = it.a().address
+                                                        val macLastFour = address.substring(address.length-5).replace(":","")
+                                                        macLastFour.equals(inputDeviceId,true)
+                                                    }
+                                                else
+                                                    results.filter { it.a().address==deviceId }
                             if(filteredData.count()>0){
                                 val scanResult = filteredData.first()
                                 connectDevice(scanResult.a(),scanResult.c(),scanResult.b())
@@ -423,6 +439,13 @@ class BandDevice :BaseDevice(){
 //        }
     }
 
+    override fun disconnectDevice(result: MethodChannel.Result?) {
+        mBluetoothLe?.let {
+            it.disconnect()
+        }
+        result?.success("Success")
+    }
+
     override fun connectDevice(context: Context, result: MethodChannel.Result,deviceId: String?) {
         Log.i(TAG, "The package id is ${context.packageName}")
         if(mBluetoothLe==null) {
@@ -438,10 +461,20 @@ class BandDevice :BaseDevice(){
                     BleSdkWrapper.init(context)
                     mBluetoothLe = BluetoothLe.getDefault()
                     Log.i(TAG, "Init complete ${mBluetoothLe}")
-                    startDeviceConnection(context, result)
+                    startDeviceConnection(context, result,null,deviceId)
                 }
 
             })
+        }else{
+            startDeviceConnection(context, result,null,deviceId)
+        }
+
+        GlobalScope.launch {
+            delay(25000)
+            if(!deviceConnected)
+                MainActivity.currentActivity?.runOnUiThread {
+                    result.success(ConnectionInfo.createResponse(message = "Failed", connected = false, deviceFound = deviceFound))
+                }
         }
 
     }
