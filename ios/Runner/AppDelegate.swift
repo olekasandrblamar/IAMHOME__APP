@@ -231,7 +231,7 @@ import BackgroundTasks
             self.watchData.disconnect(result: result)
             NSLog("completed Connecting Watch")
         }else if(deviceType==AppDelegate.BAND_TYPE){
-            //TODO - implement band disconnect
+            getBandDevice()?.disconnectDevice(result: result)
         }
     }
     
