@@ -13,6 +13,19 @@ import 'package:ceras/theme.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
 
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return TextEditingValue(
+      text: newValue.text?.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
+
 class SetupConnectScreen extends StatefulWidget {
   final Map<dynamic, dynamic> routeArgs;
 
@@ -147,7 +160,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
       if (!checkAvailability) {
         _resetWithError();
         return showConnectionErrorDialog(
-          'Bluetooth Connection Fail!',
+          'Bluetooth Settings Failed!',
           'Turn on your bluetooth',
         );
       }
@@ -201,7 +214,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         } else {
           _resetWithError();
           showConnectionErrorDialog(
-            'Connection Fail!',
+            'Authentication Failed​!',
             'Unable to Connect device',
           );
         }
@@ -209,7 +222,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         _resetWithError();
         showConnectionErrorDialog(
           'Connection Fail!',
-          'Unable to Find device',
+          'Device Not Found',
         );
       }
     } on PlatformException catch (e) {
@@ -315,6 +328,9 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                         onChanged: _onChangeDeviceIdInput,
                         enabled: !_isLoading ? true : false,
                         maxLength: 4,
+                        inputFormatters: [
+                          UpperCaseTextFormatter(),
+                        ],
                       ),
                     ),
                     flex: 4,
