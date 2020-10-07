@@ -359,6 +359,8 @@ class WatchDevice:BaseDevice()     {
     override fun connectDevice(context: Context, result: MethodChannel.Result,deviceId:String?) {
         HardSdk.getInstance().init(context)
         val watchDataCallBack = WatchDataCallBack(context, result,deviceId)
+        WatchDataCallBack.deviceName = null
+        WatchDataCallBack.deviceAddr = null
         HardSdk.getInstance().setHardScanCallback(watchDataCallBack)
         ConnectDeviceCallBack.currentCallBack = ConnectDeviceCallBack(result)
         HardSdk.getInstance().setHardSdkCallback(ConnectDeviceCallBack.currentCallBack)
@@ -366,9 +368,12 @@ class WatchDevice:BaseDevice()     {
             HardSdk.getInstance().startScan()
             GlobalScope.launch {
                 delay(25000)
+                Log.d(TAG,"Unable to find device ${watchDataCallBack.deviceConnected}")
                 watchDataCallBack.stopScanning()
                 if(!watchDataCallBack.deviceConnected)
-                result.success(ConnectionInfo.createResponse(message = "Failed", connected = false, deviceFound = watchDataCallBack.deviceFound))
+                    MainActivity.currentActivity?.runOnUiThread {
+                        result.success(ConnectionInfo.createResponse(message = "Failed", connected = false, deviceFound = watchDataCallBack.deviceFound))
+                    }
             }
         }
     }
@@ -384,11 +389,12 @@ class WatchDevice:BaseDevice()     {
             dataCallback = DataCallBack(result)
             //Load the data from device
         }
+        var returnValue = true
         //If the device is not connected  try to connect
         if(!HardSdk.getInstance().isDevConnected &&
                 !HardSdk.getInstance().isConnecting){
             HardSdk.getInstance().init(context)
-
+            returnValue = false
             HardSdk.getInstance().setHardSdkCallback(dataCallback)
             HardSdk.getInstance().bindBracelet(
                     connectionInfo.additionalInformation["factoryName"],
@@ -398,9 +404,12 @@ class WatchDevice:BaseDevice()     {
         }else if(!HardSdk.getInstance().isSyncing && HardSdk.getInstance().isDevConnected){ //If the data is not syncing
             HardSdk.getInstance().setHardSdkCallback(dataCallback)
             Log.i(TAG, "Data sync complete")
+            returnValue = false
             result?.success("Load complete")
             syncData()
         }
+        if(returnValue)
+            result?.success("Load complete")
     }
 
 
@@ -432,7 +441,7 @@ class WatchDataCallBack : IHardScanCallback {
 
     var deviceFound = false
 
-    var deviceConnected = true
+    var deviceConnected = false
 
     constructor(context: Context, result: MethodChannel.Result) {
         this.context = context
@@ -514,9 +523,9 @@ class WatchDataCallBack : IHardScanCallback {
             val lastFour = device.address.substring(device.address.length - 5).replace(":","")
             Log.d(TAG,"entered device id $enteredDeviceId with $deviceAddr with last four $lastFour")
             if(lastFour.toLowerCase()==enteredDeviceId.toLowerCase()){
+                Log.d(TAG,"values matched matched")
                 connect = true
             }
-
         }
         if (!TextUtils.isEmpty(device.name) && deviceName == null && connect) {
             Log.d(TAG, "Found device ${device.name}")

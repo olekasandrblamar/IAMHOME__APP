@@ -27,6 +27,7 @@ class MainActivity: FlutterActivity()  {
     companion object{
         var lastConnected: Calendar = Calendar.getInstance()
         var currentContext:Context? = null
+        var currentActivity:MainActivity? = null
         val TAG = MainActivity::class.java.simpleName
         private const val BACKGROUND_JOB = "background_bluetooth"
         var deviceId = ""
@@ -85,6 +86,7 @@ class MainActivity: FlutterActivity()  {
     private fun connectDeviceChannel(flutterEngine: FlutterEngine){
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
             currentContext = context
+            currentActivity = this
             BaseDevice.isBackground = false
             if(call.method=="connectDevice"){
                 val deviceType = call.argument<String>("deviceType")
