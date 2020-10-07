@@ -160,7 +160,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
       if (!checkAvailability) {
         _resetWithError();
         return showConnectionErrorDialog(
-          'Bluetooth Connection Fail!',
+          'Bluetooth Settings Failed!',
           'Turn on your bluetooth',
         );
       }
@@ -214,7 +214,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         } else {
           _resetWithError();
           showConnectionErrorDialog(
-            'Connection Fail!',
+            'Authentication Failed​!',
             'Unable to Connect device',
           );
         }
@@ -222,7 +222,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         _resetWithError();
         showConnectionErrorDialog(
           'Connection Fail!',
-          'Unable to Find device',
+          'Device Not Found',
         );
       }
     } on PlatformException catch (e) {
