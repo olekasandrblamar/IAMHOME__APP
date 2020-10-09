@@ -29,6 +29,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         self.result = result
         self.deviceId = deviceId
         self.deviceFound = false
+        self.device = nil
         self.deviceConected = false
         NSLog("Scanning for devices with result")
         HardManagerSDK.shareBLEManager()?.scanDevices(["ITPOWER01"])
@@ -111,6 +112,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         if(HardManagerSDK.shareBLEManager().isConnected){
             HardManagerSDK.shareBLEManager()?.disconnectHardDevice()
         }
+        self.device = nil
         result("Success")
     }
     
@@ -271,7 +273,6 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         NSLog("Got device in dict \(deviceName ?? "No name ") - \(uuid)")
         let stringLength:Int = deviceId?.count ?? 4
         let deviceSuffix = String(deviceName?.suffix(stringLength) as! Substring)
-        
         
         if( deviceSuffix.lowercased() == deviceId?.lowercased()){
             if(self.device == nil){
