@@ -22,7 +22,7 @@ void main() {
 
     BuildEnvironment.init(
       flavor: BuildFlavor.alpha,
-      baseUrl: 'https://devicemgmt.alpha.myceras.com/api/v1/device/',
+      baseUrl: 'https://device.alpha.myceras.com/api/v1/device/',
       baseUrl2: 'https://api',
     );
 
