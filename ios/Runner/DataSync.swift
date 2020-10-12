@@ -21,7 +21,7 @@ class CustomEncoder: JSONEncoder{
 
 class DataSync {
     
-    private static let baseUrl = "https://device.alpha.myceras.com/api/v1/device/"
+    private static let baseUrl = "https://device.myceras.com/api/v1/device/"
     private static let encoder = CustomEncoder()
     private static let LAST_UPDATES = "flutter.last_sync_updates"
     static let USER_PROFILE_DATA = "flutter.user_profile_data"
