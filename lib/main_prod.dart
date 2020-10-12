@@ -24,7 +24,7 @@ void main() {
 
     BuildEnvironment.init(
       flavor: BuildFlavor.production,
-      baseUrl: 'https://device.myceras.com/api/v1/device/',
+      baseUrl: 'https://tracker.ceras.io/api/v1/device/',
       baseUrl2: 'https://api',
     );
 
