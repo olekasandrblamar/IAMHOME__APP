@@ -33,8 +33,7 @@ class AppPermissions extends StatelessWidget {
           child: ListView(
               children: Permission.values
                   .where((Permission permission) {
-                    return permission == Permission.camera ||
-                        permission == Permission.location ||
+                    return permission == Permission.location ||
                         permission == Permission.notification;
                   })
                   .map((Permission permission) =>
