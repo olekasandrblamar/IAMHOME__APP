@@ -65,7 +65,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             let tempArray = values["temperatureArray"] as! [[String:String]]
             syncTemparature(tempArray: tempArray)
         }
-        if(option == HardGettingOption.stepDetail){
+        if(option == HardGettingOption.stepDetail && values != nil){
             let stepData = values as! [String:Any]
             syncStepInfo(stepInfo: stepData)
         }
