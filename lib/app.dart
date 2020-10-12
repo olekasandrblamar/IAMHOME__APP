@@ -1,19 +1,18 @@
 import 'dart:io';
 
-import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:ceras/providers/devices_provider.dart';
-import 'package:firebase_analytics/firebase_analytics.dart';
-import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:flutter_blue/flutter_blue.dart';
-import 'package:flutter_localizations/flutter_localizations.dart';
-import 'package:ceras/config/background_fetch.dart';
+import 'package:ceras/providers/applanguage_provider.dart';
 import 'package:ceras/providers/auth_provider.dart';
+import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/intro_screen.dart';
 import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/screens/splash_screen.dart';
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:flutter/foundation.dart' show kDebugMode;
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
-import 'package:ceras/providers/applanguage_provider.dart';
 
 import 'config/app_localizations.dart';
 import 'config/dynamiclinks_setup.dart';
@@ -43,12 +42,35 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> _handleStartUpLogic() async {
+    await _initializeFlutterFire();
+
     await PushNotificationsManager().init();
 
     DynamicLinksSetup().initDynamicLinks();
     // initalizeBackgroundFetch();
 
     // await initPlatformState(false);
+  }
+
+  // Define an async function to initialize FlutterFire
+  Future<void> _initializeFlutterFire() async {
+    if (kDebugMode) {
+      // Force disable Crashlytics collection while doing every day development.
+      // Temporarily toggle this to true if you want to test crash reporting in your app.
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(false);
+    } else {
+      // Handle Crashlytics enabled status when not in Debug,
+      // e.g. allow your users to opt-in to crash reporting.
+      await FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
+    }
+
+    // Pass all uncaught errors to Crashlytics.
+    Function originalOnError = FlutterError.onError;
+    FlutterError.onError = (FlutterErrorDetails errorDetails) async {
+      await FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
+      // Forward to original handler.
+      originalOnError(errorDetails);
+    };
   }
 
   @override

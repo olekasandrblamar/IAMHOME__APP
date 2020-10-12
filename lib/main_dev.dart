@@ -15,12 +15,6 @@ void main() {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    // Pass all uncaught errors from the framework to Crashlytics.
-    FlutterError.onError = (FlutterErrorDetails errorDetails) async {
-      await FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
-      // Forward to original handler.
-    };
-
     BuildEnvironment.init(
       flavor: BuildFlavor.development,
       baseUrl: 'https://device.dev.myceras.com/api/v1/device/',
@@ -51,7 +45,7 @@ void main() {
 
   Isolate.current.addErrorListener(RawReceivePort((pair) async {
     final List<dynamic> errorAndStacktrace = pair;
-    await Crashlytics.instance.recordError(
+    await FirebaseCrashlytics.instance.recordError(
       errorAndStacktrace.first,
       errorAndStacktrace.last,
     );

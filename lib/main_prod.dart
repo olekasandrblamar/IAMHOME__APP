@@ -14,14 +14,6 @@ void main() {
   try {
     WidgetsFlutterBinding.ensureInitialized();
 
-    FirebaseCrashlytics.instance.setCrashlyticsCollectionEnabled(true);
-
-    // Pass all uncaught errors from the framework to Crashlytics.
-    FlutterError.onError = (FlutterErrorDetails errorDetails) async {
-      await FirebaseCrashlytics.instance.recordFlutterError(errorDetails);
-      // Forward to original handler.
-    };
-
     BuildEnvironment.init(
       flavor: BuildFlavor.production,
       baseUrl: 'https://tracker.ceras.io/api/v1/device/',

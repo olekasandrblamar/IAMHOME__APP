@@ -79,9 +79,9 @@ android {
             shrinkResources true
             minifyEnabled true
 
-                ndk {
-                    debugSymbolLevel 'FULL'
-                }
+                // ndk {
+                //     debugSymbolLevel 'FULL'
+                // }
         }
     }
 }
