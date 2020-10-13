@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:ceras/widgets/translateheader_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/data/access_data.dart';
@@ -12,9 +14,53 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'widgets/show_access_alert_dialog.dart';
 
 class LocationsScreen extends StatelessWidget {
+  void _checkDevice(context) {
+    if (Platform.isIOS) {
+      _checkPermission(context);
+    } else {
+      _showDialog(context);
+    }
+  }
+
+  void _showDialog(context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Confirm',
+          ),
+          content: Text(
+            'The Ceras app collects location data to enable your doctor and care team to provide real time health care intervention in the case of emergency even when the app is closed or not in use.',
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(
+                'Cancel',
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text(
+                'Ok',
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _checkPermission(context);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _checkPermission(context) async {
-    var status = await Permission.location.request();
-    status = await Permission.locationAlways.request();
+    var status = Platform.isIOS
+        ? await Permission.location.request()
+        : await Permission.locationAlways.request();
 
     if (PermissionStatus.granted == status) {
       _goToCamera(context);
@@ -43,7 +89,7 @@ class LocationsScreen extends StatelessWidget {
         type: 'locations',
         accessData: locationData,
         onNothingSelected: () => _goToCamera(context),
-        onPermissionSelected: () => _checkPermission(context),
+        onPermissionSelected: () => _checkDevice(context),
       ),
     );
   }
