@@ -44,5 +44,3 @@ app.*.map.json
 android/key.properties
 android/secret/ceras-key.jks
 ios/Flutter/.last_build_id
-ios/Flutter/.last_build_id
-ios/Flutter/.last_build_id

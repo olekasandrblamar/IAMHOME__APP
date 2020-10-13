@@ -7,6 +7,7 @@ import 'package:ceras/screens/intro_screen.dart';
 import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/screens/splash_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
@@ -54,6 +55,8 @@ class _MyAppState extends State<MyApp> {
 
   // Define an async function to initialize FlutterFire
   Future<void> _initializeFlutterFire() async {
+    await Firebase.initializeApp();
+
     if (kDebugMode) {
       // Force disable Crashlytics collection while doing every day development.
       // Temporarily toggle this to true if you want to test crash reporting in your app.
