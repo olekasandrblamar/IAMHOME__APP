@@ -1,5 +1,9 @@
 import 'package:ceras/config/user_deviceinfo.dart';
+import 'package:ceras/providers/auth_provider.dart';
+import 'package:ceras/screens/settings/debug_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:launch_review/launch_review.dart';
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/widgets/apppermissions_widget.dart';
@@ -8,6 +12,7 @@ import 'package:ceras/widgets/languageselection_widget.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/theme.dart';
 import 'package:package_info/package_info.dart';
+import 'package:provider/provider.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -15,6 +20,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  static const platform = MethodChannel('ceras.iamhome.mobile/device');
+
   PackageInfo _packageInfo = PackageInfo(
     appName: 'Unknown',
     packageName: 'Unknown',
@@ -22,23 +29,71 @@ class _SettingsScreenState extends State<SettingsScreen> {
     buildNumber: 'Unknown',
   );
 
+  bool _watchInfo = false;
+
   @override
   void initState() {
     super.initState();
     _initPackageInfo();
+    _checkWatchInfo();
   }
 
   Future<void> _initPackageInfo() async {
     final PackageInfo info = await PackageInfo.fromPlatform();
+
     setState(() {
       _packageInfo = info;
     });
   }
 
-  _showAboutDialog() {
+  void _showAboutDialog() {
     showAboutDialog(
       context: context,
       applicationVersion: _packageInfo.version,
+    );
+  }
+
+  void _checkWatchInfo() async {
+    final isValid =
+        await Provider.of<AuthProvider>(context, listen: false).isAuth;
+
+    print(isValid);
+    setState(() {
+      _watchInfo = isValid;
+    });
+  }
+
+  void _logout() async {
+    var deviceType =
+        await Provider.of<AuthProvider>(context, listen: false).deviceType;
+
+    if (deviceType != null) {
+      var disconnect = await platform.invokeMethod(
+        'disconnect',
+        <String, dynamic>{'deviceType': deviceType},
+      ) as String;
+
+      if (disconnect != null) {
+        await Provider.of<AuthProvider>(context, listen: false).logout();
+      }
+    }
+  }
+
+  void _openBrowser() {
+    final browser = InAppBrowser();
+    browser.openFile(
+      // url: 'https://flutter.io',
+      assetFilePath: "assets/privacy/index.html",
+      // options: InAppBrowserClassOptions(
+      // inAppWebViewGroupOptions: InAppWebViewGroupOptions(
+      // crossPlatform: InAppWebViewOptions(
+      // useShouldOverrideUrlLoading: true,
+      // useOnLoadResource: true,
+      // transparentBackground: true,
+      // applicationNameForUserAgent: 'Ceras',
+      // ),
+      // ),
+      // ),
     );
   }
 
@@ -51,6 +106,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
         title: Text(
           _appLocalization.translate('settings.title'),
         ),
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.bug_report),
+        //     onPressed: () {
+        //       Navigator.of(context).push(
+        //         MaterialPageRoute<Null>(
+        //           builder: (BuildContext context) {
+        //             return DebugScreen();
+        //           },
+        //           fullscreenDialog: true,
+        //         ),
+        //       );
+        //     },
+        //   )
+        // ],
       ),
       // drawer: HardwareAppDrawer(routes.SettingsRoute),
       backgroundColor: AppTheme.background,
@@ -145,6 +215,76 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
+            Card(
+              child: Container(
+                padding: EdgeInsets.all(15),
+                child: GridTile(
+                  child: InkResponse(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Icon(
+                            Icons.policy,
+                            size: 50,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                        Container(
+                          height: 10,
+                        ),
+                      ],
+                    ),
+                    onTap: () => _openBrowser(),
+                  ),
+                  footer: Container(
+                    padding: EdgeInsets.only(top: 50),
+                    child: Center(
+                      child: Text(
+                        _appLocalization.translate('settings.content.privacy'),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (_watchInfo)
+              Card(
+                color: Theme.of(context).primaryColor,
+                child: Container(
+                  padding: EdgeInsets.all(15),
+                  child: GridTile(
+                    child: InkResponse(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Icon(
+                                Icons.exit_to_app,
+                                size: 50,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Container(
+                              height: 10,
+                            ),
+                          ],
+                        ),
+                        onTap: () => _logout()),
+                    footer: Container(
+                      padding: EdgeInsets.only(top: 50),
+                      child: Center(
+                        child: Text(
+                          'Disconnect',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             // Card(
             //   child: Container(
             //     padding: EdgeInsets.all(15),

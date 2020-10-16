@@ -1,4 +1,4 @@
-# lifeplus
+# ceras
 
 A new Flutter project.
 
@@ -141,3 +141,8 @@ https://github.com/mohamedHassanKa/flutter_internationalization/blob/master/lib/
 ## state
 
 https://medium.com/@baranmichal25_54778/scaling-up-simple-app-state-management-6c22d0a83da5
+
+## Notifications Firebase
+
+https://medium.com/@SebastianEngel/easy-push-notifications-with-flutter-and-firebase-cloud-messaging-d96084f5954f
+https://www.filledstacks.com/post/push-notifications-in-flutter-using-firebase/

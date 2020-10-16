@@ -17,11 +17,11 @@
 			"title": "相机"
 		},
 		"locations": {
-			"description": "为了更好地与您联系，您选择的护理计划要求我们向您发送通知。加入健康追踪程序，Ceras可以继续更新您的活动。",
+			"description": "授予位置权限可让应用在紧急情况下将您的位置信息告知您的医生或护理团队。",
 			"title": "地点"
 		},
 		"notifications": {
-			"description": "为了更好地与您联系，您选择的护理计划要求我们向您发送通知。加入健康追踪程序，Ceras可以继续更新您的活动。",
+			"description": "通知可能包括重要的健康警报和出现故障时的提醒。随时更改设置很简单。",
 			"title": "推送通知"
 		}
 	},
@@ -57,7 +57,7 @@
 			"title": "条件管理"
 		},
 		"health": {
-			"description": "自动从设备记录您的健康数据，并将其发送给医生，以检查您的健康状况。只是穿它而忘记它。",
+			"description": "您的信息会立即从您的设备上传并发送给您的医生。",
 			"title": "健康监控"
 		}
 	},
@@ -66,7 +66,7 @@
 			"agree": "同意",
 			"view": "视图"
 		},
-		"description1": "在使用Ceras应用程序之前，请仔细阅读以下条款。",
+		"description1": "请阅读并同意Ceras Health APP。最终用户许可协议和隐私政策继续",
 		"description2": "同意最终用户许可协议和隐私政策。",
 		"title": "我们的条款和条件"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "语言",
 			"permissions": "权限",
+			"privacy": "隐私",
 			"review": "写评论"
 		},
 		"permissions": {

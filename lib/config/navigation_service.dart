@@ -1,3 +1,4 @@
+import 'package:ceras/screens/setup/setup_home_screen.dart';
 import 'package:flutter/material.dart';
 
 // import 'package:ceras/screens/auth/switchstore_screen.dart';
@@ -21,8 +22,8 @@ class NavigationService {
   static goBackHome() {
     return navigatorKey.currentState.pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (BuildContext context) => IntroScreen(),
-          settings: const RouteSettings(name: routes.IntroRoute),
+          builder: (BuildContext context) => SetupHomeScreen(),
+          settings: const RouteSettings(name: routes.SetupHomeRoute),
         ),
         (Route<dynamic> route) => false);
   }

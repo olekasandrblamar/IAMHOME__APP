@@ -20,60 +20,99 @@ class BandDevice{
     let HR_BP_BOProcessor = ZHJHR_BP_BOProcessor()
     let stepAndSleepProcessor = ZHJStepAndSleepProcessor()
     let userInfoProcessor = ZHJUserInfoProcessor()
+    var deviceFound = false
+    var deviceConnected = false
     
-    
-    let MAC_ADDRESS_NAME = "flutter.device_macid"
+
     
     /**
         Used to connect the device
      */
     func connectDevice(result:@escaping FlutterResult,deviceId:String){
-        btProvider.bluetoothProviderManagerStateDidUpdate {[weak self] (state) in
-            guard let `self` = self else { return }
-            print(state)
-            if state == .poweredOn {
-                //self.autoReconnect()
-                delay(by: 1.0) {
-                    self.scanDevice(seconds: 10.0,result: result,deviceId: deviceId)
-                }
+//        btProvider.bluetoothProviderManagerStateDidUpdate {[weak self] (state) in
+//            guard let `self` = self else { return }
+//            print(state)
+//            if state == .poweredOn {
+//                //self.autoReconnect()
+//                delay(by: 1.0) {
+//                    self.scanDevice(seconds: 20.0,result: result,deviceId: deviceId)
+//                }
+//            }
+//        }
+        delay(by: 1.0) {
+            self.scanDevice(seconds: 20.0,result: result,deviceId: deviceId)
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 25) {
+            if(!self.deviceConnected || !self.deviceFound){
+                self.sendErrorResponse(result: result)
             }
         }
-        
+    }
+    
+    func sendErrorResponse(result:@escaping FlutterResult){
+        var connectionInfo = ConnectionInfo(deviceId: "", deviceName: "", connected: false,deviceFound: self.deviceFound, message: "connected")
+        do{
+            let deviceJson = try JSONEncoder().encode(connectionInfo)
+            let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+            result(connectionInfoData)
+        }catch{result("Error")}
+    }
+    
+    func disconnectDevice(result:@escaping FlutterResult){
+        btProvider.removeAutoReconnectDevice()
+        btProvider.disconnectDevice(disconnect: { [weak self] (device) in
+            NSLog("device disconnected \(device.name)")
+        })
+        result("Success")
     }
     
     func scanDevice(seconds: TimeInterval,result:@escaping FlutterResult,deviceId:String){
+        self.deviceConnected = false
+        self.deviceFound = false
         btProvider.scan(seconds: seconds) {[weak self] (devices) in
             guard let `self` = self else { return }
             NSLog("Found devices \(devices)")
             if(devices.capacity>0){
-                self.btProvider.stopScan()
-                var defaultIndex = 0;
+                self.deviceFound = true
+                var defaultIndex = -1;
                 if(BandDevice.currentDeviceMac != nil){
                     defaultIndex = devices.firstIndex(where: {[weak self] (currentDevice) -> Bool in
                         return (currentDevice.mac == BandDevice.currentDeviceMac)
-                    })!
+                    }) ?? -1
                 }
-                if(defaultIndex>=0){
-                let device = devices[defaultIndex]
                 
-                self.btProvider.connectDevice(device: device, success: { [weak self](p) in
-                    guard let `self` = self else { return }
-                    var connectionInfo = ConnectionInfo(deviceId: device.mac, deviceName: device.name, connected: true, message: "connected")
-                    connectionInfo.additionalInformation["factoryName"] = device.model
-                    connectionInfo.additionalInformation["macId"] = device.mac
-                    do{
-                        let deviceJson = try JSONEncoder().encode(connectionInfo)
-                        let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
-                        NSLog("Connection data \(connectionInfoData)")
-                        self.initialSync()
-                        UserDefaults.standard.set(AppDelegate.BAND_TYPE,forKey: AppDelegate.DEVICE_TYPE_KEY)
-                        result(connectionInfoData)
-                    }catch{result("Error")}
-                }, fail: { (p, err) in
-                    NSLog("Error while connection")
-                }, timeout:{
-                    
-                })
+                if(deviceId != nil && defaultIndex == -1){
+                    defaultIndex = devices.firstIndex(where: {[weak self] (currentDevice) -> Bool in
+                        let lastFourMac = String(currentDevice.mac.suffix(5)).replacingOccurrences(of: ":", with: "")
+                        return (lastFourMac.lowercased() == deviceId.lowercased())
+                    }) ?? -1
+                }
+                
+                if(defaultIndex>=0){
+                    let device = devices[defaultIndex]
+                    self.btProvider.stopScan()
+
+                    self.btProvider.connectDevice(device: device, success: { [weak self](p) in
+                        self?.deviceConnected = true
+                        guard let `self` = self else { return }
+                        var connectionInfo = ConnectionInfo(deviceId: device.mac, deviceName: device.name, connected: true,deviceFound: self.deviceFound, message: "connected")
+                        connectionInfo.additionalInformation["factoryName"] = device.model
+                        connectionInfo.additionalInformation["macId"] = device.mac
+                        UserDefaults.standard.set(device.mac,forKey: DataSync.MAC_ADDRESS_NAME)
+                        do{
+                            let deviceJson = try JSONEncoder().encode(connectionInfo)
+                            let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                            NSLog("Connection data \(connectionInfoData)")
+                            self.initialSync()
+                            UserDefaults.standard.set(AppDelegate.BAND_TYPE,forKey: AppDelegate.DEVICE_TYPE_KEY)
+                            result(connectionInfoData)
+                        }catch{result("Error")}
+                    }, fail: { (p, err) in
+                        NSLog("Error while connection")
+                        self.sendErrorResponse(result: result)
+                    }, timeout:{
+                        self.sendErrorResponse(result: result)
+                    })
                 }
             }
         }
@@ -114,13 +153,13 @@ class BandDevice{
     
     func initialSync(){
         NSLog("Initial sync ")
-        btProvider.discoverWriteCharacteristic {[weak self] (characteristic) in
-            guard let `self` = self else { return }
-            NSLog("Got charecterstic \(characteristic.properties)")
-            delay(by: 0.5) {
-                self.syncTime()
-            }
-        }
+//        btProvider.discoverWriteCharacteristic {[weak self] (characteristic) in
+//            guard let `self` = self else { return }
+//            NSLog("Got charecterstic \(characteristic.properties)")
+//            delay(by: 0.5) {
+//                self.syncTime()
+//            }
+//        }
         
         
     }
@@ -153,25 +192,25 @@ class BandDevice{
         let dateFormat = "yyyy-MM-dd HH:mm"
         var dataSyncDone = 0
         self.HR_BP_BOProcessor.readHR_BP_BOHistoryRecord(date, historyDataHandle: {[weak self] (HRModel, BPModel, BOModel) in
-            
+
             let hrUploads = HRModel.details.filter({ (ZHJHeartRateDetail) -> Bool in
                 return ZHJHeartRateDetail.HR>0
             }).map{(hrModel)->HeartRateUpload in
                 return HeartRateUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dateFormat,timeStr: hrModel.dateTime), heartRate: hrModel.HR, deviceId: BandDevice.currentDeviceMac!)
             }
-            
+
             let bpUploads = BPModel.details.map{(bpVal) -> BpUpload in
                 return BpUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dateFormat,timeStr: bpVal.dateTime),
                                 distolic: bpVal.DBP, systolic: bpVal.SBP, deviceId: BandDevice.currentDeviceMac!)
             }
-            
+
             let oxygenUploads = BOModel.details.filter({ (ZHJBloodOxygenDetail) -> Bool in
                 return ZHJBloodOxygenDetail.BO>0
             }).map{(oxygenUpload) -> OxygenLevelUpload in
                 return OxygenLevelUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dateFormat, timeStr: oxygenUpload.dateTime), oxygenLevel: oxygenUpload.BO, deviceId: BandDevice.currentDeviceMac!)
-                
+
             }
-            
+
             DataSync.uploadBloodPressure(bpLevels: bpUploads)
             DataSync.uploadHeartRateInfo(heartRates: hrUploads)
             DataSync.uploadOxygenLevels(oxygenLevels: oxygenUploads)
@@ -188,7 +227,7 @@ class BandDevice{
         user.height = 170
         user.weight = 600
         user.age = 25
-        self.userInfoProcessor.writeUserInfo(user) {[weak self] (result) in
+        self.userInfoProcessor.writeUserInfo(updateUserInfo(user: user)) {[weak self] (result) in
             guard let `self` = self else { return }
             NSLog("Updated user info with \(result == .correct)")
             self.readTemperature()
@@ -210,7 +249,7 @@ class BandDevice{
                 return ZHJStepDetail.step>0
             }).map{(step)->StepUpload in
                 dailySteps+=step.step
-                dailyCalories+=step.calories
+                dailyCalories+=Int(step.calories)
                 return StepUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dateFormat, timeStr: step.dateTime), steps: step.step, deviceId: BandDevice.currentDeviceMac!)
             }
             NSLog("Got steps \(stepModel.dateTime)")
@@ -225,11 +264,41 @@ class BandDevice{
             if(stepUploads.count>0){
                 DataSync.uploadSteps(steps: stepUploads)
             }
-            
-            
+
+
             },historyDoneHandle: {(obj) in
                 NSLog("steps complete")
             })
+    }
+    
+    func getCurrentDeviceStatus(connInfo: ConnectionInfo,result:@escaping FlutterResult){
+        var connectionInfo = ConnectionInfo()
+        connectionInfo.deviceId = connInfo.deviceId
+        btProvider.autoReconnect(success: { (device) in
+            if(device.state == .connected){
+                connectionInfo.connected = true
+            }else{
+                connectionInfo.connected = false
+            }
+            do{
+                let deviceJson = try JSONEncoder().encode(connectionInfo)
+                let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                NSLog("Connection data \(connectionInfoData)")
+                UserDefaults.standard.set(AppDelegate.BAND_TYPE,forKey: AppDelegate.DEVICE_TYPE_KEY)
+                result(connectionInfoData)
+                self.syncData(connectionInfo:connInfo)
+            }catch{result("Error")}
+        }) { (device, e) in
+            NSLog("Failed with error \(e.debugDescription)")
+            connectionInfo.connected = false
+            do{
+               let deviceJson = try JSONEncoder().encode(connectionInfo)
+               let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+               NSLog("Connection data \(connectionInfoData)")
+               UserDefaults.standard.set(AppDelegate.BAND_TYPE,forKey: AppDelegate.DEVICE_TYPE_KEY)
+               result(connectionInfoData)
+           }catch{result("Error")}
+        }
     }
     
     func processDeviceConfig(){
@@ -252,6 +321,18 @@ class BandDevice{
         }
     }
     
+    private func updateUserInfo(user:ZHJUserInfo)->ZHJUserInfo{
+        let userInfo = DataSync.getUserInfo()
+        if(userInfo != nil){
+            NSLog("updating user info from local storage")
+            user.sex = userInfo!.sex.uppercased() == "MALE" ? 0:1
+            user.height = userInfo!.heightInCm
+            user.weight = Int(userInfo!.weightInKgs*10)
+            user.age = userInfo!.age
+        }
+        return user
+    }
+    
     func syncData(connectionInfo:ConnectionInfo){
         BandDevice.currentDeviceMac = connectionInfo.deviceId
         DataSync.sendHeartBeat(heartBeat: HeartBeat(deviceId: connectionInfo.deviceId, macAddress: connectionInfo.deviceId))
@@ -268,7 +349,8 @@ class BandDevice{
                         user.height = 170
                         user.weight = 600
                         user.age = 25
-                        self?.userInfoProcessor.writeUserInfo(user) {[weak self] (result) in
+                        
+                        self?.userInfoProcessor.writeUserInfo((self?.updateUserInfo(user: user))!) {[weak self] (result) in
                             guard let `self` = self else { return }
                             self.processDeviceConfig()
                             guard result == .correct else {

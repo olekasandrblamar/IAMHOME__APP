@@ -17,12 +17,12 @@
 			"title": "Camera"
 		},
 		"locations": {
-			"description": "To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activities.",
-			"title": "Location"
+			"description": "Granting location permissions allows the app to communicate your location to your doctor or care team in the case of emergency.",
+			"title": "Location Permissions"
 		},
 		"notifications": {
-			"description": "To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activities.",
-			"title": "Push Notification"
+			"description": "Notifications may include important health alerts and reminders when something looks off.  It's simple to change them at any time in settings.",
+			"title": "Push Notifications"
 		}
 	},
 	"appLanguage": {
@@ -57,8 +57,8 @@
 			"title": "Conditions Managed"
 		},
 		"health": {
-			"description": "Automatically record your wellness data from the device and send them to your doctor for review of your health. Just wear it and forget it.",
-			"title": "Health Monitored"
+			"description": "Your information is instantly uploaded from your device and sent to your doctor.",
+			"title": "Health Monitoring"
 		}
 	},
 	"privacy": {
@@ -66,15 +66,16 @@
 			"agree": "Agree",
 			"view": "View"
 		},
-		"description1": "Before using the Ceras app, please read the following terms carefully.",
+		"description1": "Please read and agree to Ceras Health APP.  End User License Agreement & Privacy Policy to continue",
 		"description2": "Agree to End User License Agreement & Privacy Policy.",
-		"title": "Our Terms and Conditions"
+		"title": "Terms & Conditions"
 	},
 	"settings": {
 		"appversion": "App version",
 		"content": {
 			"language": "language",
 			"permissions": "Permissions",
+			"privacy": "Privacy",
 			"review": "Write a review"
 		},
 		"permissions": {

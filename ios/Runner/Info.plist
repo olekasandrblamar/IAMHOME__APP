@@ -4,9 +4,10 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-		<string>com.transistorsoft.fetch</string>
-		<string>com.transistorsoft.datasync</string>
-		<string>com.transistorsoft.dataupdate</string>
+<!--		<string>com.transistorsoft.fetch</string>-->
+<!--		<string>com.transistorsoft.datasync</string>-->
+<!--		<string>com.transistorsoft.dataupdate</string>-->
+        <string>com.cerashealth.datasync</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
@@ -17,7 +18,7 @@
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
-	<string>lifeplus</string>
+	<string>ceras</string>
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>

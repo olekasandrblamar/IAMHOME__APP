@@ -8,7 +8,10 @@ import 'package:ceras/constants/route_paths.dart' as routes;
 class SetupAppBar extends StatelessWidget implements PreferredSizeWidget {
   const SetupAppBar({
     Key key,
+    @required this.name,
   }) : super(key: key);
+
+  final String name;
 
   @override
   Widget build(BuildContext context) {
@@ -26,11 +29,12 @@ class SetupAppBar extends StatelessWidget implements PreferredSizeWidget {
         Expanded(
           child: Center(
               child: Text(
-            _appLocalization.translate('setup.home.title'),
-            // style: TextStyle(
-            //   color: Colors.black,
-            // ),
-          )),
+                  // _appLocalization.translate('setup.home.title'),
+                  name
+                  // style: TextStyle(
+                  //   color: Colors.black,
+                  // ),
+                  )),
         )
       ]),
       actions: <Widget>[

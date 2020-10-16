@@ -17,11 +17,11 @@
 			"title": "Câmera"
 		},
 		"locations": {
-			"description": "Para se conectar melhor com você, o plano de cuidados que você seleciona exige que enviemos as notificações. Junte-se ao programa de monitoramento de bem-estar para que Ceras possa continuar a atualizar suas atividades.",
+			"description": "A concessão de permissões de localização permite que o aplicativo comunique sua localização ao seu médico ou equipe de atendimento em caso de emergência.",
 			"title": "Localização"
 		},
 		"notifications": {
-			"description": "Para se conectar melhor com você, o plano de cuidados que você seleciona exige que enviemos as notificações. Junte-se ao programa de monitoramento de bem-estar para que Ceras possa continuar a atualizar suas atividades.",
+			"description": "As notificações podem incluir alertas de saúde importantes e lembretes quando algo parece errado. É simples alterá-los a qualquer momento nas configurações.",
 			"title": "Notificação PUSH"
 		}
 	},
@@ -57,7 +57,7 @@
 			"title": "Condições gerenciadas"
 		},
 		"health": {
-			"description": "Grave automaticamente seus dados de bem-estar do dispositivo e envie-os ao seu médico para avaliação de sua saúde. Apenas use e esqueça.",
+			"description": "Suas informações são carregadas instantaneamente do seu dispositivo e enviadas ao seu médico.",
 			"title": "Saúde monitorada"
 		}
 	},
@@ -66,7 +66,7 @@
 			"agree": "Aceita",
 			"view": "Visão"
 		},
-		"description1": "Antes de usar o aplicativo Ceras, leia os termos a seguir com atenção.",
+		"description1": "Leia e concorde com o APP da Ceras Health. Contrato de licença do usuário final e política de privacidade para continuar",
 		"description2": "Aceite o Contrato de Licença do Usuário Final e a Política de Privacidade.",
 		"title": "Nossos Termos e Condições"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "Língua",
 			"permissions": "Permissões",
+			"privacy": "Privacidade",
 			"review": "Escreva uma crítica"
 		},
 		"permissions": {

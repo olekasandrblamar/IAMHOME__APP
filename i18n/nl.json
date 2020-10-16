@@ -17,11 +17,11 @@
 			"title": "Camera"
 		},
 		"locations": {
-			"description": "Om een betere connectie met u te maken, vereist het zorgplan dat u selecteert, dat wij u de meldingen sturen. Sluit u aan bij het wellness-tracker-programma, zodat Ceras uw activiteiten kan blijven updaten.",
+			"description": "Door locatietoestemmingen te verlenen, kan de app uw locatie doorgeven aan uw arts of zorgteam in geval van nood.",
 			"title": "Plaats"
 		},
 		"notifications": {
-			"description": "Om een betere connectie met u te maken, vereist het zorgplan dat u selecteert, dat wij u de meldingen sturen. Sluit u aan bij het wellness-tracker-programma, zodat Ceras uw activiteiten kan blijven updaten.",
+			"description": "Meldingen kunnen belangrijke gezondheidswaarschuwingen en herinneringen bevatten wanneer iets er niet uitziet. Het is eenvoudig om ze op elk moment in de instellingen te wijzigen.",
 			"title": "Push notificatie"
 		}
 	},
@@ -57,7 +57,7 @@
 			"title": "Voorwaarden beheerd"
 		},
 		"health": {
-			"description": "Registreer automatisch uw welzijnsgegevens van het apparaat en stuur ze naar uw arts voor beoordeling van uw gezondheid. Draag het gewoon en vergeet het.",
+			"description": "Uw informatie wordt direct vanaf uw apparaat geüpload en naar uw arts gestuurd.",
 			"title": "Gezondheid gecontroleerd"
 		}
 	},
@@ -66,7 +66,7 @@
 			"agree": "mee eens",
 			"view": "Uitzicht"
 		},
-		"description1": "Lees de volgende voorwaarden zorgvuldig door voordat u de Ceras-app gebruikt.",
+		"description1": "Lees en ga akkoord met Ceras Health APP. Licentieovereenkomst voor eindgebruikers en privacybeleid om door te gaan",
 		"description2": "Ga akkoord met de licentieovereenkomst en het privacybeleid voor eindgebruikers.",
 		"title": "Onze algemene voorwaarden"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "Taal",
 			"permissions": "machtigingen",
+			"privacy": "Privacy",
 			"review": "Schrijf een recensie"
 		},
 		"permissions": {

@@ -17,11 +17,11 @@
 			"title": "Máy ảnh"
 		},
 		"locations": {
-			"description": "Để kết nối với bạn tốt hơn, chương trình chăm sóc bạn chọn yêu cầu chúng tôi gửi thông báo cho bạn. Tham gia chương trình theo dõi sức khỏe để Ceras có thể tiếp tục cập nhật các hoạt động của bạn.",
+			"description": "Việc cấp quyền định vị cho phép ứng dụng thông báo vị trí của bạn với bác sĩ hoặc nhóm chăm sóc của bạn trong trường hợp khẩn cấp.",
 			"title": "Vị trí"
 		},
 		"notifications": {
-			"description": "Để kết nối với bạn tốt hơn, chương trình chăm sóc bạn chọn yêu cầu chúng tôi gửi thông báo cho bạn. Tham gia chương trình theo dõi sức khỏe để Ceras có thể tiếp tục cập nhật các hoạt động của bạn.",
+			"description": "Thông báo có thể bao gồm các cảnh báo và lời nhắc quan trọng về sức khỏe khi có điều gì đó không ổn. Thật đơn giản để thay đổi chúng bất kỳ lúc nào trong cài đặt.",
 			"title": "Thông báo đẩy"
 		}
 	},
@@ -57,7 +57,7 @@
 			"title": "Điều kiện được quản lý"
 		},
 		"health": {
-			"description": "Tự động ghi lại dữ liệu sức khỏe của bạn từ thiết bị và gửi chúng cho bác sĩ để xem xét sức khỏe của bạn. Chỉ cần mặc nó và quên nó đi.",
+			"description": "Thông tin của bạn ngay lập tức được tải lên từ thiết bị của bạn và được gửi đến bác sĩ của bạn.",
 			"title": "Theo dõi sức khỏe"
 		}
 	},
@@ -66,7 +66,7 @@
 			"agree": "Đồng ý",
 			"view": "Lượt xem"
 		},
-		"description1": "Trước khi sử dụng ứng dụng Ceras, vui lòng đọc kỹ các điều khoản sau.",
+		"description1": "Vui lòng đọc và đồng ý với Ceras Health APP. Thỏa thuận Giấy phép Người dùng Cuối & Chính sách Bảo mật để tiếp tục",
 		"description2": "Đồng ý với Thỏa thuận cấp phép người dùng cuối và Chính sách bảo mật.",
 		"title": "Điều khoản và Điều kiện của chúng tôi"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "ngôn ngữ",
 			"permissions": "Quyền",
+			"privacy": "Riêng tư",
 			"review": "Viết nhận xét"
 		},
 		"permissions": {

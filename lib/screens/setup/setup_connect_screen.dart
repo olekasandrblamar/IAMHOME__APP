@@ -10,7 +10,21 @@ import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/theme.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(
+    TextEditingValue oldValue,
+    TextEditingValue newValue,
+  ) {
+    return TextEditingValue(
+      text: newValue.text?.toUpperCase(),
+      selection: newValue.selection,
+    );
+  }
+}
 
 class SetupConnectScreen extends StatefulWidget {
   final Map<dynamic, dynamic> routeArgs;
@@ -29,7 +43,11 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   var _displayImage = '';
   var _isLoading = false;
   var _deviceIdNumber = '';
+  String connectionInfo = null;
   String _deviceTag = '';
+
+  var _statusTitle = '';
+  var _statusDescription = '';
 
   static const platform = MethodChannel('ceras.iamhome.mobile/device');
 
@@ -80,9 +98,79 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
     }
   }
 
+  void showConnectionErrorDialog(String title, String description) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(title),
+        content: Text(
+          description,
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  void _loadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => SimpleDialog(
+        title: Text(
+          _statusTitle,
+          textAlign: TextAlign.center,
+        ),
+        children: <Widget>[
+          Text(
+            _statusDescription,
+            textAlign: TextAlign.center,
+          ),
+        ],
+        // backgroundColor: Colors.blueAccent,
+        elevation: 4,
+        shape: StadiumBorder(
+          side: BorderSide(
+            style: BorderStyle.none,
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _connectDevice() async {
     try {
-      final connectionInfo = await platform.invokeMethod(
+      print('Backing backend call to connect device');
+      setState(() {
+        _statusTitle = 'Checking Bluetooth';
+        _statusDescription = 'Loading.....';
+      });
+
+      _loadingDialog();
+
+      FlutterBlue flutterBlue = FlutterBlue.instance;
+      var checkAvailability = await flutterBlue.isOn;
+
+      if (!checkAvailability) {
+        _resetWithError();
+        return showConnectionErrorDialog(
+          'Bluetooth Settings Failed!',
+          'Turn on your bluetooth',
+        );
+      }
+
+      setState(() {
+        _statusTitle = 'Checking Device';
+        _statusDescription = 'Finding.....';
+      });
+
+      connectionInfo = await platform.invokeMethod(
         'connectDevice',
         <String, dynamic>{
           'deviceId': _deviceIdNumber,
@@ -90,31 +178,77 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         },
       ) as String;
 
-      print('Got response ' + connectionInfo);
+      print('Got response from os code for connection' + connectionInfo);
 
       final connectionData = WatchModel.fromJson(
         json.decode(connectionInfo) as Map<String, dynamic>,
       );
 
-      //TODO - Add code to check the result and add actions based on that
-      await Provider.of<AuthProvider>(context, listen: false)
-          .saveWatchInfo(connectionData);
+      if (connectionData.deviceFound) {
+        setState(() {
+          _statusTitle = 'Device Found';
+          _statusDescription = 'Verifying.....';
+        });
 
-      await Provider.of<AuthProvider>(context, listen: false)
-          .setDeviceType(_deviceType);
+        if (connectionData.connected) {
+          setState(() {
+            _statusTitle = 'Device Found';
+            _statusDescription = 'Connecting.....';
+          });
 
-      await Provider.of<AuthProvider>(context, listen: false)
-          .setDeviceData(_deviceData);
+          //TODO - Add code to check the result and add actions based on that
+          await Provider.of<AuthProvider>(context, listen: false)
+              .saveWatchInfo(connectionData);
 
-      setState(() {
+          await Provider.of<AuthProvider>(context, listen: false)
+              .setDeviceType(_deviceType);
+
+          await Provider.of<AuthProvider>(context, listen: false)
+              .setDeviceData(_deviceData);
+
+          setState(() {
+            _isLoading = false;
+          });
+
+          _redirectTo();
+        } else {
+          _resetWithError();
+          showConnectionErrorDialog(
+            'Authentication Failed​!',
+            'Unable to Connect device',
+          );
+        }
+      } else {
+        _resetWithError();
+        showConnectionErrorDialog(
+          'Connection Fail!',
+          'Device Not Found',
+        );
+      }
+    } on PlatformException catch (e) {
+      _resetWithError();
+      showConnectionErrorDialog(
+        'Connection Fail!',
+        'Unable to locate or connect to device',
+      );
+    }
+  }
+
+  void _resetWithError() {
+    Navigator.of(context).pop();
+    _deviceIdController.text = '';
+    setState(
+      () {
+        _statusTitle = '';
+        _statusDescription = '';
+        _deviceIdNumber = '';
         _isLoading = false;
-      });
-
-      _redirectTo();
-    } on PlatformException catch (e) {}
+      },
+    );
   }
 
   void _redirectTo() {
+    Navigator.of(context).pop();
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
           builder: (BuildContext context) => SetupActiveScreen(),
@@ -194,6 +328,9 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                         onChanged: _onChangeDeviceIdInput,
                         enabled: !_isLoading ? true : false,
                         maxLength: 4,
+                        inputFormatters: [
+                          UpperCaseTextFormatter(),
+                        ],
                       ),
                     ),
                     flex: 4,

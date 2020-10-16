@@ -76,9 +76,7 @@ class PrivacyScreen extends StatelessWidget {
                     horizontal: 35.0,
                   ),
                   child: Text(
-                    _appLocalization.translate('privacy.description1') +
-                        '\n\n' +
-                        _appLocalization.translate('privacy.description2'),
+                    _appLocalization.translate('privacy.description1'),
                     textAlign: TextAlign.center,
                     style: AppTheme.subtitle,
                   ),

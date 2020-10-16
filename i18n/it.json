@@ -17,11 +17,11 @@
 			"title": "telecamera"
 		},
 		"locations": {
-			"description": "Per connettersi meglio con te, il piano di assistenza che selezioni ci richiede di inviarti le notifiche. Partecipa al programma wellness tracker così Ceras può continuare ad aggiornare le tue attività.",
+			"description": "La concessione delle autorizzazioni sulla posizione consente all'app di comunicare la tua posizione al medico o al team di assistenza in caso di emergenza.",
 			"title": "Posizione"
 		},
 		"notifications": {
-			"description": "Per connettersi meglio con te, il piano di assistenza che selezioni ci richiede di inviarti le notifiche. Partecipa al programma wellness tracker così Ceras può continuare ad aggiornare le tue attività.",
+			"description": "Le notifiche possono includere importanti avvisi di salute e promemoria quando qualcosa sembra fuori posto. È semplice modificarli in qualsiasi momento nelle impostazioni.",
 			"title": "Notifica push"
 		}
 	},
@@ -57,7 +57,7 @@
 			"title": "Condizioni gestite"
 		},
 		"health": {
-			"description": "Registra automaticamente i tuoi dati di benessere dal dispositivo e inviali al tuo medico per la revisione della tua salute. Basta indossarlo e dimenticarlo.",
+			"description": "Le tue informazioni vengono immediatamente caricate dal tuo dispositivo e inviate al tuo medico.",
 			"title": "Salute monitorata"
 		}
 	},
@@ -66,7 +66,7 @@
 			"agree": "Essere d'accordo",
 			"view": "vista"
 		},
-		"description1": "Prima di utilizzare l'app Ceras, leggere attentamente i seguenti termini.",
+		"description1": "Si prega di leggere e accettare l'APP Ceras Health. Contratto di licenza con l'utente finale e informativa sulla privacy per continuare",
 		"description2": "Accetta il Contratto di licenza con l'utente finale e l'Informativa sulla privacy.",
 		"title": "I nostri termini e condizioni"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "linguaggio",
 			"permissions": "permessi",
+			"privacy": "vita privata",
 			"review": "Scrivere una recensione"
 		},
 		"permissions": {

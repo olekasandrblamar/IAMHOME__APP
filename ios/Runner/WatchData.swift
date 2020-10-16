@@ -14,8 +14,9 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var device:CBPeripheral? = nil
     var dayFormat = DateFormatter()
     var dateTimeFormat = DateFormatter()
+    var deviceFound = false
+    var deviceConected = false
     static var currentDeviceId:String? = nil
-    let MAC_ADDRESS_NAME = "flutter.device_macid"
     
     override init() {
         super.init()
@@ -27,15 +28,34 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     func startScan(result:@escaping FlutterResult,deviceId:String) {
         self.result = result
         self.deviceId = deviceId
-        NSLog("Scanning for devices")
+        self.deviceFound = false
+        self.device = nil
+        self.deviceConected = false
+        NSLog("Scanning for devices with result")
         HardManagerSDK.shareBLEManager()?.scanDevices(["ITPOWER01"])
+        DispatchQueue.main.asyncAfter(deadline: .now() + 25) {
+            //Stop the scanning after 25 seconds
+            HardManagerSDK.shareBLEManager()?.stopScanDevice()
+            if(!self.deviceConected){
+                var connectionInfo = ConnectionInfo(deviceId: "", deviceName: "", connected: false, deviceFound: self.deviceFound, message: "failed")
+                do{
+                    let deviceJson = try JSONEncoder().encode(connectionInfo)
+                    let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                    NSLog("Sending Connection data back from device info \(connectionInfoData)")
+                    result(connectionInfoData)
+                }catch{
+                    NSLog("Error getting watch info from getDeviceInfo \(error)")
+                    result("Error")
+                }
+            }
+        }
        
     }
     
     func didFindDevice(_ device: CBPeripheral!) {
         let deviceName = device.name
         let deviceUUID = device.identifier.uuidString
-        NSLog("Got device \(deviceName ?? "No name ") - \(deviceUUID)")
+        NSLog("Got device in dif find device \(deviceName ?? "No name ") - \(deviceUUID)")
     }
     
     func gettingFallBack(_ option: HardGettingOption, values: [AnyHashable : Any]!) {
@@ -45,7 +65,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             let tempArray = values["temperatureArray"] as! [[String:String]]
             syncTemparature(tempArray: tempArray)
         }
-        if(option == HardGettingOption.stepDetail){
+        if(option == HardGettingOption.stepDetail && values != nil){
             let stepData = values as! [String:Any]
             syncStepInfo(stepInfo: stepData)
         }
@@ -63,15 +83,57 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     func connectedDeviceMacDidUpdate(_ hardManager: HardManagerSDK!) {
         NSLog("Mac updated \(hardManager.connectedDeviceMAC)")
         if(hardManager.connectedDeviceMAC != nil){
-            UserDefaults.standard.set(hardManager.connectedDeviceMAC!,forKey: MAC_ADDRESS_NAME)
+            UserDefaults.standard.set(hardManager.connectedDeviceMAC!,forKey: DataSync.MAC_ADDRESS_NAME)
         }
+    }
+    
+    func getCurrentDeviceStatus(connInfo: ConnectionInfo, result:@escaping FlutterResult){
+        var connectionInfo = ConnectionInfo()
+        connectionInfo.deviceId = getMacId()
+        NSLog("Got mac id \(connectionInfo.deviceId)")
+        connectionInfo.connected = HardManagerSDK.shareBLEManager()?.isConnected
+        if(connectionInfo.connected == nil || !connectionInfo.connected!){
+            HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connInfo.deviceId!)
+        }
+        do{
+            let deviceJson = try JSONEncoder().encode(connectionInfo)
+            let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+            NSLog("Sending Connection data back from device info \(connectionInfoData)")
+            result(connectionInfoData)
+        }catch{
+            NSLog("Error getting watch info from getDeviceInfo \(error)")
+            result("Error")
+            
+        }
+    }
+    
+    func disconnect(result:@escaping FlutterResult){
+        NSLog("Is connected \(HardManagerSDK.shareBLEManager().isConnected)")
+        if(HardManagerSDK.shareBLEManager().isConnected){
+            HardManagerSDK.shareBLEManager()?.disconnectHardDevice()
+        }
+        self.device = nil
+        result("Success")
     }
     
     func deviceDidConnected() {
         NSLog("Device connected")
         HardManagerSDK.shareBLEManager()?.stopScanDevice()
         NSLog("Scanning connected")
-        HardManagerSDK.shareBLEManager()?.setHardTimeUnitAndUserProfileIs12(true, isMeter: false, sex: 0, age: 32, weight: 80, height: 178)
+        
+        var userSex = 0
+        var age:Int = 32
+        var height:Int = 170
+        var weight:Int = 60
+        let userProfileData = DataSync.getUserInfo()
+        if(userProfileData != nil){
+            NSLog("updating user info from local storage")
+            userSex = userProfileData!.sex.uppercased() == "MALE" ? 0:1
+            age = userProfileData!.age
+            height = userProfileData!.heightInCm
+            weight = Int(userProfileData!.weightInKgs)
+        }
+        HardManagerSDK.shareBLEManager()?.setHardTimeUnitAndUserProfileIs12(true, isMeter: false, sex: Int32(userSex), age: Int32(age), weight: Int32(weight), height: Int32(height))
         //Enable auto heart rate test
         HardManagerSDK.shareBLEManager()?.setHardAutoHeartTest(true)
         //Enable Temp type to F
@@ -83,8 +145,9 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             let deviceName = device?.name
             let uuid = device?.identifier.uuidString
             
+            
             NSLog("Device connected \(deviceName ?? "No name ") - \(uuid)")
-            var connectionInfo = ConnectionInfo(deviceId: uuid, deviceName: deviceName, connected: true, message: "connected")
+            var connectionInfo = ConnectionInfo(deviceId: uuid, deviceName: deviceName, connected: true, deviceFound: self.deviceFound, message: "connected")
             connectionInfo.additionalInformation["factoryName"] = device!.description
             connectionInfo.additionalInformation["macId"] = macId
             if(uuid != nil){
@@ -93,11 +156,13 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             do{
                 let deviceJson = try JSONEncoder().encode(connectionInfo)
                 let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
-                NSLog("Connection data \(connectionInfoData)")
+                NSLog("Connection data after initial connection \(connectionInfoData)")
                 UserDefaults.standard.set(AppDelegate.WATCH_TYPE,forKey: AppDelegate.DEVICE_TYPE_KEY)
                 //If it not the first time load the device Data
                 result?(connectionInfoData)
+                loadData(deviceId: WatchData.currentDeviceId)
             }catch{result?("Error")}
+            
         }else{
             if(result == nil){
                 loadData(deviceId: WatchData.currentDeviceId)
@@ -110,7 +175,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     }
     
     private func getMacId() -> String{
-        let macAddress = UserDefaults.standard.string(forKey: MAC_ADDRESS_NAME)
+        let macAddress = UserDefaults.standard.string(forKey: DataSync.MAC_ADDRESS_NAME)
         if(macAddress != nil){
             return macAddress!
         }
@@ -120,7 +185,10 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     private func syncTemparature(tempArray:[[String:String]]){
         let deviceId = getMacId()
         let temperatureUploads = tempArray.map { (tempMap) -> TemperatureUpload in
-            let measureDate = dateTimeFormat.date(from: tempMap["timePoint"]!)!
+            var measureDate = dateTimeFormat.date(from: tempMap["timePoint"]!)!
+            if(TimeZone.current.isDaylightSavingTime(for: measureDate)){
+                measureDate = measureDate.addingTimeInterval(60) // 60 minutes if it DST
+            }
             let celsius = Double(tempMap["temperature"]!)
             return TemperatureUpload(measureTime: measureDate, celsius: celsius!, deviceId: deviceId)
         }
@@ -133,10 +201,10 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         let deviceId = getMacId()
         let heartRateUploads = heartRateArray.map { (heartMap) -> HeartRateUpload in
             let measureDate = dateTimeFormat.date(from: heartMap["testMomentTime"]!)
-            let heartRate = Int(heartMap["currentRate"]!)
-            let distolic = Int(heartMap["diastolicPressure"]!)
-            let systolic = Int(heartMap["systolicPressure"]!)
-            let oxygenLevel = Int(heartMap["oxygen"]!)
+            let heartRate = Int(heartMap["currentRate"] ?? "0")
+            let distolic = Int(heartMap["diastolicPressure"] ?? "0")
+            let systolic = Int(heartMap["systolicPressure"] ?? "0")
+            let oxygenLevel = Int(heartMap["oxygen"] ?? "0")
             bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic!, systolic: systolic!, deviceId: deviceId))
             oxygenUploads.append(OxygenLevelUpload(measureTime: measureDate!,oxygenLevel: oxygenLevel!,deviceId:deviceId))
             return HeartRateUpload(measureTime: measureDate!, heartRate: heartRate!, deviceId: deviceId)
@@ -152,8 +220,8 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         NSLog("Got date String %@", dateString)
         let stepDate = self.dayFormat.date(from: dateString)
         NSLog("Got converted date \(stepDate) ")
-        let calories = Int(stepInfo["calories"] as! String)
-        let dailySteps = Int(stepInfo["step"] as! String)
+        let calories = Int((stepInfo["calories"] ?? "0") as! String )
+        let dailySteps = Int((stepInfo["step"] ?? "0") as! String)
         NSLog("Date \(stepDate) calories: \(calories) dailySteps \(dailySteps)")
         var stepList = [StepUpload]()
         if(stepInfo["stepOneHourInfo"] != nil){
@@ -185,9 +253,9 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     }
     
     func syncData(connectionInfo:ConnectionInfo){
-        
         NSLog("Device connected \(HardManagerSDK.shareBLEManager().isConnected)")
         if(!HardManagerSDK.shareBLEManager().isConnected){
+            result = nil
             //WatchData.currentDeviceId = connectionInfo.additionalInformation["macId"]
             WatchData.currentDeviceId = connectionInfo.deviceId
             HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connectionInfo.deviceId)
@@ -201,18 +269,18 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         let peripharal = deviceDict["peripheral"] as? CBPeripheral
         let uuid = peripharal?.identifier.uuidString
         let deviceName = peripharal?.name
-        NSLog("Got device \(deviceName ?? "No name ") - \(uuid)")
+        self.deviceFound = true
+        NSLog("Got device in dict \(deviceName ?? "No name ") - \(uuid)")
         let stringLength:Int = deviceId?.count ?? 4
-        let deviceSuffix = String(uuid?.suffix(stringLength) as! Substring)
+        let deviceSuffix = String(deviceName?.suffix(stringLength) as! Substring)
         
-        //6987
-        //if( deviceSuffix == deviceId){
-        if(self.device == nil){
-            self.device = peripharal
-            NSLog("Connecting to device \(deviceName ?? "No name ") - \(uuid)")
-            HardManagerSDK.shareBLEManager()?.startConnectDevice(withUUID: uuid)
+        if( deviceSuffix.lowercased() == deviceId?.lowercased()){
+            if(self.device == nil){
+                self.device = peripharal
+                NSLog("Connecting to device \(deviceName ?? "No name ") - \(uuid)")
+                HardManagerSDK.shareBLEManager()?.startConnectDevice(withUUID: uuid)
+            }
         }
-        //}
         
         
     }

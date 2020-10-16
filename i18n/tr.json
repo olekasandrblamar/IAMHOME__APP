@@ -17,11 +17,11 @@
 			"title": "Kamera"
 		},
 		"locations": {
-			"description": "Sizinle daha iyi bağlantı kurabilmemiz için, seçtiğiniz bakım planı size bildirimleri göndermemizi gerektiriyor. Sağlık takip programına katılın, böylece Ceras faaliyetlerinizi güncellemeye devam edebilir.",
+			"description": "Konum izinlerinin verilmesi, uygulamanın acil bir durumda konumunuzu doktorunuza veya bakım ekibinize bildirmesine olanak tanır.",
 			"title": "yer"
 		},
 		"notifications": {
-			"description": "Sizinle daha iyi bağlantı kurabilmemiz için, seçtiğiniz bakım planı size bildirimleri göndermemizi gerektiriyor. Sağlık takip programına katılın, böylece Ceras faaliyetlerinizi güncellemeye devam edebilir.",
+			"description": "Bildirimler, önemli sağlık uyarıları ve bir şey ters gittiğinde hatırlatıcılar içerebilir. Bunları istediğiniz zaman ayarlardan değiştirmek kolaydır.",
 			"title": "Bildirim almak"
 		}
 	},
@@ -57,7 +57,7 @@
 			"title": "Yönetilen Koşullar"
 		},
 		"health": {
-			"description": "Sağlık verilerinizi cihazdan otomatik olarak kaydedin ve sağlığınızın gözden geçirilmesi için doktorunuza gönderin. Sadece giy ve unut gitsin.",
+			"description": "Bilgileriniz anında cihazınızdan yüklenir ve doktorunuza gönderilir.",
 			"title": "Durum İzlendi"
 		}
 	},
@@ -66,7 +66,7 @@
 			"agree": "anlaşmak",
 			"view": "Görünüm"
 		},
-		"description1": "Ceras uygulamasını kullanmadan önce lütfen aşağıdaki şartları dikkatlice okuyun.",
+		"description1": "Lütfen Ceras Health APP'yi okuyup kabul edin. Devam etmek için Son Kullanıcı Lisans Sözleşmesi ve Gizlilik Politikası",
 		"description2": "Son Kullanıcı Lisans Sözleşmesini ve Gizlilik Politikasını Kabul Edin.",
 		"title": "Hüküm ve Koşullarımız"
 	},
@@ -75,6 +75,7 @@
 		"content": {
 			"language": "dil",
 			"permissions": "İzinler",
+			"privacy": "gizlilik",
 			"review": "Bir değerlendirme yazın"
 		},
 		"permissions": {

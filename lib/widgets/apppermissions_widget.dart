@@ -16,15 +16,15 @@ class AppPermissions extends StatelessWidget {
         title: Text(
           _appLocalization.translate('settings.permissions.title'),
         ),
-        actions: <Widget>[
-          IconButton(
-            icon: const Icon(Icons.settings),
-            onPressed: () {
-              var hasOpened = openAppSettings();
-              debugPrint('App Settings opened: ' + hasOpened.toString());
-            },
-          )
-        ],
+        // actions: <Widget>[
+        //   IconButton(
+        //     icon: const Icon(Icons.settings),
+        //     onPressed: () {
+        //       var hasOpened = openAppSettings();
+        //       debugPrint('App Settings opened: ' + hasOpened.toString());
+        //     },
+        //   )
+        // ],
       ),
       backgroundColor: AppTheme.background,
       body: Container(
@@ -33,13 +33,37 @@ class AppPermissions extends StatelessWidget {
           child: ListView(
               children: Permission.values
                   .where((Permission permission) {
-                    return permission == Permission.camera ||
-                        permission == Permission.location ||
+                    return permission == Permission.location ||
                         permission == Permission.notification;
                   })
                   .map((Permission permission) =>
                       PermissionWidget(permission, _appLocalization))
                   .toList()),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        bottom: true,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              width: 200,
+              height: 90,
+              padding: EdgeInsets.all(20),
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.5),
+                ),
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+                child: Text('Open Settings'),
+                onPressed: () {
+                  var hasOpened = openAppSettings();
+                  debugPrint('App Settings opened: ' + hasOpened.toString());
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );

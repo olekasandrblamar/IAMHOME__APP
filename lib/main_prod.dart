@@ -1,7 +1,7 @@
 import 'dart:async';
 
 // import 'package:firebase_crashlytics/firebase_crashlytics.dart';
-import 'package:background_fetch/background_fetch.dart';
+//import 'package:background_fetch/background_fetch.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,16 +10,13 @@ import 'package:ceras/config/background_fetch.dart';
 import 'app.dart';
 import 'config/env.dart';
 
-void main() async {
+void main() {
   try {
-    // Pass all uncaught errors from the framework to Crashlytics.
-    FlutterError.onError = Crashlytics.instance.recordFlutterError;
-
     WidgetsFlutterBinding.ensureInitialized();
 
     BuildEnvironment.init(
       flavor: BuildFlavor.production,
-      baseUrl: 'https://devicemgmt.myceras.com/api/v1/device/',
+      baseUrl: 'https://tracker.ceras.io/api/v1/device/',
       baseUrl2: 'https://api',
     );
 
@@ -37,10 +34,10 @@ void main() async {
 
       // Register to receive BackgroundFetch events after app is terminated.
       // Requires {stopOnTerminate: false, enableHeadless: true}
-      await BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
+      //await BackgroundFetch.registerHeadlessTask(backgroundFetchHeadlessTask);
     });
   } catch (error, stackTrace) {
-    Crashlytics.instance.recordError(error, stackTrace);
+    FirebaseCrashlytics.instance.recordError(error, stackTrace);
     print(error);
   }
 }

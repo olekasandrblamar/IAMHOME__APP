@@ -52,85 +52,145 @@ class _LanguageSelectionState extends State<LanguageSelection> {
         ),
       ),
       backgroundColor: AppTheme.background,
-      body: SingleChildScrollView(
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 0, vertical: 15),
-          child: Column(
-            children: List.generate(
-              _languages.length,
-              (index) => Container(
-                // margin: EdgeInsets.only(bottom: 5),
-                // child: Card(
-                child: RadioListTile<LanguageSelectionChoice>(
-                  title: Row(
-                    children: [
-                      Text(
-                        _languages[index]['language'] + ' - ',
+      body: Container(
+          padding: EdgeInsets.symmetric(horizontal: 15, vertical: 15),
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 3,
+            ),
+            itemCount: _languages.length,
+            itemBuilder: (BuildContext context, int index) {
+              return Card(
+                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                elevation: 0,
+                color: _language == _languages[index]['value']
+                    ? Theme.of(context).primaryColor
+                    : Color(0xffd5d5d6),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+                child: InkWell(
+                  child: Container(
+                    padding: EdgeInsets.all(5),
+                    child: GridTile(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            // color: Colors.black.withOpacity(0.7),
+                            height: 30,
+                            width: double.infinity,
+                            child: Center(
+                              child: FittedBox(
+                                child: Text(
+                                  _languages[index]['language'],
+                                  maxLines: 1,
+                                  style: TextStyle(
+                                    // color: Colors.white,
+                                    color:
+                                        _language == _languages[index]['value']
+                                            ? Colors.white
+                                            : Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    fontFamily: 'Regular',
+                                  ),
+                                ),
+                              ),
+                            ),
+                          )
+                        ],
                       ),
-                      Text(
-                        _languages[index]['label'],
-                        style: TextStyle(
-                          color: Color(0xFF797979),
-                        ),
-                      ),
-                    ],
+                    ),
                   ),
-                  // subtitle: Text(_languages[index]['label']),
-                  value: _languages[index]['value'],
-                  groupValue: _language,
-                  onChanged: (LanguageSelectionChoice value) {
+                  onTap: () {
                     _appLanguage.changeLanguage(
                       Locale(_languages[index]['language_code']),
                     );
+
                     setState(() {
-                      _language = value;
+                      _language = _languages[index]['value'];
                     });
                   },
-                  // ),
                 ),
-              ),
-            ),
-            // child: Column(
-            //   children: <Widget>[
-            //     Container(
-            //       margin: EdgeInsets.only(bottom: 5),
-            //       child: Card(
-            //         child: RadioListTile<LanguageSelectionChoice>(
-            //           title: const Text('English'),
-            //           subtitle: const Text('English (US)'),
-            //           value: LanguageSelectionChoice.en,
-            //           groupValue: _language,
-            //           onChanged: (LanguageSelectionChoice value) {
-            //             _appLanguage.changeLanguage(Locale("en"));
-            //             setState(() {
-            //               _language = value;
-            //             });
-            //           },
-            //         ),
-            //       ),
-            //     ),
-            //     // Divider(),
-            //     Container(
-            //       margin: EdgeInsets.only(bottom: 5),
-            //       child: Card(
-            //         child: RadioListTile<LanguageSelectionChoice>(
-            //           title: const Text('हिंदी'),
-            //           subtitle: const Text('Hindi'),
-            //           value: LanguageSelectionChoice.hi,
-            //           groupValue: _language,
-            //           onChanged: (LanguageSelectionChoice value) {
-            //             _appLanguage.changeLanguage(Locale("hi"));
-            //             setState(() {
-            //               _language = value;
-            //             });
-            //           },
-            //         ),
-            //       ),
-            //     ),
-            //   ],
+              );
+            },
+          )
+          // child: Column(
+          // children: List.generate(
+          //   _languages.length,
+          //   (index) => Container(
+          //     // margin: EdgeInsets.only(bottom: 5),
+          //     // child: Card(
+          //     child: RadioListTile<LanguageSelectionChoice>(
+          //       title: Row(
+          //         children: [
+          //           Text(
+          //             _languages[index]['language'] + ' - ',
+          //           ),
+          //           Text(
+          //             _languages[index]['label'],
+          //             style: TextStyle(
+          //               color: Color(0xFF797979),
+          //             ),
+          //           ),
+          //         ],
+          //       ),
+          //       // subtitle: Text(_languages[index]['label']),
+          //       value: _languages[index]['value'],
+          //       groupValue: _language,
+          //       onChanged: (LanguageSelectionChoice value) {
+          //         _appLanguage.changeLanguage(
+          //           Locale(_languages[index]['language_code']),
+          //         );
+          //         setState(() {
+          //           _language = value;
+          //         });
+          //       },
+          //       // ),
+          //     ),
+          //   ),
+          // ),
+          // child: Column(
+          //   children: <Widget>[
+          //     Container(
+          //       margin: EdgeInsets.only(bottom: 5),
+          //       child: Card(
+          //         child: RadioListTile<LanguageSelectionChoice>(
+          //           title: const Text('English'),
+          //           subtitle: const Text('English (US)'),
+          //           value: LanguageSelectionChoice.en,
+          //           groupValue: _language,
+          //           onChanged: (LanguageSelectionChoice value) {
+          //             _appLanguage.changeLanguage(Locale("en"));
+          //             setState(() {
+          //               _language = value;
+          //             });
+          //           },
+          //         ),
+          //       ),
+          //     ),
+          //     // Divider(),
+          //     Container(
+          //       margin: EdgeInsets.only(bottom: 5),
+          //       child: Card(
+          //         child: RadioListTile<LanguageSelectionChoice>(
+          //           title: const Text('हिंदी'),
+          //           subtitle: const Text('Hindi'),
+          //           value: LanguageSelectionChoice.hi,
+          //           groupValue: _language,
+          //           onChanged: (LanguageSelectionChoice value) {
+          //             _appLanguage.changeLanguage(Locale("hi"));
+          //             setState(() {
+          //               _language = value;
+          //             });
+          //           },
+          //         ),
+          //       ),
+          //     ),
+          //   ],
+          // ),
           ),
-        ),
-      ),
     );
   }
 }
