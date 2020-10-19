@@ -1,4 +1,5 @@
 import 'package:ceras/config/env.dart';
+import 'package:ceras/screens/data_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/screens/access/camera_screen.dart';
@@ -58,6 +59,8 @@ Route<dynamic> generateRoute(
       return MaterialPageRoute(builder: (context) => HelpScreen());
     case SettingsRoute:
       return MaterialPageRoute(builder: (context) => SettingsScreen());
+    case DataRoute:
+      return MaterialPageRoute(builder: (context) => DataScreen());
     default:
       return MaterialPageRoute(
         builder: (context) => Scaffold(

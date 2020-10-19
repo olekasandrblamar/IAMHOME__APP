@@ -16,3 +16,5 @@ const String BluetoothNotfoundRoute = '/setup/bluetoothNotfound';
 
 const String HelpRoute = '/help';
 const String SettingsRoute = '/settings';
+
+const String DataRoute = '/data';
