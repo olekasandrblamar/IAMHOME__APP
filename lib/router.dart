@@ -1,4 +1,5 @@
 import 'package:ceras/config/env.dart';
+import 'package:ceras/screens/auth/login_screen.dart';
 import 'package:ceras/screens/data_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
@@ -29,6 +30,8 @@ Route<dynamic> generateRoute(
   switch (settings.name) {
     // case RootRoute:
     //   return MaterialPageRoute(builder: (context) => LoginScreen());
+    case LoginRoute:
+      return MaterialPageRoute(builder: (context) => LoginScreen());
     case SelectLanguageRoute:
       return MaterialPageRoute(builder: (context) => SelectLanguageScreen());
     case NotificationsRoute:

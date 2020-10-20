@@ -49,6 +49,7 @@ dependencies:
   firebase_performance: ^0.4.0+2
   firebase_messaging: ^7.0.3
   firebase_in_app_messaging: ^0.2.0+3
+  email_validator: "^1.0.6"
 
 dev_dependencies:
   pedantic: ^1.9.0
@@ -89,6 +90,8 @@ flutter:
     - assets/images/emptyImage.png
     - assets/icons/
     - assets/images/clouds.png
+    - assets/images/bee_left.png
+    - assets/images/bee_right.png
 
   fonts:
     - family: Roboto

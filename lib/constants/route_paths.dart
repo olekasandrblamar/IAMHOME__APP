@@ -18,3 +18,6 @@ const String HelpRoute = '/help';
 const String SettingsRoute = '/settings';
 
 const String DataRoute = '/data';
+
+const String AuthRoute = '/auth';
+const String LoginRoute = '$AuthRoute/login';

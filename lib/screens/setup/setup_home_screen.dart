@@ -1,5 +1,6 @@
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/providers/devices_provider.dart';
+import 'package:ceras/screens/auth/login_screen.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/nodata_widget.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
@@ -33,6 +34,41 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
         child: Container(
           padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
           child: _buildDevicesList(context),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        bottom: true,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              width: 200,
+              height: 90,
+              padding: EdgeInsets.all(20),
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.5),
+                ),
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+                child: Text('Access Health Data'),
+                onPressed: () {
+                  // return Navigator.of(context).pushReplacementNamed(
+                  //   routes.LoginRoute,
+                  // );
+
+                  return Navigator.of(context).push(
+                    MaterialPageRoute<Null>(
+                      builder: (BuildContext context) {
+                        return LoginScreen();
+                      },
+                      fullscreenDialog: true,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
