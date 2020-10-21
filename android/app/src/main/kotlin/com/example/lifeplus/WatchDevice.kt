@@ -335,20 +335,24 @@ class WatchDevice:BaseDevice()     {
 
         @Synchronized
         fun syncData(){
-            dataCallback?.let {
-                HardSdk.getInstance().syncLatestBodyTemperature(0)
-                HardSdk.getInstance().syncLatestWristTemperature(0)
-                HardSdk.getInstance().syncHeartRateData(0)
-                HardSdk.getInstance().syncExerciseData(0)
-                HardSdk.getInstance().syncStepData(0)
-                HardSdk.getInstance().syncSleepData(0)
+            try {
+                dataCallback?.let {
+                    HardSdk.getInstance().syncLatestBodyTemperature(0)
+                    HardSdk.getInstance().syncLatestWristTemperature(0)
+                    HardSdk.getInstance().syncHeartRateData(0)
+                    HardSdk.getInstance().syncExerciseData(0)
+                    HardSdk.getInstance().syncStepData(0)
+                    HardSdk.getInstance().syncSleepData(0)
+                }
+            }catch (ex:Exception){
+                Log.e(TAG,"Error while syncing data",ex)
             }
         }
     }
 
     override fun disconnectDevice(result: MethodChannel.Result?) {
         if(HardSdk.getInstance().isDevConnected) {
-            HardSdk.getInstance().reset()
+            HardSdk.getInstance().restoreFactoryMode()
             HardSdk.getInstance().disconnect()
         }
         result?.success("Success")

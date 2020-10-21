@@ -89,13 +89,17 @@ class DataSync {
 
                             override fun onResponse(call: Call, response: Response) {
                                 Log.i(TAG,"Got response ${response.isSuccessful} for call ${call.request().url}")
-                                val userProfile = gson.fromJson<UserProfile>(response.body?.string(),UserProfile::class.java)
-                                userProfile.lastUpdated = Date()
-                                currentContext.getSharedPreferences(MainActivity
-                                        .SharedPrefernces,Context.MODE_PRIVATE).edit()
-                                        .putString(USER_PROFILE,gson.toJson(userProfile)).commit()
-                                response.body?.close()
-                                response.close()
+                                try {
+                                    val userProfile = gson.fromJson<UserProfile>(response.body?.string(), UserProfile::class.java)
+                                    userProfile.lastUpdated = Date()
+                                    currentContext.getSharedPreferences(MainActivity
+                                            .SharedPrefernces, Context.MODE_PRIVATE).edit()
+                                            .putString(USER_PROFILE, gson.toJson(userProfile)).commit()
+                                    response.body?.close()
+                                    response.close()
+                                }catch (ex:Exception){
+                                    Log.e(TAG,"Error while getting profile info ",ex)
+                                }
                             }
 
                         })
