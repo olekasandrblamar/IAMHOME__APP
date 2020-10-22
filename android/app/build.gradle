@@ -78,10 +78,12 @@ android {
             signingConfig signingConfigs.release
             shrinkResources true
             minifyEnabled true
-
-                // ndk {
-                //     debugSymbolLevel 'FULL'
-                // }
+        }
+        debug {
+            signingConfig signingConfigs.release
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'progaurd-rules.pro'
         }
     }
 }
