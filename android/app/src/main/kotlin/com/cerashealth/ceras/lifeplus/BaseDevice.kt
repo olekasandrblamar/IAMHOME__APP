@@ -1,10 +1,9 @@
-package com.example.ceras
+package com.cerashealth.ceras.lifeplus
 
 import android.content.Context
 import android.util.Log
-import com.cerashealth.ceras.ConnectionInfo
-import com.cerashealth.ceras.MainActivity
-import com.cerashealth.ceras.WatchDevice
+import com.cerashealth.ceras.*
+import com.cerashealth.ceras.lifeplus.data.*
 import io.flutter.plugin.common.MethodChannel
 
 open class BaseDevice{

@@ -1,2 +1,1 @@
--keep class com.cerashealth.ceras.ConnectionInfo { *; }
--keep class com.cerashealth.ceras.UserProfile {*;}
+-keep class com.cerashealth.ceras.lifeplus.data.* { *; }

@@ -1,11 +1,12 @@
-package com.cerashealth.ceras
+package com.cerashealth.ceras.lifeplus
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.text.TextUtils
 import android.util.Log
-import com.example.ceras.BaseDevice
+import com.cerashealth.ceras.*
+import com.cerashealth.ceras.lifeplus.data.*
 import com.google.gson.Gson
 import com.walnutin.HeartRateAdditional
 import com.walnutin.hardsdk.ProductList.sdk.GlobalValue
