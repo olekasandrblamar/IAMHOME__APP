@@ -1,4 +1,5 @@
 import 'package:ceras/config/app_localizations.dart';
+import 'package:ceras/models/trackers/tracker_data_model.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
@@ -6,6 +7,19 @@ import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/theme.dart';
 
 class DataScreen extends StatelessWidget {
+
+  Temperature _lastTemperature = null;
+  HeartRate _lastHr = null;
+  BloodPressure _bloodPressure = null;
+  Calories _lastCalories = null;
+  DailySteps _lastSteps = null;
+
+
+
+  void loadTemperature(){
+
+  }
+
   @override
   Widget build(BuildContext context) {
     final _appLocalization = AppLocalizations.of(context);
@@ -120,7 +134,7 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: '97.1',
+                                          text: _lastTemperature!=null?_lastTemperature.fahrenheit:' - ',
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -244,7 +258,7 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: '65',
+                                          text: _lastHr!=null? _lastHr.heartRate: ' - ',
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -362,7 +376,7 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: '120/80',
+                                          text: _bloodPressure!=null?_bloodPressure.distolic.toString()+'/'+_bloodPressure.systolic.toString(): ' - ',
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -481,7 +495,7 @@ class DataScreen extends StatelessWidget {
                                       text: TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: '1120',
+                                            text: _lastCalories!= null? _lastCalories.calories: ' - ',
                                             style: TextStyle(
                                               fontSize: 40,
                                               fontWeight: FontWeight.bold,
@@ -600,7 +614,7 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: '20,002',
+                                          text: _lastSteps!=null? _lastSteps.steps:' - ',
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,

@@ -24,7 +24,9 @@ class DataSync {
         private val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create()
         private const val LAST_UPDATE_VAL = "flutter.last_sync_updates"
         private const val USER_PROFILE = "flutter.user_profile_data"
+        private const val MAC_ADDRESS_NAME = "flutter.device_macid"
         var CURRENT_MAC_ADDRESS:String? = null
+
 
         fun uploadTemperature(temperatures:List<TemperatureUpload>){
             makePostRequest(gson.toJson(temperatures),"temperature")
