@@ -1,16 +1,8 @@
 import 'package:ceras/constants/route_paths.dart' as routes;
-import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/auth/login_screen.dart';
 import 'package:ceras/theme.dart';
-import 'package:ceras/widgets/nodata_widget.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
-import 'package:provider/provider.dart';
-
-import 'package:ceras/constants/route_paths.dart' as routes;
-
-import 'widgets/bluetooth_notfound_widget.dart';
 
 class SetupHomeScreen extends StatefulWidget {
   @override
@@ -27,13 +19,61 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: SetupAppBar(name: 'Select Device'),
+      appBar: SetupAppBar(name: 'My Devices'),
       backgroundColor: Colors.white,
       body: SafeArea(
         bottom: true,
-        child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          child: _buildDevicesList(context),
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Card(
+                  margin: EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 10,
+                  ),
+                  elevation: 5,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10.0),
+                  ),
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: Container(
+                      height: 150,
+                      padding: EdgeInsets.all(10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: EdgeInsets.all(15),
+                            child: Image.asset(
+                              'assets/images/AddNewDeviceDefault.png',
+                              height: 75,
+                              width: 75,
+                            ),
+                          ),
+                          FittedBox(
+                            child: Text(
+                              'Add New Device',
+                              style: AppTheme.title,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    onTap: () => {
+                      Navigator.of(context).pushNamed(
+                        routes.SetupDevicesRoute,
+                      ),
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ),
       bottomNavigationBar: SafeArea(
@@ -73,323 +113,4 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
       ),
     );
   }
-
-  Widget _buildDevicesList(context) {
-    return FutureBuilder(
-      future: Provider.of<DevicesProvider>(context, listen: false)
-          .fetchAllDevices(),
-      builder: (ctx, hardwareDataSnapshot) {
-        if (hardwareDataSnapshot.connectionState == ConnectionState.waiting) {
-          return Center(child: CircularProgressIndicator());
-        } else {
-          if (hardwareDataSnapshot.error != null) {
-            return Center(
-              child: Text('An error occurred!'),
-            );
-          } else {
-            if (hardwareDataSnapshot.data != null) {
-              return GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                ),
-                itemCount: hardwareDataSnapshot.data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  var imageData = hardwareDataSnapshot
-                      .data[index].deviceMaster['displayImage'];
-                  return Card(
-                    margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: InkWell(
-                      child: Container(
-                        padding: EdgeInsets.all(5),
-                        child: GridTile(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Hero(
-                                  transitionOnUserGestures: true,
-                                  tag: 'imageHero' + index.toString(),
-                                  child: FadeInImage(
-                                    placeholder: AssetImage(
-                                      'assets/images/placeholder.jpg',
-                                    ),
-                                    image: imageData != null
-                                        ? NetworkImage(
-                                            imageData,
-                                          )
-                                        : AssetImage(
-                                            'assets/images/placeholder.jpg',
-                                          ),
-                                    fit: BoxFit.contain,
-                                    alignment: Alignment.center,
-                                    fadeInDuration: Duration(milliseconds: 200),
-                                    fadeInCurve: Curves.easeIn,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                // color: Colors.black.withOpacity(0.7),
-                                height: 30,
-                                width: double.infinity,
-                                child: Center(
-                                  child: Text(
-                                    hardwareDataSnapshot.data[index]
-                                        .deviceMaster['displayName'],
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      // color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      fontFamily: 'Regular',
-                                    ),
-                                  ),
-                                ),
-                              )
-                            ],
-                          ),
-                        ),
-                      ),
-                      onTap: () => {
-                        Navigator.of(context).pushNamed(
-                          routes.SetupConnectRoute,
-                          arguments: {
-                            'tag': 'imageHero' + index.toString(),
-                            'deviceData': hardwareDataSnapshot.data[index],
-                            'deviceType': hardwareDataSnapshot.data[index]
-                                .deviceMaster['deviceType']['displayName']
-                                .toUpperCase(),
-                            'displayImage': imageData,
-                          },
-                        ),
-                      },
-                    ),
-                  );
-                },
-              );
-            } else {
-              return NoDataFoundWidget();
-            }
-          }
-        }
-      },
-    );
-  }
 }
-
-// Column(
-//             crossAxisAlignment: CrossAxisAlignment.start,
-//             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//             children: <Widget>[
-//               // Container(
-//               //   padding: const EdgeInsets.all(10.0),
-//               //   child: Text(
-//               //     'Select Device',
-//               //     overflow: TextOverflow.ellipsis,
-//               //     textAlign: TextAlign.center,
-//               //     style: AppTheme.title,
-//               //   ),
-//               // ),
-//               Expanded(
-//                 child: Container(
-//                   width: double.infinity,
-//                   child: Card(
-//                     margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-//                     elevation: 5,
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(10.0),
-//                     ),
-//                     child: InkWell(
-//                       child: Container(
-//                         padding: EdgeInsets.all(15),
-//                         child: FadeInImage(
-//                           placeholder: AssetImage(
-//                             'assets/images/placeholder.jpg',
-//                           ),
-//                           image: AssetImage(
-//                             'assets/images/Picture1.jpg',
-//                           ),
-//                           fit: BoxFit.contain,
-//                           alignment: Alignment.center,
-//                           fadeInDuration: Duration(milliseconds: 200),
-//                           fadeInCurve: Curves.easeIn,
-//                           height: 100,
-//                           width: 200,
-//                         ),
-//                       ),
-//                       onTap: () => {
-//                         Navigator.of(context).pushNamed(
-//                           routes.SetupConnectRoute,
-//                           arguments: {
-//                             'deviceType': 'WATCH',
-//                           },
-//                         ),
-//                       },
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               Expanded(
-//                 child: Container(
-//                   width: double.infinity,
-//                   child: Card(
-//                     margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-//                     elevation: 5,
-//                     shape: RoundedRectangleBorder(
-//                       borderRadius: BorderRadius.circular(10.0),
-//                     ),
-//                     child: InkWell(
-//                       child: Container(
-//                         padding: EdgeInsets.all(15),
-//                         child: FadeInImage(
-//                           placeholder: AssetImage(
-//                             'assets/images/placeholder.jpg',
-//                           ),
-//                           image: AssetImage(
-//                             'assets/images/Picture2.jpg',
-//                           ),
-//                           fit: BoxFit.contain,
-//                           alignment: Alignment.center,
-//                           fadeInDuration: Duration(milliseconds: 200),
-//                           fadeInCurve: Curves.easeIn,
-//                           height: 100,
-//                           width: 200,
-//                         ),
-//                       ),
-//                       onTap: () => {
-//                         Navigator.of(context).pushNamed(
-//                           routes.SetupConnectRoute,
-//                           arguments: {
-//                             'deviceType': 'BAND',
-//                           },
-//                         ),
-//                       },
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//             ],
-//           ),
-
-//  GridView.count(
-//               shrinkWrap: true,
-//               crossAxisCount: 1,
-//               padding: EdgeInsets.all(5.0),
-//               childAspectRatio: 1.0 / 1.0,
-//               children: [
-//                 Card(
-//                   margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-//                   elevation: 5,
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(10.0),
-//                   ),
-//                   child: InkWell(
-//                     child: Container(
-//                       padding: EdgeInsets.all(15),
-//                       child: GridTile(
-//                         child: Column(
-//                           mainAxisAlignment: MainAxisAlignment.center,
-//                           children: [
-//                             Expanded(
-//                               child: FadeInImage(
-//                                 placeholder: AssetImage(
-//                                   'assets/images/placeholder.jpg',
-//                                 ),
-//                                 image: AssetImage(
-//                                   'assets/images/Picture1.jpg',
-//                                 ),
-//                                 fit: BoxFit.contain,
-//                                 alignment: Alignment.center,
-//                                 fadeInDuration: Duration(milliseconds: 200),
-//                                 fadeInCurve: Curves.easeIn,
-//                                 height: 100,
-//                                 width: 200,
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                         // footer: Center(
-//                         //   child: Text(
-//                         //     'Connect',
-//                         //     overflow: TextOverflow.ellipsis,
-//                         //     textAlign: TextAlign.center,
-//                         //     style: TextStyle(
-//                         //       fontSize: 16,
-//                         //       fontWeight: FontWeight.w500,
-//                         //     ),
-//                         //   ),
-//                         // ),
-//                       ),
-//                     ),
-//                     onTap: () => {
-//                       Navigator.of(context).pushNamed(
-//                         routes.SetupConnectRoute,
-//                         arguments: {
-//                           'deviceType': 'WATCH',
-//                         },
-//                       ),
-//                     },
-//                   ),
-//                 ),
-//                 Card(
-//                   elevation: 5,
-//                   shape: RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(10.0),
-//                   ),
-//                   margin: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-//                   child: InkWell(
-//                     child: Container(
-//                       padding: EdgeInsets.all(15),
-//                       child: GridTile(
-//                         child: Column(
-//                           mainAxisAlignment: MainAxisAlignment.center,
-//                           children: [
-//                             Expanded(
-//                               child: FadeInImage(
-//                                 placeholder: AssetImage(
-//                                   'assets/images/placeholder.jpg',
-//                                 ),
-//                                 image: AssetImage(
-//                                   'assets/images/Picture2.jpg',
-//                                 ),
-//                                 fit: BoxFit.contain,
-//                                 alignment: Alignment.center,
-//                                 fadeInDuration: Duration(milliseconds: 200),
-//                                 fadeInCurve: Curves.easeIn,
-//                                 height: 100,
-//                                 width: 200,
-//                               ),
-//                             ),
-//                           ],
-//                         ),
-//                         // footer: Center(
-//                         //   child: Text(
-//                         //     'Connect',
-//                         //     overflow: TextOverflow.ellipsis,
-//                         //     textAlign: TextAlign.center,
-//                         //     style: TextStyle(
-//                         //       fontSize: 16,
-//                         //       fontWeight: FontWeight.w500,
-//                         //     ),
-//                         //   ),
-//                         // ),
-//                       ),
-//                     ),
-//                     onTap: () => {
-//                       Navigator.of(context).pushNamed(
-//                         routes.SetupConnectRoute,
-//                         arguments: {
-//                           'deviceType': 'BAND',
-//                         },
-//                       ),
-//                     },
-//                   ),
-//                 ),
-//               ],
-//             ),

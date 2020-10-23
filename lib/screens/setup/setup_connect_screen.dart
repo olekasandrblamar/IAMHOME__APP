@@ -249,12 +249,19 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
   void _redirectTo() {
     Navigator.of(context).pop();
-    Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (BuildContext context) => SetupActiveScreen(),
-          settings: const RouteSettings(name: routes.SetupActiveRoute),
-        ),
-        (Route<dynamic> route) => false);
+    // Navigator.of(context).pushAndRemoveUntil(
+    //     MaterialPageRoute(
+    //       builder: (BuildContext context) => SetupActiveScreen(),
+    //       settings: const RouteSettings(name: routes.SetupActiveRoute),
+    //     ),
+    //     (Route<dynamic> route) => false);
+
+    Navigator.of(context).pushNamed(
+      routes.SetupConnectedRoute,
+      arguments: {
+        'displayImage': _displayImage,
+      },
+    );
   }
 
   @override
@@ -274,8 +281,38 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           child: Column(
             children: <Widget>[
               Container(
+                width: double.infinity,
+                padding: const EdgeInsets.only(
+                  bottom: 10.0,
+                ),
+                child: Text(
+                  // _appLocalization.translate('setup.active.devicefound'),
+                  'Device ID located back on device',
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    letterSpacing: 0.18,
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                child: Text(
+                  'Please Enter Device ID',
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.left,
+                  style: AppTheme.title,
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Container(
                 constraints: BoxConstraints(
-                  maxHeight: 300.0,
+                  maxHeight: 250.0,
                 ),
                 padding: const EdgeInsets.all(10.0),
                 child: Hero(
@@ -300,7 +337,20 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                 ),
               ),
               SizedBox(
-                height: 25,
+                height: 20,
+              ),
+              Container(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: FittedBox(
+                  child: Text(
+                    (_deviceData?.deviceMaster != null &&
+                            _deviceData?.deviceMaster['displayName'] != null)
+                        ? _deviceData?.deviceMaster['displayName'] + ' Tracker'
+                        : '',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.title,
+                  ),
+                ),
               ),
               Row(
                 children: <Widget>[
@@ -340,19 +390,6 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                     flex: 2,
                   ),
                 ],
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              Container(
-                padding: const EdgeInsets.all(10.0),
-                child: FittedBox(
-                  child: Text(
-                    _appLocalization.translate('setup.connect.last4'),
-                    textAlign: TextAlign.center,
-                    style: AppTheme.title,
-                  ),
-                ),
               ),
               // SizedBox(
               //   height: 25,

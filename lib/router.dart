@@ -1,6 +1,8 @@
 import 'package:ceras/config/env.dart';
 import 'package:ceras/screens/auth/login_screen.dart';
 import 'package:ceras/screens/data_screen.dart';
+import 'package:ceras/screens/setup/setup_connected_screen.dart';
+import 'package:ceras/screens/setup/setup_devices_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/screens/access/camera_screen.dart';
@@ -44,6 +46,8 @@ Route<dynamic> generateRoute(
       return MaterialPageRoute(builder: (context) => IntroScreen());
     case PrivacyRoute:
       return MaterialPageRoute(builder: (context) => PrivacyScreen());
+    case SetupDevicesRoute:
+      return MaterialPageRoute(builder: (context) => SetupDevicesScreen());
     case SetupHomeRoute:
       return MaterialPageRoute(builder: (context) => SetupHomeScreen());
     case SetupSearchRoute:
@@ -53,9 +57,17 @@ Route<dynamic> generateRoute(
     case SetupConnectRoute:
       var arguments = settings.arguments as Map<dynamic, dynamic>;
       return MaterialPageRoute(
-          builder: (context) => SetupConnectScreen(
-                routeArgs: arguments,
-              ));
+        builder: (context) => SetupConnectScreen(
+          routeArgs: arguments,
+        ),
+      );
+    case SetupConnectedRoute:
+      var arguments = settings.arguments as Map<dynamic, dynamic>;
+      return MaterialPageRoute(
+        builder: (context) => SetupConnectedScreen(
+          routeArgs: arguments,
+        ),
+      );
     case BluetoothNotfoundRoute:
       return MaterialPageRoute(builder: (context) => BluetoothNotfoundScreen());
     case HelpRoute:

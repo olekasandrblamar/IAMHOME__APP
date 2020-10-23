@@ -40,7 +40,7 @@ dependencies:
   permission_handler_platform_interface: "2.0.1"
   #background_fetch: "^0.6.0"
   flutter_inappwebview: ^4.0.0+4
-  url_launcher: ^5.7.5
+  url_launcher: ^5.7.7
   launch_review: ^2.0.0
   firebase_core: "0.5.0+1"
   firebase_analytics: ^6.0.2
@@ -92,6 +92,8 @@ flutter:
     - assets/images/clouds.png
     - assets/images/bee_left.png
     - assets/images/bee_right.png
+    - assets/images/Bluechecked.png
+    - assets/images/AddNewDeviceDefault.png
 
   fonts:
     - family: Roboto

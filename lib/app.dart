@@ -143,7 +143,7 @@ class _MyAppState extends State<MyApp> {
 
   Widget _buildHomeWidget(AuthProvider auth) {
     if (auth.isAuth) {
-      return SetupActiveScreen();
+      return SetupHomeScreen();
     } else {
       return FutureBuilder(
         future: Future.wait([auth.checkWalthrough(), auth.tryAutoLogin()]),
