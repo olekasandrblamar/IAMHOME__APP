@@ -134,7 +134,7 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: _lastTemperature!=null?_lastTemperature.fahrenheit:' - ',
+                                          text: (_lastTemperature!=null?_lastTemperature.fahrenheit:'0'),
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -258,7 +258,7 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: _lastHr!=null? _lastHr.heartRate: ' - ',
+                                          text: _lastHr!=null? _lastHr.heartRate: '0',
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -376,7 +376,7 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: _bloodPressure!=null?_bloodPressure.distolic.toString()+'/'+_bloodPressure.systolic.toString(): ' - ',
+                                          text: _bloodPressure!=null?_bloodPressure.distolic.toString()+'/'+_bloodPressure.systolic.toString(): '0/0',
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -495,7 +495,7 @@ class DataScreen extends StatelessWidget {
                                       text: TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: _lastCalories!= null? _lastCalories.calories: ' - ',
+                                            text: _lastCalories!= null? _lastCalories.calories: '0',
                                             style: TextStyle(
                                               fontSize: 40,
                                               fontWeight: FontWeight.bold,
@@ -614,7 +614,7 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: _lastSteps!=null? _lastSteps.steps:' - ',
+                                          text: (_lastSteps!=null? _lastSteps.steps:'0'),
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
