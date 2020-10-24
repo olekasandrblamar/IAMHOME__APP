@@ -1,6 +1,7 @@
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/auth/login_screen.dart';
+import 'package:ceras/screens/data_screen.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/nodata_widget.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
@@ -60,7 +61,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                   return Navigator.of(context).push(
                     MaterialPageRoute<Null>(
                       builder: (BuildContext context) {
-                        return LoginScreen();
+                        return DataScreen();
                       },
                       fullscreenDialog: true,
                     ),
