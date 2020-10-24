@@ -38,26 +38,27 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<String> _getMacId() async {
     final prefs = await SharedPreferences.getInstance();
+    var macAddress = '';
     await prefs.reload();
     if (Platform.isIOS) {
-      return prefs.getString('device_macid');
+      macAddress =  prefs.getString('device_macid');
     } else {
       var watchInfo =
           json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>;
-      return WatchModel.fromJson(watchInfo).deviceId;
+      macAddress = WatchModel.fromJson(watchInfo).deviceId;
     }
+    return macAddress.replaceAll(":", "");
   }
 
   Future<Map<String, dynamic>> _getDeviceRequest() async {
-    Map<String, dynamic> requestMap = {"devices": await _getMacId()};
-    return requestMap;
+    return {"devices": await _getMacId()};
   }
 
   Future<Temperature> getLatestTemperature() async {
     try {
-      final response = await http.get(env.baseUrl + '/lastValue/temperature',
+      final response = await http.get(env.baseUrl + 'lastValue/temperature',
           queryParameters: await _getDeviceRequest());
-      if (response.data) {
+      if (response.data != null) {
         return Temperature.fromJson(response.data);
       }
     } catch (error) {
@@ -67,9 +68,9 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<HeartRate> getLatestHeartRate() async {
     try {
-      final response = await http.get(env.baseUrl + '/lastValue/heartrate',
+      final response = await http.get(env.baseUrl + 'lastValue/heartrate',
           queryParameters: await _getDeviceRequest());
-      if (response.data) {
+      if (response.data != null) {
         return HeartRate.fromJson(response.data);
       }
     } catch (error) {
@@ -79,9 +80,9 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<OxygenLevel> getLatestOxygenLevel() async {
     try {
-      final response = await http.get(env.baseUrl + '/lastValue/bloodOxygen',
+      final response = await http.get(env.baseUrl + 'lastValue/bloodOxygen',
           queryParameters: await _getDeviceRequest());
-      if (response.data) {
+      if (response.data != null) {
         return OxygenLevel.fromJson(response.data);
       }
     } catch (error) {
@@ -91,9 +92,9 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<DailySteps> getLatestSteps() async {
     try {
-      final response = await http.get(env.baseUrl + '/lastValue/dailySteps',
+      final response = await http.get(env.baseUrl + 'lastValue/dailySteps',
           queryParameters: await _getDeviceRequest());
-      if (response.data) {
+      if (response.data != null) {
         return DailySteps.fromJson(response.data);
       }
     } catch (error) {
@@ -103,9 +104,9 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<BloodPressure> getLatestBloodPressure() async {
     try {
-      final response = await http.get(env.baseUrl + '/lastValue/bloodPressure',
+      final response = await http.get(env.baseUrl + 'lastValue/bloodPressure',
           queryParameters: await _getDeviceRequest());
-      if (response.data) {
+      if (response.data != null) {
         return BloodPressure.fromJson(response.data);
       }
     } catch (error) {
@@ -115,9 +116,9 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<Calories> getLatestCalories() async {
     try {
-      final response = await http.get(env.baseUrl + '/lastValue/calories',
+      final response = await http.get(env.baseUrl + 'lastValue/calories',
           queryParameters: await _getDeviceRequest());
-      if (response.data) {
+      if (response.data != null) {
         return Calories.fromJson(response.data);
       }
     } catch (error) {

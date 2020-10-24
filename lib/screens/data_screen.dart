@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 
 import 'package:ceras/theme.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 class DataScreen extends StatefulWidget {
@@ -38,6 +39,14 @@ class _DataScreenState extends State<DataScreen> {
     _loadHeartRate();
     _loadCalories();
     _loadSteps();
+  }
+
+  String _formatDate(DateTime date){
+    return DateFormat.yMMMMd().format(date.toLocal());
+  }
+
+  String _formatTime(DateTime date){
+    return DateFormat.jm().format(date.toLocal());
   }
 
   Future<void> _loadTemperature() async {
@@ -201,7 +210,7 @@ class _DataScreenState extends State<DataScreen> {
                                       text: TextSpan(children: [
                                         TextSpan(
                                           text: (_lastTemperature != null
-                                              ? _lastTemperature.fahrenheit
+                                              ? _lastTemperature.fahrenheit.toStringAsFixed(2)
                                               : '0'),
                                           style: TextStyle(
                                             fontSize: 40,
@@ -249,11 +258,15 @@ class _DataScreenState extends State<DataScreen> {
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('10/08/2020'),
+                                      Text(_lastTemperature != null
+                                          ? _formatDate(_lastTemperature.measureTime)
+                                          : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('11:42:11 PM'),
+                                      Text(_lastTemperature != null
+                                          ? _formatTime(_lastTemperature.measureTime)
+                                          : ''),
                                     ],
                                   ),
                                 ),
@@ -327,7 +340,7 @@ class _DataScreenState extends State<DataScreen> {
                                       text: TextSpan(children: [
                                         TextSpan(
                                           text: _lastHr != null
-                                              ? _lastHr.heartRate
+                                              ? _lastHr.heartRate.toString()
                                               : '0',
                                           style: TextStyle(
                                             fontSize: 40,
@@ -369,11 +382,15 @@ class _DataScreenState extends State<DataScreen> {
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('10/08/2020'),
+                                      Text(_lastHr != null
+                                          ? _formatDate(_lastHr.measureTime)
+                                          : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('11:42:11 PM'),
+                                      Text(_lastHr != null
+                                          ? _formatTime(_lastHr.measureTime)
+                                          : ''),
                                     ],
                                   ),
                                 ),
@@ -447,10 +464,10 @@ class _DataScreenState extends State<DataScreen> {
                                       text: TextSpan(children: [
                                         TextSpan(
                                           text: _bloodPressure != null
-                                              ? _bloodPressure.distolic
+                                              ? _bloodPressure.systolic
                                                       .toString() +
                                                   '/' +
-                                                  _bloodPressure.systolic
+                                                  _bloodPressure.distolic
                                                       .toString()
                                               : '0/0',
                                           style: TextStyle(
@@ -493,11 +510,15 @@ class _DataScreenState extends State<DataScreen> {
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('10/08/2020'),
+                                      Text(_bloodPressure != null
+                                          ? _formatDate(_bloodPressure.measureTime)
+                                          : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('11:42:11 PM'),
+                                      Text(_bloodPressure != null
+                                          ? _formatTime(_bloodPressure.measureTime)
+                                          : ''),
                                     ],
                                   ),
                                 ),
@@ -572,7 +593,7 @@ class _DataScreenState extends State<DataScreen> {
                                         children: [
                                           TextSpan(
                                             text: _lastCalories != null
-                                                ? _lastCalories.calories
+                                                ? _lastCalories.calories.toString()
                                                 : '0',
                                             style: TextStyle(
                                               fontSize: 40,
@@ -615,11 +636,15 @@ class _DataScreenState extends State<DataScreen> {
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('10/08/2020'),
+                                      Text(_lastCalories != null
+                                          ? _formatDate(_lastCalories.measureTime)
+                                          : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('11:42:11 PM'),
+                                      Text(_lastCalories != null
+                                          ? _formatTime(_lastCalories.measureTime)
+                                          : ''),
                                     ],
                                   ),
                                 ),
@@ -693,7 +718,7 @@ class _DataScreenState extends State<DataScreen> {
                                       text: TextSpan(children: [
                                         TextSpan(
                                           text: (_lastSteps != null
-                                              ? _lastSteps.steps
+                                              ? _lastSteps.steps.toString()
                                               : '0'),
                                           style: TextStyle(
                                             fontSize: 40,
@@ -735,11 +760,15 @@ class _DataScreenState extends State<DataScreen> {
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('10/08/2020'),
+                                      Text(_lastSteps != null
+                                          ? _formatDate(_lastSteps.measureTime)
+                                          : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('11:42:11 PM'),
+                                      Text(_lastSteps != null
+                                          ? _formatTime(_lastSteps.measureTime)
+                                          : ''),
                                     ],
                                   ),
                                 ),
