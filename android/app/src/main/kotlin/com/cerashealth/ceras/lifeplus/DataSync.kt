@@ -1,4 +1,4 @@
-package com.cerashealth.ceras
+package com.cerashealth.ceras.lifeplus
 
 import android.Manifest
 import android.content.Context
@@ -6,7 +6,8 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.example.ceras.BaseDevice
+import com.cerashealth.ceras.*
+import com.cerashealth.ceras.lifeplus.data.*
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -43,7 +44,7 @@ class DataSync {
         }
 
         private fun updateLastSync(type:String, lastMeasure:Date){
-            MainActivity.currentContext?.let {currentContext->
+            MainActivity.currentContext?.let { currentContext->
                 var lastUpdatedDate:MutableMap<String,String> = mutableMapOf()
                 val existingData = currentContext.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString(LAST_UPDATE_VAL,"")
                 if(existingData?.length!! > 0){
@@ -101,13 +102,17 @@ class DataSync {
 
                             override fun onResponse(call: Call, response: Response) {
                                 Log.i(TAG,"Got response ${response.isSuccessful} for call ${call.request().url}")
-                                val userProfile = gson.fromJson<UserProfile>(response.body?.string(),UserProfile::class.java)
-                                userProfile.lastUpdated = Date()
-                                currentContext.getSharedPreferences(MainActivity
-                                        .SharedPrefernces,Context.MODE_PRIVATE).edit()
-                                        .putString(USER_PROFILE,gson.toJson(userProfile)).commit()
-                                response.body?.close()
-                                response.close()
+                                try {
+                                    val userProfile = gson.fromJson<UserProfile>(response.body?.string(), UserProfile::class.java)
+                                    userProfile.lastUpdated = Date()
+                                    currentContext.getSharedPreferences(MainActivity
+                                            .SharedPrefernces, Context.MODE_PRIVATE).edit()
+                                            .putString(USER_PROFILE, gson.toJson(userProfile)).commit()
+                                    response.body?.close()
+                                    response.close()
+                                }catch (ex:Exception){
+                                    Log.e(TAG,"Error while getting profile info ",ex)
+                                }
                             }
 
                         })
@@ -215,33 +220,4 @@ class DataSync {
         }
     }
 
-}
-
-class UserProfile{
-    var age = 0
-    var weightInKgs = 0.0
-    var heightInCm = 0
-    var sex:String = ""
-    var lastUpdated = Date()
-}
-
-data class TemperatureUpload(val measureTime:Date, var celsius:Double, val fahrenheit:Double, val deviceId:String)
-
-data class StepUpload(val measureTime:Date, var steps:Int,val deviceId:String)
-
-data class DailyStepUpload(val measureTime:Date, var steps:Int,val deviceId:String)
-
-data class CaloriesUpload(val measureTime:Date, var calories:Int,val deviceId:String)
-
-data class BpUpload(val measureTime:Date, var distolic:Int,var systolic:Int,val deviceId:String,var userProfile:UserProfile? = null)
-
-data class HeartRateUpload(val measureTime:Date, var heartRate:Int,val deviceId:String)
-
-data class OxygenLevelUpload(val measureTime:Date, var oxygenLevel:Int,val deviceId:String,var userProfile:UserProfile? = null)
-
-data class HeartBeat(val deviceId:String?,val macAddress:String?){
-    var deviceInfo:String? = null
-    var background = false
-    var latitude:Double? = null
-    var longitude:Double? = null
 }
