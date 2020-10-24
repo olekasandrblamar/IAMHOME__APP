@@ -1,23 +1,89 @@
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/trackers/tracker_data_model.dart';
+import 'package:ceras/providers/devices_provider.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
 
 import 'package:ceras/theme.dart';
+import 'package:provider/provider.dart';
 
-class DataScreen extends StatelessWidget {
+class DataScreen extends StatefulWidget {
+  @override
+  _DataScreenState createState() => _DataScreenState();
+}
 
+class _DataScreenState extends State<DataScreen> {
   Temperature _lastTemperature = null;
+
   HeartRate _lastHr = null;
+
   BloodPressure _bloodPressure = null;
+
   Calories _lastCalories = null;
+
   DailySteps _lastSteps = null;
 
+  @override
+  void initState() {
+    _initData();
 
+    // TODO: implement initState
+    super.initState();
+  }
 
-  void loadTemperature(){
+  void _initData() {
+    _loadTemperature();
+    _loadBloodPressure();
+    _loadHeartRate();
+    _loadCalories();
+    _loadSteps();
+  }
 
+  Future<void> _loadTemperature() async {
+    var temperature = await Provider.of<DevicesProvider>(context, listen: false)
+        .getLatestTemperature();
+
+    setState(() {
+      _lastTemperature = temperature;
+    });
+  }
+
+  Future<void> _loadBloodPressure() async {
+    var bloodPressure =
+        await Provider.of<DevicesProvider>(context, listen: false)
+            .getLatestBloodPressure();
+
+    setState(() {
+      _bloodPressure = bloodPressure;
+    });
+  }
+
+  Future<void> _loadHeartRate() async {
+    var heartRate = await Provider.of<DevicesProvider>(context, listen: false)
+        .getLatestHeartRate();
+
+    setState(() {
+      _lastHr = heartRate;
+    });
+  }
+
+  Future<void> _loadCalories() async {
+    var calories = await Provider.of<DevicesProvider>(context, listen: false)
+        .getLatestCalories();
+
+    setState(() {
+      _lastCalories = calories;
+    });
+  }
+
+  Future<void> _loadSteps() async {
+    var steps = await Provider.of<DevicesProvider>(context, listen: false)
+        .getLatestSteps();
+
+    setState(() {
+      _lastSteps = steps;
+    });
   }
 
   @override
@@ -134,7 +200,9 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: (_lastTemperature!=null?_lastTemperature.fahrenheit:'0'),
+                                          text: (_lastTemperature != null
+                                              ? _lastTemperature.fahrenheit
+                                              : '0'),
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -258,7 +326,9 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: _lastHr!=null? _lastHr.heartRate: '0',
+                                          text: _lastHr != null
+                                              ? _lastHr.heartRate
+                                              : '0',
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -376,7 +446,13 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: _bloodPressure!=null?_bloodPressure.distolic.toString()+'/'+_bloodPressure.systolic.toString(): '0/0',
+                                          text: _bloodPressure != null
+                                              ? _bloodPressure.distolic
+                                                      .toString() +
+                                                  '/' +
+                                                  _bloodPressure.systolic
+                                                      .toString()
+                                              : '0/0',
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -495,7 +571,9 @@ class DataScreen extends StatelessWidget {
                                       text: TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: _lastCalories!= null? _lastCalories.calories: '0',
+                                            text: _lastCalories != null
+                                                ? _lastCalories.calories
+                                                : '0',
                                             style: TextStyle(
                                               fontSize: 40,
                                               fontWeight: FontWeight.bold,
@@ -614,7 +692,9 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: (_lastSteps!=null? _lastSteps.steps:'0'),
+                                          text: (_lastSteps != null
+                                              ? _lastSteps.steps
+                                              : '0'),
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
