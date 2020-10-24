@@ -31,8 +31,8 @@ class DataSync {
     static let MAC_ADDRESS_NAME = "flutter.device_macid"
     static let BASE_URL =  "flutter.apiBaseUrl"
 
-    static func getBaseUrl() -> String?{
-        return UserDefaults.standard.object(forKey: DataSync.BASE_URL) as! String?
+    static func getBaseUrl() -> String{
+        return UserDefaults.standard.object(forKey: DataSync.BASE_URL) as! String
     }
     
     static func uploadHeartRateInfo(heartRates:[HeartRateUpload]){
