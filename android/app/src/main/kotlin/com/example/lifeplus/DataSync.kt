@@ -25,11 +25,21 @@ class DataSync {
         private const val LAST_UPDATE_VAL = "flutter.last_sync_updates"
         private const val USER_PROFILE = "flutter.user_profile_data"
         private const val MAC_ADDRESS_NAME = "flutter.device_macid"
+        private const val BASE_URL = "flutter.apiBaseUrl"
         var CURRENT_MAC_ADDRESS:String? = null
 
 
         fun uploadTemperature(temperatures:List<TemperatureUpload>){
             makePostRequest(gson.toJson(temperatures),"temperature")
+        }
+
+        private fun getBaseUrl():String?{
+            MainActivity.currentContext?.let { currentContext ->
+                currentContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString(BASE_URL, "")?.let { baseUrl ->
+                    return baseUrl
+                }
+            }
+            return null
         }
 
         private fun updateLastSync(type:String, lastMeasure:Date){
@@ -80,7 +90,7 @@ class DataSync {
                 if(loadProfileData){
                     Log.d(TAG,"Loading profile")
                     CURRENT_MAC_ADDRESS?.let {
-                        val postReq = Request.Builder().url("$baseUrl/profileInfo?deviceId=$it")
+                        val postReq = Request.Builder().url("${getBaseUrl()}profileInfo?deviceId=$it")
                                 .get()
                                 .addHeader("BACKGROUND_STATUS",BaseDevice.isBackground.toString())
                                 .build()
@@ -186,7 +196,7 @@ class DataSync {
 
         private fun makePostRequest(postData:String,url:String){
             Log.d(TAG,"Uploading data to $url with data $postData")
-            val postReq = Request.Builder().url("$baseUrl/$url")
+            val postReq = Request.Builder().url("${getBaseUrl()}$url")
                     .post(postData.toRequestBody(jsonMediaType))
                     .addHeader("BACKGROUND_STATUS",BaseDevice.isBackground.toString())
                     .build()
