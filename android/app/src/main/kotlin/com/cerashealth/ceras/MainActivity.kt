@@ -8,7 +8,8 @@ import android.content.pm.PackageManager
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
-import com.example.ceras.BaseDevice
+import com.cerashealth.ceras.lifeplus.*
+import com.cerashealth.ceras.lifeplus.data.*
 import com.google.gson.Gson
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetch
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetchConfig
@@ -22,7 +23,7 @@ import java.util.*
 class MainActivity: FlutterActivity()  {
 
     private val CHANNEL = "ceras.iamhome.mobile/device"
-    private var sycnDevice:BaseDevice? = null
+    private var sycnDevice: BaseDevice? = null
 
     companion object{
         var lastConnected: Calendar = Calendar.getInstance()
@@ -128,34 +129,6 @@ class MainActivity: FlutterActivity()  {
         // requestPermission()
         scheduleBackgroundTasks()
         connectDeviceChannel(flutterEngine)
-    }
-
-}
-
-class ConnectionInfo{
-    var deviceId:String? = null
-    var deviceName:String? = null
-    var connected = false
-    var deviceFound = false
-    var message:String? = null
-    var additionalInformation = mapOf<String,String>()
-    var deviceType:String? = null
-
-    companion object{
-        fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null
-                           ,additionalInfo: Map<String, String> = mapOf<String,String>(),deviceType:String? = null,deviceFound:Boolean = true):String{
-            val connectionData =  Gson().toJson(ConnectionInfo().apply {
-                this.deviceId = deviceId
-                this.connected = connected
-                this.message = message
-                this.deviceName = deviceName
-                this.additionalInformation = additionalInfo
-                this.deviceType = deviceType
-                this.deviceFound = deviceFound
-            })
-            Log.i(MainActivity.TAG,"Sending connection data back $connectionData")
-            return connectionData
-        }
     }
 
 }

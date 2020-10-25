@@ -1,11 +1,100 @@
 import 'package:ceras/config/app_localizations.dart';
+import 'package:ceras/models/trackers/tracker_data_model.dart';
+import 'package:ceras/providers/devices_provider.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
 
 import 'package:ceras/theme.dart';
+import 'package:intl/intl.dart';
+import 'package:provider/provider.dart';
 
-class DataScreen extends StatelessWidget {
+class DataScreen extends StatefulWidget {
+  @override
+  _DataScreenState createState() => _DataScreenState();
+}
+
+class _DataScreenState extends State<DataScreen> {
+  Temperature _lastTemperature = null;
+
+  HeartRate _lastHr = null;
+
+  BloodPressure _bloodPressure = null;
+
+  Calories _lastCalories = null;
+
+  DailySteps _lastSteps = null;
+
+  @override
+  void initState() {
+    _initData();
+
+    // TODO: implement initState
+    super.initState();
+  }
+
+  void _initData() {
+    _loadTemperature();
+    _loadBloodPressure();
+    _loadHeartRate();
+    _loadCalories();
+    _loadSteps();
+  }
+
+  String _formatDate(DateTime date){
+    return DateFormat.yMMMMd().format(date.toLocal());
+  }
+
+  String _formatTime(DateTime date){
+    return DateFormat.jm().format(date.toLocal());
+  }
+
+  Future<void> _loadTemperature() async {
+    var temperature = await Provider.of<DevicesProvider>(context, listen: false)
+        .getLatestTemperature();
+
+    setState(() {
+      _lastTemperature = temperature;
+    });
+  }
+
+  Future<void> _loadBloodPressure() async {
+    var bloodPressure =
+        await Provider.of<DevicesProvider>(context, listen: false)
+            .getLatestBloodPressure();
+
+    setState(() {
+      _bloodPressure = bloodPressure;
+    });
+  }
+
+  Future<void> _loadHeartRate() async {
+    var heartRate = await Provider.of<DevicesProvider>(context, listen: false)
+        .getLatestHeartRate();
+
+    setState(() {
+      _lastHr = heartRate;
+    });
+  }
+
+  Future<void> _loadCalories() async {
+    var calories = await Provider.of<DevicesProvider>(context, listen: false)
+        .getLatestCalories();
+
+    setState(() {
+      _lastCalories = calories;
+    });
+  }
+
+  Future<void> _loadSteps() async {
+    var steps = await Provider.of<DevicesProvider>(context, listen: false)
+        .getLatestSteps();
+
+    setState(() {
+      _lastSteps = steps;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final _appLocalization = AppLocalizations.of(context);
@@ -120,7 +209,9 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: '97.1',
+                                          text: (_lastTemperature != null
+                                              ? _lastTemperature.fahrenheit.toStringAsFixed(2)
+                                              : '0'),
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -167,11 +258,15 @@ class DataScreen extends StatelessWidget {
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('10/08/2020'),
+                                      Text(_lastTemperature != null
+                                          ? _formatDate(_lastTemperature.measureTime)
+                                          : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('11:42:11 PM'),
+                                      Text(_lastTemperature != null
+                                          ? _formatTime(_lastTemperature.measureTime)
+                                          : ''),
                                     ],
                                   ),
                                 ),
@@ -244,7 +339,9 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: '65',
+                                          text: _lastHr != null
+                                              ? _lastHr.heartRate.toString()
+                                              : '0',
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -285,11 +382,15 @@ class DataScreen extends StatelessWidget {
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('10/08/2020'),
+                                      Text(_lastHr != null
+                                          ? _formatDate(_lastHr.measureTime)
+                                          : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('11:42:11 PM'),
+                                      Text(_lastHr != null
+                                          ? _formatTime(_lastHr.measureTime)
+                                          : ''),
                                     ],
                                   ),
                                 ),
@@ -362,7 +463,13 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: '120/80',
+                                          text: _bloodPressure != null
+                                              ? _bloodPressure.systolic
+                                                      .toString() +
+                                                  '/' +
+                                                  _bloodPressure.distolic
+                                                      .toString()
+                                              : '0/0',
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -403,11 +510,15 @@ class DataScreen extends StatelessWidget {
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('10/08/2020'),
+                                      Text(_bloodPressure != null
+                                          ? _formatDate(_bloodPressure.measureTime)
+                                          : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('11:42:11 PM'),
+                                      Text(_bloodPressure != null
+                                          ? _formatTime(_bloodPressure.measureTime)
+                                          : ''),
                                     ],
                                   ),
                                 ),
@@ -481,7 +592,9 @@ class DataScreen extends StatelessWidget {
                                       text: TextSpan(
                                         children: [
                                           TextSpan(
-                                            text: '1120',
+                                            text: _lastCalories != null
+                                                ? _lastCalories.calories.toString()
+                                                : '0',
                                             style: TextStyle(
                                               fontSize: 40,
                                               fontWeight: FontWeight.bold,
@@ -523,11 +636,15 @@ class DataScreen extends StatelessWidget {
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('10/08/2020'),
+                                      Text(_lastCalories != null
+                                          ? _formatDate(_lastCalories.measureTime)
+                                          : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('11:42:11 PM'),
+                                      Text(_lastCalories != null
+                                          ? _formatTime(_lastCalories.measureTime)
+                                          : ''),
                                     ],
                                   ),
                                 ),
@@ -600,7 +717,9 @@ class DataScreen extends StatelessWidget {
                                     child: RichText(
                                       text: TextSpan(children: [
                                         TextSpan(
-                                          text: '20,002',
+                                          text: (_lastSteps != null
+                                              ? _lastSteps.steps.toString()
+                                              : '0'),
                                           style: TextStyle(
                                             fontSize: 40,
                                             fontWeight: FontWeight.bold,
@@ -641,11 +760,15 @@ class DataScreen extends StatelessWidget {
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('10/08/2020'),
+                                      Text(_lastSteps != null
+                                          ? _formatDate(_lastSteps.measureTime)
+                                          : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
-                                      Text('11:42:11 PM'),
+                                      Text(_lastSteps != null
+                                          ? _formatTime(_lastSteps.measureTime)
+                                          : ''),
                                     ],
                                   ),
                                 ),

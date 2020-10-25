@@ -1,4 +1,4 @@
-package com.cerashealth.ceras
+package com.cerashealth.ceras.lifeplus
 
 import android.Manifest
 import android.content.Context
@@ -6,7 +6,8 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.example.ceras.BaseDevice
+import com.cerashealth.ceras.*
+import com.cerashealth.ceras.lifeplus.data.*
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -24,14 +25,26 @@ class DataSync {
         private val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create()
         private const val LAST_UPDATE_VAL = "flutter.last_sync_updates"
         private const val USER_PROFILE = "flutter.user_profile_data"
+        private const val MAC_ADDRESS_NAME = "flutter.device_macid"
+        private const val BASE_URL = "flutter.apiBaseUrl"
         var CURRENT_MAC_ADDRESS:String? = null
+
 
         fun uploadTemperature(temperatures:List<TemperatureUpload>){
             makePostRequest(gson.toJson(temperatures),"temperature")
         }
 
+        private fun getBaseUrl():String?{
+            MainActivity.currentContext?.let { currentContext ->
+                currentContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString(BASE_URL, "")?.let { baseUrl ->
+                    return baseUrl
+                }
+            }
+            return null
+        }
+
         private fun updateLastSync(type:String, lastMeasure:Date){
-            MainActivity.currentContext?.let {currentContext->
+            MainActivity.currentContext?.let { currentContext->
                 var lastUpdatedDate:MutableMap<String,String> = mutableMapOf()
                 val existingData = currentContext.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString(LAST_UPDATE_VAL,"")
                 if(existingData?.length!! > 0){
@@ -78,7 +91,7 @@ class DataSync {
                 if(loadProfileData){
                     Log.d(TAG,"Loading profile")
                     CURRENT_MAC_ADDRESS?.let {
-                        val postReq = Request.Builder().url("$baseUrl/profileInfo?deviceId=$it")
+                        val postReq = Request.Builder().url("${getBaseUrl()}profileInfo?deviceId=$it")
                                 .get()
                                 .addHeader("BACKGROUND_STATUS",BaseDevice.isBackground.toString())
                                 .build()
@@ -89,13 +102,17 @@ class DataSync {
 
                             override fun onResponse(call: Call, response: Response) {
                                 Log.i(TAG,"Got response ${response.isSuccessful} for call ${call.request().url}")
-                                val userProfile = gson.fromJson<UserProfile>(response.body?.string(),UserProfile::class.java)
-                                userProfile.lastUpdated = Date()
-                                currentContext.getSharedPreferences(MainActivity
-                                        .SharedPrefernces,Context.MODE_PRIVATE).edit()
-                                        .putString(USER_PROFILE,gson.toJson(userProfile)).commit()
-                                response.body?.close()
-                                response.close()
+                                try {
+                                    val userProfile = gson.fromJson<UserProfile>(response.body?.string(), UserProfile::class.java)
+                                    userProfile.lastUpdated = Date()
+                                    currentContext.getSharedPreferences(MainActivity
+                                            .SharedPrefernces, Context.MODE_PRIVATE).edit()
+                                            .putString(USER_PROFILE, gson.toJson(userProfile)).commit()
+                                    response.body?.close()
+                                    response.close()
+                                }catch (ex:Exception){
+                                    Log.e(TAG,"Error while getting profile info ",ex)
+                                }
                             }
 
                         })
@@ -184,7 +201,7 @@ class DataSync {
 
         private fun makePostRequest(postData:String,url:String){
             Log.d(TAG,"Uploading data to $url with data $postData")
-            val postReq = Request.Builder().url("$baseUrl/$url")
+            val postReq = Request.Builder().url("${getBaseUrl()}$url")
                     .post(postData.toRequestBody(jsonMediaType))
                     .addHeader("BACKGROUND_STATUS",BaseDevice.isBackground.toString())
                     .build()
@@ -203,33 +220,4 @@ class DataSync {
         }
     }
 
-}
-
-class UserProfile{
-    var age = 0
-    var weightInKgs = 0.0
-    var heightInCm = 0
-    var sex:String = ""
-    var lastUpdated = Date()
-}
-
-data class TemperatureUpload(val measureTime:Date, var celsius:Double, val fahrenheit:Double, val deviceId:String)
-
-data class StepUpload(val measureTime:Date, var steps:Int,val deviceId:String)
-
-data class DailyStepUpload(val measureTime:Date, var steps:Int,val deviceId:String)
-
-data class CaloriesUpload(val measureTime:Date, var calories:Int,val deviceId:String)
-
-data class BpUpload(val measureTime:Date, var distolic:Int,var systolic:Int,val deviceId:String,var userProfile:UserProfile? = null)
-
-data class HeartRateUpload(val measureTime:Date, var heartRate:Int,val deviceId:String)
-
-data class OxygenLevelUpload(val measureTime:Date, var oxygenLevel:Int,val deviceId:String,var userProfile:UserProfile? = null)
-
-data class HeartBeat(val deviceId:String?,val macAddress:String?){
-    var deviceInfo:String? = null
-    var background = false
-    var latitude:Double? = null
-    var longitude:Double? = null
 }

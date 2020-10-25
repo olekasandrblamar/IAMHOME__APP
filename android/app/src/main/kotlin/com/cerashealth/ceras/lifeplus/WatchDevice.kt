@@ -1,11 +1,12 @@
-package com.cerashealth.ceras
+package com.cerashealth.ceras.lifeplus
 
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.Context
 import android.text.TextUtils
 import android.util.Log
-import com.example.ceras.BaseDevice
+import com.cerashealth.ceras.*
+import com.cerashealth.ceras.lifeplus.data.*
 import com.google.gson.Gson
 import com.walnutin.HeartRateAdditional
 import com.walnutin.hardsdk.ProductList.sdk.GlobalValue
@@ -335,20 +336,24 @@ class WatchDevice:BaseDevice()     {
 
         @Synchronized
         fun syncData(){
-            dataCallback?.let {
-                HardSdk.getInstance().syncLatestBodyTemperature(0)
-                HardSdk.getInstance().syncLatestWristTemperature(0)
-                HardSdk.getInstance().syncHeartRateData(0)
-                HardSdk.getInstance().syncExerciseData(0)
-                HardSdk.getInstance().syncStepData(0)
-                HardSdk.getInstance().syncSleepData(0)
+            try {
+                dataCallback?.let {
+                    HardSdk.getInstance().syncLatestBodyTemperature(0)
+                    HardSdk.getInstance().syncLatestWristTemperature(0)
+                    HardSdk.getInstance().syncHeartRateData(0)
+                    HardSdk.getInstance().syncExerciseData(0)
+                    HardSdk.getInstance().syncStepData(0)
+                    HardSdk.getInstance().syncSleepData(0)
+                }
+            }catch (ex:Exception){
+                Log.e(TAG,"Error while syncing data",ex)
             }
         }
     }
 
     override fun disconnectDevice(result: MethodChannel.Result?) {
         if(HardSdk.getInstance().isDevConnected) {
-            HardSdk.getInstance().reset()
+            HardSdk.getInstance().restoreFactoryMode()
             HardSdk.getInstance().disconnect()
         }
         result?.success("Success")

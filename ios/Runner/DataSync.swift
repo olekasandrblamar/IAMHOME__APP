@@ -29,7 +29,11 @@ class DataSync {
     private static let urlDeletegate = CustomUrlDelegate()
     private static let getProfileDelegate = UserDataUrlDelegate()
     static let MAC_ADDRESS_NAME = "flutter.device_macid"
-    
+    static let BASE_URL =  "flutter.apiBaseUrl"
+
+    static func getBaseUrl() -> String{
+        return UserDefaults.standard.object(forKey: DataSync.BASE_URL) as! String
+    }
     
     static func uploadHeartRateInfo(heartRates:[HeartRateUpload]){
         do{
@@ -209,7 +213,7 @@ class DataSync {
                 NSLog("Loading profile \(loadProfile)")
                 let macAddress = UserDefaults.standard.string(forKey: DataSync.MAC_ADDRESS_NAME)
                 if(macAddress != nil){
-                    let profileUrl = URL(string: baseUrl+"profileInfo?deviceId="+macAddress!)!
+                    let profileUrl = URL(string: getBaseUrl()+"profileInfo?deviceId="+macAddress!)!
                     NSLog("Calling profile url \(profileUrl)")
                     var request = URLRequest(url: profileUrl)
                     request.httpMethod = "GET"
@@ -241,7 +245,7 @@ class DataSync {
     }
     
     private static func makePostApiCall(url:String,postData:Data){
-        let completeUrl = URL(string: baseUrl+url)!
+        let completeUrl = URL(string: getBaseUrl()+url)!
         var request = URLRequest(url: completeUrl)
         request.httpMethod = "POST"
         request.httpBody = postData
