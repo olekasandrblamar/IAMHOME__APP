@@ -13,8 +13,6 @@ import 'package:ceras/theme.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
 
-import '../data_screen.dart';
-
 class UpperCaseTextFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(
@@ -380,41 +378,6 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
               // ),
             ],
           ),
-        ),
-      ),
-      bottomNavigationBar: SafeArea(
-        bottom: true,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              width: 200,
-              height: 90,
-              padding: EdgeInsets.all(20),
-              child: RaisedButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.5),
-                ),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                child: Text('Access Health Data'),
-                onPressed: () {
-                  // return Navigator.of(context).pushReplacementNamed(
-                  //   routes.LoginRoute,
-                  // );
-
-                  return Navigator.of(context).push(
-                    MaterialPageRoute<Null>(
-                      builder: (BuildContext context) {
-                        return DataScreen();
-                      },
-                      fullscreenDialog: true,
-                    ),
-                  );
-                },
-              ),
-            ),
-          ],
         ),
       ),
     );

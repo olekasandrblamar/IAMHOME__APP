@@ -12,6 +12,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
 
+import '../data_screen.dart';
 import 'widgets/bluetooth_notfound_widget.dart';
 
 class SetupActiveScreen extends StatefulWidget {
@@ -172,6 +173,41 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
               },
             ),
           ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        bottom: true,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              width: 200,
+              height: 90,
+              padding: EdgeInsets.all(20),
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.5),
+                ),
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+                child: Text('Access Health Data'),
+                onPressed: () {
+                  // return Navigator.of(context).pushReplacementNamed(
+                  //   routes.LoginRoute,
+                  // );
+
+                  return Navigator.of(context).push(
+                    MaterialPageRoute<Null>(
+                      builder: (BuildContext context) {
+                        return DataScreen();
+                      },
+                      fullscreenDialog: true,
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
         ),
       ),
     );
