@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:ceras/config/env.dart';
 import 'package:ceras/providers/applanguage_provider.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config/app_localizations.dart';
 import 'config/dynamiclinks_setup.dart';
@@ -24,6 +26,7 @@ import 'data/language_data.dart';
 import 'router.dart' as router;
 import 'screens/setup/setup_home_screen.dart';
 import 'theme.dart';
+import 'screens/data_screen.dart';
 // import 'config/locator.dart';
 
 class MyApp extends StatefulWidget {
@@ -44,6 +47,9 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _handleStartUpLogic() async {
     await _initializeFlutterFire();
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('apiBaseUrl', env.baseUrl);
 
     await PushNotificationsManager().init();
 

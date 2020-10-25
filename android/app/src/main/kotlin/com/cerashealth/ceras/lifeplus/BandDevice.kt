@@ -1,10 +1,11 @@
-package com.example.ceras
+package com.cerashealth.ceras.lifeplus
 
 import android.bluetooth.BluetoothDevice
 import android.bluetooth.BluetoothGatt
 import android.content.Context
 import android.util.Log
 import com.cerashealth.ceras.*
+import com.cerashealth.ceras.lifeplus.data.*
 import com.zhj.bluetooth.zhjbluetoothsdk.bean.*
 import com.zhj.bluetooth.zhjbluetoothsdk.ble.BleCallbackWrapper
 import com.zhj.bluetooth.zhjbluetoothsdk.ble.BleSdkWrapper
