@@ -16,7 +16,7 @@ class DevicesProvider extends ChangeNotifier {
   Future<void> fetchAllDevices() async {
     try {
       final response = await http.get(
-        env.baseUrl + '/master/masterDevices',
+        env.baseUrl + 'master/masterDevices',
       );
 
       final responseData = response.data;
@@ -41,7 +41,7 @@ class DevicesProvider extends ChangeNotifier {
     var macAddress = '';
     await prefs.reload();
     if (Platform.isIOS) {
-      macAddress =  prefs.getString('device_macid');
+      macAddress = prefs.getString('device_macid');
     } else {
       var watchInfo =
           json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>;

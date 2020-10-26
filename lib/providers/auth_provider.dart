@@ -122,10 +122,12 @@ class AuthProvider with ChangeNotifier {
 
   Future<void> logout() async {
     _watchInfo = null;
+    _deviceData = null;
 
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('watchInfo');
+    prefs.remove('deviceData');
     NavigationService.goBackHome();
     // prefs.clear();
   }

@@ -3,11 +3,14 @@ import 'dart:convert';
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
+import 'package:ceras/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
@@ -22,6 +25,7 @@ class SetupActiveScreen extends StatefulWidget {
 
 class _SetupActiveScreenState extends State<SetupActiveScreen>
     with WidgetsBindingObserver {
+  static const platform = MethodChannel('ceras.iamhome.mobile/device');
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   String _lastUpdated = null;
@@ -150,11 +154,29 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     });
   }
 
+  void _logout() async {
+    var deviceType =
+        await Provider.of<AuthProvider>(context, listen: false).deviceType;
+
+    if (deviceType != null) {
+      var disconnect = await platform.invokeMethod(
+        'disconnect',
+        <String, dynamic>{'deviceType': deviceType},
+      ) as String;
+
+      if (disconnect != null) {
+        await Provider.of<AuthProvider>(context, listen: false).logout();
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: SetupAppBar(name: 'Selected Device'),
+      appBar: AppBar(
+        title: Text('Selected Device'),
+      ),
       backgroundColor: AppTheme.white,
       body: SafeArea(
         bottom: true,
@@ -193,7 +215,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
                 child: Text(
                   'Remove Device',
                 ),
-                onPressed: () {},
+                onPressed: () => _logout(),
               ),
             ),
           ],

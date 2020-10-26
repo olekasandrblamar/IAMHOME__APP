@@ -1,3 +1,4 @@
+import 'package:ceras/screens/setup/setup_home_screen.dart';
 import 'package:flutter/material.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
@@ -123,9 +124,17 @@ class _SetupConnectedScreenState extends State<SetupConnectedScreen> {
                   'Done',
                 ),
                 onPressed: () {
-                  return Navigator.of(context).pushReplacementNamed(
-                    routes.SetupHomeRoute,
-                  );
+                  // return Navigator.of(context).pushReplacementNamed(
+                  //   routes.SetupHomeRoute,
+                  // );
+
+                  Navigator.of(context).pushAndRemoveUntil(
+                      MaterialPageRoute(
+                        builder: (BuildContext context) => SetupHomeScreen(),
+                        settings:
+                            const RouteSettings(name: routes.SetupHomeRoute),
+                      ),
+                      (Route<dynamic> route) => false);
                 },
               ),
             ),
