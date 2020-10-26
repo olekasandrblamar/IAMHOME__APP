@@ -2,11 +2,11 @@ import 'dart:convert';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/models/devices_model.dart';
-import 'package:ceras/screens/auth/login_screen.dart';
-import 'package:ceras/screens/data_screen.dart';
+import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SetupHomeScreen extends StatefulWidget {
@@ -16,12 +16,14 @@ class SetupHomeScreen extends StatefulWidget {
 
 class _SetupHomeScreenState extends State<SetupHomeScreen> {
   DevicesModel _deviceData = null;
+  bool _token = false;
 
   @override
   void initState() {
     // TODO: implement initState
 
     loadData();
+    checkToken();
 
     super.initState();
   }
@@ -36,6 +38,19 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
 
       setState(() {
         _deviceData = deviceData;
+      });
+    }
+  }
+
+  void checkToken() async {
+    var token =
+        await Provider.of<AuthProvider>(context, listen: false).tryAutoLogin();
+
+    print(token);
+
+    if (token) {
+      setState(() {
+        _token = true;
       });
     }
   }
@@ -202,18 +217,15 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                       textColor: Colors.white,
                       child: Text('Access Health Data'),
                       onPressed: () {
-                        // return Navigator.of(context).pushReplacementNamed(
-                        //   routes.LoginRoute,
-                        // );
-
-                        return Navigator.of(context).push(
-                          MaterialPageRoute<Null>(
-                            builder: (BuildContext context) {
-                              return DataScreen();
-                            },
-                            fullscreenDialog: true,
-                          ),
-                        );
+                        if (_token) {
+                          return Navigator.of(context).pushNamed(
+                            routes.DataRoute,
+                          );
+                        } else {
+                          return Navigator.of(context).pushNamed(
+                            routes.LoginRoute,
+                          );
+                        }
                       },
                     ),
                   ),

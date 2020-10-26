@@ -1,5 +1,7 @@
+import 'package:ceras/providers/auth_provider.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -11,11 +13,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   String _username, _email, _password = '';
 
-  final TextEditingController _usernameController = TextEditingController();
+  // final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
-  final FocusNode _usernameFocusNode = FocusNode();
+  // final FocusNode _usernameFocusNode = FocusNode();
   final FocusNode _emailFocusNode = FocusNode();
   final FocusNode _passwordFocusNode = FocusNode();
 
@@ -37,11 +39,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    // _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
 
-    _usernameFocusNode.dispose();
+    // _usernameFocusNode.dispose();
     _emailFocusNode.dispose();
     _passwordFocusNode.dispose();
 
@@ -50,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   void _loadInitData() async {
     if (_isInit) {
-      _usernameController.text = null;
+      // _usernameController.text = null;
       _emailController.text = null;
       _passwordController.text = null;
     }
@@ -73,6 +75,13 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
     _formKey.currentState.save();
+
+    print(_formKey);
+
+    await Provider.of<AuthProvider>(context, listen: false).validateAndLogin(
+      email: _email,
+      password: _password,
+    );
 
     setState(() {
       _isLoading = true;
@@ -115,8 +124,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           child: Column(
                             children: [
-                              const SizedBox(height: 20),
-                              _nameInput(),
+                              // const SizedBox(height: 20),
+                              // _nameInput(),
                               const SizedBox(height: 20),
                               _emailInput(),
                               const SizedBox(height: 20),
@@ -198,31 +207,31 @@ class _LoginScreenState extends State<LoginScreen> {
     );
   }
 
-  Widget _nameInput() {
-    return TextFormField(
-      style: TextStyle(
-        fontSize: 24,
-      ),
-      decoration: _inputDecoration('Username', 'e.g Morgan'),
-      controller: _usernameController,
-      focusNode: _usernameFocusNode,
-      keyboardType: TextInputType.text,
-      textInputAction: TextInputAction.next,
-      autofocus: false,
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Please enter name.';
-        }
+  // Widget _nameInput() {
+  //   return TextFormField(
+  //     style: TextStyle(
+  //       fontSize: 24,
+  //     ),
+  //     decoration: _inputDecoration('Username', 'e.g Morgan'),
+  //     controller: _usernameController,
+  //     focusNode: _usernameFocusNode,
+  //     keyboardType: TextInputType.text,
+  //     textInputAction: TextInputAction.next,
+  //     autofocus: false,
+  //     validator: (value) {
+  //       if (value.isEmpty) {
+  //         return 'Please enter name.';
+  //       }
 
-        return null;
-      },
-      onSaved: (name) => _username = name,
-      onFieldSubmitted: (_) {
-        fieldFocusChange(context, _usernameFocusNode, _emailFocusNode);
-      },
-      // onChanged: onChangePhoneNumberInput,
-    );
-  }
+  //       return null;
+  //     },
+  //     onSaved: (name) => _username = name,
+  //     onFieldSubmitted: (_) {
+  //       fieldFocusChange(context, _usernameFocusNode, _emailFocusNode);
+  //     },
+  //     // onChanged: onChangePhoneNumberInput,
+  //   );
+  // }
 
   Widget _emailInput() {
     return TextFormField(

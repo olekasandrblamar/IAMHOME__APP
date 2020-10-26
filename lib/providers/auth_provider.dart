@@ -9,13 +9,35 @@ import 'package:ceras/config/navigation_service.dart';
 import 'package:ceras/models/watchdata_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'package:dio/dio.dart';
+
+import 'package:ceras/helpers/http_exception.dart';
+import 'package:ceras/helpers/parse_jwt.dart';
+
 class AuthProvider with ChangeNotifier {
   final http = HttpClient().http;
+
+  String _authToken;
+  DateTime _userExpiryDate;
+  String _userId;
 
   WatchModel _watchInfo;
   String _deviceType;
   DevicesModel _deviceData;
   bool _walthrough = true;
+
+  String get token {
+    if (_userExpiryDate != null &&
+        _userExpiryDate.isAfter(DateTime.now()) &&
+        _authToken != null) {
+      return _authToken;
+    }
+    return null;
+  }
+
+  String get userId {
+    return _userId;
+  }
 
   bool get isAuth {
     return _watchInfo != null;
@@ -100,6 +122,55 @@ class AuthProvider with ChangeNotifier {
     return _walthrough;
   }
 
+  Future<void> validateAndLogin({
+    @required String email,
+    @required String password,
+  }) async {
+    try {
+      final response = await http.post(
+        'https://auth.dev.myceras.com/oauth/authorize',
+        data: {
+          "userName": "salapati@cerashealth.com",
+          "password": "Test1234@",
+          "orgId": "PATIENT"
+        },
+      );
+
+      final responseData = response.data;
+
+      print(responseData);
+
+      if (responseData['error'] != null) {
+        throw HttpException(responseData['error']['message']);
+      }
+      _authToken = responseData['id_token'];
+
+      var jwtData = parseJwt(_authToken);
+      _userExpiryDate = DateTime.now().add(
+        Duration(
+          seconds: jwtData['exp'],
+        ),
+      );
+      _userId = jwtData['uniqueProperty'];
+
+      notifyListeners();
+
+      final prefs = await SharedPreferences.getInstance();
+      final userData = json.encode(
+        {
+          'authToken': _authToken,
+          'userId': _userId,
+          'userExpiryDate': _userExpiryDate.toIso8601String(),
+        },
+      );
+      prefs.setString('userData', userData);
+    } on DioError catch (error) {
+      throw HttpException(error?.response?.data['message']);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   Future<bool> tryAutoLogin() async {
     final prefs = await SharedPreferences.getInstance();
 
@@ -117,6 +188,27 @@ class AuthProvider with ChangeNotifier {
     }
 
     notifyListeners();
+    return true;
+  }
+
+  Future<bool> tryAuthLogin() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!prefs.containsKey('userData')) {
+      return false;
+    }
+    final extractedUserData =
+        json.decode(prefs.getString('userData')) as Map<String, Object>;
+    final expiryDate = DateTime.parse(extractedUserData['userExpiryDate']);
+
+    if (expiryDate.isBefore(DateTime.now())) {
+      return false;
+    }
+
+    _authToken = extractedUserData['authToken'];
+    _userId = extractedUserData['userId'];
+    _userExpiryDate = expiryDate;
+    notifyListeners();
+
     return true;
   }
 
