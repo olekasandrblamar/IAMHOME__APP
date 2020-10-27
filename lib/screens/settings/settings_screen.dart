@@ -35,7 +35,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
   void initState() {
     super.initState();
     _initPackageInfo();
-    _checkWatchInfo();
   }
 
   Future<void> _initPackageInfo() async {
@@ -51,32 +50,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       applicationVersion: _packageInfo.version,
     );
-  }
-
-  void _checkWatchInfo() async {
-    final isValid =
-        await Provider.of<AuthProvider>(context, listen: false).isAuth;
-
-    print(isValid);
-    setState(() {
-      _watchInfo = isValid;
-    });
-  }
-
-  void _logout() async {
-    var deviceType =
-        await Provider.of<AuthProvider>(context, listen: false).deviceType;
-
-    if (deviceType != null) {
-      var disconnect = await platform.invokeMethod(
-        'disconnect',
-        <String, dynamic>{'deviceType': deviceType},
-      ) as String;
-
-      if (disconnect != null) {
-        await Provider.of<AuthProvider>(context, listen: false).logout();
-      }
-    }
   }
 
   void _openBrowser() {
@@ -248,43 +221,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            if (_watchInfo)
-              Card(
-                color: Theme.of(context).primaryColor,
-                child: Container(
-                  padding: EdgeInsets.all(15),
-                  child: GridTile(
-                    child: InkResponse(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Expanded(
-                              child: Icon(
-                                Icons.exit_to_app,
-                                size: 50,
-                                color: Colors.white,
-                              ),
-                            ),
-                            Container(
-                              height: 10,
-                            ),
-                          ],
-                        ),
-                        onTap: () => _logout()),
-                    footer: Container(
-                      padding: EdgeInsets.only(top: 50),
-                      child: Center(
-                        child: Text(
-                          'Disconnect',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-                ),
-              ),
             // Card(
             //   child: Container(
             //     padding: EdgeInsets.all(15),
