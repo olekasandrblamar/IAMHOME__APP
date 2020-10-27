@@ -141,6 +141,11 @@ class AuthProvider with ChangeNotifier {
       if (responseData['error'] != null) {
         throw HttpException(responseData['error']['message']);
       }
+
+      if (responseData['access_token'] == null) {
+        throw HttpException('You dont have access to patient');
+      }
+
       _authToken = responseData['access_token'];
       _refreshToken = responseData['refresh_token'];
 
