@@ -84,15 +84,18 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     print('detach');
   }
 
-  void getDeviceStatus(String connectionInfo) async {
+  void _getDeviceStatus(String connectionInfo) async {
     final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
       'deviceStatus',
       <String, dynamic>{'connectionInfo': connectionInfo},
     ) as String;
+
     if (connectionStatus != "Error") {
       print("Got connection info response ${connectionStatus}");
       final WatchModel connectionStatusData = WatchModel.fromJson(
           json.decode(connectionStatus) as Map<String, dynamic>);
+
+      if (!mounted) return;
 
       setState(() {
         _connected = connectionStatusData.connected;
@@ -111,30 +114,26 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
         json.decode(prefs.getString('deviceData')) as Map<String, dynamic>);
 
     print("Last updated at ${lastUpdate}");
-    setState(() {
-      _lastUpdated = lastUpdate;
-      _deviceType = deviceType;
-      _deviceData = deviceData;
-    });
+    if (mounted) {
+      setState(() {
+        _lastUpdated = lastUpdate;
+        _deviceType = deviceType;
+        _deviceData = deviceData;
+      });
+    }
     final connectionInfo = prefs.getString('watchInfo');
-    setState(() {
-      isLoading = true;
-    });
+    _setIsLoading(true);
 
     Future.delayed(Duration(seconds: 3), () {
-      getDeviceStatus(connectionInfo);
-      setState(() {
-        isLoading = false;
-      });
+      _getDeviceStatus(connectionInfo);
+      _setIsLoading(false);
     });
 
     _showSuccessMessage();
   }
 
   void _syncDataFromDevice() async {
-    setState(() {
-      isLoading = true;
-    });
+    _setIsLoading(true);
 
     await syncDataFromDevice();
     await _changeLastUpdated();
@@ -149,9 +148,15 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     );
     _scaffoldKey.currentState.showSnackBar(snackBar);
 
-    setState(() {
-      isLoading = false;
-    });
+    _setIsLoading(false);
+  }
+
+  void _setIsLoading(bool loading) {
+    if (mounted) {
+      setState(() {
+        isLoading = loading;
+      });
+    }
   }
 
   void _logout() async {

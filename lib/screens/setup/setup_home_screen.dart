@@ -36,9 +36,11 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
       final deviceData =
           DevicesModel.fromJson(json.decode(prefData) as Map<String, dynamic>);
 
-      setState(() {
-        _deviceData = deviceData;
-      });
+      if (mounted) {
+        setState(() {
+          _deviceData = deviceData;
+        });
+      }
     }
   }
 
@@ -46,12 +48,12 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
     var token =
         await Provider.of<AuthProvider>(context, listen: false).tryAutoLogin();
 
-    print(token);
-
-    if (token) {
-      setState(() {
-        _token = true;
-      });
+    if (mounted) {
+      if (token) {
+        setState(() {
+          _token = true;
+        });
+      }
     }
   }
 
