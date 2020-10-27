@@ -2,6 +2,7 @@ import 'package:ceras/providers/auth_provider.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:ceras/constants/route_paths.dart' as routes;
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -70,26 +71,35 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   Future<void> _saveForm() async {
-    final isValid = _formKey.currentState.validate();
-    if (!isValid) {
-      return;
+    try {
+      setState(() {
+        _isLoading = true;
+      });
+
+      final isValid = _formKey.currentState.validate();
+      if (!isValid) {
+        return;
+      }
+      _formKey.currentState.save();
+
+      final checkLogin = await Provider.of<AuthProvider>(context, listen: false)
+          .validateAndLogin(
+        email: _email,
+        password: _password,
+      );
+
+      setState(() {
+        _isLoading = false;
+      });
+
+      if (checkLogin) {
+        return Navigator.of(context).pushReplacementNamed(
+          routes.DataRoute,
+        );
+      }
+    } catch (e) {
+      print(e);
     }
-    _formKey.currentState.save();
-
-    print(_formKey);
-
-    await Provider.of<AuthProvider>(context, listen: false).validateAndLogin(
-      email: _email,
-      password: _password,
-    );
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 
   @override

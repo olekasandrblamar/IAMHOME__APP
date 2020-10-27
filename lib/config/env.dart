@@ -9,12 +9,14 @@ class BuildEnvironment {
   /// The backend server.
   final String baseUrl;
   final String baseUrl2;
+  final String authUrl;
   final BuildFlavor flavor;
 
   BuildEnvironment._init({
     this.flavor,
     this.baseUrl,
     this.baseUrl2,
+    this.authUrl,
   });
 
   /// Sets up the top-level [env] getter on the first call only.
@@ -22,10 +24,12 @@ class BuildEnvironment {
     @required flavor,
     @required baseUrl,
     @required baseUrl2,
+    @required authUrl,
   }) =>
       _env ??= BuildEnvironment._init(
         flavor: flavor,
         baseUrl: baseUrl,
         baseUrl2: baseUrl2,
+        authUrl: authUrl,
       );
 }
