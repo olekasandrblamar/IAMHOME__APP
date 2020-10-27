@@ -70,6 +70,26 @@ class _LoginScreenState extends State<LoginScreen> {
     FocusScope.of(context).requestFocus(nextFocus);
   }
 
+  void showErrorDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('An Error Occurred!'),
+        content: Text(
+          message ?? 'Could not authenticate you. Please try again later.',
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   Future<void> _saveForm() async {
     try {
       setState(() {
@@ -88,18 +108,19 @@ class _LoginScreenState extends State<LoginScreen> {
         password: _password,
       );
 
-      setState(() {
-        _isLoading = false;
-      });
-
       if (checkLogin) {
         return Navigator.of(context).pushReplacementNamed(
           routes.DataRoute,
         );
       }
-    } catch (e) {
-      print(e);
+    } catch (error) {
+      print(error);
+      showErrorDialog(context, error.toString());
     }
+
+    setState(() {
+      _isLoading = false;
+    });
   }
 
   @override
