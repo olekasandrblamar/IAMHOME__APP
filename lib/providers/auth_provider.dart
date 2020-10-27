@@ -122,18 +122,14 @@ class AuthProvider with ChangeNotifier {
     return _walthrough;
   }
 
-  Future<void> validateAndLogin({
+  Future<bool> validateAndLogin({
     @required String email,
     @required String password,
   }) async {
     try {
       final response = await http.post(
-        'https://auth.dev.myceras.com/oauth/authorize',
-        data: {
-          "userName": "salapati@cerashealth.com",
-          "password": "Test1234@",
-          "orgId": "PATIENT"
-        },
+        env.authUrl + 'oauth/authorize',
+        data: {"userName": email, "password": password, "orgId": "PATIENT"},
       );
 
       final responseData = response.data;
@@ -164,6 +160,8 @@ class AuthProvider with ChangeNotifier {
         },
       );
       prefs.setString('userData', userData);
+
+      return true;
     } on DioError catch (error) {
       throw HttpException(error?.response?.data['message']);
     } catch (error) {

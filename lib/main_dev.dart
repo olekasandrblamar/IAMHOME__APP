@@ -19,6 +19,7 @@ void main() {
       flavor: BuildFlavor.development,
       baseUrl: 'https://device.dev.myceras.com/api/v1/device/',
       baseUrl2: 'https://api',
+      authUrl: 'https://auth.dev.myceras.com/',
     );
 
     assert(env != null);
