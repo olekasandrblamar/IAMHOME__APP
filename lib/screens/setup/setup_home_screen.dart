@@ -46,7 +46,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
 
   void checkToken() async {
     var token =
-        await Provider.of<AuthProvider>(context, listen: false).tryAutoLogin();
+        await Provider.of<AuthProvider>(context, listen: false).tryAuthLogin();
 
     if (mounted) {
       if (token) {
