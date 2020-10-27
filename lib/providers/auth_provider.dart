@@ -19,6 +19,7 @@ class AuthProvider with ChangeNotifier {
   final http = HttpClient().http;
 
   String _authToken;
+  String _refreshToken;
   DateTime _userExpiryDate;
   String _userId;
 
@@ -140,7 +141,8 @@ class AuthProvider with ChangeNotifier {
       if (responseData['error'] != null) {
         throw HttpException(responseData['error']['message']);
       }
-      _authToken = responseData['id_token'];
+      _authToken = responseData['access_token'];
+      _refreshToken = responseData['refresh_token'];
 
       var jwtData = parseJwt(_authToken);
       _userExpiryDate = DateTime.now().add(
@@ -155,6 +157,7 @@ class AuthProvider with ChangeNotifier {
       final prefs = await SharedPreferences.getInstance();
       final userData = json.encode(
         {
+          'refreshToken': _refreshToken,
           'authToken': _authToken,
           'userId': _userId,
           'userExpiryDate': _userExpiryDate.toIso8601String(),
