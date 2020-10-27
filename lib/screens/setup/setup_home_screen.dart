@@ -16,14 +16,12 @@ class SetupHomeScreen extends StatefulWidget {
 
 class _SetupHomeScreenState extends State<SetupHomeScreen> {
   DevicesModel _deviceData = null;
-  bool _token = false;
 
   @override
   void initState() {
     // TODO: implement initState
 
     loadData();
-    checkToken();
 
     super.initState();
   }
@@ -44,16 +42,18 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
     }
   }
 
-  void checkToken() async {
+  void _checkToken() async {
     var token =
         await Provider.of<AuthProvider>(context, listen: false).tryAuthLogin();
 
-    if (mounted) {
-      if (token) {
-        setState(() {
-          _token = true;
-        });
-      }
+    if (token) {
+      await Navigator.of(context).pushNamed(
+        routes.DataRoute,
+      );
+    } else {
+      await Navigator.of(context).pushNamed(
+        routes.LoginRoute,
+      );
     }
   }
 
@@ -218,17 +218,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       child: Text('Access Health Data'),
-                      onPressed: () {
-                        if (_token) {
-                          return Navigator.of(context).pushNamed(
-                            routes.DataRoute,
-                          );
-                        } else {
-                          return Navigator.of(context).pushNamed(
-                            routes.LoginRoute,
-                          );
-                        }
-                      },
+                      onPressed: () => _checkToken(),
                     ),
                   ),
                 ],

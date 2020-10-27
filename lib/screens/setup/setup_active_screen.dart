@@ -170,7 +170,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       ) as String;
 
       if (disconnect != null) {
-        await Provider.of<AuthProvider>(context, listen: false).logout();
+        await Provider.of<AuthProvider>(context, listen: false).removeDevice();
       }
     }
   }

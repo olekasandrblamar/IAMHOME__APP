@@ -29,12 +29,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     buildNumber: 'Unknown',
   );
 
-  bool _watchInfo = false;
+  bool _authInfo = false;
 
   @override
   void initState() {
     super.initState();
     _initPackageInfo();
+    _checkAuthInfo();
   }
 
   Future<void> _initPackageInfo() async {
@@ -50,6 +51,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
       context: context,
       applicationVersion: _packageInfo.version,
     );
+  }
+
+  void _checkAuthInfo() async {
+    final isValid =
+        await Provider.of<AuthProvider>(context, listen: false).isAuth;
+
+    print(isValid);
+    setState(() {
+      _authInfo = isValid;
+    });
+  }
+
+  void _logout() async {
+    await Provider.of<AuthProvider>(context, listen: false).logout();
   }
 
   void _openBrowser() {
@@ -221,6 +236,43 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
+            if (_authInfo)
+              Card(
+                color: Theme.of(context).primaryColor,
+                child: Container(
+                  padding: EdgeInsets.all(15),
+                  child: GridTile(
+                    child: InkResponse(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Icon(
+                                Icons.exit_to_app,
+                                size: 50,
+                                color: Colors.white,
+                              ),
+                            ),
+                            Container(
+                              height: 10,
+                            ),
+                          ],
+                        ),
+                        onTap: () => _logout()),
+                    footer: Container(
+                      padding: EdgeInsets.only(top: 50),
+                      child: Center(
+                        child: Text(
+                          'Disconnect',
+                          style: TextStyle(
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             // Card(
             //   child: Container(
             //     padding: EdgeInsets.all(15),

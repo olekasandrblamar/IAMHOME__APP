@@ -211,7 +211,7 @@ class AuthProvider with ChangeNotifier {
     return true;
   }
 
-  Future<void> logout() async {
+  Future<void> removeDevice() async {
     _watchInfo = null;
     _deviceData = null;
 
@@ -219,6 +219,23 @@ class AuthProvider with ChangeNotifier {
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('watchInfo');
     prefs.remove('deviceData');
+    NavigationService.goBackHome();
+    // prefs.clear();
+  }
+
+  Future<void> logout() async {
+    _authToken = null;
+    _userId = null;
+    _userExpiryDate = null;
+
+    // if (_authTimer != null) {
+    //   _authTimer.cancel();
+    //   _authTimer = null;
+    // }
+
+    notifyListeners();
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('userData');
     NavigationService.goBackHome();
     // prefs.clear();
   }
