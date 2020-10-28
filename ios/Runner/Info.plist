@@ -4,10 +4,7 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-<!--		<string>com.transistorsoft.fetch</string>-->
-<!--		<string>com.transistorsoft.datasync</string>-->
-<!--		<string>com.transistorsoft.dataupdate</string>-->
-        <string>com.cerashealth.datasync</string>
+		<string>com.cerashealth.datasync</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
@@ -37,6 +34,8 @@
 	<string>This app needs access to your bluetooth to scan the device</string>
 	<key>NSCameraUsageDescription</key>
 	<string>This app needs access to your camera to scan the barcode</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Why is my app authenticating using face id?</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>This app needs access to your location to find you</string>
 	<key>NSLocationAlwaysUsageDescription</key>

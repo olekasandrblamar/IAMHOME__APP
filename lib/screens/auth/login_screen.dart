@@ -51,6 +51,20 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
+  void _loadUserData() async {
+    if (!mounted) {
+      return;
+    }
+
+    var userId = await Provider.of<AuthProvider>(context, listen: false).userId;
+
+    if (userId != null) {
+      setState(() {
+        _emailController.text = userId;
+      });
+    }
+  }
+
   void _loadInitData() async {
     if (_isInit) {
       // _usernameController.text = null;
@@ -58,6 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _passwordController.text = null;
     }
     setState(() {});
+    _loadUserData();
     _isInit = false;
   }
 

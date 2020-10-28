@@ -183,6 +183,8 @@ PODS:
   - GTMSessionFetcher/Core (1.4.0)
   - launch_review (0.0.1):
     - Flutter
+  - local_auth (0.0.1):
+    - Flutter
   - nanopb (1.30905.0):
     - nanopb/decode (= 1.30905.0)
     - nanopb/encode (= 1.30905.0)
@@ -212,6 +214,7 @@ DEPENDENCIES:
   - flutter_blue (from `.symlinks/plugins/flutter_blue/ios`)
   - flutter_inappwebview (from `.symlinks/plugins/flutter_inappwebview/ios`)
   - launch_review (from `.symlinks/plugins/launch_review/ios`)
+  - local_auth (from `.symlinks/plugins/local_auth/ios`)
   - package_info (from `.symlinks/plugins/package_info/ios`)
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
@@ -269,6 +272,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/flutter_inappwebview/ios"
   launch_review:
     :path: ".symlinks/plugins/launch_review/ios"
+  local_auth:
+    :path: ".symlinks/plugins/local_auth/ios"
   package_info:
     :path: ".symlinks/plugins/package_info/ios"
   permission_handler:
@@ -312,6 +317,7 @@ SPEC CHECKSUMS:
   GoogleUtilities: 39530bc0ad980530298e9c4af8549e991fd033b1
   GTMSessionFetcher: 6f5c8abbab8a9bce4bb3f057e317728ec6182b10
   launch_review: 75d5a956ba8eaa493e9c9d4bf4c05e505e8d5ed0
+  local_auth: 25938960984c3a7f6e3253e3f8d962fdd16852bd
   nanopb: c43f40fadfe79e8b8db116583945847910cbabc9
   package_info: 873975fc26034f0b863a300ad47e7f1ac6c7ec62
   permission_handler: eac8e15b4a1a3fba55b761d19f3f4e6b005d15b6

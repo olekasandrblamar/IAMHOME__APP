@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/models/devices_model.dart';
@@ -6,8 +7,10 @@ import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:local_auth/local_auth.dart';
 
 class SetupHomeScreen extends StatefulWidget {
   @override
@@ -15,6 +18,7 @@ class SetupHomeScreen extends StatefulWidget {
 }
 
 class _SetupHomeScreenState extends State<SetupHomeScreen> {
+  final LocalAuthentication auth = LocalAuthentication();
   DevicesModel _deviceData = null;
 
   @override
@@ -42,19 +46,38 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
     }
   }
 
-  void _checkToken() async {
+  Future<void> _authenticate() async {
     var token =
         await Provider.of<AuthProvider>(context, listen: false).tryAuthLogin();
 
-    if (token) {
-      await Navigator.of(context).pushNamed(
-        routes.DataRoute,
-      );
-    } else {
-      await Navigator.of(context).pushNamed(
-        routes.LoginRoute,
-      );
+    if (!token) {
+      return _goToLogin();
     }
+
+    try {
+      bool didAuthenticate = await auth.authenticateWithBiometrics(
+        localizedReason: 'Please authenticate to show your data',
+        useErrorDialogs: true,
+        stickyAuth: true,
+      );
+
+      if (didAuthenticate) {
+        await Navigator.of(context).pushNamed(
+          routes.DataRoute,
+        );
+      } else {
+        _goToLogin();
+      }
+    } on PlatformException catch (e) {
+      print(e);
+      _goToLogin();
+    }
+  }
+
+  void _goToLogin() async {
+    await Navigator.of(context).pushNamed(
+      routes.LoginRoute,
+    );
   }
 
   @override
@@ -218,7 +241,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       child: Text('Access Health Data'),
-                      onPressed: () => _checkToken(),
+                      onPressed: () => _authenticate(),
                     ),
                   ),
                 ],
