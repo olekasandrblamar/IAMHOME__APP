@@ -31,8 +31,8 @@ class AuthProvider with ChangeNotifier {
   String get token {
     if (_userExpiryDate != null &&
         _userExpiryDate.isAfter(DateTime.now()) &&
-        _authToken != null) {
-      return _authToken;
+        _refreshToken != null) {
+      return _refreshToken;
     }
     return null;
   }
@@ -149,13 +149,13 @@ class AuthProvider with ChangeNotifier {
       _authToken = responseData['access_token'];
       _refreshToken = responseData['refresh_token'];
 
-      var jwtData = parseJwt(_authToken);
+      var jwtData = parseJwt(_refreshToken);
       _userExpiryDate = DateTime.now().add(
         Duration(
           seconds: jwtData['exp'],
         ),
       );
-      _userId = jwtData['uniqueProperty'];
+      _userId = jwtData['sub'];
 
       notifyListeners();
 
@@ -211,7 +211,10 @@ class AuthProvider with ChangeNotifier {
       return false;
     }
 
+    print(extractedUserData);
+
     _authToken = extractedUserData['authToken'];
+    _refreshToken = extractedUserData['refreshToken'];
     _userId = extractedUserData['userId'];
     _userExpiryDate = expiryDate;
     notifyListeners();
@@ -232,7 +235,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> logout() async {
-    _authToken = null;
+    _refreshToken = null;
     _userId = null;
     _userExpiryDate = null;
 
