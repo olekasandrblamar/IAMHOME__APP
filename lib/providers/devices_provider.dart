@@ -9,9 +9,13 @@ import 'package:ceras/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ceras/config/http.dart';
+import 'package:ceras/config/navigation_service.dart';
 
 class DevicesProvider extends ChangeNotifier {
   final http = HttpClient().http;
+
+  List<DevicesModel> _deviceData = [];
+  WatchModel _watchInfo;
 
   Future<void> fetchAllDevices() async {
     try {
@@ -24,9 +28,22 @@ class DevicesProvider extends ChangeNotifier {
 
       responseData.forEach(
         (data) {
-          formattedData.add(
-            DevicesModel.fromJson(data),
-          );
+          if (_deviceData != null && !_deviceData.isEmpty) {
+            bool check = _deviceData.any(
+              (element) => (element.deviceMaster['displayName'] !=
+                  data['deviceMaster']['displayName']),
+            );
+
+            if (check) {
+              formattedData.add(
+                DevicesModel.fromJson(data),
+              );
+            }
+          } else {
+            formattedData.add(
+              DevicesModel.fromJson(data),
+            );
+          }
         },
       );
 
@@ -34,6 +51,60 @@ class DevicesProvider extends ChangeNotifier {
     } catch (error) {
       throw error;
     }
+  }
+
+  Future<List<DevicesModel>> getDevicesData() async {
+    final prefs = await SharedPreferences.getInstance();
+    final prefData = prefs.getString('deviceData');
+
+    if (prefData == null) {
+      return null;
+    }
+
+    final List<DevicesModel> formattedData = [];
+    final List existingDeviceData = json.decode(prefData);
+
+    existingDeviceData.forEach(
+      (data) {
+        formattedData.add(
+          DevicesModel.fromJson(data),
+        );
+      },
+    );
+
+    _deviceData = formattedData;
+    notifyListeners();
+
+    return formattedData;
+  }
+
+  Future<DevicesModel> getDeviceData(int index) async {
+    DevicesModel deviceData = _deviceData[index];
+    return deviceData;
+  }
+
+  void setDeviceData(DevicesModel deviceData) async {
+    final prefs = await SharedPreferences.getInstance();
+    final prefData = prefs.getString('deviceData');
+
+    final List<DevicesModel> formattedData = [];
+
+    if (prefData != null) {
+      final List existingDeviceData = json.decode(prefData);
+
+      existingDeviceData.forEach(
+        (data) {
+          formattedData.add(
+            DevicesModel.fromJson(data),
+          );
+        },
+      );
+    }
+
+    final data = [...formattedData, deviceData];
+    prefs.setString('deviceData', json.encode(data));
+
+    _deviceData = data;
   }
 
   Future<String> _getMacId() async {
@@ -124,5 +195,28 @@ class DevicesProvider extends ChangeNotifier {
     } catch (error) {
       throw error;
     }
+  }
+
+  Future<bool> saveWatchInfo(WatchModel watchInfo) async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('watchInfo', json.encode(watchInfo));
+
+    _watchInfo = watchInfo;
+
+    notifyListeners();
+    return true;
+  }
+
+  Future<void> removeDevice(int index) async {
+    _watchInfo = null;
+    _deviceData.removeAt(index);
+
+    notifyListeners();
+
+    final prefs = await SharedPreferences.getInstance();
+    prefs.setString('deviceData', json.encode(_deviceData));
+
+    NavigationService.goBackHome();
+    // prefs.clear();
   }
 }

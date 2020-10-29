@@ -21,14 +21,6 @@ import BackgroundTasks
 //        //TSBackgroundFetch.sharedInstance()?.perform(completionHandler: completionHandler, applicationState: application.applicationState)
 //    }
     
-    override func applicationWillResignActive(_ application: UIApplication) {
-        self.window.isHidden = true;
-    }
-    
-    override func applicationDidBecomeActive(_ application: UIApplication) {
-        self.window.isHidden = false;
-    }
-    
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?

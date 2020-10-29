@@ -11,6 +11,7 @@
         android:name=".Application"
         android:label="ceras"
         android:icon="@mipmap/launcher_icon"
+        android:fullBackupContent="@xml/backup_descriptor"
         >
         <activity
             android:name=".MainActivity"

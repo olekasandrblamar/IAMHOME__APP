@@ -1,16 +1,13 @@
-import 'dart:convert';
-import 'dart:io';
-
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
+import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:local_auth/local_auth.dart';
+import 'package:provider/provider.dart';
 
 class SetupHomeScreen extends StatefulWidget {
   @override
@@ -19,7 +16,7 @@ class SetupHomeScreen extends StatefulWidget {
 
 class _SetupHomeScreenState extends State<SetupHomeScreen> {
   final LocalAuthentication auth = LocalAuthentication();
-  DevicesModel _deviceData = null;
+  List<DevicesModel> _deviceData = null;
 
   @override
   void initState() {
@@ -31,18 +28,15 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
   }
 
   void loadData() async {
-    final prefs = await SharedPreferences.getInstance();
+    var deviceData = await Provider.of<DevicesProvider>(context, listen: false)
+        .getDevicesData();
 
-    final prefData = prefs.getString('deviceData');
-    if (prefData != null) {
-      final deviceData =
-          DevicesModel.fromJson(json.decode(prefData) as Map<String, dynamic>);
+    if (deviceData != null) {
+      if (!mounted) return;
 
-      if (mounted) {
-        setState(() {
-          _deviceData = deviceData;
-        });
-      }
+      setState(() {
+        _deviceData = deviceData;
+      });
     }
   }
 
@@ -82,11 +76,6 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    var imageData = (_deviceData?.deviceMaster != null &&
-            _deviceData?.deviceMaster['displayImage'] != null)
-        ? _deviceData?.deviceMaster['displayImage']
-        : null;
-
     return Scaffold(
       appBar: SetupAppBar(name: 'My Devices'),
       backgroundColor: Colors.white,
@@ -99,129 +88,13 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: <Widget>[
-                      Card(
-                        margin: EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 10,
-                        ),
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(10.0),
-                          child: Container(
-                            height: 150,
-                            padding: EdgeInsets.all(10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(15),
-                                  child: Container(
-                                    height: 100.0,
-                                    width: 100.0,
-                                    child: FadeInImage(
-                                      placeholder: AssetImage(
-                                        'assets/images/placeholder.jpg',
-                                      ),
-                                      image: imageData != null
-                                          ? NetworkImage(
-                                              imageData,
-                                            )
-                                          : AssetImage(
-                                              'assets/images/placeholder.jpg',
-                                            ),
-                                      fit: BoxFit.contain,
-                                      alignment: Alignment.center,
-                                      fadeInDuration:
-                                          Duration(milliseconds: 200),
-                                      fadeInCurve: Curves.easeIn,
-                                    ),
-                                  ),
-                                ),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    FittedBox(
-                                      child: Text(
-                                        (_deviceData?.deviceMaster != null &&
-                                                _deviceData?.deviceMaster[
-                                                        'displayName'] !=
-                                                    null)
-                                            ? _deviceData?.deviceMaster[
-                                                    'displayName'] +
-                                                ' Device'
-                                            : '',
-                                        style: AppTheme.title,
-                                      ),
-                                    ),
-                                  ],
-                                )
-                              ],
-                            ),
-                          ),
-                          onTap: () => {
-                            Navigator.of(context).pushNamed(
-                              routes.SetupActiveRoute,
-                            ),
-                          },
-                        ),
-                      ),
+                      for (int index = 0; index < _deviceData.length; index++)
+                        _buildDevicesList(index),
+                      _buildNewDevice()
                     ],
                   ),
                 )
-              : Container(
-                  padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      Card(
-                        margin: EdgeInsets.symmetric(
-                          vertical: 10,
-                          horizontal: 10,
-                        ),
-                        elevation: 5,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
-                        ),
-                        child: InkWell(
-                          borderRadius: BorderRadius.circular(10.0),
-                          child: Container(
-                            height: 150,
-                            padding: EdgeInsets.all(10),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children: [
-                                Container(
-                                  padding: EdgeInsets.all(15),
-                                  child: Image.asset(
-                                    'assets/images/AddNewDeviceDefault.png',
-                                    height: 75,
-                                    width: 75,
-                                  ),
-                                ),
-                                FittedBox(
-                                  child: Text(
-                                    'Add New Device',
-                                    style: AppTheme.title,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          onTap: () => {
-                            Navigator.of(context).pushNamed(
-                              routes.SetupDevicesRoute,
-                            ),
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
+              : _buildNewDevice(),
         ),
       ),
       bottomNavigationBar: _deviceData != null
@@ -250,6 +123,134 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
           : Container(
               height: 0,
             ),
+    );
+  }
+
+  Widget _buildDevicesList(int index) {
+    var deviceData = _deviceData[index];
+    var imageData = (deviceData?.deviceMaster != null &&
+            deviceData?.deviceMaster['displayImage'] != null)
+        ? deviceData?.deviceMaster['displayImage']
+        : null;
+
+    return Card(
+      margin: EdgeInsets.symmetric(
+        vertical: 10,
+        horizontal: 10,
+      ),
+      elevation: 5,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(10.0),
+      ),
+      child: InkWell(
+        borderRadius: BorderRadius.circular(10.0),
+        child: Container(
+          height: 150,
+          padding: EdgeInsets.all(10),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Container(
+                padding: EdgeInsets.all(15),
+                child: Container(
+                  height: 100.0,
+                  width: 100.0,
+                  child: FadeInImage(
+                    placeholder: AssetImage(
+                      'assets/images/placeholder.jpg',
+                    ),
+                    image: imageData != null
+                        ? NetworkImage(
+                            imageData,
+                          )
+                        : AssetImage(
+                            'assets/images/placeholder.jpg',
+                          ),
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
+                    fadeInDuration: Duration(milliseconds: 200),
+                    fadeInCurve: Curves.easeIn,
+                  ),
+                ),
+              ),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FittedBox(
+                    child: Text(
+                      (deviceData?.deviceMaster != null &&
+                              deviceData?.deviceMaster['displayName'] != null)
+                          ? deviceData?.deviceMaster['displayName'] + ' Device'
+                          : '',
+                      style: AppTheme.title,
+                    ),
+                  ),
+                ],
+              )
+            ],
+          ),
+        ),
+        onTap: () => {
+          Navigator.of(context).pushNamed(
+            routes.SetupActiveRoute,
+            arguments: {'deviceIndex': index},
+          ),
+        },
+      ),
+    );
+  }
+
+  Widget _buildNewDevice() {
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          Card(
+            margin: EdgeInsets.symmetric(
+              vertical: 10,
+              horizontal: 10,
+            ),
+            elevation: 5,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(10.0),
+            ),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(10.0),
+              child: Container(
+                height: 150,
+                padding: EdgeInsets.all(10),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding: EdgeInsets.all(15),
+                      child: Image.asset(
+                        'assets/images/AddNewDeviceDefault.png',
+                        height: 75,
+                        width: 75,
+                      ),
+                    ),
+                    FittedBox(
+                      child: Text(
+                        'Add New Device',
+                        style: AppTheme.title,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              onTap: () => {
+                Navigator.of(context).pushNamed(
+                  routes.SetupDevicesRoute,
+                ),
+              },
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

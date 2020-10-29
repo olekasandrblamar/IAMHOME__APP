@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 
+import 'package:biometric_storage/biometric_storage.dart';
 import 'package:ceras/config/user_deviceinfo.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:flutter/material.dart';
@@ -18,15 +19,13 @@ import 'package:ceras/helpers/parse_jwt.dart';
 class AuthProvider with ChangeNotifier {
   final http = HttpClient().http;
 
+  bool _walthrough = true;
+
+  BiometricStorageFile _storageFile;
   String _authToken;
   String _refreshToken;
   DateTime _userExpiryDate;
   String _userId;
-
-  WatchModel _watchInfo;
-  String _deviceType;
-  DevicesModel _deviceData;
-  bool _walthrough = true;
 
   String get token {
     if (_userExpiryDate != null &&
@@ -42,75 +41,7 @@ class AuthProvider with ChangeNotifier {
   }
 
   bool get isAuth {
-    return _watchInfo != null;
-  }
-
-  bool get isWalthrough {
-    return _walthrough;
-  }
-
-  WatchModel get watchInfo {
-    return _watchInfo;
-  }
-
-  Future<String> get deviceType async {
-    final prefs = await SharedPreferences.getInstance();
-    _deviceType = prefs.getString('deviceType');
-
-    return _deviceType;
-  }
-
-  void setDeviceType(String deviceType) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('deviceType', deviceType);
-
-    _deviceType = deviceType;
-  }
-
-  void setDeviceData(DevicesModel deviceData) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('deviceData', json.encode(deviceData));
-
-    _deviceData = deviceData;
-  }
-
-  Future<WatchModel> get watchData async {
-    final prefs = await SharedPreferences.getInstance();
-    final WatchModel checkWatchInfo = WatchModel.fromJson(
-        json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>);
-
-    return checkWatchInfo;
-  }
-
-  Future<bool> saveWatchInfo(WatchModel watchInfo) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('watchInfo', json.encode(watchInfo));
-
-    _watchInfo = watchInfo;
-
-    notifyListeners();
-    return true;
-  }
-
-  Future<WatchModel> _checkWatchInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final WatchModel checkwatchInfo = WatchModel.fromJson(
-        json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>);
-
-    _watchInfo = checkwatchInfo;
-
-    return _watchInfo;
-  }
-
-  Future<dynamic> _checkUserDeviceInfo() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    final userDeviceInfo = await getUserDeviceInfo();
-    final _userDeviceInfo =
-        prefs.setString('userDeviceInfo', json.encode(userDeviceInfo));
-
-    return _userDeviceInfo;
+    return _userId != null;
   }
 
   Future<bool> checkWalthrough() async {
@@ -122,6 +53,15 @@ class AuthProvider with ChangeNotifier {
     // notifyListeners();
 
     return _walthrough;
+  }
+
+  Future<BiometricStorageFile> _getStorageFile() async {
+    return await BiometricStorage().getStorage(
+      'refreshToken',
+      options: StorageFileInitOptions(
+        authenticationRequired: false,
+      ),
+    );
   }
 
   Future<bool> validateAndLogin({
@@ -159,6 +99,9 @@ class AuthProvider with ChangeNotifier {
 
       notifyListeners();
 
+      _storageFile = await _getStorageFile();
+      await _storageFile.write('${_refreshToken}');
+
       final prefs = await SharedPreferences.getInstance();
       final userData = json.encode(
         {
@@ -178,26 +121,6 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> tryAutoLogin() async {
-    final prefs = await SharedPreferences.getInstance();
-
-    await _checkUserDeviceInfo();
-    // await _checkWalthrough();
-
-    if (!prefs.containsKey('watchInfo')) {
-      return false;
-    }
-
-    final checkwatchInfo = await _checkWatchInfo();
-    if (checkwatchInfo == null) {
-      // await logout();
-      return false;
-    }
-
-    notifyListeners();
-    return true;
-  }
-
   Future<bool> tryAuthLogin() async {
     final prefs = await SharedPreferences.getInstance();
     if (!prefs.containsKey('userData')) {
@@ -213,6 +136,9 @@ class AuthProvider with ChangeNotifier {
 
     print(extractedUserData);
 
+    _storageFile = await _getStorageFile();
+    _refreshToken = await _storageFile.read();
+
     _authToken = extractedUserData['authToken'];
     _refreshToken = extractedUserData['refreshToken'];
     _userId = extractedUserData['userId'];
@@ -220,18 +146,6 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     return true;
-  }
-
-  Future<void> removeDevice() async {
-    _watchInfo = null;
-    _deviceData = null;
-
-    notifyListeners();
-    final prefs = await SharedPreferences.getInstance();
-    prefs.remove('watchInfo');
-    prefs.remove('deviceData');
-    NavigationService.goBackHome();
-    // prefs.clear();
   }
 
   Future<void> logout() async {
@@ -248,6 +162,10 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('userData');
+
+    _storageFile = await _getStorageFile();
+    await _storageFile.delete();
+
     NavigationService.goBackHome();
     // prefs.clear();
   }

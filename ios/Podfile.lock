@@ -1,4 +1,6 @@
 PODS:
+  - biometric_storage (0.0.1):
+    - Flutter
   - device_info (0.0.1):
     - Flutter
   - Firebase/Analytics (6.26.0):
@@ -202,6 +204,7 @@ PODS:
     - Flutter
 
 DEPENDENCIES:
+  - biometric_storage (from `.symlinks/plugins/biometric_storage/ios`)
   - device_info (from `.symlinks/plugins/device_info/ios`)
   - firebase_analytics (from `.symlinks/plugins/firebase_analytics/ios`)
   - firebase_core (from `.symlinks/plugins/firebase_core/ios`)
@@ -248,6 +251,8 @@ SPEC REPOS:
     - Protobuf
 
 EXTERNAL SOURCES:
+  biometric_storage:
+    :path: ".symlinks/plugins/biometric_storage/ios"
   device_info:
     :path: ".symlinks/plugins/device_info/ios"
   firebase_analytics:
@@ -284,6 +289,7 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/url_launcher/ios"
 
 SPEC CHECKSUMS:
+  biometric_storage: 1400f1382af3a4cc2bf05340e13c3d8de873ceb9
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   Firebase: 7cf5f9c67f03cb3b606d1d6535286e1080e57eb6
   firebase_analytics: 31b66f23a42fa62bdf6a134af1d3a3a50bf5ac3e
