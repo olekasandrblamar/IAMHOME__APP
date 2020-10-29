@@ -196,25 +196,25 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           });
 
           //TODO - Add code to check the result and add actions based on that
-          await Provider.of<DevicesProvider>(context, listen: false)
-              .saveWatchInfo(connectionData);
+          // await Provider.of<DevicesProvider>(context, listen: false)
+          //     .saveWatchInfo(connectionData);
 
           // await Provider.of<WatchProvider>(context, listen: false)
           //     .setDeviceType(_deviceType);
 
-          // var formattedData = DevicesModel.fromJson({
-          //   'deviceMaster': {
-          //     ..._deviceData.deviceMaster,
-          //     'watchInfo': json.decode(connectionInfo)
-          //   },
-          //   // 'watchInfo': [connectionData],
-          // });
+          var formattedData = DevicesModel.fromJson({
+            'deviceMaster': {
+              ..._deviceData.deviceMaster,
+              'watchInfo': json.decode(connectionInfo)
+            },
+            // 'watchInfo': [connectionData],
+          });
 
-          // print(formattedData.deviceMaster);
-          // print(formattedData);
+          print(formattedData.deviceMaster);
+          print(formattedData);
 
           await Provider.of<DevicesProvider>(context, listen: false)
-              .setDeviceData(_deviceData);
+              .setDeviceData(formattedData);
 
           setState(() {
             _isLoading = false;

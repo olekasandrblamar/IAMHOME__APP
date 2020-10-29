@@ -7,11 +7,11 @@ part 'devices_model.g.dart';
 @JsonSerializable()
 class DevicesModel {
   final Map<dynamic, dynamic> deviceMaster;
-  // WatchModel watchInfo;
+  WatchModel watchInfo;
 
   DevicesModel({
     this.deviceMaster,
-    // this.watchInfo,
+    this.watchInfo,
   });
 
   factory DevicesModel.fromJson(Map<String, dynamic> json) =>
