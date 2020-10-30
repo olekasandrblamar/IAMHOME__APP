@@ -2,13 +2,12 @@ import 'dart:convert';
 
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/devices_model.dart';
+import 'package:ceras/providers/devices_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/helpers/errordialog_popup.dart';
 import 'package:ceras/models/watchdata_model.dart';
-import 'package:ceras/providers/auth_provider.dart';
-import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/theme.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
@@ -197,14 +196,25 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           });
 
           //TODO - Add code to check the result and add actions based on that
-          await Provider.of<AuthProvider>(context, listen: false)
-              .saveWatchInfo(connectionData);
+          // await Provider.of<DevicesProvider>(context, listen: false)
+          //     .saveWatchInfo(connectionData);
 
-          await Provider.of<AuthProvider>(context, listen: false)
-              .setDeviceType(_deviceType);
+          // await Provider.of<WatchProvider>(context, listen: false)
+          //     .setDeviceType(_deviceType);
 
-          await Provider.of<AuthProvider>(context, listen: false)
-              .setDeviceData(_deviceData);
+          var formattedData = DevicesModel.fromJson({
+            'deviceMaster': {
+              ..._deviceData.deviceMaster,
+              'watchInfo': json.decode(connectionInfo)
+            },
+            // 'watchInfo': [connectionData],
+          });
+
+          print(formattedData.deviceMaster);
+          print(formattedData);
+
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .setDeviceData(formattedData);
 
           setState(() {
             _isLoading = false;

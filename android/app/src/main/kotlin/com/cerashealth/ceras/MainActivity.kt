@@ -4,7 +4,7 @@ package com.cerashealth.ceras
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-
+import android.view.WindowManager.LayoutParams;
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -203,6 +203,9 @@ class Application:FlutterApplication(){
 //                .penaltyLog()
 ////                .penaltyDeath()
 //                .build())
+
+        getWindow().addFlags(LayoutParams.FLAG_SECURE);
+        
         super.onCreate()
     }
 }

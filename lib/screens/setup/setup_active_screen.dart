@@ -3,11 +3,10 @@ import 'dart:convert';
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
-import 'package:ceras/providers/auth_provider.dart';
+import 'package:ceras/providers/devices_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/theme.dart';
-import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
@@ -15,10 +14,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
 
-import '../data_screen.dart';
 import 'widgets/bluetooth_notfound_widget.dart';
 
 class SetupActiveScreen extends StatefulWidget {
+  final Map<dynamic, dynamic> routeArgs;
+
+  SetupActiveScreen({Key key, this.routeArgs}) : super(key: key);
+
   @override
   _SetupActiveScreenState createState() => _SetupActiveScreenState();
 }
@@ -28,8 +30,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   static const platform = MethodChannel('ceras.iamhome.mobile/device');
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
+  int _deviceIndex = null;
   String _lastUpdated = null;
-  String _deviceType = null;
   DevicesModel _deviceData = null;
   String _deviceId = null;
   bool _connected = true;
@@ -37,6 +39,10 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
   @override
   void initState() {
+    if (widget.routeArgs != null) {
+      _deviceIndex = widget.routeArgs['deviceIndex'];
+    }
+
     // _changeLastUpdated();
     _syncDataFromDevice();
     super.initState();
@@ -108,28 +114,39 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
     final lastUpdate = prefs.getString('last_sync');
-    final deviceType = prefs.getString('deviceType');
-
-    final deviceData = DevicesModel.fromJson(
-        json.decode(prefs.getString('deviceData')) as Map<String, dynamic>);
 
     print("Last updated at ${lastUpdate}");
+
     if (mounted) {
       setState(() {
         _lastUpdated = lastUpdate;
-        _deviceType = deviceType;
+      });
+    }
+
+    _loadDeviceData();
+
+    final connectionInfo = prefs.getString('watchInfo');
+    if (connectionInfo != null) {
+      _setIsLoading(true);
+
+      Future.delayed(Duration(seconds: 3), () {
+        _getDeviceStatus(connectionInfo);
+        _setIsLoading(false);
+      });
+    }
+
+    // _showSuccessMessage();
+  }
+
+  void _loadDeviceData() async {
+    var deviceData = await Provider.of<DevicesProvider>(context, listen: false)
+        .getDeviceData(_deviceIndex);
+
+    if (mounted) {
+      setState(() {
         _deviceData = deviceData;
       });
     }
-    final connectionInfo = prefs.getString('watchInfo');
-    _setIsLoading(true);
-
-    Future.delayed(Duration(seconds: 3), () {
-      _getDeviceStatus(connectionInfo);
-      _setIsLoading(false);
-    });
-
-    // _showSuccessMessage();
   }
 
   void _syncDataFromDevice() async {
@@ -159,18 +176,21 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     }
   }
 
-  void _logout() async {
-    var deviceType =
-        await Provider.of<AuthProvider>(context, listen: false).deviceType;
+  void _removeDevice() async {
+    var deviceType = (_deviceData?.deviceMaster != null &&
+            _deviceData?.deviceMaster['deviceType']['displayName'] != null)
+        ? _deviceData?.deviceMaster['deviceType']['displayName']
+        : null;
 
     if (deviceType != null) {
       var disconnect = await platform.invokeMethod(
         'disconnect',
-        <String, dynamic>{'deviceType': deviceType},
+        <String, dynamic>{'deviceType': deviceType.toUpperCase()},
       ) as String;
 
       if (disconnect != null) {
-        await Provider.of<AuthProvider>(context, listen: false).removeDevice();
+        await Provider.of<DevicesProvider>(context, listen: false)
+            .removeDevice(_deviceIndex);
       }
     }
   }
@@ -220,7 +240,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
                 child: Text(
                   'Remove Device',
                 ),
-                onPressed: () => _logout(),
+                onPressed: () => _removeDevice(),
               ),
             ),
           ],

@@ -53,7 +53,12 @@ Route<dynamic> generateRoute(
     case SetupSearchRoute:
       return MaterialPageRoute(builder: (context) => SetupSearchScreen());
     case SetupActiveRoute:
-      return MaterialPageRoute(builder: (context) => SetupActiveScreen());
+      var arguments = settings.arguments as Map<dynamic, dynamic>;
+      return MaterialPageRoute(
+        builder: (context) => SetupActiveScreen(
+          routeArgs: arguments,
+        ),
+      );
     case SetupConnectRoute:
       var arguments = settings.arguments as Map<dynamic, dynamic>;
       return MaterialPageRoute(

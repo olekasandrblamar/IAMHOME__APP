@@ -16,10 +16,10 @@ import BackgroundTasks
     static var DEVICE_TYPE_KEY = "flutter.deviceType"
     static let BG_SYNC_TASK = "com.cerashealth.datasync"
   
-    override func application(_ application: UIApplication,
-                              performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void){
-        //TSBackgroundFetch.sharedInstance()?.perform(completionHandler: completionHandler, applicationState: application.applicationState)
-    }
+//    override func application(_ application: UIApplication,
+//                              performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void){
+//        //TSBackgroundFetch.sharedInstance()?.perform(completionHandler: completionHandler, applicationState: application.applicationState)
+//    }
     
   override func application(
     _ application: UIApplication,

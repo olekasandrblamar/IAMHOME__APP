@@ -51,6 +51,7 @@ dependencies:
   firebase_in_app_messaging: ^0.2.0+3
   email_validator: "^1.0.6"
   local_auth: ^0.6.3+3
+  biometric_storage: ^1.1.0+1
 
 dev_dependencies:
   pedantic: ^1.9.2
