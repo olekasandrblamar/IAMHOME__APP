@@ -195,6 +195,41 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     }
   }
 
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Confirm',
+          ),
+          content: Text(
+            'Do you want to remove the device',
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(
+                'Cancel',
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text(
+                'Ok',
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _removeDevice();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -240,7 +275,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
                 child: Text(
                   'Remove Device',
                 ),
-                onPressed: () => _removeDevice(),
+                onPressed: () => _showDialog(),
               ),
             ),
           ],

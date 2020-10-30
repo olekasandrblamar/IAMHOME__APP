@@ -58,7 +58,7 @@ class DevicesProvider extends ChangeNotifier {
     final prefData = prefs.getString('deviceData');
 
     if (prefData == null) {
-      return null;
+      return [];
     }
 
     final List<DevicesModel> formattedData = [];

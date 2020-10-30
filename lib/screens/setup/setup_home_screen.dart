@@ -16,7 +16,7 @@ class SetupHomeScreen extends StatefulWidget {
 
 class _SetupHomeScreenState extends State<SetupHomeScreen> {
   final LocalAuthentication auth = LocalAuthentication();
-  List<DevicesModel> _deviceData = null;
+  List<DevicesModel> _deviceData = [];
 
   @override
   void initState() {
@@ -31,7 +31,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
     var deviceData = await Provider.of<DevicesProvider>(context, listen: false)
         .getDevicesData();
 
-    if (deviceData != null) {
+    if (deviceData.isNotEmpty) {
       if (!mounted) return;
 
       setState(() {
@@ -82,7 +82,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
       body: SafeArea(
         bottom: true,
         child: SingleChildScrollView(
-          child: _deviceData != null
+          child: _deviceData.isNotEmpty
               ? Container(
                   padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                   child: Column(
@@ -90,7 +90,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                     children: <Widget>[
                       for (int index = 0; index < _deviceData.length; index++)
                         _buildDevicesList(index),
-                      _buildNewDevice()
+                      // _buildNewDevice()
                     ],
                   ),
                 )

@@ -199,15 +199,15 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           });
 
           //TODO - Add code to check the result and add actions based on that
-          // await Provider.of<DevicesProvider>(context, listen: false)
-          //     .saveWatchInfo(connectionData);
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .saveWatchInfo(connectionData);
 
           // await Provider.of<WatchProvider>(context, listen: false)
           //     .setDeviceType(_deviceType);
           var watchInfo = json.decode(connectionInfo) as Map<String, dynamic>;
 
           print("Creating devices model from json");
-          Map<String,dynamic> updatedJson = {
+          Map<String, dynamic> updatedJson = {
             'deviceMaster': _deviceData.deviceMaster,
             'watchInfo': watchInfo
           };
