@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:biometric_storage/biometric_storage.dart';
 import 'package:ceras/config/user_deviceinfo.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:flutter/material.dart';
@@ -21,7 +20,6 @@ class AuthProvider with ChangeNotifier {
 
   bool _walthrough = true;
 
-  BiometricStorageFile _storageFile;
   String _authToken;
   String _refreshToken;
   DateTime _userExpiryDate;
@@ -53,15 +51,6 @@ class AuthProvider with ChangeNotifier {
     // notifyListeners();
 
     return _walthrough;
-  }
-
-  Future<BiometricStorageFile> _getStorageFile() async {
-    return await BiometricStorage().getStorage(
-      'refreshToken',
-      options: StorageFileInitOptions(
-        authenticationRequired: false,
-      ),
-    );
   }
 
   Future<bool> validateAndLogin({
@@ -99,9 +88,6 @@ class AuthProvider with ChangeNotifier {
 
       notifyListeners();
 
-      _storageFile = await _getStorageFile();
-      await _storageFile.write('${_refreshToken}');
-
       final prefs = await SharedPreferences.getInstance();
       final userData = json.encode(
         {
@@ -136,9 +122,6 @@ class AuthProvider with ChangeNotifier {
 
     print(extractedUserData);
 
-    _storageFile = await _getStorageFile();
-    _refreshToken = await _storageFile.read();
-
     _authToken = extractedUserData['authToken'];
     _refreshToken = extractedUserData['refreshToken'];
     _userId = extractedUserData['userId'];
@@ -162,9 +145,6 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
     final prefs = await SharedPreferences.getInstance();
     prefs.remove('userData');
-
-    _storageFile = await _getStorageFile();
-    await _storageFile.delete();
 
     NavigationService.goBackHome();
     // prefs.clear();
