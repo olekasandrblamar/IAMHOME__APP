@@ -189,7 +189,10 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           _statusDescription = 'Verifying.....';
         });
 
+        print("Device found");
+
         if (connectionData.connected) {
+          print("Device connected");
           setState(() {
             _statusTitle = 'Device Found';
             _statusDescription = 'Connecting.....';
@@ -201,16 +204,21 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
           // await Provider.of<WatchProvider>(context, listen: false)
           //     .setDeviceType(_deviceType);
+          var watchInfo = json.decode(connectionInfo) as Map<String, dynamic>;
 
-          var formattedData = DevicesModel.fromJson({
-            'deviceMaster': {
-              ..._deviceData.deviceMaster,
-              'watchInfo': json.decode(connectionInfo)
-            },
-            // 'watchInfo': [connectionData],
-          });
+          print("Creating devices model from json");
+          Map<String,dynamic> updatedJson = {
+            'deviceMaster': _deviceData.deviceMaster,
+            'watchInfo': watchInfo
+          };
 
+          print("created map and converting to json");
+          print(updatedJson['watchInfo']);
+          var formattedData = DevicesModel.fromJson(updatedJson);
+
+          print("Device master");
           print(formattedData.deviceMaster);
+          print("formatted data");
           print(formattedData);
 
           await Provider.of<DevicesProvider>(context, listen: false)

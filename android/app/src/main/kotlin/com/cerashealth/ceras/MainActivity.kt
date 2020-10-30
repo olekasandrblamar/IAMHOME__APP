@@ -204,7 +204,7 @@ class Application:FlutterApplication(){
 ////                .penaltyDeath()
 //                .build())
 
-        getWindow().addFlags(LayoutParams.FLAG_SECURE);
+        //getWindow().addFlags(LayoutParams.FLAG_SECURE);
         
         super.onCreate()
     }
