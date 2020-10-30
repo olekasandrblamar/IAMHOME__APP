@@ -14,13 +14,13 @@ import com.google.gson.Gson
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetch
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetchConfig
 import io.flutter.app.FlutterApplication
-import io.flutter.embedding.android.FlutterActivity
+import io.flutter.embedding.android.*
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
 import java.text.SimpleDateFormat
 import java.util.*
 
-class MainActivity: FlutterActivity()  {
+class MainActivity: FlutterFragmentActivity()  {
 
     private val CHANNEL = "ceras.iamhome.mobile/device"
     private var sycnDevice: BaseDevice? = null
@@ -77,16 +77,16 @@ class MainActivity: FlutterActivity()  {
                 .setStopOnTerminate(false)
                 .setJobService(CerasBluetoothSync::class.java.name)
                 .build()
-        BackgroundFetch.getInstance(context).configure(config) {
+        BackgroundFetch.getInstance(this).configure(config) {
             Log.i(TAG,"Executing background job")
-            CerasBluetoothSync(context, BACKGROUND_JOB)
+            CerasBluetoothSync(this, BACKGROUND_JOB)
         }
 
     }
 
     private fun connectDeviceChannel(flutterEngine: FlutterEngine){
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
-            currentContext = context
+            currentContext = this
             currentActivity = this
             BaseDevice.isBackground = false
             if(call.method=="connectDevice"){
@@ -100,17 +100,17 @@ class MainActivity: FlutterActivity()  {
             } else if(call.method =="syncData"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 updateLastConnected()
-                Log.i(TAG,"last Updated ${context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).all}")
+                Log.i(TAG,"last Updated ${getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).all}")
                 Log.i(TAG,"got sync data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
-                val deviceType = context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
+                val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceType?.toUpperCase()).syncData(result,deviceData,this)
             }else if(call.method =="deviceStatus"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got device status data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
-                val deviceType = context.getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
+                val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceType?.toUpperCase()).getDeviceInfo(result,deviceData,this)
             }else if(call.method =="disconnect"){
