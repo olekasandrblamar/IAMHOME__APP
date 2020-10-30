@@ -97,7 +97,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
               : _buildNewDevice(),
         ),
       ),
-      bottomNavigationBar: _deviceData != null
+      bottomNavigationBar: _deviceData.isNotEmpty
           ? SafeArea(
               bottom: true,
               child: Row(
