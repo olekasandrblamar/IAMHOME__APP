@@ -19,6 +19,8 @@ void main() {
       baseUrl: 'https://tracker.ceras.io/api/v1/device/',
       baseUrl2: 'https://api',
       authUrl: 'https://auth.myceras.com/',
+      accessKey: '',
+      secret: '',
     );
 
     assert(env != null);

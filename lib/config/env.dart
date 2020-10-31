@@ -9,6 +9,8 @@ class BuildEnvironment {
   /// The backend server.
   final String baseUrl;
   final String baseUrl2;
+  final String accessKey;
+  final String secret;
   final String authUrl;
   final BuildFlavor flavor;
 
@@ -16,6 +18,8 @@ class BuildEnvironment {
     this.flavor,
     this.baseUrl,
     this.baseUrl2,
+    this.accessKey,
+    this.secret,
     this.authUrl,
   });
 
@@ -24,12 +28,16 @@ class BuildEnvironment {
     @required flavor,
     @required baseUrl,
     @required baseUrl2,
+    @required accessKey,
+    @required secret,
     @required authUrl,
   }) =>
       _env ??= BuildEnvironment._init(
         flavor: flavor,
         baseUrl: baseUrl,
         baseUrl2: baseUrl2,
+        accessKey: accessKey,
+        secret: secret,
         authUrl: authUrl,
       );
 }

@@ -58,9 +58,10 @@ class AuthProvider with ChangeNotifier {
     @required String password,
   }) async {
     try {
+      http.options.headers.addAll({"ACCESSKEY": env.accessKey, "SECRET": env.secret});
       final response = await http.post(
         env.authUrl + 'oauth/authorize',
-        data: {"userName": email, "password": password, "orgId": "PATIENT"},
+        data: {"userName": email, "password": password, "orgId": "PATIENT"}
       );
 
       final responseData = response.data;
@@ -98,7 +99,6 @@ class AuthProvider with ChangeNotifier {
         },
       );
       prefs.setString('userData', userData);
-
       return true;
     } on DioError catch (error) {
       throw HttpException(error?.response?.data['message']);

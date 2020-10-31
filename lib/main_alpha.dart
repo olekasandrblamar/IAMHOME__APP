@@ -19,6 +19,8 @@ void main() {
       baseUrl: 'https://device.alpha.myceras.com/api/v1/device/',
       baseUrl2: 'https://api',
       authUrl: 'https://auth.alpha.myceras.com/',
+      accessKey: 'nya8zsihq17z1w6x',
+      secret: 'k72eiwnca95u33er0ujb',
     );
 
     assert(env != null);

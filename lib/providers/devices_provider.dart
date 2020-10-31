@@ -17,6 +17,10 @@ class DevicesProvider extends ChangeNotifier {
   List<DevicesModel> _deviceData = [];
   WatchModel _watchInfo;
 
+  String checkAndRefreshToken(){
+
+  }
+
   Future<void> fetchAllDevices() async {
     try {
       final response = await http.get(
