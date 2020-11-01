@@ -23,6 +23,7 @@ class AuthProvider with ChangeNotifier {
   String _authToken;
   String _refreshToken;
   DateTime _userExpiryDate;
+  DateTime _accessTokenExpiry;
   String _userId;
 
   String get token {
@@ -32,6 +33,51 @@ class AuthProvider with ChangeNotifier {
       return _refreshToken;
     }
     return null;
+  }
+
+  Future<String> get authToken async {
+    final expiryDate = DateTime.now();
+    expiryDate.add(Duration(seconds:30));
+    if(_accessTokenExpiry !=null && _accessTokenExpiry.isAfter(expiryDate) && _authToken!=null)
+      return authToken;
+    else if(token!=null){
+      return await _refreshAuthToken(_refreshToken);
+    }else{
+      return null;
+    }
+  }
+
+  Future<String> _refreshAuthToken(String refreshToken) async{
+    http.options.headers.addAll({"ACCESSKEY": env.accessKey, "SECRET": env.secret});
+    final response = await http.post(
+        env.authUrl + 'oauth/token',
+        data: {"refresh_token": refreshToken, "orgId": "PATIENT"}
+    );
+    final responseData = response.data;
+
+    print(responseData);
+
+    if (responseData['error'] != null || responseData['access_token'] == null) {
+      return null;
+    }
+
+    _authToken = responseData['access_token'];
+    var accessJwt = parseJwt(_authToken);
+    _accessTokenExpiry = DateTime.fromMillisecondsSinceEpoch(accessJwt['exp']*1000,isUtc: true);
+    _userId = jwtData['sub'];
+    final prefs = await SharedPreferences.getInstance();
+    final userData = json.encode(
+      {
+        'refreshToken': _refreshToken,
+        'authToken': _authToken,
+        'userId': _userId,
+        'userExpiryDate': _userExpiryDate.toIso8601String(),
+      },
+    );
+    prefs.setString('userData', userData);
+
+    return _authToken;
+
   }
 
   String get userId {
@@ -80,11 +126,10 @@ class AuthProvider with ChangeNotifier {
       _refreshToken = responseData['refresh_token'];
 
       var jwtData = parseJwt(_refreshToken);
-      _userExpiryDate = DateTime.now().add(
-        Duration(
-          seconds: jwtData['exp'],
-        ),
-      );
+      _userExpiryDate = DateTime.fromMillisecondsSinceEpoch(jwtData['exp']*1000,isUtc: true);
+
+      var accessJwt = parseJwt(_authToken);
+      _accessTokenExpiry = DateTime.fromMillisecondsSinceEpoch(accessJwt['exp']*1000,isUtc: true);
       _userId = jwtData['sub'];
 
       notifyListeners();

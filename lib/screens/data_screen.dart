@@ -1,11 +1,9 @@
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/trackers/tracker_data_model.dart';
+import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:flutter/material.dart';
 
-import 'package:ceras/constants/route_paths.dart' as routes;
-
-import 'package:ceras/theme.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
@@ -33,7 +31,9 @@ class _DataScreenState extends State<DataScreen> {
     super.initState();
   }
 
-  void _initData() {
+  Future<void> _initData() async {
+    //This code is to refresh the acccess token
+    final accessToken = await Provider.of<AuthProvider>(context, listen: false).authToken;
     _loadTemperature();
     _loadBloodPressure();
     _loadHeartRate();
