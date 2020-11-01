@@ -34,11 +34,15 @@ class _DataScreenState extends State<DataScreen> {
   Future<void> _initData() async {
     //This code is to refresh the acccess token
     final accessToken = await Provider.of<AuthProvider>(context, listen: false).authToken;
-    _loadTemperature();
-    _loadBloodPressure();
-    _loadHeartRate();
-    _loadCalories();
-    _loadSteps();
+    if(accessToken!=null) {
+      _loadTemperature();
+      _loadBloodPressure();
+      _loadHeartRate();
+      _loadCalories();
+      _loadSteps();
+    }else{
+      //Send to login screen
+    }
   }
 
   String _formatDate(DateTime date){

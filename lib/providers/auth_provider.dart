@@ -75,6 +75,7 @@ class AuthProvider with ChangeNotifier {
       },
     );
     prefs.setString('userData', userData);
+    notifyListeners()
 
     return _authToken;
 

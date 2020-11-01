@@ -14,12 +14,10 @@ import 'package:ceras/config/navigation_service.dart';
 class DevicesProvider extends ChangeNotifier {
   final http = HttpClient().http;
 
+  final mobileDataHttp = HttpClient().mobileDataHttp;
+
   List<DevicesModel> _deviceData = [];
   WatchModel _watchInfo;
-
-  String checkAndRefreshToken(){
-
-  }
 
   Future<void> fetchAllDevices() async {
     try {
@@ -131,7 +129,7 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<Temperature> getLatestTemperature() async {
     try {
-      final response = await http.get(env.baseUrl + 'lastValue/temperature',
+      final response = await mobileDataHttp.get(env.baseUrl + 'lastValue/temperature',
           queryParameters: await _getDeviceRequest());
       if (response.data != null) {
         return Temperature.fromJson(response.data);
@@ -143,7 +141,7 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<HeartRate> getLatestHeartRate() async {
     try {
-      final response = await http.get(env.baseUrl + 'lastValue/heartrate',
+      final response = await mobileDataHttp.get(env.baseUrl + 'lastValue/heartrate',
           queryParameters: await _getDeviceRequest());
       if (response.data != null) {
         return HeartRate.fromJson(response.data);
@@ -155,7 +153,7 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<OxygenLevel> getLatestOxygenLevel() async {
     try {
-      final response = await http.get(env.baseUrl + 'lastValue/bloodOxygen',
+      final response = await mobileDataHttp.get(env.baseUrl + 'lastValue/bloodOxygen',
           queryParameters: await _getDeviceRequest());
       if (response.data != null) {
         return OxygenLevel.fromJson(response.data);
@@ -167,7 +165,7 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<DailySteps> getLatestSteps() async {
     try {
-      final response = await http.get(env.baseUrl + 'lastValue/dailySteps',
+      final response = await mobileDataHttp.get(env.baseUrl + 'lastValue/dailySteps',
           queryParameters: await _getDeviceRequest());
       if (response.data != null) {
         return DailySteps.fromJson(response.data);
@@ -179,7 +177,7 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<BloodPressure> getLatestBloodPressure() async {
     try {
-      final response = await http.get(env.baseUrl + 'lastValue/bloodPressure',
+      final response = await mobileDataHttp.get(env.baseUrl + 'lastValue/bloodPressure',
           queryParameters: await _getDeviceRequest());
       if (response.data != null) {
         return BloodPressure.fromJson(response.data);
@@ -191,7 +189,7 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<Calories> getLatestCalories() async {
     try {
-      final response = await http.get(env.baseUrl + 'lastValue/calories',
+      final response = await mobileDataHttp.get(env.baseUrl + 'lastValue/calories',
           queryParameters: await _getDeviceRequest());
       if (response.data != null) {
         return Calories.fromJson(response.data);
