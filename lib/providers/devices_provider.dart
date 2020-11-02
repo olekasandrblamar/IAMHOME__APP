@@ -57,7 +57,9 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<List<DevicesModel>> getDevicesData() async {
     final prefs = await SharedPreferences.getInstance();
-    final prefData = prefs.getString('deviceData');
+    var prefData = prefs.getString('deviceData');
+
+    // prefs.clear();
 
     if (prefData == null) {
       return [];
@@ -65,6 +67,15 @@ class DevicesProvider extends ChangeNotifier {
 
     final List<DevicesModel> formattedData = [];
     final List existingDeviceData = json.decode(prefData);
+
+    if (existingDeviceData.isNotEmpty) {
+      final migrateData = [existingDeviceData];
+      var encoded = json.encode(migrateData);
+      prefs.setString('deviceData', encoded);
+      prefData = encoded;
+    }
+
+    print(existingDeviceData);
 
     existingDeviceData.forEach(
       (data) {
