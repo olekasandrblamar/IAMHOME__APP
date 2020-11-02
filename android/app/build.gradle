@@ -81,10 +81,10 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'progaurd-rules.pro'
         }
         debug {
-//            signingConfig signingConfigs.release
-//            shrinkResources true
-//            minifyEnabled true
-//            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'progaurd-rules.pro'
+            signingConfig signingConfigs.release
+            shrinkResources true
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'progaurd-rules.pro'
         }
     }
 }
