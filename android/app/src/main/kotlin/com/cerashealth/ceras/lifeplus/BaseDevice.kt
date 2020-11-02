@@ -11,15 +11,15 @@ open class BaseDevice{
 
     }
     open fun syncData(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context){
-
+        Log.i(TAG,"Calling default sync data")
     }
 
     open fun getDeviceInfo(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
-
+        Log.i(TAG,"Calling default device Info")
     }
 
     open fun disconnectDevice(result: MethodChannel.Result?){
-        
+        Log.i(TAG,"Calling default disconnect device")
     }
 
     fun sendConnectionResponse(deviceId:String?,status:Boolean,result: MethodChannel.Result?){
@@ -36,8 +36,10 @@ open class BaseDevice{
         const val WATCH_DEVICE:String = "WATCH"
         const val BAND_DEVICE:String = "BAND"
         var isBackground = false
+        val TAG = WatchDevice::class.java.simpleName
 
         fun getDeviceImpl(deviceName:String?): BaseDevice {
+            Log.i(TAG,"Getting implementation for $deviceName")
             return when(deviceName){
                 WATCH_DEVICE-> WatchDevice()
                 BAND_DEVICE->BandDevice()

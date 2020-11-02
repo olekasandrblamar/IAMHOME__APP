@@ -96,6 +96,8 @@ class MainActivity: FlutterFragmentActivity()  {
                 sycnDevice = BaseDevice.getDeviceImpl(deviceType)
                 sycnDevice?.let {
                     it.connectDevice(this,result,deviceId)
+                    //Update the device type
+                    applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).edit().putString("flutter.deviceType",deviceType).commit()
                 }
             } else if(call.method =="syncData"){
                 val deviceDataString = call.argument<String>("connectionInfo")
@@ -105,14 +107,14 @@ class MainActivity: FlutterFragmentActivity()  {
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
                 val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
-                BaseDevice.getDeviceImpl(deviceType?.toUpperCase()).syncData(result,deviceData,this)
+                BaseDevice.getDeviceImpl(deviceData.deviceType).syncData(result,deviceData,this)
             }else if(call.method =="deviceStatus"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got device status data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
                 val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
-                BaseDevice.getDeviceImpl(deviceType?.toUpperCase()).getDeviceInfo(result,deviceData,this)
+                BaseDevice.getDeviceImpl(deviceData.deviceType).getDeviceInfo(result,deviceData,this)
             }else if(call.method =="disconnect"){
                 val deviceType = call.argument<String>("deviceType")
                 BaseDevice.getDeviceImpl(deviceType).disconnectDevice(result)
@@ -175,7 +177,7 @@ class CerasBluetoothSync{
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString, ConnectionInfo::class.java)
                 val deviceType = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.deviceType", null)
                 MainActivity.deviceId = deviceData?.deviceId ?: ""
-                BaseDevice.getDeviceImpl(deviceType?.toUpperCase())?.syncData(null, deviceData, applicationContext)
+                BaseDevice.getDeviceImpl(deviceData.deviceType)?.syncData(null, deviceData, applicationContext)
             } else {
                 Log.e(TAG, "No location permission")
             }

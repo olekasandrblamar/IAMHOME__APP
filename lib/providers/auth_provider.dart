@@ -39,7 +39,7 @@ class AuthProvider with ChangeNotifier {
     final expiryDate = DateTime.now();
     expiryDate.add(Duration(seconds:30));
     if(_accessTokenExpiry !=null && _accessTokenExpiry.isAfter(expiryDate) && _authToken!=null)
-      return authToken;
+      return _authToken;
     else if(token!=null){
       return await _refreshAuthToken(_refreshToken);
     }else{
@@ -64,7 +64,7 @@ class AuthProvider with ChangeNotifier {
     _authToken = responseData['access_token'];
     var accessJwt = parseJwt(_authToken);
     _accessTokenExpiry = DateTime.fromMillisecondsSinceEpoch(accessJwt['exp']*1000,isUtc: true);
-    _userId = jwtData['sub'];
+    _userId = accessJwt['sub'];
     final prefs = await SharedPreferences.getInstance();
     final userData = json.encode(
       {
@@ -75,7 +75,7 @@ class AuthProvider with ChangeNotifier {
       },
     );
     prefs.setString('userData', userData);
-    notifyListeners()
+    notifyListeners();
 
     return _authToken;
 

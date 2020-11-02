@@ -14,7 +14,7 @@ class MobileDataInterceptor extends Interceptor {
   Future<dynamic> onRequest(RequestOptions options) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //reload with latest data
-    await prefs.reload()
+    await prefs.reload();
 
     if (prefs.containsKey('userData')) {
       final extractedUserData =
@@ -22,6 +22,7 @@ class MobileDataInterceptor extends Interceptor {
 
       options.headers.addAll({"Authorization": extractedUserData['authToken']});
     }
+    print("Calling ${options.path} with headers ${options.headers.toString()}");
   }
 
   @override
