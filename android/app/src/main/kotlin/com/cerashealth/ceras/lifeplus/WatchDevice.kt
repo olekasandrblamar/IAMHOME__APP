@@ -71,12 +71,16 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
 }
 
 class DataCallBack : SimpleDeviceCallback {
-    private val result: MethodChannel.Result?
+    private var result: MethodChannel.Result?
 
     @get:Synchronized @set:Synchronized
     var callCount = 0;
 
     constructor(result: MethodChannel.Result?) {
+        this.result = result
+    }
+
+    fun updateResult(result: MethodChannel.Result?){
         this.result = result
     }
 
@@ -145,7 +149,7 @@ class DataCallBack : SimpleDeviceCallback {
             Log.d(WatchDevice.TAG, "onCallbackResult: Connected")
             WatchDevice.initializeWatch()
             WatchDevice.syncData()
-
+            result?.success("Load complete")
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Disconnected")
         } else if (flag == GlobalValue.CONNECT_TIME_OUT_MSG) {
@@ -398,6 +402,7 @@ class WatchDevice:BaseDevice()     {
         //If the device is not connected  try to connect
         if(!HardSdk.getInstance().isDevConnected &&
                 !HardSdk.getInstance().isConnecting){
+            dataCallback?.updateResult(result)
             HardSdk.getInstance().init(context)
             returnValue = false
             HardSdk.getInstance().setHardSdkCallback(dataCallback)

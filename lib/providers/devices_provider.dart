@@ -65,15 +65,21 @@ class DevicesProvider extends ChangeNotifier {
       return [];
     }
 
-    final List<DevicesModel> formattedData = [];
-    final List existingDeviceData = json.decode(prefData);
+    print("Got prefs data ${prefData}");
 
-    if (existingDeviceData.isNotEmpty) {
-      final migrateData = [existingDeviceData];
+    //Check if it is an object or array. If it is an object we need to convert to array
+    if(prefData.startsWith("{")) {
+      var oldDeviceData = json.decode(prefData);
+      final migrateData = [oldDeviceData];
       var encoded = json.encode(migrateData);
       prefs.setString('deviceData', encoded);
       prefData = encoded;
     }
+
+    print("Got prefs data ${prefData}");
+
+    final List<DevicesModel> formattedData = [];
+    final List existingDeviceData = json.decode(prefData);
 
     print(existingDeviceData);
 
