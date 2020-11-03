@@ -70,38 +70,22 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
 
 }
 
-/**
- * This is used to return the battery data
- */
-class BatteryCallBack : SimpleDeviceCallback {
-
-    private var result: MethodChannel.Result?
-
-    constructor(result: MethodChannel.Result?) {
-        this.result = result
-    }
-
-    override fun onCallbackResult(flag: Int, state: Boolean, obj: Any?) {
-        super.onCallbackResult(flag, state, obj)
-        Log.d(WatchDevice.TAG, "onCallbackResult: ${flag}")
-        if (flag == GlobalValue.BATTERY) {
-            result?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
-                    deviceName = "", additionalInfo = mapOf(), deviceType = "", batteryStatus = obj.toString()))
-        }
-        HardSdk.getInstance().removeHardSdkCallback(this)
-    }
-
-}
-
 
 class DataCallBack : SimpleDeviceCallback {
     private var result: MethodChannel.Result?
+
+    private var batteryResult: MethodChannel.Result? = null
 
     @get:Synchronized @set:Synchronized
     var callCount = 0;
 
     constructor(result: MethodChannel.Result?) {
         this.result = result
+    }
+
+
+    fun updateBatteryResult(result: MethodChannel.Result?){
+        this.batteryResult = result
     }
 
     fun updateResult(result: MethodChannel.Result?){
@@ -168,8 +152,12 @@ class DataCallBack : SimpleDeviceCallback {
         super.onCallbackResult(flag, state, obj)
         Log.d(WatchDevice.TAG, "onCallbackResult: ${flag}")
         if (flag == GlobalValue.BATTERY) {
-            result?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
-                    deviceName = "", additionalInfo = mapOf(), deviceType = "",batteryStatus = obj.toString()))
+            try{
+                batteryResult?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
+                        deviceName = "", additionalInfo = mapOf(), deviceType = "", batteryStatus = obj.toString()))
+            }catch (ex:Exception){
+                Log.e(WatchDevice.TAG,"Error while sending response ",ex)
+            }
         }
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Connected")
@@ -462,13 +450,15 @@ class WatchDevice:BaseDevice()     {
                     connectionInfo.deviceId
             )
         }
-        //If the device is connected
+        //If the device is connected and not syncing
         if(connectionStatus){
-            HardSdk.getInstance().setHardSdkCallback(BatteryCallBack(result))
+            dataCallback?.updateBatteryResult(result)
             HardSdk.getInstance().findBattery()
+        }else{
+            //If it is not connected or it is syncing send the status
+            sendConnectionResponse(connectionInfo.deviceId,connectionStatus,result)
         }
     }
-
 }
 
 class WatchDataCallBack : IHardScanCallback {
@@ -588,8 +578,12 @@ class WatchDataCallBack : IHardScanCallback {
             stopScanning()
             deviceConnected = true
             result?.let {
-                result.success(ConnectionInfo.createResponse(message = "Connected", connected = true, deviceId = deviceAddr, deviceName = deviceName,
-                        additionalInfo = mapOf("factoryName" to targetDevice!!.factoryName), deviceType = BaseDevice.WATCH_DEVICE, deviceFound = deviceFound))
+                try {
+                    result.success(ConnectionInfo.createResponse(message = "Connected", connected = true, deviceId = deviceAddr, deviceName = deviceName,
+                            additionalInfo = mapOf("factoryName" to targetDevice!!.factoryName), deviceType = BaseDevice.WATCH_DEVICE, deviceFound = deviceFound))
+                }catch (ex:Exception){
+                    Log.e(TAG,"Error while sending response ",ex)
+                }
             }
         }
         if (deviceName != null) {

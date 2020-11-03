@@ -18,12 +18,39 @@ class LocationsScreen extends StatefulWidget {
   _LocationsScreenState createState() => _LocationsScreenState();
 }
 
-class _LocationsScreenState extends State<LocationsScreen> {
+class _LocationsScreenState extends State<LocationsScreen> with WidgetsBindingObserver {
   void _checkDevice(context) {
     if (Platform.isIOS) {
       _checkPermission(context);
     } else {
       _showDialog(context);
+    }
+  }
+
+
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    print("In state ");
+    switch (state) {
+      case AppLifecycleState.resumed:
+        Future.delayed(Duration(milliseconds: 100),() async{
+          await _checkAndGoNext();
+        });
+        break;
+    }
+  }
+
+  void _checkAndGoNext() async{
+    if(Platform.isAndroid){
+      var alwaysStatus = (await Permission.locationAlways.status) ==  PermissionStatus.granted;
+      var inUseStatus = (await Permission.locationWhenInUse.status) ==  PermissionStatus.granted;
+      var locationStatus = (await Permission.location.status) ==  PermissionStatus.granted;
+      print("Checking and going forward ${alwaysStatus} ${inUseStatus} ${locationStatus}");
+      //if any of the permission is granted move to the next screen automatically
+      if(locationStatus|| inUseStatus|| alwaysStatus){
+        await _goToCamera(context);
+      }
     }
   }
 

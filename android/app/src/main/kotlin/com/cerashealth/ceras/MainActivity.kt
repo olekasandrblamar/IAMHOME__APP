@@ -175,7 +175,7 @@ class CerasBluetoothSync{
                 Log.i(TAG, "Doing background work")
                 val deviceDataString = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.watchInfo", "")
                 val deviceData = Gson().fromJson(deviceDataString, ConnectionInfo::class.java)
-                deviceData.deviceType?.let {
+                deviceData?.deviceType?.let {
                     val deviceType = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.deviceType", null)
                     MainActivity.deviceId = deviceData?.deviceId ?: ""
                     BaseDevice.getDeviceImpl(deviceData.deviceType)?.syncData(null, deviceData, applicationContext)
