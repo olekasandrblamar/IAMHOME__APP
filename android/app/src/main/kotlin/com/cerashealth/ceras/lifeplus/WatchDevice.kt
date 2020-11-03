@@ -70,6 +70,30 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
 
 }
 
+/**
+ * This is used to return the battery data
+ */
+class BatteryCallBack : SimpleDeviceCallback {
+
+    private var result: MethodChannel.Result?
+
+    constructor(result: MethodChannel.Result?) {
+        this.result = result
+    }
+
+    override fun onCallbackResult(flag: Int, state: Boolean, obj: Any?) {
+        super.onCallbackResult(flag, state, obj)
+        Log.d(WatchDevice.TAG, "onCallbackResult: ${flag}")
+        if (flag == GlobalValue.BATTERY) {
+            result?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
+                    deviceName = "", additionalInfo = mapOf(), deviceType = "", batteryStatus = obj.toString()))
+        }
+        HardSdk.getInstance().removeHardSdkCallback(this)
+    }
+
+}
+
+
 class DataCallBack : SimpleDeviceCallback {
     private var result: MethodChannel.Result?
 
@@ -144,6 +168,8 @@ class DataCallBack : SimpleDeviceCallback {
         super.onCallbackResult(flag, state, obj)
         Log.d(WatchDevice.TAG, "onCallbackResult: ${flag}")
         if (flag == GlobalValue.BATTERY) {
+            result?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
+                    deviceName = "", additionalInfo = mapOf(), deviceType = "",batteryStatus = obj.toString()))
         }
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Connected")
@@ -357,7 +383,9 @@ class WatchDevice:BaseDevice()     {
 
     override fun disconnectDevice(result: MethodChannel.Result?) {
         if(HardSdk.getInstance().isDevConnected) {
+            Log.i(TAG,"Device is connected and disconnecting it")
             HardSdk.getInstance().restoreFactoryMode()
+            HardSdk.getInstance().reset()
             HardSdk.getInstance().disconnect()
         }
         result?.success("Success")
@@ -434,10 +462,12 @@ class WatchDevice:BaseDevice()     {
                     connectionInfo.deviceId
             )
         }
-        sendConnectionResponse(connectionInfo.deviceId,connectionStatus,result)
+        //If the device is connected
+        if(connectionStatus){
+            HardSdk.getInstance().setHardSdkCallback(BatteryCallBack(result))
+            HardSdk.getInstance().findBattery()
+        }
     }
-
-
 
 }
 

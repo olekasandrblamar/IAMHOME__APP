@@ -22,10 +22,10 @@ open class BaseDevice{
         Log.i(TAG,"Calling default disconnect device")
     }
 
-    fun sendConnectionResponse(deviceId:String?,status:Boolean,result: MethodChannel.Result?){
+    fun sendConnectionResponse(deviceId:String?,status:Boolean,result: MethodChannel.Result?,batteryStatus:String? = ""){
         try {
             result?.success(ConnectionInfo.createResponse(message = "Success", connected = status, deviceId = deviceId,
-                    deviceName = "", additionalInfo = mapOf(), deviceType = ""))
+                    deviceName = "", additionalInfo = mapOf(), deviceType = "",batteryStatus = batteryStatus))
         }catch (ex:Exception){
            Log.e(MainActivity.TAG,"Error while sending response",ex)
         }

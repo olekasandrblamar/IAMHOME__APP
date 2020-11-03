@@ -174,10 +174,12 @@ class CerasBluetoothSync{
                 BaseDevice.isBackground = true
                 Log.i(TAG, "Doing background work")
                 val deviceDataString = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.watchInfo", "")
-                val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString, ConnectionInfo::class.java)
-                val deviceType = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.deviceType", null)
-                MainActivity.deviceId = deviceData?.deviceId ?: ""
-                BaseDevice.getDeviceImpl(deviceData.deviceType)?.syncData(null, deviceData, applicationContext)
+                val deviceData = Gson().fromJson(deviceDataString, ConnectionInfo::class.java)
+                deviceData.deviceType?.let {
+                    val deviceType = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.deviceType", null)
+                    MainActivity.deviceId = deviceData?.deviceId ?: ""
+                    BaseDevice.getDeviceImpl(deviceData.deviceType)?.syncData(null, deviceData, applicationContext)
+                }
             } else {
                 Log.e(TAG, "No location permission")
             }

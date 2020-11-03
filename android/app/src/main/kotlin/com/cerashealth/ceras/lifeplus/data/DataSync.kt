@@ -43,10 +43,11 @@ class ConnectionInfo{
     var message:String? = null
     var additionalInformation = mapOf<String,String>()
     var deviceType:String? = null
+    var batteryStatus:String? = null
 
     companion object{
         fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null
-                           ,additionalInfo: Map<String, String> = mapOf<String,String>(),deviceType:String? = null,deviceFound:Boolean = true):String{
+                           ,additionalInfo: Map<String, String> = mapOf<String,String>(),deviceType:String? = null,deviceFound:Boolean = true,batteryStatus:String? = null):String{
             val connectionData =  Gson().toJson(ConnectionInfo().apply {
                 this.deviceId = deviceId
                 this.connected = connected
@@ -55,6 +56,7 @@ class ConnectionInfo{
                 this.additionalInformation = additionalInfo
                 this.deviceType = deviceType
                 this.deviceFound = deviceFound
+                this.batteryStatus = batteryStatus
             })
             Log.i(MainActivity.TAG,"Sending connection data back $connectionData")
             return connectionData
