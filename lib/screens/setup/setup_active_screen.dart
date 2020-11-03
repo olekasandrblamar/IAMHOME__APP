@@ -238,12 +238,12 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       key: _scaffoldKey,
       appBar: AppBar(
         title: Text('Selected Device'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.highlight_off),
-            onPressed: () => _showDialog(),
-          )
-        ],
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.highlight_off),
+        //     onPressed: () => _showDialog(),
+        //   )
+        // ],
       ),
       backgroundColor: AppTheme.white,
       body: SafeArea(
@@ -265,30 +265,30 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
           ),
         ),
       ),
-      // bottomNavigationBar: SafeArea(
-      //   bottom: true,
-      //   child: Row(
-      //     mainAxisAlignment: MainAxisAlignment.center,
-      //     children: <Widget>[
-      //       Container(
-      //         width: 200,
-      //         height: 90,
-      //         padding: EdgeInsets.all(20),
-      //         child: RaisedButton(
-      //           shape: RoundedRectangleBorder(
-      //             borderRadius: BorderRadius.circular(4.5),
-      //           ),
-      //           color: Theme.of(context).primaryColor,
-      //           textColor: Colors.white,
-      //           child: Text(
-      //             'Remove Device',
-      //           ),
-      //           onPressed: () => _showDialog(),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
+      bottomNavigationBar: SafeArea(
+        bottom: true,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              // width: 200,
+              // height: 90,
+              padding: EdgeInsets.all(20),
+              child: Ink(
+                decoration: const ShapeDecoration(
+                  color: Colors.red,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.delete),
+                  color: Colors.white,
+                  onPressed: () => _showDialog(),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
