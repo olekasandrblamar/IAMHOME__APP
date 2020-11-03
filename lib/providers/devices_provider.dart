@@ -65,10 +65,10 @@ class DevicesProvider extends ChangeNotifier {
       return [];
     }
 
-    print("Got prefs data ${prefData}");
+    // print("Got prefs data ${prefData}");
 
     //Check if it is an object or array. If it is an object we need to convert to array
-    if(prefData.startsWith("{")) {
+    if (prefData.startsWith("{")) {
       var oldDeviceData = json.decode(prefData);
       final migrateData = [oldDeviceData];
       var encoded = json.encode(migrateData);
@@ -76,12 +76,12 @@ class DevicesProvider extends ChangeNotifier {
       prefData = encoded;
     }
 
-    print("Got prefs data ${prefData}");
+    // print("Got prefs data ${prefData}");
 
     final List<DevicesModel> formattedData = [];
     final List existingDeviceData = json.decode(prefData);
 
-    print(existingDeviceData);
+    // print(existingDeviceData);
 
     existingDeviceData.forEach(
       (data) {
@@ -253,7 +253,7 @@ class DevicesProvider extends ChangeNotifier {
     notifyListeners();
 
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString('watchInfo',null);
+    prefs.setString('watchInfo', null);
     prefs.setString('deviceData', json.encode(_deviceData));
 
     NavigationService.goBackHome();

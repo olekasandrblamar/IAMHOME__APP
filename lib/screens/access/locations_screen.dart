@@ -13,7 +13,12 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'widgets/show_access_alert_dialog.dart';
 
-class LocationsScreen extends StatelessWidget {
+class LocationsScreen extends StatefulWidget {
+  @override
+  _LocationsScreenState createState() => _LocationsScreenState();
+}
+
+class _LocationsScreenState extends State<LocationsScreen> {
   void _checkDevice(context) {
     if (Platform.isIOS) {
       _checkPermission(context);
