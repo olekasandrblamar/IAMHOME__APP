@@ -11,6 +11,7 @@ class WatchModel {
   final String message;
   final String deviceType;
   final bool deviceFound;
+  final String batteryStatus;
   final Map<String, String> additionalInformation;
 
   WatchModel({
@@ -20,7 +21,8 @@ class WatchModel {
     this.message,
     this.additionalInformation,
     this.deviceType,
-    this.deviceFound
+    this.deviceFound,
+    this.batteryStatus
   });
 
   factory WatchModel.fromJson(Map<String, dynamic> json) =>

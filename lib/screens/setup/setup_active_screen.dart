@@ -33,7 +33,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   int _deviceIndex = null;
   String _lastUpdated = null;
   DevicesModel _deviceData = null;
-  String _deviceId = null;
+  String _deviceId = "---";
+  String _batteryLevel = "---";
   bool _connected = true;
   bool isLoading = true;
 
@@ -106,6 +107,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       setState(() {
         _connected = connectionStatusData.connected;
         _deviceId = connectionStatusData.deviceId;
+        _batteryLevel = connectionStatusData.batteryStatus;
       });
     }
   }
@@ -450,7 +452,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
               ),
             ),
             Text(
-              '--',
+              '${_batteryLevel}',
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: TextStyle(
