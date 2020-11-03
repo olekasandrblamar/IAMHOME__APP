@@ -18,7 +18,8 @@ class LocationsScreen extends StatefulWidget {
   _LocationsScreenState createState() => _LocationsScreenState();
 }
 
-class _LocationsScreenState extends State<LocationsScreen> with WidgetsBindingObserver {
+class _LocationsScreenState extends State<LocationsScreen>
+    with WidgetsBindingObserver {
   void _checkDevice(context) {
     if (Platform.isIOS) {
       _checkPermission(context);
@@ -27,28 +28,36 @@ class _LocationsScreenState extends State<LocationsScreen> with WidgetsBindingOb
     }
   }
 
-
-
   @override
-  void didChangeAppLifecycleState(AppLifecycleState state) {
-    print("In state ");
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
     switch (state) {
       case AppLifecycleState.resumed:
-        Future.delayed(Duration(milliseconds: 100),() async{
-          await _checkAndGoNext();
-        });
+        await _checkAndGoNext();
+        break;
+      case AppLifecycleState.inactive:
+        // TODO: Handle this case.
+        break;
+      case AppLifecycleState.paused:
+        // TODO: Handle this case.
+        break;
+      case AppLifecycleState.detached:
+        // TODO: Handle this case.
         break;
     }
   }
 
-  void _checkAndGoNext() async{
-    if(Platform.isAndroid){
-      var alwaysStatus = (await Permission.locationAlways.status) ==  PermissionStatus.granted;
-      var inUseStatus = (await Permission.locationWhenInUse.status) ==  PermissionStatus.granted;
-      var locationStatus = (await Permission.location.status) ==  PermissionStatus.granted;
-      print("Checking and going forward ${alwaysStatus} ${inUseStatus} ${locationStatus}");
+  void _checkAndGoNext() async {
+    if (Platform.isAndroid) {
+      var alwaysStatus =
+          (await Permission.locationAlways.status) == PermissionStatus.granted;
+      var inUseStatus = (await Permission.locationWhenInUse.status) ==
+          PermissionStatus.granted;
+      var locationStatus =
+          (await Permission.location.status) == PermissionStatus.granted;
+      print(
+          "Checking and going forward ${alwaysStatus} ${inUseStatus} ${locationStatus}");
       //if any of the permission is granted move to the next screen automatically
-      if(locationStatus|| inUseStatus|| alwaysStatus){
+      if (locationStatus || inUseStatus || alwaysStatus) {
         await _goToCamera(context);
       }
     }

@@ -12,6 +12,7 @@ class LoginScreen extends StatefulWidget {
 class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
 
+  bool _showPassword = true;
   String _username, _email, _password = '';
 
   // final TextEditingController _usernameController = TextEditingController();
@@ -321,7 +322,7 @@ class _LoginScreenState extends State<LoginScreen> {
       focusNode: _passwordFocusNode,
       keyboardType: TextInputType.text,
       textInputAction: TextInputAction.done,
-      obscureText: true,
+      obscureText: _showPassword,
       autofocus: false,
       validator: (value) {
         if (value.isEmpty) {
@@ -397,6 +398,21 @@ class _LoginScreenState extends State<LoginScreen> {
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
         borderSide: BorderSide(color: Colors.red),
       ),
+      suffixIcon: (labelText == 'Password')
+          ? IconButton(
+              onPressed: () {
+                setState(() {
+                  _showPassword = !_showPassword;
+                });
+              },
+              icon: _showPassword
+                  ? Icon(Icons.visibility_off)
+                  : Icon(Icons.visibility),
+            )
+          : Container(
+              height: 0,
+              width: 0,
+            ),
     );
   }
 }

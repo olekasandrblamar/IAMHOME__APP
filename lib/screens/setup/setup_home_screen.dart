@@ -86,7 +86,6 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    width: 200,
                     height: 90,
                     padding: EdgeInsets.all(20),
                     child: RaisedButton(
@@ -163,7 +162,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                     child: Text(
                       (deviceData?.deviceMaster != null &&
                               deviceData?.deviceMaster['displayName'] != null)
-                          ? deviceData?.deviceMaster['displayName'] + ' Device'
+                          ? deviceData?.deviceMaster['displayName']
                           : '',
                       style: AppTheme.title,
                     ),

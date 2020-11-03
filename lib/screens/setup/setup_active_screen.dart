@@ -137,7 +137,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       });
     }
 
-    // _showSuccessMessage();
+    _showSuccessMessage();
   }
 
   void _loadDeviceData() async {
@@ -316,7 +316,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
               // _appLocalization.translate('setup.active.devicefound'),
               (_deviceData?.deviceMaster != null &&
                       _deviceData?.deviceMaster['displayName'] != null)
-                  ? _deviceData?.deviceMaster['displayName'] + ' Tracker Device'
+                  ? _deviceData?.deviceMaster['displayName']
                   : '',
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.left,
@@ -452,7 +452,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
               ),
             ),
             Text(
-              '${_batteryLevel}',
+              '${_batteryLevel} %',
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: TextStyle(
@@ -472,7 +472,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'ID Number',
+              'MAC ID',
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: TextStyle(

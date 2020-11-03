@@ -159,11 +159,11 @@ class _DataScreenState extends State<DataScreen> {
               flexibleSpace: FlexibleSpaceBar(
                 title: Text(
                   'My Data',
-                  // style: TextStyle(
-                  //   fontSize: 30,
-                  //   fontWeight: FontWeight.bold,
-                  //   color: Colors.black,
-                  // ),
+                  style: TextStyle(
+                    fontSize: 25,
+                    // fontWeight: FontWeight.bold,
+                    // color: Colors.black,
+                  ),
                 ),
                 stretchModes: [
                   StretchMode.zoomBackground,
