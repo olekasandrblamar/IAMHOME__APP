@@ -1,10 +1,13 @@
+import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/trackers/tracker_data_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'package:intl/intl.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 
 class DataScreen extends StatefulWidget {
@@ -13,6 +16,8 @@ class DataScreen extends StatefulWidget {
 }
 
 class _DataScreenState extends State<DataScreen> {
+  final LocalAuthentication auth = LocalAuthentication();
+
   Temperature _lastTemperature = null;
 
   HeartRate _lastHr = null;
@@ -32,24 +37,47 @@ class _DataScreenState extends State<DataScreen> {
   }
 
   Future<void> _initData() async {
-    //This code is to refresh the acccess token
-    final accessToken = await Provider.of<AuthProvider>(context, listen: false).authToken;
-    if(accessToken!=null) {
-      _loadTemperature();
-      _loadBloodPressure();
-      _loadHeartRate();
-      _loadCalories();
-      _loadSteps();
-    }else{
-      //Send to login screen
+    try {
+      bool didAuthenticate = await auth.authenticateWithBiometrics(
+        localizedReason: 'Please authenticate to show your data',
+        useErrorDialogs: true,
+        stickyAuth: true,
+      );
+
+      if (!didAuthenticate) {
+        return _goToLogin();
+      }
+
+      //This code is to refresh the acccess token
+      final accessToken =
+          await Provider.of<AuthProvider>(context, listen: false).authToken;
+
+      if (accessToken == null) {
+        return _goToLogin();
+      }
+
+      await _loadTemperature();
+      await _loadBloodPressure();
+      await _loadHeartRate();
+      await _loadCalories();
+      await _loadSteps();
+    } on PlatformException catch (e) {
+      print(e);
+      _goToLogin();
     }
   }
 
-  String _formatDate(DateTime date){
+  void _goToLogin() async {
+    await Navigator.of(context).pushReplacementNamed(
+      routes.LoginRoute,
+    );
+  }
+
+  String _formatDate(DateTime date) {
     return DateFormat.yMMMMd().format(date.toLocal());
   }
 
-  String _formatTime(DateTime date){
+  String _formatTime(DateTime date) {
     return DateFormat.jm().format(date.toLocal());
   }
 
@@ -214,7 +242,8 @@ class _DataScreenState extends State<DataScreen> {
                                       text: TextSpan(children: [
                                         TextSpan(
                                           text: (_lastTemperature != null
-                                              ? _lastTemperature.fahrenheit.toStringAsFixed(2)
+                                              ? _lastTemperature.fahrenheit
+                                                  .toStringAsFixed(2)
                                               : '0'),
                                           style: TextStyle(
                                             fontSize: 40,
@@ -263,13 +292,15 @@ class _DataScreenState extends State<DataScreen> {
                                         height: 5,
                                       ),
                                       Text(_lastTemperature != null
-                                          ? _formatDate(_lastTemperature.measureTime)
+                                          ? _formatDate(
+                                              _lastTemperature.measureTime)
                                           : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
                                       Text(_lastTemperature != null
-                                          ? _formatTime(_lastTemperature.measureTime)
+                                          ? _formatTime(
+                                              _lastTemperature.measureTime)
                                           : ''),
                                     ],
                                   ),
@@ -515,13 +546,15 @@ class _DataScreenState extends State<DataScreen> {
                                         height: 5,
                                       ),
                                       Text(_bloodPressure != null
-                                          ? _formatDate(_bloodPressure.measureTime)
+                                          ? _formatDate(
+                                              _bloodPressure.measureTime)
                                           : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
                                       Text(_bloodPressure != null
-                                          ? _formatTime(_bloodPressure.measureTime)
+                                          ? _formatTime(
+                                              _bloodPressure.measureTime)
                                           : ''),
                                     ],
                                   ),
@@ -597,7 +630,8 @@ class _DataScreenState extends State<DataScreen> {
                                         children: [
                                           TextSpan(
                                             text: _lastCalories != null
-                                                ? _lastCalories.calories.toString()
+                                                ? _lastCalories.calories
+                                                    .toString()
                                                 : '0',
                                             style: TextStyle(
                                               fontSize: 40,
@@ -641,13 +675,15 @@ class _DataScreenState extends State<DataScreen> {
                                         height: 5,
                                       ),
                                       Text(_lastCalories != null
-                                          ? _formatDate(_lastCalories.measureTime)
+                                          ? _formatDate(
+                                              _lastCalories.measureTime)
                                           : ''),
                                       SizedBox(
                                         height: 5,
                                       ),
                                       Text(_lastCalories != null
-                                          ? _formatTime(_lastCalories.measureTime)
+                                          ? _formatTime(
+                                              _lastCalories.measureTime)
                                           : ''),
                                     ],
                                   ),

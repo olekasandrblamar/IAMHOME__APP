@@ -5,8 +5,6 @@ import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 
 class SetupHomeScreen extends StatefulWidget {
@@ -15,7 +13,6 @@ class SetupHomeScreen extends StatefulWidget {
 }
 
 class _SetupHomeScreenState extends State<SetupHomeScreen> {
-  final LocalAuthentication auth = LocalAuthentication();
   List<DevicesModel> _deviceData = [];
 
   @override
@@ -48,24 +45,9 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
       return _goToLogin();
     }
 
-    try {
-      bool didAuthenticate = await auth.authenticateWithBiometrics(
-        localizedReason: 'Please authenticate to show your data',
-        useErrorDialogs: true,
-        stickyAuth: true,
-      );
-
-      if (didAuthenticate) {
-        await Navigator.of(context).pushNamed(
-          routes.DataRoute,
-        );
-      } else {
-        _goToLogin();
-      }
-    } on PlatformException catch (e) {
-      print(e);
-      _goToLogin();
-    }
+    await Navigator.of(context).pushNamed(
+      routes.DataRoute,
+    );
   }
 
   void _goToLogin() async {
