@@ -452,7 +452,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
               ),
             ),
             Text(
-              '${_batteryLevel}',
+              '${_batteryLevel}%',
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: TextStyle(
