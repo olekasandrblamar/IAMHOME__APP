@@ -272,4 +272,5 @@ struct ConnectionInfo:Codable {
     var deviceFound:Bool? = false
     var message:String?
     var additionalInformation: [String:String] = [:]
+    var batteryStatus:String? = nil
 }

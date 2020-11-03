@@ -17,6 +17,8 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var deviceFound = false
     var deviceConected = false
     static var currentDeviceId:String? = nil
+    var statusResult:FlutterResult? = nil
+    var statusConnectionInfo: ConnectionInfo? = nil
     
     override init() {
         super.init()
@@ -65,17 +67,33 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             let tempArray = values["temperatureArray"] as! [[String:String]]
             syncTemparature(tempArray: tempArray)
         }
-        if(option == HardGettingOption.stepDetail && values != nil){
+        else if(option == HardGettingOption.stepDetail && values != nil){
             let stepData = values as! [String:Any]
             syncStepInfo(stepInfo: stepData)
         }
-        if(option == HardGettingOption.heart){
+        else if(option == HardGettingOption.heart){
             print("values \(values["hearts"])")
             if(values["hearts"] != nil){
                 let heartRateData = values["hearts"] as! [[String:String]]
                 syncHearRate(heartRateArray: heartRateData)
             }
             
+        }
+        else if(option == HardGettingOption.battery){
+            NSLog("battery \(values)")
+            do{
+                if(values["battery"] != nil){
+                    statusConnectionInfo?.batteryStatus = values["battery"] as! String
+                }
+                let deviceJson = try JSONEncoder().encode(statusConnectionInfo)
+                let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                NSLog("Sending Connection data back from battery info \(connectionInfoData)")
+                statusResult?(connectionInfoData)
+             }catch{
+                NSLog("Error getting watch info from battery getDeviceInfo \(error)")
+                statusResult?("Error")
+                
+            }
         }
         
     }
@@ -96,10 +114,16 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connInfo.deviceId!)
         }
         do{
-            let deviceJson = try JSONEncoder().encode(connectionInfo)
-            let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
-            NSLog("Sending Connection data back from device info \(connectionInfoData)")
-            result(connectionInfoData)
+            if(connectionInfo.connected != nil && connectionInfo.connected!){
+                HardManagerSDK.shareBLEManager()?.getHardBattery()
+                statusConnectionInfo = connectionInfo
+                statusResult = result
+            }else{
+                let deviceJson = try JSONEncoder().encode(connectionInfo)
+                let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                NSLog("Sending Connection data back from device info \(connectionInfoData)")
+                result(connectionInfoData)
+            }
         }catch{
             NSLog("Error getting watch info from getDeviceInfo \(error)")
             result("Error")
