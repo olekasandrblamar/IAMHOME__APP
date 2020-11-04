@@ -15,8 +15,7 @@ class DataScreen extends StatefulWidget {
   _DataScreenState createState() => _DataScreenState();
 }
 
-class _DataScreenState extends State<DataScreen>
-    with WidgetsBindingObserver{
+class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   final LocalAuthentication auth = LocalAuthentication();
 
   Temperature _lastTemperature = null;
@@ -37,13 +36,13 @@ class _DataScreenState extends State<DataScreen>
         await _gotoListPage();
         break;
       case AppLifecycleState.inactive:
-      // TODO: Handle this case.
+        // TODO: Handle this case.
         break;
       case AppLifecycleState.paused:
-      // TODO: Handle this case.
+        // TODO: Handle this case.
         break;
       case AppLifecycleState.detached:
-      // TODO: Handle this case.
+        // TODO: Handle this case.
         break;
     }
   }
@@ -88,7 +87,7 @@ class _DataScreenState extends State<DataScreen>
     }
   }
 
-  void _gotoListPage() async{
+  void _gotoListPage() async {
     await Navigator.of(context).pushReplacementNamed(
       routes.SetupHomeRoute,
     );
@@ -255,9 +254,6 @@ class _DataScreenState extends State<DataScreen>
                             ),
                           ),
                           Container(
-                            margin: EdgeInsets.only(
-                              top: 10,
-                            ),
                             padding: EdgeInsets.all(16),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -302,40 +298,28 @@ class _DataScreenState extends State<DataScreen>
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  flex: 4,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Last Updated',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(_lastTemperature != null
-                                          ? _formatDate(
-                                              _lastTemperature.measureTime)
-                                          : ''),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(_lastTemperature != null
-                                          ? _formatTime(
-                                              _lastTemperature.measureTime)
-                                          : ''),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 1),
                               ],
                             ),
                           ),
+                          Container(
+                            child: FittedBox(
+                              child: Text(
+                                _lastTemperature != null
+                                    ? 'Last Updated: ' +
+                                        _formatDate(
+                                            _lastTemperature.measureTime) +
+                                        ' ' +
+                                        _formatTime(
+                                            _lastTemperature.measureTime)
+                                    : '',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
                         ],
                       ),
                     ),
@@ -388,9 +372,6 @@ class _DataScreenState extends State<DataScreen>
                             ),
                           ),
                           Container(
-                            margin: EdgeInsets.only(
-                              top: 10,
-                            ),
                             padding: EdgeInsets.all(16),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -428,38 +409,26 @@ class _DataScreenState extends State<DataScreen>
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  flex: 4,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Last Updated',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(_lastHr != null
-                                          ? _formatDate(_lastHr.measureTime)
-                                          : ''),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(_lastHr != null
-                                          ? _formatTime(_lastHr.measureTime)
-                                          : ''),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 1),
                               ],
                             ),
                           ),
+                          Container(
+                            child: FittedBox(
+                              child: Text(
+                                _lastHr != null
+                                    ? 'Last Updated: ' +
+                                        _formatDate(_lastHr.measureTime) +
+                                        ' ' +
+                                        _formatTime(_lastHr.measureTime)
+                                    : '',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
                         ],
                       ),
                     ),
@@ -512,9 +481,6 @@ class _DataScreenState extends State<DataScreen>
                             ),
                           ),
                           Container(
-                            margin: EdgeInsets.only(
-                              top: 10,
-                            ),
                             padding: EdgeInsets.all(16),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -556,40 +522,27 @@ class _DataScreenState extends State<DataScreen>
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  flex: 4,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Last Updated',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(_bloodPressure != null
-                                          ? _formatDate(
-                                              _bloodPressure.measureTime)
-                                          : ''),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(_bloodPressure != null
-                                          ? _formatTime(
-                                              _bloodPressure.measureTime)
-                                          : ''),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 1),
                               ],
                             ),
                           ),
+                          Container(
+                            child: FittedBox(
+                              child: Text(
+                                _bloodPressure != null
+                                    ? 'Last Updated: ' +
+                                        _formatDate(
+                                            _bloodPressure.measureTime) +
+                                        ' ' +
+                                        _formatTime(_bloodPressure.measureTime)
+                                    : '',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
                         ],
                       ),
                     ),
@@ -642,9 +595,6 @@ class _DataScreenState extends State<DataScreen>
                             ),
                           ),
                           Container(
-                            margin: EdgeInsets.only(
-                              top: 10,
-                            ),
                             padding: EdgeInsets.all(16),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -685,40 +635,26 @@ class _DataScreenState extends State<DataScreen>
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  flex: 4,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Last Updated',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(_lastCalories != null
-                                          ? _formatDate(
-                                              _lastCalories.measureTime)
-                                          : ''),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(_lastCalories != null
-                                          ? _formatTime(
-                                              _lastCalories.measureTime)
-                                          : ''),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 1),
                               ],
                             ),
                           ),
+                          Container(
+                            child: FittedBox(
+                              child: Text(
+                                _lastCalories != null
+                                    ? 'Last Updated: ' +
+                                        _formatDate(_lastCalories.measureTime) +
+                                        ' ' +
+                                        _formatTime(_lastCalories.measureTime)
+                                    : '',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
                         ],
                       ),
                     ),
@@ -771,9 +707,6 @@ class _DataScreenState extends State<DataScreen>
                             ),
                           ),
                           Container(
-                            margin: EdgeInsets.only(
-                              top: 10,
-                            ),
                             padding: EdgeInsets.all(16),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -811,38 +744,26 @@ class _DataScreenState extends State<DataScreen>
                                     ),
                                   ),
                                 ),
-                                const SizedBox(width: 8),
-                                Expanded(
-                                  flex: 4,
-                                  child: Column(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        'Last Updated',
-                                        style: TextStyle(
-                                          fontSize: 12,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(_lastSteps != null
-                                          ? _formatDate(_lastSteps.measureTime)
-                                          : ''),
-                                      SizedBox(
-                                        height: 5,
-                                      ),
-                                      Text(_lastSteps != null
-                                          ? _formatTime(_lastSteps.measureTime)
-                                          : ''),
-                                    ],
-                                  ),
-                                ),
-                                const SizedBox(width: 1),
                               ],
                             ),
                           ),
+                          Container(
+                            child: FittedBox(
+                              child: Text(
+                                _lastSteps != null
+                                    ? 'Last Updated: ' +
+                                        _formatDate(_lastSteps.measureTime) +
+                                        ' ' +
+                                        _formatTime(_lastSteps.measureTime)
+                                    : '',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
                         ],
                       ),
                     ),

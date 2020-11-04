@@ -137,7 +137,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       });
     }
 
-    _showSuccessMessage();
+    // _showSuccessMessage();
   }
 
   void _loadDeviceData() async {

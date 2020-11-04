@@ -45,8 +45,8 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
     }
   }
 
-  void _loadDeviceState(List<DevicesModel> deviceList){
-    var index=0;
+  void _loadDeviceState(List<DevicesModel> deviceList) {
+    var index = 0;
     deviceList.forEach((device) {
       _getDeviceStatus(index++);
     });
@@ -122,9 +122,9 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
     );
   }
 
-  String _buildDeviceCode(String deviceMac){
-    if(deviceMac!=null && deviceMac.length>5){
-      return deviceMac.substring(deviceMac.length-5).replaceAll(":", "");
+  String _buildDeviceCode(String deviceMac) {
+    if (deviceMac != null && deviceMac.length > 5) {
+      return deviceMac.substring(deviceMac.length - 5).replaceAll(":", "");
     }
     return deviceMac;
   }
@@ -149,7 +149,8 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
       print("Last updated at ${lastUpdate}");
       setState(() {
         _deviceStatus = _deviceStatus;
-        _lastUpdated = lastUpdate?? DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
+        _lastUpdated = lastUpdate ??
+            DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
       });
     }
   }
@@ -180,7 +181,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Container(
-                padding: EdgeInsets.all(15),
+                padding: EdgeInsets.all(10),
                 child: Container(
                   height: 100.0,
                   width: 100.0,
@@ -202,32 +203,49 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                   ),
                 ),
               ),
-              Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  FittedBox(
-                    child: Text(
-                      (deviceData?.deviceMaster != null &&
-                              deviceData?.deviceMaster['displayName'] != null)
-                          ? deviceData?.deviceMaster['displayName']
-                          : '',
-                      style: AppTheme.title,
-                    ),
+              Expanded(
+                child: Container(
+                  margin: EdgeInsets.only(right: 10),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                        child: Text(
+                          (deviceData?.deviceMaster != null &&
+                                  deviceData?.deviceMaster['displayName'] !=
+                                      null)
+                              ? deviceData?.deviceMaster['displayName']
+                              : '',
+                          style: AppTheme.title,
+                        ),
+                      ),
+                      SizedBox(height: 10),
+                      FittedBox(
+                        child: Text(
+                          _deviceStatus[index].connected
+                              ? 'Connected'
+                              : 'Not Connected',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                            letterSpacing: 0.18,
+                            color: Colors.red,
+                          ),
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      FittedBox(
+                        child: Text(
+                            'ID# ${_buildDeviceCode(_deviceStatus[index].deviceId) ?? '--'}'),
+                      ),
+                      SizedBox(height: 5),
+                      FittedBox(
+                        child: Text('Last Updated - ${_lastUpdated}'),
+                      ),
+                    ],
                   ),
-                  SizedBox(height: 15),
-                  FittedBox(
-                    child: Text(_deviceStatus[index].connected?'Connected':'Not Connected'),
-                  ),
-                  SizedBox(height: 5),
-                  FittedBox(
-                    child: Text('ID# ${_buildDeviceCode(_deviceStatus[index].deviceId) ?? '--'}'),
-                  ),
-                  SizedBox(height: 5),
-                  FittedBox(
-                    child: Text('Last Updated - ${_lastUpdated}'),
-                  ),
-                ],
+                ),
               )
             ],
           ),
