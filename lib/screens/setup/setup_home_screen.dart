@@ -9,6 +9,7 @@ import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,22 +37,19 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
     if (deviceData.isNotEmpty) {
       if (!mounted) return;
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.reload();
-      final lastUpdate = prefs.getString('last_sync');
-
-      print("Last updated at ${lastUpdate}");
-
       setState(() {
         _deviceData = deviceData;
         _deviceStatus = deviceData.map((e) => e.watchInfo).toList();
-        _lastUpdated = lastUpdate;
-      });
-      var index=0;
-      deviceData.forEach((device) {
-        _getDeviceStatus(index++);
+        // _loadDeviceState(deviceData);
       });
     }
+  }
+
+  void _loadDeviceState(List<DevicesModel> deviceList){
+    var index=0;
+    deviceList.forEach((device) {
+      _getDeviceStatus(index++);
+    });
   }
 
   Future<void> _authenticate() async {
@@ -75,6 +73,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _loadDeviceState(_deviceData);
     return Scaffold(
       appBar: SetupAppBar(name: 'My Devices'),
       backgroundColor: Colors.white,
@@ -124,6 +123,13 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
     );
   }
 
+  String _buildDeviceCode(String deviceMac){
+    if(deviceMac!=null && deviceMac.length>5){
+      return deviceMac.substring(deviceMac.length-5).replaceAll(":", "");
+    }
+    return deviceMac;
+  }
+
   void _getDeviceStatus(int index) async {
     String connectionInfo = json.encode(_deviceData[index].watchInfo);
     final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
@@ -137,8 +143,14 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
 
       if (!mounted) return;
       _deviceStatus[index] = connectionStatusData;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.reload();
+      final lastUpdate = prefs.getString('last_sync');
+
+      print("Last updated at ${lastUpdate}");
       setState(() {
         _deviceStatus = _deviceStatus;
+        _lastUpdated = lastUpdate?? DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
       });
     }
   }
@@ -193,6 +205,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
               ),
               Column(
                 mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   FittedBox(
                     child: Text(
@@ -203,14 +216,17 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                       style: AppTheme.title,
                     ),
                   ),
+                  SizedBox(height: 15),
                   FittedBox(
                     child: Text(_deviceStatus[index].connected?'Connected':'--'),
                   ),
+                  SizedBox(height: 5),
                   FittedBox(
-                    child: Text('ID# ${_deviceStatus[index].deviceId ?? '--'}'),
+                    child: Text('ID# ${_buildDeviceCode(_deviceStatus[index].deviceId) ?? '--'}'),
                   ),
+                  SizedBox(height: 5),
                   FittedBox(
-                    child: Text('Last Synced - ${_lastUpdated}'),
+                    child: Text('Last Updated - ${_lastUpdated}'),
                   ),
                 ],
               )
