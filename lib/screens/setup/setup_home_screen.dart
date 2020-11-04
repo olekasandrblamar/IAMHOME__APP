@@ -40,7 +40,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
       setState(() {
         _deviceData = deviceData;
         _deviceStatus = deviceData.map((e) => e.watchInfo).toList();
-        // _loadDeviceState(deviceData);
+        _loadDeviceState(deviceData);
       });
     }
   }
@@ -73,7 +73,6 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    _loadDeviceState(_deviceData);
     return Scaffold(
       appBar: SetupAppBar(name: 'My Devices'),
       backgroundColor: Colors.white,
