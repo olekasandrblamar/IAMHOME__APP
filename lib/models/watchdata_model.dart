@@ -5,13 +5,13 @@ part 'watchdata_model.g.dart';
 
 @JsonSerializable()
 class WatchModel {
-  final bool connected;
+  bool connected;
   final String deviceId;
   final String deviceName;
   final String message;
   final String deviceType;
   final bool deviceFound;
-  final String batteryStatus;
+  String batteryStatus;
   final Map<String, String> additionalInformation;
 
   WatchModel({

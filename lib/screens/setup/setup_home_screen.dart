@@ -1,5 +1,9 @@
+import 'dart:convert';
+
+import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/models/devices_model.dart';
+import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/theme.dart';
@@ -14,13 +18,12 @@ class SetupHomeScreen extends StatefulWidget {
 
 class _SetupHomeScreenState extends State<SetupHomeScreen> {
   List<DevicesModel> _deviceData = [];
+  List<WatchModel> _deviceStatus = [];
 
   @override
   void initState() {
     // TODO: implement initState
-
     loadData();
-
     super.initState();
   }
 
@@ -33,6 +36,11 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
 
       setState(() {
         _deviceData = deviceData;
+        _deviceStatus = deviceData.map((e) => e.watchInfo).toList();
+      });
+      var index=0;
+      deviceData.forEach((device) {
+        _getDeviceStatus(index++);
       });
     }
   }
@@ -105,6 +113,25 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
               height: 0,
             ),
     );
+  }
+
+  void _getDeviceStatus(int index) async {
+    String connectionInfo = json.encode(_deviceData[index].watchInfo);
+    final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
+      'deviceStatus',
+      <String, dynamic>{'connectionInfo': connectionInfo},
+    ) as String;
+
+    if (connectionStatus != "Error") {
+      final WatchModel connectionStatusData = WatchModel.fromJson(
+          json.decode(connectionStatus) as Map<String, dynamic>);
+
+      if (!mounted) return;
+      _deviceStatus[index] = connectionStatusData;
+      setState(() {
+        _deviceStatus = _deviceStatus;
+      });
+    }
   }
 
   Widget _buildDevicesList(int index) {
