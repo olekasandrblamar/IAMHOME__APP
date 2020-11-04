@@ -20,6 +20,15 @@ class LocationsScreen extends StatefulWidget {
 
 class _LocationsScreenState extends State<LocationsScreen>
     with WidgetsBindingObserver {
+
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+
+    // TODO: implement initState
+    super.initState();
+  }
+
   void _checkDevice(context) {
     if (Platform.isIOS) {
       _checkPermission(context);
@@ -30,6 +39,7 @@ class _LocationsScreenState extends State<LocationsScreen>
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
+    print('Got state ${state}');
     switch (state) {
       case AppLifecycleState.resumed:
         await _checkAndGoNext();
@@ -55,7 +65,7 @@ class _LocationsScreenState extends State<LocationsScreen>
       var locationStatus =
           (await Permission.location.status) == PermissionStatus.granted;
       print(
-          "Checking and going forward ${alwaysStatus} ${inUseStatus} ${locationStatus}");
+          'Checking and going forward ${alwaysStatus} ${inUseStatus} ${locationStatus}');
       //if any of the permission is granted move to the next screen automatically
       if (locationStatus || inUseStatus || alwaysStatus) {
         await _goToCamera(context);
