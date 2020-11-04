@@ -218,7 +218,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                   ),
                   SizedBox(height: 15),
                   FittedBox(
-                    child: Text(_deviceStatus[index].connected?'Connected':'--'),
+                    child: Text(_deviceStatus[index].connected?'Connected':'Not Connected'),
                   ),
                   SizedBox(height: 5),
                   FittedBox(
