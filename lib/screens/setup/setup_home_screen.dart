@@ -194,6 +194,15 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                       style: AppTheme.title,
                     ),
                   ),
+                  FittedBox(
+                    child: Text('Connected'),
+                  ),
+                  FittedBox(
+                    child: Text('ID# 777'),
+                  ),
+                  FittedBox(
+                    child: Text('Last Synced'),
+                  ),
                 ],
               )
             ],
