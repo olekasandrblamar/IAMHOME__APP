@@ -10,6 +10,7 @@ import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SetupHomeScreen extends StatefulWidget {
   @override
@@ -19,6 +20,7 @@ class SetupHomeScreen extends StatefulWidget {
 class _SetupHomeScreenState extends State<SetupHomeScreen> {
   List<DevicesModel> _deviceData = [];
   List<WatchModel> _deviceStatus = [];
+  var _lastUpdated = '---';
 
   @override
   void initState() {
@@ -34,9 +36,16 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
     if (deviceData.isNotEmpty) {
       if (!mounted) return;
 
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.reload();
+      final lastUpdate = prefs.getString('last_sync');
+
+      print("Last updated at ${lastUpdate}");
+
       setState(() {
         _deviceData = deviceData;
         _deviceStatus = deviceData.map((e) => e.watchInfo).toList();
+        _lastUpdated = lastUpdate;
       });
       var index=0;
       deviceData.forEach((device) {
@@ -195,13 +204,13 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
                     ),
                   ),
                   FittedBox(
-                    child: Text('Connected'),
+                    child: Text(_deviceStatus[index].connected?'Connected':'--'),
                   ),
                   FittedBox(
-                    child: Text('ID# 777'),
+                    child: Text('ID# ${_deviceStatus[index].deviceId ?? '--'}'),
                   ),
                   FittedBox(
-                    child: Text('Last Synced'),
+                    child: Text('Last Synced - ${_lastUpdated}'),
                   ),
                 ],
               )
