@@ -15,7 +15,8 @@ class DataScreen extends StatefulWidget {
   _DataScreenState createState() => _DataScreenState();
 }
 
-class _DataScreenState extends State<DataScreen> {
+class _DataScreenState extends State<DataScreen>
+    with WidgetsBindingObserver{
   final LocalAuthentication auth = LocalAuthentication();
 
   Temperature _lastTemperature = null;
@@ -29,8 +30,28 @@ class _DataScreenState extends State<DataScreen> {
   DailySteps _lastSteps = null;
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    print('Got state ${state}');
+    switch (state) {
+      case AppLifecycleState.resumed:
+        await _gotoListPage();
+        break;
+      case AppLifecycleState.inactive:
+      // TODO: Handle this case.
+        break;
+      case AppLifecycleState.paused:
+      // TODO: Handle this case.
+        break;
+      case AppLifecycleState.detached:
+      // TODO: Handle this case.
+        break;
+    }
+  }
+
+  @override
   void initState() {
     _initData();
+    WidgetsBinding.instance.addObserver(this);
 
     // TODO: implement initState
     super.initState();
@@ -65,6 +86,12 @@ class _DataScreenState extends State<DataScreen> {
       print(e);
       _goToLogin();
     }
+  }
+
+  void _gotoListPage() async{
+    await Navigator.of(context).pushReplacementNamed(
+      routes.SetupHomeRoute,
+    );
   }
 
   void _goToLogin() async {
@@ -243,7 +270,7 @@ class _DataScreenState extends State<DataScreen> {
                                         TextSpan(
                                           text: (_lastTemperature != null
                                               ? _lastTemperature.fahrenheit
-                                                  .toStringAsFixed(2)
+                                                  .toStringAsFixed(1)
                                               : '0'),
                                           style: TextStyle(
                                             fontSize: 40,
@@ -282,7 +309,7 @@ class _DataScreenState extends State<DataScreen> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Last Synced',
+                                        'Last Updated',
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
@@ -408,7 +435,7 @@ class _DataScreenState extends State<DataScreen> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Last Synced',
+                                        'Last Updated',
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
@@ -536,7 +563,7 @@ class _DataScreenState extends State<DataScreen> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Last Synced',
+                                        'Last Updated',
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
@@ -665,7 +692,7 @@ class _DataScreenState extends State<DataScreen> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Last Synced',
+                                        'Last Updated',
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
@@ -791,7 +818,7 @@ class _DataScreenState extends State<DataScreen> {
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Text(
-                                        'Last Synced',
+                                        'Last Updated',
                                         style: TextStyle(
                                           fontSize: 12,
                                           fontWeight: FontWeight.bold,
