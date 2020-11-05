@@ -18,7 +18,7 @@ void main() {
       flavor: BuildFlavor.production,
       baseUrl: 'https://tracker.ceras.io/api/v1/device/',
       baseUrl2: 'https://api',
-      authUrl: 'https://auth.myceras.com/',
+      authUrl: 'https://auth.ceras.io/',
       accessKey: 'QU5CZRR7XXBR',
       secret: 'NUSR82XMJ9GGH57YK03V',
     );

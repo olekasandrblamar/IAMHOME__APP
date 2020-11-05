@@ -154,10 +154,12 @@ class DevicesProvider extends ChangeNotifier {
       );
 
       if (response.data != null) {
+        print("Got temp ${response.data}");
         return Temperature.fromJson(response.data);
       }
     } catch (error) {
-      throw error;
+      print("Error on temp"+error.toString());
+      return null;
     }
   }
 
@@ -172,7 +174,8 @@ class DevicesProvider extends ChangeNotifier {
         return HeartRate.fromJson(response.data);
       }
     } catch (error) {
-      throw error;
+      print("Error on temp"+error.toString());
+      return null;
     }
   }
 
@@ -187,7 +190,8 @@ class DevicesProvider extends ChangeNotifier {
         return OxygenLevel.fromJson(response.data);
       }
     } catch (error) {
-      throw error;
+      print("Error on temp"+error.toString());
+      return null;
     }
   }
 
@@ -202,7 +206,8 @@ class DevicesProvider extends ChangeNotifier {
         return DailySteps.fromJson(response.data);
       }
     } catch (error) {
-      throw error;
+      print("Error on temp"+error.toString());
+      return null;
     }
   }
 
@@ -217,7 +222,8 @@ class DevicesProvider extends ChangeNotifier {
         return BloodPressure.fromJson(response.data);
       }
     } catch (error) {
-      throw error;
+      print("Error on temp"+error.toString());
+      return null;
     }
   }
 
@@ -232,7 +238,8 @@ class DevicesProvider extends ChangeNotifier {
         return Calories.fromJson(response.data);
       }
     } catch (error) {
-      throw error;
+      print("Error on temp"+error.toString());
+      return null;
     }
   }
 
