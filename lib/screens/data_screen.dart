@@ -33,7 +33,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     print('Got state ${state}');
     switch (state) {
       case AppLifecycleState.resumed:
-        await _gotoListPage();
+        await _goToLogin();
         break;
       case AppLifecycleState.inactive:
         // TODO: Handle this case.
@@ -58,23 +58,23 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
   Future<void> _initData() async {
     try {
-      bool didAuthenticate = await auth.authenticateWithBiometrics(
-        localizedReason: 'Please authenticate to show your data',
-        useErrorDialogs: true,
-        stickyAuth: true,
-      );
-
-      if (!didAuthenticate) {
-        return _goToLogin();
-      }
-
-      //This code is to refresh the acccess token
-      final accessToken =
-          await Provider.of<AuthProvider>(context, listen: false).authToken;
-
-      if (accessToken == null) {
-        return _goToLogin();
-      }
+      // bool didAuthenticate = await auth.authenticateWithBiometrics(
+      //   localizedReason: 'Please authenticate to show your data',
+      //   useErrorDialogs: true,
+      //   stickyAuth: true,
+      // );
+      //
+      // if (!didAuthenticate) {
+      //   return _goToLogin();
+      // }
+      //
+      // //This code is to refresh the acccess token
+      // final accessToken =
+      //     await Provider.of<AuthProvider>(context, listen: false).authToken;
+      //
+      // if (accessToken == null) {
+      //   return _goToLogin();
+      // }
 
       await _loadTemperature();
       await _loadBloodPressure();
@@ -311,7 +311,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                                         ' ' +
                                         _formatTime(
                                             _lastTemperature.measureTime)
-                                    : '',
+                                    : '--',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -420,7 +420,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                                         _formatDate(_lastHr.measureTime) +
                                         ' ' +
                                         _formatTime(_lastHr.measureTime)
-                                    : '',
+                                    : '--',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -534,7 +534,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                                             _bloodPressure.measureTime) +
                                         ' ' +
                                         _formatTime(_bloodPressure.measureTime)
-                                    : '',
+                                    : '--',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -646,7 +646,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                                         _formatDate(_lastCalories.measureTime) +
                                         ' ' +
                                         _formatTime(_lastCalories.measureTime)
-                                    : '',
+                                    : '--',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,
@@ -755,7 +755,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                                         _formatDate(_lastSteps.measureTime) +
                                         ' ' +
                                         _formatTime(_lastSteps.measureTime)
-                                    : '',
+                                    : '--',
                                 style: TextStyle(
                                   fontSize: 12,
                                   fontWeight: FontWeight.bold,

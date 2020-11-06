@@ -3,6 +3,7 @@ import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
+import 'package:local_auth/local_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -10,6 +11,9 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
+  final LocalAuthentication auth = LocalAuthentication();
+
   final _formKey = GlobalKey<FormState>();
 
   bool _showPassword = true;
@@ -52,7 +56,7 @@ class _LoginScreenState extends State<LoginScreen> {
     super.dispose();
   }
 
-  void _loadUserData() async {
+  Future<void> _loadUserData() async {
     if (!mounted) {
       return;
     }
@@ -63,7 +67,39 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _emailController.text = userId;
       });
+
+      // if (!didAuthenticate) {
+      //   //return _goToLogin();
+      // }
     }
+
+    var token =
+    await Provider.of<AuthProvider>(context, listen: false).tryAuthLogin();
+
+    if(token){
+      var didAuthenticate = await auth.authenticateWithBiometrics(
+        localizedReason: 'Please authenticate to show your data',
+        useErrorDialogs: true,
+        stickyAuth: true,
+      );
+      if(didAuthenticate){
+        //This code is to refresh the access token
+        final accessToken =
+        await Provider.of<AuthProvider>(context, listen: false).authToken;
+        if(accessToken!=null){
+          return Navigator.of(context).pushReplacementNamed(
+            routes.DataRoute,
+          );
+        }
+      }
+    }
+
+
+
+    // if (accessToken == null) {
+    //   //return _goToLogin();
+    // }
+
   }
 
   void _loadInitData() async {

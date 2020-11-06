@@ -18,7 +18,7 @@ class SetupHomeScreen extends StatefulWidget {
   _SetupHomeScreenState createState() => _SetupHomeScreenState();
 }
 
-class _SetupHomeScreenState extends State<SetupHomeScreen> {
+class _SetupHomeScreenState extends State<SetupHomeScreen> with WidgetsBindingObserver {
   List<DevicesModel> _deviceData = [];
   List<WatchModel> _deviceStatus = [];
   var _lastUpdated = '---';
@@ -53,16 +53,15 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
   }
 
   Future<void> _authenticate() async {
-    var token =
-        await Provider.of<AuthProvider>(context, listen: false).tryAuthLogin();
-
-    if (!token) {
-      return _goToLogin();
-    }
-
-    await Navigator.of(context).pushNamed(
-      routes.DataRoute,
-    );
+    //
+    // if (!token) {
+    //   return _goToLogin();
+    // }
+    //
+    // await Navigator.of(context).pushNamed(
+    //   routes.DataRoute,
+    // );
+    return _goToLogin();
   }
 
   void _goToLogin() async {
@@ -73,6 +72,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
+    _changeLastUpdated();
     return Scaffold(
       appBar: SetupAppBar(name: 'My Devices'),
       backgroundColor: Colors.white,
@@ -127,6 +127,17 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> {
       return deviceMac.substring(deviceMac.length - 5).replaceAll(":", "");
     }
     return deviceMac;
+  }
+
+  void _changeLastUpdated() async{
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
+    final lastUpdate = prefs.getString('last_sync');
+
+    _lastUpdated = lastUpdate ??
+        DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
+
+
   }
 
   void _getDeviceStatus(int index) async {

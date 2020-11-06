@@ -64,7 +64,7 @@ class AuthProvider with ChangeNotifier {
     _authToken = responseData['access_token'];
     var accessJwt = parseJwt(_authToken);
     _accessTokenExpiry = DateTime.fromMillisecondsSinceEpoch(accessJwt['exp']*1000,isUtc: true);
-    _userId = accessJwt['sub'];
+    _userId = accessJwt['email'];
     final prefs = await SharedPreferences.getInstance();
     final userData = json.encode(
       {
