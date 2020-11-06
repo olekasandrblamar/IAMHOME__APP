@@ -67,32 +67,29 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _emailController.text = userId;
       });
-
-      // if (!didAuthenticate) {
-      //   //return _goToLogin();
-      // }
     }
 
-    var token =
-    await Provider.of<AuthProvider>(context, listen: false).tryAuthLogin();
+    Future.delayed(Duration(milliseconds: 100),() async{
+      var token =
+      await Provider.of<AuthProvider>(context, listen: false).tryAuthLogin();
 
-    if(token){
-      var didAuthenticate = await auth.authenticateWithBiometrics(
-        localizedReason: 'Please authenticate to show your data',
-        useErrorDialogs: true,
-        stickyAuth: true,
-      );
-      if(didAuthenticate){
-        //This code is to refresh the access token
-        final accessToken =
-        await Provider.of<AuthProvider>(context, listen: false).authToken;
-        if(accessToken!=null){
-          return Navigator.of(context).pushReplacementNamed(
-            routes.DataRoute,
-          );
+      if(token){
+        var didAuthenticate = await auth.authenticateWithBiometrics(
+          localizedReason: 'Please authenticate to show your data',
+          useErrorDialogs: true,
+          stickyAuth: true,
+        );
+        if(didAuthenticate){
+          //This code is to refresh the access token
+          final accessToken = await Provider.of<AuthProvider>(context, listen: false).authToken;
+          if(accessToken!=null){
+            return Navigator.of(context).pushReplacementNamed(
+              routes.DataRoute,
+            );
+          }
         }
       }
-    }
+    });
 
 
 

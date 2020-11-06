@@ -10,6 +10,8 @@ import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 
+import 'dart:io';
+
 class DataScreen extends StatefulWidget {
   @override
   _DataScreenState createState() => _DataScreenState();
@@ -27,22 +29,24 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   Calories _lastCalories = null;
 
   DailySteps _lastSteps = null;
+  bool _paused = false;
+
+
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     print('Got state ${state}');
     switch (state) {
       case AppLifecycleState.resumed:
-        await _goToLogin();
+        if(!Platform.isIOS) {
+          _goToLogin();
+        }
         break;
       case AppLifecycleState.inactive:
-        // TODO: Handle this case.
         break;
       case AppLifecycleState.paused:
-        // TODO: Handle this case.
         break;
       case AppLifecycleState.detached:
-        // TODO: Handle this case.
         break;
     }
   }
