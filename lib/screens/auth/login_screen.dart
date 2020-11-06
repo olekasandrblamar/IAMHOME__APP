@@ -69,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
 
-    Future.delayed(Duration(milliseconds: 100),() async{
+    Future.delayed(Duration(milliseconds: 300),() async{
       var token =
       await Provider.of<AuthProvider>(context, listen: false).tryAuthLogin();
 
