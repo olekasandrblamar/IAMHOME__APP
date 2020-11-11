@@ -67,7 +67,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             let tempArray = values["temperatureArray"] as! [[String:String]]
             syncTemparature(tempArray: tempArray)
         }
-        else if(option == HardGettingOption.stepDetail && values != nil){
+        else if(option == HardGettingOption.step && values != nil){
             let stepData = values as! [String:Any]
             syncStepInfo(stepInfo: stepData)
         }
@@ -269,7 +269,8 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             age = userProfileData!.age
             height = userProfileData!.heightInCm
             weight = Int(userProfileData!.weightInKgs)
-            HardManagerSDK.shareBLEManager()?.setHardTimeUnitAndUserProfileIs12(true, isMeter: false, sex: Int32(userSex), age: Int32(age), weight: Int32(weight), height: Int32(height))
+            HardManagerSDK.shareBLEManager()?.setHardTimeUnitAndUserProfileIs12(true, isMeter: false, sex: Int32(userSex), age: Int32(age),
+                                                                                weight: Int32(weight), height: Int32(height),sbp: 0, dbp: 0,heartWarning: 160,chol: 4.0)
         }
         //Enable auto heart rate test
         HardManagerSDK.shareBLEManager()?.setHardAutoHeartTest(true)

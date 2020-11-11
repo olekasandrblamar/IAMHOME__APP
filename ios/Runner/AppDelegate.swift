@@ -196,16 +196,6 @@ import BackgroundTasks
                 NSLog("Completing task \(task.identifier) at \(Date())")
                 task.setTaskCompleted(success: true)
             }
-        }else if(call.method=="disconnect"){
-            guard let args = call.arguments else {
-              result("iOS could not recognize flutter arguments in method: (sendParams)")
-              return
-            }
-            NSLog("Disconnecting device")
-            let deviceType:String = (args as? [String: Any])?["deviceType"] as! String
-            self?.disconectDevice(result: result, deviceType: deviceType)
-        }else if(call.method=="profileInfo"){
-
         }
     }
     
