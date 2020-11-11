@@ -139,36 +139,20 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         self.device = nil
         result("Success")
     }
-    
+
     func deviceDidConnected() {
         NSLog("Device connected")
         HardManagerSDK.shareBLEManager()?.stopScanDevice()
         NSLog("Scanning connected")
         
-        var userSex = 0
-        var age:Int = 32
-        var height:Int = 170
-        var weight:Int = 60
-        let userProfileData = DataSync.getUserInfo()
-        if(userProfileData != nil){
-            NSLog("updating user info from local storage")
-            userSex = userProfileData!.sex.uppercased() == "MALE" ? 0:1
-            age = userProfileData!.age
-            height = userProfileData!.heightInCm
-            weight = Int(userProfileData!.weightInKgs)
-        }
-        HardManagerSDK.shareBLEManager()?.setHardTimeUnitAndUserProfileIs12(true, isMeter: false, sex: Int32(userSex), age: Int32(age), weight: Int32(weight), height: Int32(height))
-        //Enable auto heart rate test
-        HardManagerSDK.shareBLEManager()?.setHardAutoHeartTest(true)
-        //Enable Temp type to F
-        HardManagerSDK.shareBLEManager()?.setHardTemperatureType(true)
+        self.syncDeviceInfo();
         let macId = HardManagerSDK.shareBLEManager()?.connectedDeviceMAC
         NSLog("Got Mac id \(macId)")
         
         if(device != nil){
             let deviceName = device?.name
             let uuid = device?.identifier.uuidString
-            
+
             
             NSLog("Device connected \(deviceName ?? "No name ") - \(uuid)")
             var connectionInfo = ConnectionInfo(deviceId: uuid, deviceName: deviceName, connected: true, deviceFound: self.deviceFound, message: "connected")
@@ -223,15 +207,24 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         var bpUploads:[BpUpload] = []
         var oxygenUploads: [OxygenLevelUpload] = []
         let deviceId = getMacId()
-        let heartRateUploads = heartRateArray.map { (heartMap) -> HeartRateUpload in
+        var heartRateUploads: [HeartRateUpload] = []
+        heartRateArray.forEach{ (heartMap) in
             let measureDate = dateTimeFormat.date(from: heartMap["testMomentTime"]!)
             let heartRate = Int(heartMap["currentRate"] ?? "0")
             let distolic = Int(heartMap["diastolicPressure"] ?? "0")
             let systolic = Int(heartMap["systolicPressure"] ?? "0")
             let oxygenLevel = Int(heartMap["oxygen"] ?? "0")
-            bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic!, systolic: systolic!, deviceId: deviceId))
-            oxygenUploads.append(OxygenLevelUpload(measureTime: measureDate!,oxygenLevel: oxygenLevel!,deviceId:deviceId))
-            return HeartRateUpload(measureTime: measureDate!, heartRate: heartRate!, deviceId: deviceId)
+            
+            //Only upload valid values and ignore 0 values
+            if(distolic != 0){
+                bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic!, systolic: systolic!, deviceId: deviceId))
+            }
+            if(oxygenLevel != 0){
+                oxygenUploads.append(OxygenLevelUpload(measureTime: measureDate!,oxygenLevel: oxygenLevel!,deviceId:deviceId))
+            }
+            if(heartRate != 0){
+                heartRateUploads.append(HeartRateUpload(measureTime: measureDate!, heartRate: heartRate!, deviceId: deviceId))
+            }
         }
         DataSync.uploadHeartRateInfo(heartRates: heartRateUploads)
         DataSync.uploadBloodPressure(bpLevels: bpUploads)
@@ -264,6 +257,26 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         DataSync.uploadDailySteps(dailySteps: dailyStepsUpload)
     }
     
+    private func syncDeviceInfo(){
+        var userSex = 0
+        var age:Int = 32
+        var height:Int = 170
+        var weight:Int = 60
+        let userProfileData = DataSync.getUserInfo()
+        if(userProfileData != nil){
+            NSLog("updating user info from local storage")
+            userSex = userProfileData!.sex.uppercased() == "MALE" ? 0:1
+            age = userProfileData!.age
+            height = userProfileData!.heightInCm
+            weight = Int(userProfileData!.weightInKgs)
+            HardManagerSDK.shareBLEManager()?.setHardTimeUnitAndUserProfileIs12(true, isMeter: false, sex: Int32(userSex), age: Int32(age), weight: Int32(weight), height: Int32(height))
+        }
+        //Enable auto heart rate test
+        HardManagerSDK.shareBLEManager()?.setHardAutoHeartTest(true)
+        //Enable Temp type to F
+        HardManagerSDK.shareBLEManager()?.setHardTemperatureType(true)
+    }
+
     private func loadData(deviceId:String?){
         DataSync.sendHeartBeat(heartBeat: HeartBeat(deviceId: deviceId, macAddress: getMacId()))
         let last24Hours = Calendar.current.date(byAdding: .hour,value: -24, to: Date())
@@ -275,7 +288,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         let last2Days = Calendar.current.date(byAdding: .day,value: -2, to: Date())
         HardManagerSDK.shareBLEManager()?.getHardHistoryBodyTemperature(last2Days)
     }
-    
+
     func syncData(connectionInfo:ConnectionInfo){
         NSLog("Device connected \(HardManagerSDK.shareBLEManager().isConnected)")
         if(!HardManagerSDK.shareBLEManager().isConnected){
@@ -285,6 +298,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connectionInfo.deviceId)
         }else if(HardManagerSDK.shareBLEManager().isConnected && !HardManagerSDK.shareBLEManager().isSyncing){
             NSLog("Syncing data")
+            self.syncDeviceInfo();
             loadData(deviceId: connectionInfo.deviceId)
         }
     }
@@ -305,7 +319,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 HardManagerSDK.shareBLEManager()?.startConnectDevice(withUUID: uuid)
             }
         }
-        
+
         
     }
     

@@ -20,15 +20,18 @@ class DataScreen extends StatefulWidget {
 class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   final LocalAuthentication auth = LocalAuthentication();
 
-  Temperature _lastTemperature = null;
+  Temperature _lastTemperature;
 
-  HeartRate _lastHr = null;
+  BloodPressure _bloodPressure;
 
-  BloodPressure _bloodPressure = null;
+  Calories _lastCalories;
 
-  Calories _lastCalories = null;
+  DailySteps _lastSteps;
 
-  DailySteps _lastSteps = null;
+  OxygenLevel _oxygenLevel;
+
+  HeartRate _lastHr;
+
   bool _paused = false;
 
 
@@ -80,11 +83,20 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       //   return _goToLogin();
       // }
 
-      await _loadTemperature();
-      await _loadBloodPressure();
-      await _loadHeartRate();
-      await _loadCalories();
-      await _loadSteps();
+      // await _loadTemperature();
+      // await _loadBloodPressure();
+      // await _loadHeartRate();
+      // await _loadCalories();
+      // await _loadSteps();
+      // await _loadOxygenLevel();
+
+      _loadTemperature();
+      _loadBloodPressure();
+      _loadHeartRate();
+      _loadCalories();
+      _loadSteps();
+      _loadOxygenLevel();
+
     } on PlatformException catch (e) {
       print(e);
       _goToLogin();
@@ -154,6 +166,15 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
     setState(() {
       _lastSteps = steps;
+    });
+  }
+
+  Future<void> _loadOxygenLevel() async {
+    var oxygenLevel = await Provider.of<DevicesProvider>(context, listen: false)
+        .getLatestOxygenLevel();
+
+    setState(() {
+      _oxygenLevel = oxygenLevel;
     });
   }
 
@@ -538,6 +559,117 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                                             _bloodPressure.measureTime) +
                                         ' ' +
                                         _formatTime(_bloodPressure.measureTime)
+                                    : '--',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                    child: Card(
+                      // color: Color(0xffdfeffd),
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                      ),
+                      child: Column(
+                        children: [
+                          Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(20),
+                                topRight: Radius.circular(20),
+                              ),
+                              color: Colors.white,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Color.fromRGBO(0, 0, 0, 0.10),
+                                  blurRadius: 10.0,
+                                  // spreadRadius: 1.0,
+                                  offset: Offset(0, 10),
+                                ),
+                              ],
+                            ),
+                            child: Container(
+                              padding: EdgeInsets.all(16),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: <Widget>[
+                                  Image.asset(
+                                    'assets/icons/icons_bloodpressure.png',
+                                    height: 25,
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Text(
+                                    'Oxygen Level',
+                                    style: TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Container(
+                            padding: EdgeInsets.all(16),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Expanded(
+                                  flex: 6,
+                                  child: FittedBox(
+                                    child: RichText(
+                                      text: TextSpan(children: [
+                                        TextSpan(
+                                          text: _oxygenLevel != null
+                                              ? _oxygenLevel.oxygenLevel
+                                                  .toString()
+                                              : '0',
+                                          style: TextStyle(
+                                            fontSize: 40,
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.black,
+                                          ),
+                                        ),
+                                        WidgetSpan(
+                                          child: Transform.translate(
+                                            offset: const Offset(2, 2),
+                                            child: Text(
+                                              ' %',
+                                              //superscript is usually smaller in size
+                                              textScaleFactor: 2,
+                                              style: TextStyle(
+                                                color: Colors.black,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ]),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Container(
+                            child: FittedBox(
+                              child: Text(
+                                _bloodPressure != null
+                                    ? 'Last Updated: ' +
+                                    _formatDate(
+                                        _oxygenLevel.measureTime) +
+                                    ' ' +
+                                    _formatTime(_oxygenLevel.measureTime)
                                     : '--',
                                 style: TextStyle(
                                   fontSize: 12,

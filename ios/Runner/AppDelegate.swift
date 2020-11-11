@@ -21,6 +21,20 @@ import BackgroundTasks
 //        //TSBackgroundFetch.sharedInstance()?.perform(completionHandler: completionHandler, applicationState: application.applicationState)
 //    }
     
+
+    //This is called when the remote notification is triggered
+//    override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+//        let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
+//        NSLog("Got connection info in background \(connectionInfo)")
+//        do{
+//            if(connectionInfo != nil){
+//                try self.syncData(connectionInfo: connectionInfo!)
+//            }
+//        }catch{
+//            NSLog("Error while syncing data")
+//        }
+//    }
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -182,6 +196,16 @@ import BackgroundTasks
                 NSLog("Completing task \(task.identifier) at \(Date())")
                 task.setTaskCompleted(success: true)
             }
+        }else if(call.method=="disconnect"){
+            guard let args = call.arguments else {
+              result("iOS could not recognize flutter arguments in method: (sendParams)")
+              return
+            }
+            NSLog("Disconnecting device")
+            let deviceType:String = (args as? [String: Any])?["deviceType"] as! String
+            self?.disconectDevice(result: result, deviceType: deviceType)
+        }else if(call.method=="profileInfo"){
+
         }
     }
     
@@ -219,7 +243,12 @@ import BackgroundTasks
             self.getBandDevice()?.syncData(connectionInfo: connectionData)
         }
     }
-    
+    private func getProfile(){
+        let deviceType = getDeviceType()
+        NSLog("Syncing data for device \(deviceType)")
+
+    }
+
     private func getDeviceType() -> String?{
         return UserDefaults.standard.string(forKey: AppDelegate.DEVICE_TYPE_KEY)
     }
@@ -234,7 +263,7 @@ import BackgroundTasks
             getBandDevice()?.disconnectDevice(result: result)
         }
     }
-    
+
     private func connectDevice(result:@escaping FlutterResult,deviceId:String, deviceType:String) {
         NSLog("Connecting device \(deviceType)")
         if(deviceType==AppDelegate.WATCH_TYPE){

@@ -128,7 +128,7 @@ class DataSync {
             val type = "oxygen"
             val userProfile = getUserInfo()
             oxygenLevels.forEach { it.userProfile =  userProfile}
-            makePostRequest(gson.toJson(oxygenLevels),type)
+            makePostRequest(gson.toJson(oxygenLevels.filter { it.oxygenLevel>0 }),type)
             val lastMeasure = oxygenLevels.maxBy { it.measureTime }
             lastMeasure?.let {
                 updateLastSync(type,lastMeasure = lastMeasure?.measureTime)
@@ -138,7 +138,7 @@ class DataSync {
         fun uploadBloodPressure(bpLevels:List<BpUpload>){
             val userProfile = getUserInfo()
             bpLevels.forEach { it.userProfile =  userProfile}
-            makePostRequest(gson.toJson(bpLevels),"bloodpressure")
+            makePostRequest(gson.toJson(bpLevels.filter { it.distolic>0 }),"bloodpressure")
             val lastMeasure = bpLevels.maxBy { it.measureTime }
             lastMeasure?.let {
                 updateLastSync("bloodpressure",lastMeasure = lastMeasure?.measureTime)
@@ -146,7 +146,7 @@ class DataSync {
         }
 
         fun uploadHeartRate(heartRates:List<HeartRateUpload>){
-            makePostRequest(gson.toJson(heartRates),"heartrate")
+            makePostRequest(gson.toJson(heartRates.filter { it.heartRate>0 }),"heartrate")
             val lastMeasure = heartRates.maxBy { it.measureTime }
             lastMeasure?.let {
                 updateLastSync("heartrate",lastMeasure = lastMeasure?.measureTime)
