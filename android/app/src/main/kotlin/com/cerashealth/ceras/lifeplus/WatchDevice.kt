@@ -342,8 +342,18 @@ class WatchDevice:BaseDevice()     {
         val TAG = BaseDevice::class.java.simpleName
         var dataCallback: DataCallBack? = null
 
+        fun syncProfile(){
+            val userInfo = DataSync.getUserInfo()
+            val gender = if(userInfo?.sex?.toLowerCase()=="female") GlobalValue.SEX_GIRL else GlobalValue.SEX_BOY
+            var age = userInfo?.age?:32
+            var weightInKgs = userInfo?.weightInKgs?.toInt()?:80
+            var height = userInfo?.heightInCm?:178
+
+            HardSdk.getInstance().setTimeUnitAndUserProfile(true,true,gender,age,weightInKgs,height,140, 90, 180)
+        }
+
         fun initializeWatch(){
-            HardSdk.getInstance().setTimeUnitAndUserProfile(true,true,GlobalValue.SEX_BOY,32,80,178,140, 90, 180)
+            syncProfile()
             HardSdk.getInstance().setTimeAndClock()
             //Set weather to celsius
             HardSdk.getInstance().setWeatherType(true,GlobalValue.Unit_Fahrenheit)
@@ -432,6 +442,7 @@ class WatchDevice:BaseDevice()     {
             Log.i(TAG, "Data sync complete")
             returnValue = false
             result?.success("Load complete")
+            syncProfile()
             syncData()
         }
         if(returnValue)
