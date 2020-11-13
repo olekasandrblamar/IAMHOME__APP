@@ -8,6 +8,7 @@ import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
@@ -18,16 +19,38 @@ class SetupHomeScreen extends StatefulWidget {
   _SetupHomeScreenState createState() => _SetupHomeScreenState();
 }
 
-class _SetupHomeScreenState extends State<SetupHomeScreen> with WidgetsBindingObserver {
+class _SetupHomeScreenState extends State<SetupHomeScreen>
+    with WidgetsBindingObserver {
+  var connectivitySubscription;
+
   List<DevicesModel> _deviceData = [];
   List<WatchModel> _deviceStatus = [];
   var _lastUpdated = '---';
 
   @override
   void initState() {
-    // TODO: implement initState
+    checkInternetConnection();
     loadData();
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    connectivitySubscription.cancel();
+
+    super.dispose();
+  }
+
+  void checkInternetConnection() {
+    connectivitySubscription = Connectivity()
+        .onConnectivityChanged
+        .listen((ConnectivityResult result) {
+      if (result != ConnectivityResult.none) {
+        return Navigator.of(context).pushReplacementNamed(
+          routes.ConnectionNotfoundRoute,
+        );
+      }
+    });
   }
 
   void loadData() async {
@@ -129,15 +152,13 @@ class _SetupHomeScreenState extends State<SetupHomeScreen> with WidgetsBindingOb
     return deviceMac;
   }
 
-  void _changeLastUpdated() async{
+  void _changeLastUpdated() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
     final lastUpdate = prefs.getString('last_sync');
 
-    _lastUpdated = lastUpdate ??
-        DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
-
-
+    _lastUpdated =
+        lastUpdate ?? DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
   }
 
   void _getDeviceStatus(int index) async {

@@ -85,6 +85,7 @@ flutter:
     - assets/images/condition.png
     - assets/images/bluetooth.png
     - assets/images/devicenotfound.png
+    - assets/images/noConnection.png
     - assets/images/health.png
     - assets/images/connected.png
     - assets/images/support.png

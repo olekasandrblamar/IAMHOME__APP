@@ -1,6 +1,7 @@
 import 'package:ceras/config/env.dart';
 import 'package:ceras/screens/auth/login_screen.dart';
 import 'package:ceras/screens/data_screen.dart';
+import 'package:ceras/screens/setup/connection_notfound_screen.dart';
 import 'package:ceras/screens/setup/setup_connected_screen.dart';
 import 'package:ceras/screens/setup/setup_devices_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -75,6 +76,9 @@ Route<dynamic> generateRoute(
       );
     case BluetoothNotfoundRoute:
       return MaterialPageRoute(builder: (context) => BluetoothNotfoundScreen());
+    case ConnectionNotfoundRoute:
+      return MaterialPageRoute(
+          builder: (context) => ConnectionNotfoundScreen());
     case HelpRoute:
       return MaterialPageRoute(builder: (context) => HelpScreen());
     case SettingsRoute:
