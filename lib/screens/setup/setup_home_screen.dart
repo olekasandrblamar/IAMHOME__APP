@@ -54,17 +54,24 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   }
 
   void loadData() async {
-    var deviceData = await Provider.of<DevicesProvider>(context, listen: false)
-        .getDevicesData();
+    try {
+      var deviceData =
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .getDevicesData();
 
-    if (deviceData.isNotEmpty) {
-      if (!mounted) return;
+      if (deviceData.isNotEmpty) {
+        if (!mounted) return;
 
-      setState(() {
-        _deviceData = deviceData;
-        _deviceStatus = deviceData.map((e) => e.watchInfo).toList();
-        _loadDeviceState(deviceData);
-      });
+        setState(() {
+          _deviceData = deviceData;
+          _deviceStatus = deviceData.map((e) => e.watchInfo).toList();
+          _loadDeviceState(deviceData);
+        });
+      }
+    } catch (error) {
+      await Navigator.of(context).pushReplacementNamed(
+        routes.UnabletoconnectRoute,
+      );
     }
   }
 
