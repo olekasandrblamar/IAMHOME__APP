@@ -29,7 +29,7 @@ class UnabletoconnectScreen extends StatelessWidget {
                     ),
                     padding: const EdgeInsets.all(10.0),
                     child: Image.asset(
-                      'assets/images/noConnection.png',
+                      'assets/images/noconnection_ceras.png',
                     ),
                   ),
                   SizedBox(
