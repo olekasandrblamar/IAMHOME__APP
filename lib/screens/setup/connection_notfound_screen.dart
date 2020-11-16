@@ -76,7 +76,7 @@ class ConnectionNotfoundScreen extends StatelessWidget {
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         var connectivityResult =
                             await(Connectivity().checkConnectivity());
                         if (connectivityResult != ConnectivityResult.none) {
@@ -95,6 +95,4 @@ class ConnectionNotfoundScreen extends StatelessWidget {
       ),
     );
   }
-
-  await(checkConnectivity) {}
 }

@@ -45,7 +45,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     connectivitySubscription = Connectivity()
         .onConnectivityChanged
         .listen((ConnectivityResult result) {
-      if (result != ConnectivityResult.none) {
+      if (result == ConnectivityResult.none) {
         return Navigator.of(context).pushReplacementNamed(
           routes.ConnectionNotfoundRoute,
         );

@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreLocation
+import Firebase
 
 class CustomEncoder: JSONEncoder{
     
@@ -30,15 +31,31 @@ class DataSync {
     private static let getProfileDelegate = UserDataUrlDelegate()
     static let MAC_ADDRESS_NAME = "flutter.device_macid"
     static let BASE_URL =  "flutter.apiBaseUrl"
+    
+    //Custom firebase analatycs properties
+    private static let HR_UPDATE = "user_last_hr_sent"
+    private static let BP_UPDATE = "user_last_bp_sent"
+    private static let STEP_UPDATE = "user_last_step_sent"
+    private static let CAL_UPDATE = "user_last_cal_sent"
+    private static let OXYGEN_UPDATE = "user_last_o2_sent"
+    private static let TEMP_UPDATE = "user_last_temp_sent"
+    private static let DATA_UPDATE = "user_last_data_sent"
 
     static func getBaseUrl() -> String{
         return UserDefaults.standard.object(forKey: DataSync.BASE_URL) as! String
     }
     
+    static func updateFireBase(property:String){
+        Analytics.setUserProperty(Date().timeIntervalSince1970.description, forName: property)
+        Analytics.setUserProperty(Date().timeIntervalSince1970.description, forName: DATA_UPDATE)
+    }
+    
     static func uploadHeartRateInfo(heartRates:[HeartRateUpload]){
         do{
             makePostApiCall(url: "heartrate", postData: try encoder.encode(heartRates))
-            
+            if(!heartRates.isEmpty){
+                updateFireBase(property: HR_UPDATE)
+            }
             let latestValue = heartRates.max { (first, second) -> Bool in
                 first.measureTime < second.measureTime
             }
@@ -54,7 +71,9 @@ class DataSync {
     static func uploadDailySteps(dailySteps:StepUpload){
         do{
             makePostApiCall(url: "dailySteps", postData: try encoder.encode([dailySteps]))
+            updateFireBase(property: STEP_UPDATE)
             changeLastUpdated(type: "DAILY_STEPS",latestMeasureTime: dailySteps.measureTime)
+            
         }catch{
             NSLog("Error while Uploading Data \(error)")
         }
@@ -65,6 +84,9 @@ class DataSync {
             makePostApiCall(url: "temperature", postData: try encoder.encode(temps))
             let latestValue = temps.max { (first, second) -> Bool in
                 first.measureTime < second.measureTime
+            }
+            if(!temps.isEmpty){
+                updateFireBase(property: TEMP_UPDATE)
             }
             if(latestValue != nil){
                 changeLastUpdated(type: "TEMPERATURE",latestMeasureTime: latestValue!.measureTime)
@@ -79,6 +101,9 @@ class DataSync {
             makePostApiCall(url: "steps", postData: try encoder.encode(steps))
             let latestValue = steps.max { (first, second) -> Bool in
                 first.measureTime < second.measureTime
+            }
+            if(!steps.isEmpty){
+                updateFireBase(property: STEP_UPDATE)
             }
             if(latestValue != nil){
                 changeLastUpdated(type: "STEPS",latestMeasureTime: latestValue!.measureTime)
@@ -95,6 +120,9 @@ class DataSync {
                 upload.userProfile = userInfo
                 return upload
             })
+            if(!oxygenLevels.isEmpty){
+                updateFireBase(property: OXYGEN_UPDATE)
+            }
             makePostApiCall(url: "oxygen", postData: try encoder.encode(updatedLevels))
             let latestValue = oxygenLevels.max { (first, second) -> Bool in
                 first.measureTime < second.measureTime
@@ -115,6 +143,9 @@ class DataSync {
                 upload.userProfile = userInfo
                 return upload
             })
+            if(!bpLevels.isEmpty){
+                updateFireBase(property: BP_UPDATE)
+            }
             makePostApiCall(url: "bloodpressure", postData: try encoder.encode(updatedLevels))
             let latestValue = bpLevels.max { (first, second) -> Bool in
                 first.measureTime < second.measureTime
@@ -170,6 +201,9 @@ class DataSync {
                 updatedHBeat.latitude = location?.coordinate.latitude
                 updatedHBeat.longitude = location?.coordinate.longitude
             }
+            
+            updateFireBase(property: DATA_UPDATE)
+            
             
             makePostApiCall(url: "heartbeat", postData: try encoder.encode(updatedHBeat))
             checkAndLoadUserProfile()

@@ -21,19 +21,42 @@ import BackgroundTasks
 //        //TSBackgroundFetch.sharedInstance()?.perform(completionHandler: completionHandler, applicationState: application.applicationState)
 //    }
     
+    override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
+        self.processBackgroundData()
+    }
+    
+    private func processBackgroundData(){
+        let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
+        NSLog("Got connection info in background from \(connectionInfo)")
+        do{
+            if(connectionInfo != nil){
+                try self.syncData(connectionInfo: connectionInfo!)
+            }
+        }catch{
+            NSLog("Error while syncing data")
+        }
+    }
+    
 
     //This is called when the remote notification is triggered
-//    override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
-//        let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
-//        NSLog("Got connection info in background \(connectionInfo)")
-//        do{
-//            if(connectionInfo != nil){
-//                try self.syncData(connectionInfo: connectionInfo!)
-//            }
-//        }catch{
-//            NSLog("Error while syncing data")
-//        }
-//    }
+    override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        self.processBackgroundData()
+        completionHandler(UIBackgroundFetchResult.noData)
+    }
+    
+    override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        NSLog("Registered with notification")
+        Messaging.messaging().apnsToken = deviceToken
+        do{
+            let tokenData = try JSONEncoder().encode(deviceToken)
+            NSLog("Decided data \(tokenData)")
+            let token:String = Messaging.messaging().fcmToken as! String
+            NSLog("Got toke \(token)")
+        }catch{
+            NSLog("Error while decding")
+        }
+        
+    }
 
   override func application(
     _ application: UIApplication,
@@ -223,6 +246,9 @@ import BackgroundTasks
     
     
     private func syncData(connectionInfo:String) throws {
+        Messaging.messaging().subscribe(toTopic: "ios_updates") { error in
+          print("Subscribed to ios_updates")
+        }
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         let deviceType = getDeviceType()
         NSLog("Syncing data for device \(deviceType)")
