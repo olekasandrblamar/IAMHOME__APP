@@ -37,22 +37,23 @@ class AuthProvider with ChangeNotifier {
 
   Future<String> get authToken async {
     final expiryDate = DateTime.now();
-    expiryDate.add(Duration(seconds:30));
-    if(_accessTokenExpiry !=null && _accessTokenExpiry.isAfter(expiryDate) && _authToken!=null)
+    expiryDate.add(Duration(seconds: 30));
+    if (_accessTokenExpiry != null &&
+        _accessTokenExpiry.isAfter(expiryDate) &&
+        _authToken != null)
       return _authToken;
-    else if(token!=null){
+    else if (token != null) {
       return await _refreshAuthToken(_refreshToken);
-    }else{
+    } else {
       return null;
     }
   }
 
-  Future<String> _refreshAuthToken(String refreshToken) async{
-    http.options.headers.addAll({"ACCESSKEY": env.accessKey, "SECRET": env.secret});
-    final response = await http.post(
-        env.authUrl + 'oauth/token',
-        data: {"refresh_token": refreshToken, "orgId": "PATIENT"}
-    );
+  Future<String> _refreshAuthToken(String refreshToken) async {
+    http.options.headers
+        .addAll({"ACCESSKEY": env.accessKey, "SECRET": env.secret});
+    final response = await http.post(env.authUrl + 'oauth/token',
+        data: {"refresh_token": refreshToken, "orgId": "PATIENT"});
     final responseData = response.data;
 
     print(responseData);
@@ -63,7 +64,9 @@ class AuthProvider with ChangeNotifier {
 
     _authToken = responseData['access_token'];
     var accessJwt = parseJwt(_authToken);
-    _accessTokenExpiry = DateTime.fromMillisecondsSinceEpoch(accessJwt['exp']*1000,isUtc: true);
+    _accessTokenExpiry = DateTime.fromMillisecondsSinceEpoch(
+        accessJwt['exp'] * 1000,
+        isUtc: true);
     _userId = accessJwt['email'];
     final prefs = await SharedPreferences.getInstance();
     final userData = json.encode(
@@ -78,7 +81,6 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     return _authToken;
-
   }
 
   String get userId {
@@ -105,11 +107,10 @@ class AuthProvider with ChangeNotifier {
     @required String password,
   }) async {
     try {
-      http.options.headers.addAll({"ACCESSKEY": env.accessKey, "SECRET": env.secret});
-      final response = await http.post(
-        env.authUrl + 'oauth/authorize',
-        data: {"userName": email, "password": password, "orgId": "PATIENT"}
-      );
+      http.options.headers
+          .addAll({"ACCESSKEY": env.accessKey, "SECRET": env.secret});
+      final response = await http.post(env.authUrl + 'oauth/authorize',
+          data: {"userName": email, "password": password, "orgId": "PATIENT"});
 
       final responseData = response.data;
 
@@ -117,6 +118,13 @@ class AuthProvider with ChangeNotifier {
 
       if (responseData['error'] != null) {
         throw HttpException(responseData['error']['message']);
+      }
+
+      if (responseData &&
+          responseData['passwordExpired'] &&
+          responseData['passwordExpired'] != null &&
+          responseData['passwordExpired'] == true) {
+        throw HttpException('Your password has expired!');
       }
 
       if (responseData['access_token'] == null) {
@@ -127,10 +135,16 @@ class AuthProvider with ChangeNotifier {
       _refreshToken = responseData['refresh_token'];
 
       var jwtData = parseJwt(_refreshToken);
-      _userExpiryDate = DateTime.fromMillisecondsSinceEpoch(jwtData['exp']*1000,isUtc: true);
+      _userExpiryDate = DateTime.fromMillisecondsSinceEpoch(
+        jwtData['exp'] * 1000,
+        isUtc: true,
+      );
 
       var accessJwt = parseJwt(_authToken);
-      _accessTokenExpiry = DateTime.fromMillisecondsSinceEpoch(accessJwt['exp']*1000,isUtc: true);
+      _accessTokenExpiry = DateTime.fromMillisecondsSinceEpoch(
+        accessJwt['exp'] * 1000,
+        isUtc: true,
+      );
       _userId = jwtData['sub'];
 
       notifyListeners();
