@@ -1,15 +1,19 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:package_info/package_info.dart';
 import 'package:device_info/device_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-Future<Map<String, dynamic>> getUserDeviceInfo() async {
+Future<void> updateDeviceInfo() async {
   final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   final PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
+  Map<String,dynamic> deviceData = {};
+
   if (Platform.isIOS) {
     final IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
-    return {
+    deviceData =  {
       'deviceInfo': {
         'name': iosDeviceInfo.name,
         'systemName': iosDeviceInfo.systemName,
@@ -35,7 +39,7 @@ Future<Map<String, dynamic>> getUserDeviceInfo() async {
 
   if (Platform.isAndroid) {
     final AndroidDeviceInfo androidDeviceInfo = await deviceInfo.androidInfo;
-    return <String, dynamic>{
+    deviceData = <String, dynamic>{
       'deviceInfo': {
         'version.securityPatch': androidDeviceInfo.version.securityPatch,
         'version.sdkInt': androidDeviceInfo.version.sdkInt,
@@ -73,6 +77,8 @@ Future<Map<String, dynamic>> getUserDeviceInfo() async {
       }
     };
   }
+  
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString("userDeviceInfo", json.encode(deviceData));
 
-  return {};
 }

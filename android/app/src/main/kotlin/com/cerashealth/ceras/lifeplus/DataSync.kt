@@ -8,11 +8,13 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.cerashealth.ceras.*
 import com.cerashealth.ceras.lifeplus.data.*
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 
 class DataSync {
@@ -199,6 +201,77 @@ class DataSync {
             }
         }
 
+        /**
+         * This method loads the weather info
+         */
+        fun loadWeatherInfo(){
+            try {
+                MainActivity.currentContext?.let { context ->
+
+                    val lastUpdate = context.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("last_weather_update", "")
+
+                    val today = SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().time)
+
+                    //If the last update is not today update the weather
+                    if (lastUpdate != today) {
+                        Log.i(TAG, "Updating last connected")
+                        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+                                && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
+                            val weatherUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?lat=${location.latitude}&lon=${location.longitude}&appid=4e33f6fdb2e35eeb5277b08ee0ff98bf&units=metric"
+                            var getReq = Request.Builder().url(weatherUrl)
+                                    .get()
+                                    .build()
+                            okHttp.newCall(getReq).enqueue(object : Callback {
+                                override fun onFailure(call: Call, e: IOException) {
+                                    Log.e(TAG, "Failed calling ${call.request().url}", e)
+                                }
+
+                                override fun onResponse(call: Call, response: Response) {
+                                    Log.i(TAG, "Got response ${response.isSuccessful} for call ${call.request().url}")
+                                    try {
+                                        val weatherData = gson.fromJson<Map<String, Any>>(response.body?.string(), Map::class.java)
+                                        response.body?.close()
+                                        response.close()
+                                        val temps = (weatherData["list"] as List<Map<String, Any>>).map { weatherData ->
+                                            val utcMillis = weatherData["dt"] as Double
+                                            val tempData = weatherData["temp"] as Map<String, Any?>
+                                            val weatherDetails = weatherData["weather"] as List<Map<String, Any?>>
+                                            var weatherId = 0;
+                                            if (weatherDetails.isNotEmpty()) {
+                                                weatherId = (weatherDetails[0]["id"] as Double).toInt()
+                                            }
+                                            val weatherType = when (weatherId) {
+                                                in 200..299 -> WeatherType.THUNDER
+                                                in 300..599 -> WeatherType.RAIN
+                                                in 600..699 -> WeatherType.SNOW
+                                                800 -> WeatherType.SUNNY
+                                                in 801..804 -> WeatherType.CLOUD
+                                                else -> WeatherType.UNK
+                                            }
+                                            WeatherInfo(utcMillis = utcMillis.toLong(), minTemp = tempData["min"] as Double, maxTemp = tempData["max"] as Double, weatherType)
+                                        }
+                                        val deviceDataString = context.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.watchInfo", "")
+                                        val deviceData = Gson().fromJson(deviceDataString, ConnectionInfo::class.java)
+                                        BaseDevice.getDeviceImpl(deviceData.deviceType).syncWeather(temps)
+                                        //Update the last weather update
+                                        context.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).edit().putString("last_weather_update", today)
+                                    } catch (ex: Exception) {
+                                        Log.e(TAG, "Error while getting profile info ", ex)
+                                    }
+                                }
+
+                            })
+                        }
+                    }
+                }
+            }catch(ex:Exception){
+                Log.e(TAG,"Error while syncing weather ",ex)
+            }
+        }
+
         private fun makePostRequest(postData:String,url:String){
             Log.d(TAG,"Uploading data to $url with data $postData")
             val postReq = Request.Builder().url("${getBaseUrl()}$url")
@@ -220,4 +293,17 @@ class DataSync {
         }
     }
 
+}
+
+data class WeatherInfo (val utcMillis:Long,val minTemp:Double,val maxTemp: Double,val weatherType:WeatherType = WeatherType.UNK){
+}
+
+enum class WeatherType{
+    SUNNY,
+    RAIN,
+    SNOW,
+    CLOUD,
+    THUNDER,
+    SMOG,
+    UNK
 }

@@ -7,7 +7,7 @@ import BackgroundTasks
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
     
-    var watchData:WatchData = WatchData()
+    static var watchData:WatchData? = nil
     static var bandDevice:BandDevice? = nil
     static let dateFormatter = DateFormatter()
     static var lastUpdated:Date? = nil
@@ -50,7 +50,7 @@ import BackgroundTasks
         do{
             let tokenData = try JSONEncoder().encode(deviceToken)
             NSLog("Decided data \(tokenData)")
-            let token:String = Messaging.messaging().fcmToken as! String
+            let token = Messaging.messaging().fcmToken as? String
             NSLog("Got toke \(token)")
         }catch{
             NSLog("Error while decding")
@@ -247,14 +247,17 @@ import BackgroundTasks
     
     private func syncData(connectionInfo:String) throws {
         Messaging.messaging().subscribe(toTopic: "ios_updates") { error in
-          print("Subscribed to ios_updates")
+          NSLog("Subscribed to ios_updates with error \(error)")
         }
+        
+        //DataSync.loadWeatherData()
+        
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         let deviceType = getDeviceType()
         NSLog("Syncing data for device \(deviceType)")
         UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
         if(deviceType! == AppDelegate.WATCH_TYPE){
-            self.watchData.syncData(connectionInfo: connectionData)
+            self.getWatchDevice()?.syncData(connectionInfo: connectionData)
         }else if(deviceType! == AppDelegate.BAND_TYPE){
             self.getBandDevice()?.syncData(connectionInfo: connectionData)
         }
@@ -273,7 +276,7 @@ import BackgroundTasks
         NSLog("disconnecting device \(deviceType)")
         if(deviceType==AppDelegate.WATCH_TYPE){
             NSLog("disonnecting Watch")
-            self.watchData.disconnect(result: result)
+            self.getWatchDevice()?.disconnect(result: result)
             NSLog("completed Connecting Watch")
         }else if(deviceType==AppDelegate.BAND_TYPE){
             getBandDevice()?.disconnectDevice(result: result)
@@ -284,7 +287,7 @@ import BackgroundTasks
         NSLog("Connecting device \(deviceType)")
         if(deviceType==AppDelegate.WATCH_TYPE){
             NSLog("Connecting Watch")
-            self.watchData.startScan(result: result,deviceId:deviceId)
+            self.getWatchDevice()?.startScan(result: result,deviceId:deviceId)
             NSLog("completed Connecting Watch")
         }else if(deviceType==AppDelegate.BAND_TYPE){
             getBandDevice()?.connectDevice(result: result, deviceId: deviceId)
@@ -296,7 +299,7 @@ import BackgroundTasks
         NSLog("Getting device info ")
         let deviceType = getDeviceType()
         if(deviceType! == AppDelegate.WATCH_TYPE){
-            self.watchData.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+            self.getWatchDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
         }else if(deviceType! == AppDelegate.BAND_TYPE){
             self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
         }
@@ -307,6 +310,13 @@ import BackgroundTasks
             AppDelegate.bandDevice = BandDevice()
         }
         return AppDelegate.bandDevice
+    }
+    
+    private func getWatchDevice() -> WatchData?{
+        if(AppDelegate.watchData==nil){
+            AppDelegate.watchData = WatchData()
+        }
+        return AppDelegate.watchData
     }
 }
 

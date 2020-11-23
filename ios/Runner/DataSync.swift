@@ -29,8 +29,15 @@ class DataSync {
     static var BACKGROUND = false
     private static let urlDeletegate = CustomUrlDelegate()
     private static let getProfileDelegate = UserDataUrlDelegate()
+    private static let weatherDataDelegate = WeatherDataDeletage()
     static let MAC_ADDRESS_NAME = "flutter.device_macid"
     static let BASE_URL =  "flutter.apiBaseUrl"
+    
+    static let dayFormat:DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyy-MM-dd"
+        return formatter
+    }()
     
     //Custom firebase analatycs properties
     private static let HR_UPDATE = "user_last_hr_sent"
@@ -40,6 +47,8 @@ class DataSync {
     private static let OXYGEN_UPDATE = "user_last_o2_sent"
     private static let TEMP_UPDATE = "user_last_temp_sent"
     private static let DATA_UPDATE = "user_last_data_sent"
+    
+    static let LAST_WEATHER_UPDATE = "last_weather_update"
 
     static func getBaseUrl() -> String{
         return UserDefaults.standard.object(forKey: DataSync.BASE_URL) as! String
@@ -220,6 +229,39 @@ class DataSync {
         }
     }
     
+    static func loadWeatherData(){
+        
+        let currentDay = dayFormat.string(from: Date())
+        let lastWetherUpdate = UserDefaults.standard.object(forKey: DataSync.LAST_WEATHER_UPDATE) as! String?
+        
+        //If the last weather update is null or it is not updated today update it
+//        if(lastWetherUpdate == nil || lastWetherUpdate! != currentDay){
+            var lat:Double = 0
+            var lng:Double = 0
+            let locationManager = CLLocationManager()
+            if(CLLocationManager.authorizationStatus() == .authorizedWhenInUse ||
+            CLLocationManager.authorizationStatus() == .authorizedAlways) {
+                let location = locationManager.location
+                lat = location?.coordinate.latitude ?? 0
+                lng = location?.coordinate.longitude ?? 0
+            }
+            
+            //if the lat and lnlg are not null use them
+            if(lat != 0 && lng != 0){
+                let weatherUrl = URL(string: "https://pro.openweathermap.org/data/2.5/forecast/daily?lat=\(lat)&lon=\(lng)&appid=4e33f6fdb2e35eeb5277b08ee0ff98bf&units=metric")!
+                NSLog("Calling weather url \(weatherUrl)")
+                var request = URLRequest(url: weatherUrl)
+                request.httpMethod = "GET"
+                request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+                request.setValue("application/json", forHTTPHeaderField: "Accept")
+                let config = URLSessionConfiguration.background(withIdentifier: "weatherData")
+                let session = URLSession(configuration: config, delegate: weatherDataDelegate, delegateQueue: nil)
+                let task = session.dataTask(with: request)
+                task.resume()
+            }
+//        }
+    }
+    
     private static func checkAndLoadUserProfile(){
         UserDefaults.standard.synchronize()
         let userProfileData = UserDefaults.standard.object(forKey: DataSync.USER_PROFILE_DATA) as! String?
@@ -299,6 +341,59 @@ class DataSync {
     
 }
 
+
+class WeatherDataDeletage: NSObject,URLSessionTaskDelegate, URLSessionDataDelegate{
+    func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
+        let httpReseponse = dataTask.response as! HTTPURLResponse
+        if(httpReseponse.statusCode == 200){
+            do{
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any] {
+                        // try to read out a string array
+                    if let weatherList = json["list"] as? [[String: Any]] {
+                        let temperatures = weatherList.map { (weatherData) -> WeatherData in
+                            let date = weatherData["dt"] as! Double
+                            let tempData = weatherData["temp"] as! [String: Any?]
+                            let weatherTypeVal = (weatherData["weather"] as? [[String:Any?]])?[0]["id"] as? Double
+                            var weatherType = WeatherType.UNK
+                            switch weatherTypeVal!{
+                            case 200...300:
+                                weatherType = WeatherType.THUNDER
+                            case 300...600:
+                                weatherType = WeatherType.RAINY
+                            case 600...700:
+                                weatherType = WeatherType.SNOWY
+                            case 800:
+                                weatherType = WeatherType.SUNNY
+                            case 801...805:
+                                weatherType = WeatherType.CLOUDY
+                            default:
+                                weatherType = WeatherType.UNK
+                            }
+                            NSLog("Got date \(date)")
+                            return WeatherData(time: date , minTemp: tempData["min"] as! Double, maxTemp: tempData["max"] as! Double,weatherType: weatherType)
+                        }
+                        AppDelegate.watchData?.loadWeather(tempDataList: temperatures)
+                        
+                        //Update the local property for last wether update
+                        UserDefaults.standard.set(DataSync.dayFormat.string(from: Date()), forKey: DataSync.LAST_WEATHER_UPDATE)
+                    }
+                }
+            }catch{
+                let currentUrl = dataTask.currentRequest?.url?.absoluteString
+                print("Got error for \(String(describing: currentUrl)) with \(error)")
+            }
+        }
+    }
+    
+    func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
+        if(error != nil){
+            let currentUrl = task.currentRequest?.url?.absoluteString
+            print("Got error for \(currentUrl) with \(error)")
+        }
+    }
+            
+}
+
 class UserDataUrlDelegate: NSObject,URLSessionTaskDelegate,URLSessionDataDelegate{
     
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
@@ -350,6 +445,17 @@ class CustomUrlDelegate: NSObject,URLSessionTaskDelegate,URLSessionDelegate,URLS
     
     
     
+}
+
+struct WeatherData{
+    var time: Double
+    var minTemp: Double
+    var maxTemp: Double
+    var weatherType: WeatherType = WeatherType.UNK
+}
+
+enum WeatherType{
+    case SUNNY, SNOWY, SMOGGY, THUNDER, RAINY, UNK, CLOUDY
 }
 
 struct UserProfile:Codable{

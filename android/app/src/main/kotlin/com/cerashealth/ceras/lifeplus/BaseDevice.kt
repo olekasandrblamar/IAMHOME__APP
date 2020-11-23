@@ -22,6 +22,10 @@ open class BaseDevice{
         Log.i(TAG,"Calling default disconnect device")
     }
 
+    open fun syncWeather(weatherList:List<WeatherInfo>){
+        Log.i(TAG,"Calling default sync weather device")
+    }
+
     fun sendConnectionResponse(deviceId:String?,status:Boolean,result: MethodChannel.Result?,batteryStatus:String? = ""){
         try {
             result?.success(ConnectionInfo.createResponse(message = "Success", connected = status, deviceId = deviceId,

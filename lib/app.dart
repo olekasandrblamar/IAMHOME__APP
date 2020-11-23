@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:ceras/config/env.dart';
+import 'package:ceras/config/user_deviceinfo.dart';
 import 'package:ceras/providers/applanguage_provider.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
@@ -48,6 +49,9 @@ class _MyAppState extends State<MyApp> {
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('apiBaseUrl', env.baseUrl);
+
+    updateDeviceInfo();
+
 
     await PushNotificationsManager().init();
 

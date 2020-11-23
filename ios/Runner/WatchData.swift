@@ -201,7 +201,9 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             let celsius = Double(tempMap["temperature"]!)
             return TemperatureUpload(measureTime: measureDate, celsius: celsius!, deviceId: deviceId)
         }
-        DataSync.uploadTemparatures(temps: temperatureUploads)
+        DataSync.uploadTemparatures(temps: temperatureUploads.filter({ (tempUpload) -> Bool in
+            tempUpload.celsius != 0 && tempUpload.measureTime.timeIntervalSince1970 > 10000
+        }))
     }
     
     private func syncHearRate(heartRateArray:[[String:String]]){
@@ -217,13 +219,13 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             let oxygenLevel = Int(heartMap["oxygen"] ?? "0")
             
             //Only upload valid values and ignore 0 values
-            if(distolic != 0){
+            if(distolic != 0 && measureDate!.timeIntervalSince1970 > 10000){
                 bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic!, systolic: systolic!, deviceId: deviceId))
             }
-            if(oxygenLevel != 0){
+            if(oxygenLevel != 0 && measureDate!.timeIntervalSince1970 > 10000){
                 oxygenUploads.append(OxygenLevelUpload(measureTime: measureDate!,oxygenLevel: oxygenLevel!,deviceId:deviceId))
             }
-            if(heartRate != 0){
+            if(heartRate != 0 && measureDate!.timeIntervalSince1970 > 10000){
                 heartRateUploads.append(HeartRateUpload(measureTime: measureDate!, heartRate: heartRate!, deviceId: deviceId))
             }
         }
@@ -281,6 +283,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
 
     private func loadData(deviceId:String?){
         DataSync.sendHeartBeat(heartBeat: HeartBeat(deviceId: deviceId, macAddress: getMacId()))
+        DataSync.loadWeatherData()
         let last24Hours = Calendar.current.date(byAdding: .hour,value: -24, to: Date())
         HardManagerSDK.shareBLEManager().getHardExercise(with: last24Hours)
         HardManagerSDK.shareBLEManager().getHardStepDaysAgo(0)
@@ -289,6 +292,40 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         }
         let last2Days = Calendar.current.date(byAdding: .day,value: -2, to: Date())
         HardManagerSDK.shareBLEManager()?.getHardHistoryBodyTemperature(last2Days)
+    }
+    
+    func loadWeather(tempDataList: [WeatherData]){
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyy-MM-dd"
+        var index:Int32 = 0;
+        tempDataList.forEach { (tempData) in
+            NSLog("Setting date value \(tempData.time)")
+            let date = formatter.string(from: Date(timeIntervalSince1970: TimeInterval(tempData.time)))
+            let minTemp = Int(tempData.minTemp)
+            let maxTemp = Int(tempData.maxTemp)
+            if(index<5){
+                NSLog("Setting weather for \(date) index \(index) Temp min \(minTemp) Temp Max \(maxTemp)")
+                var currentWeatherType:Int32 = 0
+                switch tempData.weatherType {
+                case WeatherType.SUNNY:
+                    currentWeatherType = 1
+                case WeatherType.SNOWY:
+                    currentWeatherType = 4
+                case WeatherType.CLOUDY:
+                    currentWeatherType = 2
+                case WeatherType.RAINY:
+                    currentWeatherType = 3
+                case WeatherType.THUNDER:
+                    currentWeatherType = 6
+                default:
+                    currentWeatherType = 0
+                }
+                HardManagerSDK.shareBLEManager()?.setHardWeatherSerial(index, date:  date,
+                                                                       weatherType: currentWeatherType, temMin: minTemp, temMax: maxTemp, wet: 0, umbralle: false)
+            }
+            index+=1
+        }
+        
     }
 
     func syncData(connectionInfo:ConnectionInfo){
