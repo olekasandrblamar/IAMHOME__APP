@@ -120,7 +120,7 @@ class AuthProvider with ChangeNotifier {
         throw HttpException(responseData['error']['message']);
       }
 
-      if (responseData &&
+      if (responseData!=null &&
           responseData['passwordExpired'] &&
           responseData['passwordExpired'] != null &&
           responseData['passwordExpired'] == true) {

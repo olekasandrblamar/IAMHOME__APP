@@ -244,17 +244,20 @@ class BandDevice{
         let date = DateClass.dateStringOffset(from: DateClass.todayString(), offset: 0)
          self.stepAndSleepProcessor.readStepAndSleepHistoryRecord(date: date, historyDataHandle: {[weak self] (stepModel, sleepModel) in
             var dailySteps = 0
+            var dailyDistance: Float = 0.0
             var dailyCalories = 0
             let stepUploads = stepModel.details.filter({ (ZHJStepDetail) -> Bool in
                 return ZHJStepDetail.step>0
             }).map{(step)->StepUpload in
                 dailySteps+=step.step
                 dailyCalories+=Int(step.calories)
-                return StepUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dateFormat, timeStr: step.dateTime), steps: step.step, deviceId: BandDevice.currentDeviceMac!)
+                dailyDistance+=Float(step.distance)
+                return StepUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dateFormat, timeStr: step.dateTime),
+                                  steps: step.step, deviceId: BandDevice.currentDeviceMac!,calories: Int(step.calories),distance: Float(step.distance))
             }
             NSLog("Got steps \(stepModel.dateTime)")
             if(dailySteps>0){
-                let dailyStepsUpload = StepUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dayFormat, timeStr: stepModel.dateTime), steps: dailySteps, deviceId: BandDevice.currentDeviceMac!)
+                let dailyStepsUpload = StepUpload(measureTime: DateClass.getTimeStrToDate(formatStr: dayFormat, timeStr: stepModel.dateTime), steps: dailySteps, deviceId: BandDevice.currentDeviceMac!,calories: dailySteps, distance: dailyDistance)
                 DataSync.uploadDailySteps(dailySteps: dailyStepsUpload)
             }
             if(dailyCalories>0){

@@ -136,7 +136,7 @@ class DataCallBack : SimpleDeviceCallback {
             Log.i(WatchDevice.TAG, "step info ${Gson().toJson(stepInfos)}")
             if(stepInfos.dates!=null) {
                 val startOfDate = dateFormat.parse(stepInfos.dates)
-                dailySteps.add(DailyStepUpload(measureTime = startOfDate, deviceId = MainActivity.deviceId, steps = stepInfos.step))
+                dailySteps.add(DailyStepUpload(measureTime = startOfDate, deviceId = MainActivity.deviceId, steps = stepInfos.step,calories = stepInfos.calories,distance = stepInfos.distance))
                 calories.add(CaloriesUpload(measureTime = startOfDate, deviceId = MainActivity.deviceId, calories = stepInfos.calories))
                 stepInfos.stepOneHourInfo?.let {
                     stepList.addAll(stepInfos.stepOneHourInfo.map {

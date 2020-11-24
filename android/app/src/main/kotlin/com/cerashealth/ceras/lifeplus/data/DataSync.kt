@@ -17,7 +17,7 @@ data class TemperatureUpload(val measureTime: Date, var celsius:Double, val fahr
 
 data class StepUpload(val measureTime: Date, var steps:Int, val deviceId:String)
 
-data class DailyStepUpload(val measureTime: Date, var steps:Int, val deviceId:String)
+data class DailyStepUpload(val measureTime: Date, var steps:Int, val calories:Int, val distance:Float,val deviceId:String)
 
 data class CaloriesUpload(val measureTime: Date, var calories:Int, val deviceId:String)
 

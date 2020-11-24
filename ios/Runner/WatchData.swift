@@ -241,6 +241,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         let stepDate = self.dayFormat.date(from: dateString)
         NSLog("Got converted date \(stepDate) ")
         let calories = Int((stepInfo["calories"] ?? "0") as! String )
+        let distance = Float((stepInfo["distance"] ?? "0") as! String )
         let dailySteps = Int((stepInfo["step"] ?? "0") as! String)
         NSLog("Date \(stepDate) calories: \(calories) dailySteps \(dailySteps)")
         var stepList = [StepUpload]()
@@ -249,11 +250,12 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             stepList = hourlySteps.map { (stepMap) -> StepUpload in
                 let (stepMinutes, stepsCount) = stepMap
                 let stepTime = Calendar.current.date(byAdding: .minute,value: Int(stepMinutes)!, to: stepDate!)
-                return StepUpload(measureTime: stepTime!, steps: Int(stepsCount)!, deviceId: deviceId)
+                return StepUpload(measureTime: stepTime!, steps: Int(stepsCount)!, deviceId: deviceId, calories: 0, distance: 0)
                 
             }
         }
-        let dailyStepsUpload = StepUpload(measureTime: stepDate!, steps: dailySteps!, deviceId: deviceId)
+        let dailyStepsUpload = StepUpload(measureTime: stepDate!, steps: dailySteps!, deviceId: deviceId, calories: calories!
+                                          , distance: distance!)
         let dailyCaloriesUpload = CaloriesUpload(measureTime: stepDate!, calories: calories!, deviceId: deviceId)
         DataSync.uploadCalories(calories: dailyCaloriesUpload)
         DataSync.uploadSteps(steps: stepList)

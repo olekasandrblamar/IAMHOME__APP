@@ -508,6 +508,8 @@ struct StepUpload:Codable {
     let measureTime:Date
     let steps:Int
     let deviceId:String
+    var calories:Int
+    var distance:Float
 }
 
 struct CaloriesUpload:Codable{
