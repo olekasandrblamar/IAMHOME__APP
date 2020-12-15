@@ -12,29 +12,33 @@ Future<void> updateDeviceInfo() async {
   Map<String,dynamic> deviceData = {};
 
   if (Platform.isIOS) {
-    final IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
-    deviceData =  {
-      'deviceInfo': {
-        'name': iosDeviceInfo.name,
-        'systemName': iosDeviceInfo.systemName,
-        'systemVersion': iosDeviceInfo.systemVersion,
-        'model': iosDeviceInfo.model,
-        'localizedModel': iosDeviceInfo.localizedModel,
-        'identifierForVendor': iosDeviceInfo.identifierForVendor,
-        'isPhysicalDevice': iosDeviceInfo.isPhysicalDevice,
-        'utsname.sysname': iosDeviceInfo.utsname.sysname,
-        'utsname.nodename': iosDeviceInfo.utsname.nodename,
-        'utsname.release': iosDeviceInfo.utsname.release,
-        'utsname.version': iosDeviceInfo.utsname.version,
-        'utsname.machine': iosDeviceInfo.utsname.machine,
-      },
-      'appInfo': {
-        'appName': packageInfo.appName,
-        'packageName': packageInfo.packageName,
-        'version': packageInfo.version,
-        'buildNumber': packageInfo.buildNumber,
-      }
-    };
+    try {
+      final IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
+      deviceData = {
+        'deviceInfo': {
+          'name': iosDeviceInfo.name,
+          'systemName': iosDeviceInfo.systemName,
+          'systemVersion': iosDeviceInfo.systemVersion,
+          'model': iosDeviceInfo.model,
+          'localizedModel': iosDeviceInfo.localizedModel,
+          'identifierForVendor': iosDeviceInfo.identifierForVendor,
+          'isPhysicalDevice': iosDeviceInfo.isPhysicalDevice,
+          'utsname.sysname': iosDeviceInfo.utsname.sysname,
+          'utsname.nodename': iosDeviceInfo.utsname.nodename,
+          'utsname.release': iosDeviceInfo.utsname.release,
+          'utsname.version': iosDeviceInfo.utsname.version,
+          'utsname.machine': iosDeviceInfo.utsname.machine,
+        },
+        'appInfo': {
+          'appName': packageInfo.appName,
+          'packageName': packageInfo.packageName,
+          'version': packageInfo.version,
+          'buildNumber': packageInfo.buildNumber,
+        }
+      };
+    } on Exception catch(e){
+      deviceData = {};
+    }
   }
 
   if (Platform.isAndroid) {

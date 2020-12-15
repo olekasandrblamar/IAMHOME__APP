@@ -104,9 +104,10 @@ class MainActivity: FlutterFragmentActivity()  {
                 updateLastConnected()
                 Log.i(TAG,"last Updated ${getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).all}")
                 Log.i(TAG,"got sync data with arguments $deviceDataString")
-                val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
+                val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
                 val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
+                Log.i(TAG,"Device type ${deviceData.deviceType} with ${Gson().toJson(deviceData)}")
                 BaseDevice.getDeviceImpl(deviceData.deviceType).syncData(result,deviceData,this)
             }else if(call.method =="deviceStatus"){
                 val deviceDataString = call.argument<String>("connectionInfo")
@@ -115,6 +116,13 @@ class MainActivity: FlutterFragmentActivity()  {
                 val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceData.deviceType).getDeviceInfo(result,deviceData,this)
+            }else if(call.method =="connectionStatus"){
+                val deviceDataString = call.argument<String>("connectionInfo")
+                Log.i(TAG,"got device status data with arguments $deviceDataString")
+                val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
+                val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
+                deviceId = deviceData.deviceId?:""
+                BaseDevice.getDeviceImpl(deviceData.deviceType).getConnectionStatus(result,deviceData,this)
             }else if(call.method =="disconnect"){
                 val deviceType = call.argument<String>("deviceType")
                 BaseDevice.getDeviceImpl(deviceType).disconnectDevice(result)

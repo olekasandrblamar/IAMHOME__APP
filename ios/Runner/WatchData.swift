@@ -19,6 +19,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     static var currentDeviceId:String? = nil
     var statusResult:FlutterResult? = nil
     var statusConnectionInfo: ConnectionInfo? = nil
+    var reconnect:Int = 0;
     
     override init() {
         super.init()
@@ -33,26 +34,40 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         self.deviceFound = false
         self.device = nil
         self.deviceConected = false
-        NSLog("Scanning for devices with result")
+        NSLog("Scanning for devices with result \(HardManagerSDK.shareBLEManager()?.isConnected)")
         HardManagerSDK.shareBLEManager()?.scanDevices(["ITPOWER01"])
-        DispatchQueue.main.asyncAfter(deadline: .now() + 25) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10) {
             //Stop the scanning after 25 seconds
-            HardManagerSDK.shareBLEManager()?.stopScanDevice()
-            if(!self.deviceConected){
-                var connectionInfo = ConnectionInfo(deviceId: "", deviceName: "", connected: false, deviceFound: self.deviceFound, message: "failed")
-                do{
-                    let deviceJson = try JSONEncoder().encode(connectionInfo)
-                    let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
-                    NSLog("Sending Connection data back from device info \(connectionInfoData)")
-                    result(connectionInfoData)
-                }catch{
-                    NSLog("Error getting watch info from getDeviceInfo \(error)")
-                    result("Error")
+            if(self.reconnect==0){
+                self.reconnect = 1
+                HardManagerSDK.shareBLEManager()?.scanDevices(["ITPOWER01"])
+                DispatchQueue.main.asyncAfter(deadline: .now() + 20) {
+                    self.sendResponse(result: result)
                 }
+            }else{
+                self.sendResponse(result: result)
             }
+            
         }
        
     }
+    
+    func sendResponse(result:@escaping FlutterResult){
+        HardManagerSDK.shareBLEManager()?.stopScanDevice()
+        if(!self.deviceConected){
+            var connectionInfo = ConnectionInfo(deviceId: "", deviceName: "", connected: false, deviceFound: self.deviceFound, message: "failed")
+            do{
+                let deviceJson = try JSONEncoder().encode(connectionInfo)
+                let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                NSLog("Sending Connection data back from device info \(connectionInfoData)")
+                result(connectionInfoData)
+            }catch{
+                NSLog("Error getting watch info from getDeviceInfo \(error)")
+                result("Error")
+            }
+        }
+    }
+    
     
     func didFindDevice(_ device: CBPeripheral!) {
         let deviceName = device.name
@@ -102,6 +117,14 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         NSLog("Mac updated \(hardManager.connectedDeviceMAC)")
         if(hardManager.connectedDeviceMAC != nil){
             UserDefaults.standard.set(hardManager.connectedDeviceMAC!,forKey: DataSync.MAC_ADDRESS_NAME)
+        }
+    }
+    
+    func getConnectionStatus(result:@escaping FlutterResult){
+        if(HardManagerSDK.shareBLEManager() == nil ){
+            return result(false)
+        }else{
+            return result(HardManagerSDK.shareBLEManager()!.isConnected)
         }
     }
     

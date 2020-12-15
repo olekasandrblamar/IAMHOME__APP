@@ -204,12 +204,15 @@ class BandDevice :BaseDevice(){
                                 val dailyCalories = mutableListOf<CaloriesUpload>()
                                 var totalSteps = 0
                                 var totalCalories = 0.0
+                                var totalDistance = 0.0
                                 exerciseDataSets.filter { it != null && it.stepCount > 0 }.forEach {
                                     Log.i(TAG, "Got Step data ${it} ${it.hour} ${it.minuter} ")
                                     val readingTime = getDateFromTime(it.year, it.month, it.day, it.hour, it.minuter)
                                     totalSteps += it.stepCount
                                     totalCalories += it.calory
-                                    steps.add(StepUpload(measureTime = readingTime, deviceId = currentDeviceId!!, steps = it.stepCount))
+                                    totalDistance += it.distance
+                                    steps.add(StepUpload(measureTime = readingTime, deviceId = currentDeviceId!!, steps = it.stepCount,
+                                            distance = it.distance,calories = (it.calory/10).toInt()))
                                 }
                                 val dailyTime = Calendar.getInstance()
                                 dailyTime.set(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), 0, 0, 0)
@@ -221,7 +224,7 @@ class BandDevice :BaseDevice(){
                                     DataSync.uploadCalories(dailyCalories)
                                 }
                                 if (totalSteps > 0) {
-                                    dailySteps.add(DailyStepUpload(measureTime = dailyTime.time, deviceId = currentDeviceId!!, steps = totalSteps))
+                                    dailySteps.add(DailyStepUpload(measureTime = dailyTime.time, deviceId = currentDeviceId!!, steps = totalSteps, calories = (totalCalories/10.0).toInt(),distance = totalDistance.toFloat()))
                                     DataSync.uploadDailySteps(dailySteps)
                                 }
                                 if (steps.isNotEmpty())

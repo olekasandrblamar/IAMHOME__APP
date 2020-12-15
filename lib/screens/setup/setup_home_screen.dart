@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
@@ -26,6 +27,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   List<DevicesModel> _deviceData = [];
   List<WatchModel> _deviceStatus = [];
   var _lastUpdated = '---';
+  var _connectionStatus = false;
 
   @override
   void initState() {
@@ -61,7 +63,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
 
       if (deviceData.isNotEmpty) {
         if (!mounted) return;
-
+        _changeLastUpdated();
         setState(() {
           _deviceData = deviceData;
           _deviceStatus = deviceData.map((e) => e.watchInfo).toList();
@@ -102,7 +104,6 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
 
   @override
   Widget build(BuildContext context) {
-    _changeLastUpdated();
     return Scaffold(
       appBar: SetupAppBar(name: 'My Devices'),
       backgroundColor: Colors.white,
@@ -152,9 +153,13 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     );
   }
 
-  String _buildDeviceCode(String deviceMac) {
-    if (deviceMac != null && deviceMac.length > 5) {
+  String _buildDeviceCode(WatchModel watchModel) {
+    var deviceMac = watchModel.deviceId;
+    var deviceName = watchModel.deviceName;
+    if (Platform.isAndroid && deviceMac != null && deviceMac.length > 5) {
       return deviceMac.substring(deviceMac.length - 5).replaceAll(":", "");
+    }else if(Platform.isIOS && deviceName!=null){
+      return deviceName.substring(deviceName.length - 4);
     }
     return deviceMac;
   }
@@ -164,6 +169,9 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     await prefs.reload();
     final lastUpdate = prefs.getString('last_sync');
 
+    // final connected = prefs.getString("connected");
+    // _connectionStatus = _deviceStatus[0].connected || (connected!=null && connected == "true");
+    // print("connection status ${_connectionStatus}");
     _lastUpdated =
         lastUpdate ?? DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
   }
@@ -171,27 +179,30 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   void _getDeviceStatus(int index) async {
     String connectionInfo = json.encode(_deviceData[index].watchInfo);
     final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
-      'deviceStatus',
+      'connectionStatus',
       <String, dynamic>{'connectionInfo': connectionInfo},
-    ) as String;
+    ) as bool;
 
-    if (connectionStatus != "Error") {
-      final WatchModel connectionStatusData = WatchModel.fromJson(
-          json.decode(connectionStatus) as Map<String, dynamic>);
-
-      if (!mounted) return;
-      _deviceStatus[index] = connectionStatusData;
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.reload();
-      final lastUpdate = prefs.getString('last_sync');
-
-      print("Last updated at ${lastUpdate}");
-      setState(() {
-        _deviceStatus = _deviceStatus;
-        _lastUpdated = lastUpdate ??
-            DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
-      });
-    }
+    print('Connection Status $connectionStatus');
+    setState(() {
+      _connectionStatus = connectionStatus;
+    });
+    // if (connectionStatus != "Error") {
+    //   final WatchModel connectionStatusData = WatchModel.fromJson(
+    //       json.decode(connectionStatus) as Map<String, dynamic>);
+    //
+    //   if (!mounted) return;
+    //   _deviceStatus[index] = connectionStatusData;
+    //   final prefs = await SharedPreferences.getInstance();
+    //   await prefs.reload();
+    //   final lastUpdate = prefs.getString('last_sync');
+    //
+    //   // setState(() {
+    //   //   _deviceStatus = _deviceStatus;
+    //   //   _lastUpdated = lastUpdate ??
+    //   //       DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
+    //   // });
+    // }
   }
 
   Widget _buildDevicesList(int index) {
@@ -262,7 +273,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
                       SizedBox(height: 10),
                       FittedBox(
                         child: Text(
-                          _deviceStatus[index].connected
+                          _connectionStatus
                               ? 'Connected'
                               : 'Not Connected',
                           style: TextStyle(
@@ -276,7 +287,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
                       SizedBox(height: 5),
                       FittedBox(
                         child: Text(
-                            'ID# ${_buildDeviceCode(_deviceStatus[index].deviceId) ?? '--'}'),
+                            'ID# ${_buildDeviceCode(_deviceStatus[index]) ?? '--'}'),
                       ),
                       SizedBox(height: 5),
                       FittedBox(
@@ -289,14 +300,39 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
             ],
           ),
         ),
-        onTap: () => {
-          Navigator.of(context).pushNamed(
-            routes.SetupActiveRoute,
-            arguments: {'deviceIndex': index},
-          ),
+        onTap: ()  => {
+          openDetailsScreen(context, index)
         },
       ),
     );
+  }
+
+  void openDetailsScreen(BuildContext context,int index) async{
+    await Navigator.of(context).pushNamed(
+      routes.SetupActiveRoute,
+      arguments: {'deviceIndex': index},
+    );
+    print('Device back');
+    loadData();
+
+    // print('Got back from details');
+    // final prefs = await SharedPreferences.getInstance();
+    // await prefs.reload();
+    // final lastUpdate = prefs.getString('last_sync');
+    // var connectionStatus = prefs.getString('connected');
+    // print('Got connection status ${connectionStatus!=null && connectionStatus=='true'}');
+    //
+    // // final connected = prefs.getString("connected");
+    // // _connectionStatus = _deviceStatus[0].connected || (connected!=null && connected == "true");
+    // // print("connection status ${_connectionStatus}");
+    // setState(() {
+    //   _lastUpdated =
+    //       lastUpdate ?? DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
+    //   _connectionStatus = connectionStatus!=null && connectionStatus=='true';
+    // });
+
+
+
   }
 
   Widget _buildNewDevice() {

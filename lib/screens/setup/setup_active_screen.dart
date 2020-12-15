@@ -103,12 +103,17 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
           json.decode(connectionStatus) as Map<String, dynamic>);
 
       if (!mounted) return;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString("connected", "true");
 
       setState(() {
         _connected = connectionStatusData.connected;
         _deviceId = connectionStatusData.deviceId;
         _batteryLevel = connectionStatusData.batteryStatus;
       });
+    }else{
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString("connected", "false");
     }
   }
 

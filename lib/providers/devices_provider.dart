@@ -57,6 +57,7 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<List<DevicesModel>> getDevicesData() async {
     final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
     var prefData = prefs.getString('deviceData');
 
     // prefs.clear();

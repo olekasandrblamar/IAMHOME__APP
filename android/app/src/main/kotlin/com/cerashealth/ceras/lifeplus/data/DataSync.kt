@@ -15,7 +15,7 @@ class UserProfile{
 
 data class TemperatureUpload(val measureTime: Date, var celsius:Double, val fahrenheit:Double, val deviceId:String)
 
-data class StepUpload(val measureTime: Date, var steps:Int, val deviceId:String)
+data class StepUpload(val measureTime: Date, var steps:Int, val deviceId:String,val calories:Int=0, val distance:Float=0.toFloat())
 
 data class DailyStepUpload(val measureTime: Date, var steps:Int, val calories:Int, val distance:Float,val deviceId:String)
 
@@ -48,6 +48,7 @@ class ConnectionInfo{
     companion object{
         fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null
                            ,additionalInfo: Map<String, String> = mapOf<String,String>(),deviceType:String? = null,deviceFound:Boolean = true,batteryStatus:String? = null):String{
+            Log.i("DataSync","performing data sync ")
             val connectionData =  Gson().toJson(ConnectionInfo().apply {
                 this.deviceId = deviceId
                 this.connected = connected

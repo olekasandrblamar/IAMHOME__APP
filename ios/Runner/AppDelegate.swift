@@ -130,6 +130,18 @@ import BackgroundTasks
             }catch{
                 result("Error")
             }
+        }else if(call.method=="connectionStatus"){
+            
+            guard let args = call.arguments else {
+              result("iOS could not recognize flutter arguments in method: (sendParams)")
+              return
+            }
+            let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
+            do{
+                try self?.getConnectionStatus(result: result, connectionInfo: connectionInfo)
+            }catch{
+                result(false)
+            }
         }else if(call.method=="disconnect"){
             guard let args = call.arguments else {
               result("iOS could not recognize flutter arguments in method: (sendParams)")
@@ -300,6 +312,17 @@ import BackgroundTasks
         let deviceType = getDeviceType()
         if(deviceType! == AppDelegate.WATCH_TYPE){
             self.getWatchDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+        }else if(deviceType! == AppDelegate.BAND_TYPE){
+            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+        }
+    }
+    
+    private func getConnectionStatus(result:@escaping FlutterResult,connectionInfo:String) throws {
+        let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
+        NSLog("Getting device info ")
+        let deviceType = getDeviceType()
+        if(deviceType! == AppDelegate.WATCH_TYPE){
+            self.getWatchDevice()?.getConnectionStatus(result: result)
         }else if(deviceType! == AppDelegate.BAND_TYPE){
             self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
         }
