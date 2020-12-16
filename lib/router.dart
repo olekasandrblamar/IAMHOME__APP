@@ -1,5 +1,6 @@
 import 'package:ceras/config/env.dart';
 import 'package:ceras/screens/auth/login_screen.dart';
+import 'package:ceras/screens/auth/passwordexpired_screen.dart';
 import 'package:ceras/screens/data_screen.dart';
 import 'package:ceras/screens/setup/connection_notfound_screen.dart';
 import 'package:ceras/screens/setup/setup_connected_screen.dart';
@@ -36,6 +37,8 @@ Route<dynamic> generateRoute(
     //   return MaterialPageRoute(builder: (context) => LoginScreen());
     case LoginRoute:
       return MaterialPageRoute(builder: (context) => LoginScreen());
+    case PasswordExpiredRoute:
+      return MaterialPageRoute(builder: (context) => PasswordExpiredScreen());
     case SelectLanguageRoute:
       return MaterialPageRoute(builder: (context) => SelectLanguageScreen());
     case NotificationsRoute:
