@@ -38,7 +38,12 @@ Route<dynamic> generateRoute(
     case LoginRoute:
       return MaterialPageRoute(builder: (context) => LoginScreen());
     case PasswordExpiredRoute:
-      return MaterialPageRoute(builder: (context) => PasswordExpiredScreen());
+      var arguments = settings.arguments as Map<dynamic, dynamic>;
+      return MaterialPageRoute(
+        builder: (context) => PasswordExpiredScreen(
+          routeArgs: arguments,
+        ),
+      );
     case SelectLanguageRoute:
       return MaterialPageRoute(builder: (context) => SelectLanguageScreen());
     case NotificationsRoute:

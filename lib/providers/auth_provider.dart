@@ -102,7 +102,32 @@ class AuthProvider with ChangeNotifier {
     return _walthrough;
   }
 
-  Future<bool> validateAndLogin({
+  Future<bool> updatePassword({
+    @required String password,
+    @required String token,
+  }) async {
+     final extractedUserData =
+        json.decode(prefs.getString('userData')) as Map<String, Object>;
+
+    _authToken = extractedUserData['authToken'];
+
+    final response =
+        await http.post(env.authUrl + 'oauth/updatePassword', data: {
+      newPassword: password,
+      id_token: _authToken,
+    });
+
+    final responseData = response.data;
+
+    return true;
+    on DioError catch (error) {
+      throw HttpException(error?.response?.data['message']);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  Future<any> validateAndLogin({
     @required String email,
     @required String password,
   }) async {
@@ -118,13 +143,6 @@ class AuthProvider with ChangeNotifier {
 
       if (responseData['error'] != null) {
         throw HttpException(responseData['error']['message']);
-      }
-
-      if (responseData!=null &&
-          responseData['passwordExpired'] &&
-          responseData['passwordExpired'] != null &&
-          responseData['passwordExpired'] == true) {
-        throw HttpException('Your password has expired!');
       }
 
       if (responseData['access_token'] == null) {
@@ -159,6 +177,14 @@ class AuthProvider with ChangeNotifier {
         },
       );
       prefs.setString('userData', userData);
+
+      if (responseData != null &&
+          responseData['passwordExpired'] &&
+          responseData['passwordExpired'] != null &&
+          responseData['passwordExpired'] == true) {
+        throw HttpException('Your password has expired!');
+      }
+
       return true;
     } on DioError catch (error) {
       throw HttpException(error?.response?.data['message']);

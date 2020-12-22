@@ -11,7 +11,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final LocalAuthentication auth = LocalAuthentication();
 
   final _formKey = GlobalKey<FormState>();
@@ -69,20 +68,21 @@ class _LoginScreenState extends State<LoginScreen> {
       });
     }
 
-    Future.delayed(Duration(milliseconds: 300),() async{
-      var token =
-      await Provider.of<AuthProvider>(context, listen: false).tryAuthLogin();
+    Future.delayed(Duration(milliseconds: 300), () async {
+      var token = await Provider.of<AuthProvider>(context, listen: false)
+          .tryAuthLogin();
 
-      if(token){
+      if (token) {
         var didAuthenticate = await auth.authenticateWithBiometrics(
           localizedReason: 'Please authenticate to show your data',
           useErrorDialogs: true,
           stickyAuth: true,
         );
-        if(didAuthenticate){
+        if (didAuthenticate) {
           //This code is to refresh the access token
-          final accessToken = await Provider.of<AuthProvider>(context, listen: false).authToken;
-          if(accessToken!=null){
+          final accessToken =
+              await Provider.of<AuthProvider>(context, listen: false).authToken;
+          if (accessToken != null) {
             return Navigator.of(context).pushReplacementNamed(
               routes.DataRoute,
             );
@@ -91,12 +91,9 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     });
 
-
-
     // if (accessToken == null) {
     //   //return _goToLogin();
     // }
-
   }
 
   void _loadInitData() async {
@@ -164,6 +161,12 @@ class _LoginScreenState extends State<LoginScreen> {
       }
     } catch (error) {
       print(error);
+
+      if (error.toString() == 'Your password has expired!') {
+        return Navigator.of(context).pushReplacementNamed(
+          routes.PasswordExpiredRoute,
+        );
+      }
       showErrorDialog(context, error.toString());
     }
 

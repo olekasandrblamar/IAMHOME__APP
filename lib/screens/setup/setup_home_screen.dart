@@ -98,7 +98,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
 
   void _goToLogin() async {
     await Navigator.of(context).pushNamed(
-      routes.LoginRoute,
+      routes.PasswordExpiredRoute,
     );
   }
 
@@ -147,8 +147,26 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
                 ],
               ),
             )
-          : Container(
-              height: 0,
+          : SafeArea(
+              bottom: true,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    height: 90,
+                    padding: EdgeInsets.all(20),
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.5),
+                      ),
+                      color: Theme.of(context).primaryColor,
+                      textColor: Colors.white,
+                      child: Text('Access Health Data'),
+                      onPressed: () => _authenticate(),
+                    ),
+                  ),
+                ],
+              ),
             ),
     );
   }
@@ -158,7 +176,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     var deviceName = watchModel.deviceName;
     if (Platform.isAndroid && deviceMac != null && deviceMac.length > 5) {
       return deviceMac.substring(deviceMac.length - 5).replaceAll(":", "");
-    }else if(Platform.isIOS && deviceName!=null){
+    } else if (Platform.isIOS && deviceName != null) {
       return deviceName.substring(deviceName.length - 4);
     }
     return deviceMac;
@@ -273,9 +291,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
                       SizedBox(height: 10),
                       FittedBox(
                         child: Text(
-                          _connectionStatus
-                              ? 'Connected'
-                              : 'Not Connected',
+                          _connectionStatus ? 'Connected' : 'Not Connected',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -300,14 +316,12 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
             ],
           ),
         ),
-        onTap: ()  => {
-          openDetailsScreen(context, index)
-        },
+        onTap: () => {openDetailsScreen(context, index)},
       ),
     );
   }
 
-  void openDetailsScreen(BuildContext context,int index) async{
+  void openDetailsScreen(BuildContext context, int index) async {
     await Navigator.of(context).pushNamed(
       routes.SetupActiveRoute,
       arguments: {'deviceIndex': index},
@@ -330,9 +344,6 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     //       lastUpdate ?? DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
     //   _connectionStatus = connectionStatus!=null && connectionStatus=='true';
     // });
-
-
-
   }
 
   Widget _buildNewDevice() {

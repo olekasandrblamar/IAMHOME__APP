@@ -6,6 +6,10 @@ import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:local_auth/local_auth.dart';
 
 class PasswordExpiredScreen extends StatefulWidget {
+  final Map<dynamic, dynamic> routeArgs;
+
+  PasswordExpiredScreen({Key key, this.routeArgs}) : super(key: key);
+
   @override
   _PasswordExpiredScreenState createState() => _PasswordExpiredScreenState();
 }
@@ -15,7 +19,7 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
-  String _password, _confirmPassword = '';
+  String _password, _confirmPassword, _token = '';
 
   final TextEditingController _confirmPasswordController =
       TextEditingController();
@@ -29,6 +33,10 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
 
   @override
   void initState() {
+    if (widget.routeArgs != null) {
+      _token = widget.routeArgs['token'];
+    }
+
     // TODO: implement initState
     super.initState();
   }
@@ -126,7 +134,7 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
   Future<void> _saveForm() async {
     try {
       setState(() {
-        _isLoading = true;
+        _isLoading = false;
       });
 
       final isValid = _formKey.currentState.validate();
@@ -135,18 +143,12 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
       }
       _formKey.currentState.save();
 
-// need to implement code here
-      final checkLogin = null;
-
-      // await Provider.of<AuthProvider>(context, listen: false)
-      //     .validateAndLogin(
-      //   email: _email,
-      //   password: _password,
-      // );
+      final checkLogin = await Provider.of<AuthProvider>(context, listen: false)
+          .updatePassword(password: _password, token: _token);
 
       if (checkLogin) {
         return Navigator.of(context).pushReplacementNamed(
-          routes.DataRoute,
+          routes.SetupHomeRoute,
         );
       }
     } catch (error) {
@@ -230,7 +232,7 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
             top: 10.0,
             child: Container(
               alignment: Alignment.topLeft,
-              width: 200,
+              width: 300,
               child: FittedBox(
                 child: Text(
                   'Out With',
