@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'dart:html' as html;
 
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
@@ -12,6 +13,7 @@ import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -33,6 +35,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   void initState() {
     checkInternetConnection();
     loadData();
+    updateVersionCheck();
     super.initState();
   }
 
@@ -99,6 +102,100 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   void _goToLogin() async {
     await Navigator.of(context).pushNamed(
       routes.PasswordExpiredRoute,
+    );
+  }
+
+  void updateVersionCheck() async {
+    final prefs = await SharedPreferences.getInstance();
+    var versionCheckDate = await prefs.getString('versionCheckDate');
+
+    DateTime d = DateTime.now();
+
+    var currentDate = d.setDate(d.getDate());
+    if (versionCheckDate == null) {
+      await prefs.setString('versionCheckDate', currentDate.toString());
+    }
+
+    // var daysFromNow: any = d.setDate(d.getDate() - 3); // three days fromNow
+    var millisec = currentDate - DateTime(int.parse(versionCheckDate));
+    var seconds = double.parse((millisec / 1000).toFixed(0));
+
+    /* Checking if current date is greater than 3 days
+                and if it is greater than 3 days check fior update
+        */
+    if (seconds > 259200) {
+      await prefs.setString('versionCheckDate', currentDate.toString());
+      await appVersionCheck();
+    }
+  }
+
+  Future<void> appVersionCheck() async {
+    final PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    final currentVersion = packageInfo.version;
+
+    var versionData = await Provider.of<AuthProvider>(context, listen: false)
+        .checkAppVersion();
+
+    if (versionData.isNotEmpty) {
+      var _currentVersion =
+          JSON.stringify(currentVersion.toString().split('.'));
+      var _latestVersioniOS =
+          JSON.stringify(versionData.ios.toString().split('.'));
+      var _latestVersionAndroid =
+          JSON.stringify(versionData.android.toString().split('.'));
+
+      if (Platform.isIOS) {
+        if (_latestVersioniOS > _currentVersion) {
+          updateApp();
+        }
+      } else {
+        if (_latestVersionAndroid > _currentVersion) {
+          updateApp();
+        }
+      }
+    }
+  }
+
+  void updateApp() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Confirm',
+          ),
+          content: Text(
+            'Do you want to remove the device',
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(
+                'Cancel',
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text(
+                'Ok',
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                if (Platform.isIOS) {
+                  html.window.open(
+                      'https://apps.apple.com/us/app/ceras/id1525595039?mt=8',
+                      '_system');
+                } else {
+                  html.window.open(
+                      'https://play.google.com/store/apps/details?id=com.cerashealth.ceras',
+                      '_system');
+                }
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 

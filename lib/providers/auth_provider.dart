@@ -127,7 +127,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<any> validateAndLogin({
+  Future<dynamic> validateAndLogin({
     @required String email,
     @required String password,
   }) async {
@@ -215,6 +215,11 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
 
     return true;
+  }
+
+  Future<dynamic> checkAppVersion() async {
+    final response = await http.post(env.authUrl + 'oauth/appVersion');
+    return response;
   }
 
   Future<void> logout() async {
