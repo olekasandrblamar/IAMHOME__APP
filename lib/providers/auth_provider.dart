@@ -107,6 +107,7 @@ class AuthProvider with ChangeNotifier {
     @required String token,
   }) async {
     try {
+      final prefs = await SharedPreferences.getInstance();
       final extractedUserData =
           json.decode(prefs.getString('userData')) as Map<String, Object>;
 
@@ -114,8 +115,8 @@ class AuthProvider with ChangeNotifier {
 
       final response =
           await http.post(env.authUrl + 'oauth/updatePassword', data: {
-        newPassword: password,
-        id_token: _authToken,
+        "newPassword": password,
+        "id_token": _authToken,
       });
 
       final responseData = response.data;

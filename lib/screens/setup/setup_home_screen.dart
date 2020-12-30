@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'dart:html' as html;
 
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
@@ -16,6 +15,7 @@ import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SetupHomeScreen extends StatefulWidget {
   @override
@@ -162,10 +162,10 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Confirm',
+            'Update Available',
           ),
           content: Text(
-            'Do you want to remove the device',
+            'Do you want to update the app to enjoy latest features?',
           ),
           actions: <Widget>[
             FlatButton(
@@ -180,16 +180,16 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
               child: Text(
                 'Ok',
               ),
-              onPressed: () {
+              onPressed: () async {
                 Navigator.of(context).pop();
                 if (Platform.isIOS) {
-                  html.window.open(
-                      'https://apps.apple.com/us/app/ceras/id1525595039?mt=8',
-                      '_system');
+                  await launch(
+                    'https://apps.apple.com/us/app/ceras/id1525595039?mt=8',
+                  );
                 } else {
-                  html.window.open(
-                      'https://play.google.com/store/apps/details?id=com.cerashealth.ceras',
-                      '_system');
+                  await launch(
+                    'https://play.google.com/store/apps/details?id=com.cerashealth.ceras',
+                  );
                 }
               },
             ),
