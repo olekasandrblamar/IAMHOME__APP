@@ -106,21 +106,22 @@ class AuthProvider with ChangeNotifier {
     @required String password,
     @required String token,
   }) async {
-     final extractedUserData =
-        json.decode(prefs.getString('userData')) as Map<String, Object>;
+    try {
+      final extractedUserData =
+          json.decode(prefs.getString('userData')) as Map<String, Object>;
 
-    _authToken = extractedUserData['authToken'];
+      _authToken = extractedUserData['authToken'];
 
-    final response =
-        await http.post(env.authUrl + 'oauth/updatePassword', data: {
-      newPassword: password,
-      id_token: _authToken,
-    });
+      final response =
+          await http.post(env.authUrl + 'oauth/updatePassword', data: {
+        newPassword: password,
+        id_token: _authToken,
+      });
 
-    final responseData = response.data;
+      final responseData = response.data;
 
-    return true;
-    on DioError catch (error) {
+      return true;
+    } on DioError catch (error) {
       throw HttpException(error?.response?.data['message']);
     } catch (error) {
       throw error;

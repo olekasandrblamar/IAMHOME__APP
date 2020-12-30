@@ -124,7 +124,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Container(
                 padding: EdgeInsets.all(15),
                 child: GridTile(
-                  child: new InkResponse(
+                  child: InkResponse(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
