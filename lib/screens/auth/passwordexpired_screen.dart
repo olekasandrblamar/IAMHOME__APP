@@ -1,4 +1,5 @@
 import 'package:ceras/providers/auth_provider.dart';
+import 'package:ceras/screens/setup/setup_home_screen.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -59,47 +60,6 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
     super.dispose();
   }
 
-  Future<void> _loadUserData() async {
-    if (!mounted) {
-      return;
-    }
-
-    var userId = await Provider.of<AuthProvider>(context, listen: false).userId;
-
-    if (userId != null) {
-      setState(() {
-        _confirmPasswordController.text = userId;
-      });
-    }
-
-    Future.delayed(Duration(milliseconds: 300), () async {
-      var token = await Provider.of<AuthProvider>(context, listen: false)
-          .tryAuthLogin();
-
-      if (token) {
-        var didAuthenticate = await auth.authenticateWithBiometrics(
-          localizedReason: 'Please authenticate to show your data',
-          useErrorDialogs: true,
-          stickyAuth: true,
-        );
-        if (didAuthenticate) {
-          //This code is to refresh the access token
-          final accessToken =
-              await Provider.of<AuthProvider>(context, listen: false).authToken;
-          if (accessToken != null) {
-            return Navigator.of(context).pushReplacementNamed(
-              routes.DataRoute,
-            );
-          }
-        }
-      }
-    });
-
-    // if (accessToken == null) {
-    //   //return _goToLogin();
-    // }
-  }
-
   void _loadInitData() async {
     if (_isInit) {
       // _usernameController.text = null;
@@ -107,7 +67,6 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
       _passwordController.text = null;
     }
     setState(() {});
-    _loadUserData();
     _isInit = false;
   }
 
@@ -131,6 +90,31 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
     );
   }
 
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Success'),
+        content: Text(
+          'Password Updated Successfully',
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => SetupHomeScreen(),
+                    settings: const RouteSettings(name: routes.SetupHomeRoute),
+                  ),
+                  (Route<dynamic> route) => false);
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   Future<void> _saveForm() async {
     try {
       setState(() {
@@ -147,9 +131,7 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
           .updatePassword(password: _password, token: _token);
 
       if (checkLogin) {
-        return Navigator.of(context).pushReplacementNamed(
-          routes.SetupHomeRoute,
-        );
+        return _showSuccessDialog();
       }
     } catch (error) {
       print(error);

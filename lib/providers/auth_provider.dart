@@ -20,6 +20,7 @@ class AuthProvider with ChangeNotifier {
 
   bool _walthrough = true;
 
+  String _idToken;
   String _authToken;
   String _refreshToken;
   DateTime _userExpiryDate;
@@ -107,16 +108,10 @@ class AuthProvider with ChangeNotifier {
     @required String token,
   }) async {
     try {
-      final prefs = await SharedPreferences.getInstance();
-      final extractedUserData =
-          json.decode(prefs.getString('userData')) as Map<String, Object>;
-
-      _authToken = extractedUserData['authToken'];
-
       final response =
           await http.post(env.authUrl + 'oauth/updatePassword', data: {
         "newPassword": password,
-        "id_token": _authToken,
+        "id_token": _idToken,
       });
 
       final responseData = response.data;
@@ -145,6 +140,17 @@ class AuthProvider with ChangeNotifier {
 
       if (responseData['error'] != null) {
         throw HttpException(responseData['error']['message']);
+      }
+
+      _idToken = null;
+      if (responseData != null && responseData['id_token'] != null) {
+        _idToken = responseData['id_token'];
+
+        if (responseData['passwordExpired'] &&
+            responseData['passwordExpired'] != null &&
+            responseData['passwordExpired'] == true) {
+          throw HttpException('Your password has expired!');
+        }
       }
 
       if (responseData['access_token'] == null) {
@@ -179,13 +185,6 @@ class AuthProvider with ChangeNotifier {
         },
       );
       prefs.setString('userData', userData);
-
-      if (responseData != null &&
-          responseData['passwordExpired'] &&
-          responseData['passwordExpired'] != null &&
-          responseData['passwordExpired'] == true) {
-        throw HttpException('Your password has expired!');
-      }
 
       return true;
     } on DioError catch (error) {

@@ -101,7 +101,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
 
   void _goToLogin() async {
     await Navigator.of(context).pushNamed(
-      routes.PasswordExpiredRoute,
+      routes.LoginRoute,
     );
   }
 
@@ -109,24 +109,24 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     final prefs = await SharedPreferences.getInstance();
     var versionCheckDate = await prefs.getString('versionCheckDate');
 
-    DateTime d = DateTime.now();
+    // DateTime d = DateTime.now();
 
-    var currentDate = d.setDate(d.getDate());
-    if (versionCheckDate == null) {
-      await prefs.setString('versionCheckDate', currentDate.toString());
-    }
+    // var currentDate = d.setDate(d.getDate());
+    // if (versionCheckDate == null) {
+    //   await prefs.setString('versionCheckDate', currentDate.toString());
+    // }
 
-    // var daysFromNow: any = d.setDate(d.getDate() - 3); // three days fromNow
-    var millisec = currentDate - DateTime(int.parse(versionCheckDate));
-    var seconds = double.parse((millisec / 1000).toFixed(0));
+    // // var daysFromNow: any = d.setDate(d.getDate() - 3); // three days fromNow
+    // var millisec = currentDate - DateTime(int.parse(versionCheckDate));
+    // var seconds = double.parse((millisec / 1000).toFixed(0));
 
-    /* Checking if current date is greater than 3 days
-                and if it is greater than 3 days check fior update
-        */
-    if (seconds > 259200) {
-      await prefs.setString('versionCheckDate', currentDate.toString());
-      await appVersionCheck();
-    }
+    // /* Checking if current date is greater than 3 days
+    //             and if it is greater than 3 days check fior update
+    //     */
+    // if (seconds > 259200) {
+    //   await prefs.setString('versionCheckDate', currentDate.toString());
+    //   await appVersionCheck();
+    // }
   }
 
   Future<void> appVersionCheck() async {
@@ -137,22 +137,22 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
         .checkAppVersion();
 
     if (versionData.isNotEmpty) {
-      var _currentVersion =
-          JSON.stringify(currentVersion.toString().split('.'));
-      var _latestVersioniOS =
-          JSON.stringify(versionData.ios.toString().split('.'));
-      var _latestVersionAndroid =
-          JSON.stringify(versionData.android.toString().split('.'));
+      // var _currentVersion =
+      //     JSON.stringify(currentVersion.toString().split('.'));
+      // var _latestVersioniOS =
+      //     JSON.stringify(versionData.ios.toString().split('.'));
+      // var _latestVersionAndroid =
+      //     JSON.stringify(versionData.android.toString().split('.'));
 
-      if (Platform.isIOS) {
-        if (_latestVersioniOS > _currentVersion) {
-          updateApp();
-        }
-      } else {
-        if (_latestVersionAndroid > _currentVersion) {
-          updateApp();
-        }
-      }
+      // if (Platform.isIOS) {
+      //   if (_latestVersioniOS > _currentVersion) {
+      //     updateApp();
+      //   }
+      // } else {
+      //   if (_latestVersionAndroid > _currentVersion) {
+      //     updateApp();
+      //   }
+      // }
     }
   }
 
