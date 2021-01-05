@@ -20,6 +20,7 @@ const String UnabletoconnectRoute = '/setup/unabletoconnect';
 
 const String HelpRoute = '/help';
 const String SettingsRoute = '/settings';
+const String RedeemRoute = '/redeem';
 
 const String DataRoute = '/data';
 

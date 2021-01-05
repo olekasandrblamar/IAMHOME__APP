@@ -15,7 +15,7 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.1.0+27
+version: 1.1.1+2
 
 environment:
   sdk: ">=2.9.0 <3.0.0"
@@ -32,10 +32,10 @@ dependencies:
   package_info: ^0.4.3+2
   device_info: ^1.0.0
   shared_preferences: ^0.5.12+4
-  json_annotation: ^3.1.0
+  json_annotation: ^3.1.1
   progress_dialog: ^1.2.4
   cupertino_icons: ^1.0.0
-  flutter_blue: ^0.7.2
+  flutter_blue: ^0.7.3
   permission_handler: "^5.0.1+1"
   permission_handler_platform_interface: "2.0.1"
   #background_fetch: "^0.6.0"
@@ -45,15 +45,15 @@ dependencies:
 
   firebase_messaging: ^7.0.3
 
-#  Uncomment for android builds and comment for ios builds
-#  firebase_core: "0.5.2"
-#  firebase_analytics: ^6.2.0
-#  firebase_crashlytics: ^0.2.3
-#  firebase_dynamic_links: ^0.6.2
-#  firebase_performance: ^0.4.2
-#  firebase_in_app_messaging: ^0.2.2
+  #  Uncomment for android builds and comment for ios builds
+  #  firebase_core: "0.5.2"
+  #  firebase_analytics: ^6.2.0
+  #  firebase_crashlytics: ^0.2.3
+  #  firebase_dynamic_links: ^0.6.2
+  #  firebase_performance: ^0.4.2
+  #  firebase_in_app_messaging: ^0.2.2
 
-#  Uncomment for ios builds and comment for android builds
+  #  Uncomment for ios builds and comment for android builds
   firebase_core: "0.5.0+1"
   firebase_analytics: ^6.0.2
   firebase_crashlytics: ^0.2.1+1
@@ -63,13 +63,13 @@ dependencies:
 
   email_validator: "^1.0.6"
   local_auth: ^0.6.3+4
-  connectivity: ^2.0.1
+  connectivity: ^2.0.2
 
 dev_dependencies:
   pedantic: ^1.9.2
   flutter_launcher_icons: ^0.8.1
-  json_serializable: ^3.5.0
-  build_runner: ^1.10.4
+  json_serializable: ^3.5.1
+  build_runner: ^1.10.11
 
   flutter_test:
     sdk: flutter

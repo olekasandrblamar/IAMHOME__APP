@@ -1,42 +1,32 @@
+import 'package:ceras/config/env.dart';
 import 'package:ceras/providers/auth_provider.dart';
-import 'package:ceras/screens/setup/setup_home_screen.dart';
-import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:local_auth/local_auth.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-class PasswordExpiredScreen extends StatefulWidget {
-  final Map<dynamic, dynamic> routeArgs;
-
-  PasswordExpiredScreen({Key key, this.routeArgs}) : super(key: key);
-
+class RedeemScreen extends StatefulWidget {
   @override
-  _PasswordExpiredScreenState createState() => _PasswordExpiredScreenState();
+  _RedeemScreenState createState() => _RedeemScreenState();
 }
 
-class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
+class _RedeemScreenState extends State<RedeemScreen> {
   final LocalAuthentication auth = LocalAuthentication();
 
   final _formKey = GlobalKey<FormState>();
 
-  String _password, _confirmPassword, _token = '';
+  String _code;
+  bool _isLoading = false;
+  bool _redeemUrl = false;
 
-  final TextEditingController _confirmPasswordController =
-      TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _codeController = TextEditingController();
 
-  final FocusNode _passwordFocusNode = FocusNode();
-  final FocusNode _confirmPasswordFocusNode = FocusNode();
-
-  var _isInit = true;
-  var _isLoading = false;
+  final FocusNode _codeFocusNode = FocusNode();
 
   @override
   void initState() {
-    if (widget.routeArgs != null) {
-      _token = widget.routeArgs['token'];
-    }
+    _loadRedeemUrl();
 
     // TODO: implement initState
     super.initState();
@@ -44,30 +34,15 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
 
   @override
   void didChangeDependencies() {
-    _loadInitData();
-
     super.didChangeDependencies();
   }
 
   @override
   void dispose() {
-    _confirmPasswordController.dispose();
-    _passwordController.dispose();
-
-    _passwordFocusNode.dispose();
-    _confirmPasswordFocusNode.dispose();
+    _codeController.dispose();
+    _codeFocusNode.dispose();
 
     super.dispose();
-  }
-
-  void _loadInitData() async {
-    if (_isInit) {
-      // _usernameController.text = null;
-      _confirmPasswordController.text = null;
-      _passwordController.text = null;
-    }
-    setState(() {});
-    _isInit = false;
   }
 
   void showErrorDialog(BuildContext context, String message) {
@@ -90,57 +65,84 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
     );
   }
 
-  void _showSuccessDialog() {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Success'),
-        content: Text(
-          'Password Updated Successfully',
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('Okay'),
-            onPressed: () {
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => SetupHomeScreen(),
-                    settings: const RouteSettings(name: routes.SetupHomeRoute),
-                  ),
-                  (Route<dynamic> route) => false);
-            },
-          )
-        ],
-      ),
-    );
-  }
-
   Future<void> _saveForm() async {
     try {
       final isValid = _formKey.currentState.validate();
+      print(isValid);
       if (!isValid) {
         return;
       }
       _formKey.currentState.save();
 
       setState(() {
-        _isLoading = false;
+        _isLoading = true;
       });
 
-      final checkLogin = await Provider.of<AuthProvider>(context, listen: false)
-          .updatePassword(password: _password, token: _token);
+      // final checkLogin = await Provider.of<AuthProvider>(context, listen: false)
+      //     .validateAndLogin(
+      //   email: _email,
+      // );
 
-      if (checkLogin) {
-        return _showSuccessDialog();
-      }
+      // if (checkLogin) {
+      //   return Navigator.of(context).pushReplacementNamed(
+      //     routes.DataRoute,
+      //   );
+      // }
+
+      final prefs = await SharedPreferences.getInstance();
+      // final redeemUrl = await prefs.getString('redeemUrl');
+
+      final redeemUrl = 'https://device.dev.myceras.com/api/v1/device/';
+      await prefs.setString('redeemUrl', redeemUrl);
+      await prefs.setString('apiBaseUrl', redeemUrl);
+
+      setState(() {
+        _redeemUrl = true;
+      });
+
+      Navigator.of(context).pop();
     } catch (error) {
       print(error);
+
+      if (error.toString() == 'Your password has expired!') {
+        return Navigator.of(context).pushReplacementNamed(
+          routes.PasswordExpiredRoute,
+        );
+      }
       showErrorDialog(context, error.toString());
     }
 
     setState(() {
       _isLoading = false;
     });
+  }
+
+  Future<void> _loadRedeemUrl() async {
+    final prefs = await SharedPreferences.getInstance();
+    final redeemUrl = await prefs.getString('redeemUrl');
+
+    if (redeemUrl != null) {
+      setState(() {
+        _redeemUrl = true;
+      });
+    } else {
+      setState(() {
+        _redeemUrl = false;
+      });
+    }
+  }
+
+  Future<void> _removeCode() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    await prefs.remove('redeemUrl');
+    await prefs.setString('apiBaseUrl', env.baseUrl);
+
+    setState(() {
+      _redeemUrl = false;
+    });
+
+    // Navigator.of(context).pop();
   }
 
   @override
@@ -150,9 +152,6 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
         leading: CloseButton(color: Colors.black),
         backgroundColor: Color(0xffecf3fb),
         elevation: 0,
-        // actions: <Widget>[
-        //   SwitchStoreIcon(),
-        // ],
       ),
       backgroundColor: Color(0xffecf3fb),
       body: SafeArea(
@@ -173,18 +172,39 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
                           margin: EdgeInsets.symmetric(
                             horizontal: 10,
                           ),
-                          child: Column(
-                            children: [
-                              // const SizedBox(height: 20),
-                              // _nameInput(),
-                              const SizedBox(height: 20),
-                              _passwordInput(),
-                              const SizedBox(height: 20),
-                              _confirmPasswordInput(),
-                              const SizedBox(height: 40),
-                              _confirmButton(),
-                            ],
-                          ),
+                          child: !_redeemUrl
+                              ? Column(
+                                  children: [
+                                    const SizedBox(height: 20),
+                                    _codeInput(),
+                                    const SizedBox(height: 40),
+                                    _submitButton(),
+                                  ],
+                                )
+                              : Column(
+                                  children: [
+                                    const SizedBox(height: 60),
+                                    Padding(
+                                      padding: const EdgeInsets.all(0.0),
+                                      child: Container(
+                                        width: 180.0,
+                                        height: 60.0,
+                                        child: RaisedButton(
+                                          shape: RoundedRectangleBorder(
+                                            borderRadius:
+                                                BorderRadius.circular(5),
+                                          ),
+                                          color: Theme.of(context).primaryColor,
+                                          textColor: Colors.white,
+                                          child: Text(
+                                            'Remove Code',
+                                          ),
+                                          onPressed: () => _removeCode(),
+                                        ),
+                                      ),
+                                    )
+                                  ],
+                                ),
                         ),
                       ],
                     ),
@@ -214,10 +234,10 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
             top: 10.0,
             child: Container(
               alignment: Alignment.topLeft,
-              width: 300,
+              width: 200,
               child: FittedBox(
                 child: Text(
-                  'Out With',
+                  !_redeemUrl ? 'Redeem' : 'Redeemed',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 60.0,
@@ -234,7 +254,7 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
               width: 300,
               child: FittedBox(
                 child: Text(
-                  'The Old,',
+                  'Code,',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 60.0,
@@ -258,63 +278,30 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
     );
   }
 
-  Widget _passwordInput() {
+  Widget _codeInput() {
     return TextFormField(
       style: TextStyle(
         fontSize: 24,
       ),
-      // suffixIcon: Icon(Icons.remove_red_eye),
-      decoration: _inputDecoration('Create New Password', ''),
-      controller: _passwordController,
-      focusNode: _passwordFocusNode,
-      keyboardType: TextInputType.text,
+      decoration: _inputDecoration('Code', ''),
+      controller: _codeController,
+      focusNode: _codeFocusNode,
       textInputAction: TextInputAction.done,
       autofocus: false,
-      validator: (value) {
+      validator: (String value) {
         if (value.isEmpty) {
-          return 'Please enter password.';
-        }
-
-        if (value.length < 3) {
-          return 'password must be more than 2 charater';
+          return 'Please enter code.';
         }
 
         return null;
       },
-      onSaved: (password) => _password = password,
+      onFieldSubmitted: (_) {},
+      onSaved: (code) => _code = code,
       // onChanged: onChangePhoneNumberInput,
     );
   }
 
-  Widget _confirmPasswordInput() {
-    return TextFormField(
-      style: TextStyle(
-        fontSize: 24,
-      ),
-      // suffixIcon: Icon(Icons.remove_red_eye),
-      decoration: _inputDecoration('Confirm New Password', ''),
-      controller: _confirmPasswordController,
-      focusNode: _confirmPasswordFocusNode,
-      keyboardType: TextInputType.text,
-      textInputAction: TextInputAction.done,
-      autofocus: false,
-      validator: (value) {
-        if (value.isEmpty) {
-          return 'Please enter password.';
-        }
-
-        if (value != _passwordController.text) {
-          return 'Not Match';
-        }
-
-        return null;
-      },
-      onSaved: (password) => _confirmPassword = password,
-      // onChanged: onChangePhoneNumberInput,
-    );
-  }
-
-  Widget _confirmButton() {
+  Widget _submitButton() {
     return _isLoading
         ? Padding(
             padding: const EdgeInsets.all(0.0),
@@ -332,7 +319,7 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
                 child: Text(
-                  'Confirm',
+                  'Submit',
                 ),
                 onPressed: () => _saveForm(),
               ),
@@ -371,6 +358,10 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
       focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
         borderSide: BorderSide(color: Colors.red),
+      ),
+      suffixIcon: Container(
+        height: 0,
+        width: 0,
       ),
     );
   }

@@ -48,10 +48,15 @@ class _MyAppState extends State<MyApp> {
     await _initializeFlutterFire();
 
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString('apiBaseUrl', env.baseUrl);
+    final redeemUrl = await prefs.getString('redeemUrl');
 
-    updateDeviceInfo();
+    if (redeemUrl != null) {
+      await prefs.setString('apiBaseUrl', redeemUrl);
+    } else {
+      await prefs.setString('apiBaseUrl', env.baseUrl);
+    }
 
+    await updateDeviceInfo();
 
     await PushNotificationsManager().init();
 

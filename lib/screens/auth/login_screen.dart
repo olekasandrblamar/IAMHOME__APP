@@ -138,15 +138,15 @@ class _LoginScreenState extends State<LoginScreen> {
 
   Future<void> _saveForm() async {
     try {
-      setState(() {
-        _isLoading = true;
-      });
-
       final isValid = _formKey.currentState.validate();
       if (!isValid) {
         return;
       }
       _formKey.currentState.save();
+
+      setState(() {
+        _isLoading = true;
+      });
 
       final checkLogin = await Provider.of<AuthProvider>(context, listen: false)
           .validateAndLogin(

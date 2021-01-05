@@ -1,6 +1,7 @@
 import 'package:ceras/config/user_deviceinfo.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/screens/settings/debug_screen.dart';
+import 'package:ceras/screens/settings/redeem_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -155,6 +156,46 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     child: Text(
                       // _appLocalization.translate('settings.content.language'),
                       'Language',
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Card(
+              child: Container(
+                padding: EdgeInsets.all(15),
+                child: GridTile(
+                  child: InkResponse(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Icon(
+                            Icons.redeem,
+                            size: 50,
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                        Container(
+                          height: 10,
+                        ),
+                      ],
+                    ),
+                    onTap: () => {
+                      Navigator.of(context).push(
+                        MaterialPageRoute<Null>(
+                          builder: (BuildContext context) {
+                            return RedeemScreen();
+                          },
+                          fullscreenDialog: true,
+                        ),
+                      )
+                    },
+                  ),
+                  footer: Container(
+                    padding: EdgeInsets.only(top: 50),
+                    child: Center(
+                      child: Text('Redeem Code'),
                     ),
                   ),
                 ),
