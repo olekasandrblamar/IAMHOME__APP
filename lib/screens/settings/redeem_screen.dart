@@ -18,7 +18,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
 
   String _code;
   bool _isLoading = false;
-  bool _redeemUrl = false;
+  String _redeemCode;
 
   final TextEditingController _codeController = TextEditingController();
 
@@ -26,7 +26,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
 
   @override
   void initState() {
-    _loadRedeemUrl();
+    _loadRedeemCode();
 
     // TODO: implement initState
     super.initState();
@@ -65,6 +65,32 @@ class _RedeemScreenState extends State<RedeemScreen> {
     );
   }
 
+  void _showOkayDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Redeemed Code!',
+          ),
+          content: Text(
+            _redeemCode,
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(
+                'Okay',
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<void> _saveForm() async {
     try {
       final isValid = _formKey.currentState.validate();
@@ -90,25 +116,32 @@ class _RedeemScreenState extends State<RedeemScreen> {
       // }
 
       final prefs = await SharedPreferences.getInstance();
-      // final redeemUrl = await prefs.getString('redeemUrl');
+      // final redeemCode = await prefs.getString('redeemCode');
 
-      final redeemUrl = 'https://device.dev.myceras.com/api/v1/device/';
-      await prefs.setString('redeemUrl', redeemUrl);
-      await prefs.setString('apiBaseUrl', redeemUrl);
+      var redeemCode1 = '';
+      var redeemCode2 = '';
+
+      if (_code == 'alpha') {
+        redeemCode1 = 'https://device.dev.myceras.com/api/v1/device/';
+        redeemCode2 = 'https://auth.dev.myceras.com/';
+      }
+
+      if (_code == 'dev') {
+        redeemCode1 = 'https://device.dev.myceras.com/api/v1/device/';
+        redeemCode2 = 'https://auth.dev.myceras.com/';
+      }
+
+      await prefs.setString('redeemCode', _code);
+      await prefs.setString('apiBaseUrl', redeemCode1);
+      await prefs.setString('authUrl', redeemCode2);
 
       setState(() {
-        _redeemUrl = true;
+        _redeemCode = _code;
       });
 
-      Navigator.of(context).pop();
+      _showOkayDialog();
     } catch (error) {
       print(error);
-
-      if (error.toString() == 'Your password has expired!') {
-        return Navigator.of(context).pushReplacementNamed(
-          routes.PasswordExpiredRoute,
-        );
-      }
       showErrorDialog(context, error.toString());
     }
 
@@ -117,17 +150,17 @@ class _RedeemScreenState extends State<RedeemScreen> {
     });
   }
 
-  Future<void> _loadRedeemUrl() async {
+  Future<void> _loadRedeemCode() async {
     final prefs = await SharedPreferences.getInstance();
-    final redeemUrl = await prefs.getString('redeemUrl');
+    final redeemCode = await prefs.getString('redeemCode');
 
-    if (redeemUrl != null) {
+    if (redeemCode != null) {
       setState(() {
-        _redeemUrl = true;
+        _redeemCode = redeemCode;
       });
     } else {
       setState(() {
-        _redeemUrl = false;
+        _redeemCode = null;
       });
     }
   }
@@ -135,11 +168,12 @@ class _RedeemScreenState extends State<RedeemScreen> {
   Future<void> _removeCode() async {
     final prefs = await SharedPreferences.getInstance();
 
-    await prefs.remove('redeemUrl');
+    await prefs.remove('redeemCode');
     await prefs.setString('apiBaseUrl', env.baseUrl);
+    await prefs.setString('authUrl', env.authUrl);
 
     setState(() {
-      _redeemUrl = false;
+      _redeemCode = null;
     });
 
     // Navigator.of(context).pop();
@@ -172,7 +206,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
                           margin: EdgeInsets.symmetric(
                             horizontal: 10,
                           ),
-                          child: !_redeemUrl
+                          child: _redeemCode == null
                               ? Column(
                                   children: [
                                     const SizedBox(height: 20),
@@ -237,7 +271,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
               width: 200,
               child: FittedBox(
                 child: Text(
-                  !_redeemUrl ? 'Redeem' : 'Redeemed',
+                  _redeemCode == null ? 'Redeem' : 'Redeemed',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 60.0,
@@ -254,7 +288,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
               width: 300,
               child: FittedBox(
                 child: Text(
-                  'Code,',
+                  _redeemCode ?? 'Code',
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 60.0,

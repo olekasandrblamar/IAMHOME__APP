@@ -19,10 +19,22 @@ class DevicesProvider extends ChangeNotifier {
   List<DevicesModel> _deviceData = [];
   WatchModel _watchInfo;
 
+  Future<String> get _baseUrl async {
+    final prefs = await SharedPreferences.getInstance();
+    final baseUrl = await prefs.getString('apiBaseUrl');
+
+    if (baseUrl != null) {
+      return baseUrl;
+    } else {
+      return env.baseUrl;
+    }
+  }
+
   Future<void> fetchAllDevices() async {
     try {
+      final baseUrl = await _baseUrl;
       final response = await http.get(
-        env.baseUrl + 'master/masterDevices',
+        baseUrl + 'master/masterDevices',
       );
 
       final responseData = response.data;
@@ -149,8 +161,9 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<Temperature> getLatestTemperature() async {
     try {
+      final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        env.baseUrl + 'lastValue/temperature',
+        baseUrl + 'lastValue/temperature',
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -159,15 +172,16 @@ class DevicesProvider extends ChangeNotifier {
         return Temperature.fromJson(response.data);
       }
     } catch (error) {
-      print("Error on temp"+error.toString());
+      print("Error on temp" + error.toString());
       return null;
     }
   }
 
   Future<HeartRate> getLatestHeartRate() async {
     try {
+      final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        env.baseUrl + 'lastValue/heartrate',
+        baseUrl + 'lastValue/heartrate',
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -175,15 +189,16 @@ class DevicesProvider extends ChangeNotifier {
         return HeartRate.fromJson(response.data);
       }
     } catch (error) {
-      print("Error on temp"+error.toString());
+      print("Error on temp" + error.toString());
       return null;
     }
   }
 
   Future<OxygenLevel> getLatestOxygenLevel() async {
     try {
+      final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        env.baseUrl + 'lastValue/bloodOxygen',
+        baseUrl + 'lastValue/bloodOxygen',
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -191,15 +206,16 @@ class DevicesProvider extends ChangeNotifier {
         return OxygenLevel.fromJson(response.data);
       }
     } catch (error) {
-      print("Error on temp"+error.toString());
+      print("Error on temp" + error.toString());
       return null;
     }
   }
 
   Future<DailySteps> getLatestSteps() async {
     try {
+      final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        env.baseUrl + 'lastValue/dailySteps',
+        baseUrl + 'lastValue/dailySteps',
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -207,15 +223,16 @@ class DevicesProvider extends ChangeNotifier {
         return DailySteps.fromJson(response.data);
       }
     } catch (error) {
-      print("Error on temp"+error.toString());
+      print("Error on temp" + error.toString());
       return null;
     }
   }
 
   Future<BloodPressure> getLatestBloodPressure() async {
     try {
+      final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        env.baseUrl + 'lastValue/bloodPressure',
+        baseUrl + 'lastValue/bloodPressure',
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -223,15 +240,16 @@ class DevicesProvider extends ChangeNotifier {
         return BloodPressure.fromJson(response.data);
       }
     } catch (error) {
-      print("Error on temp"+error.toString());
+      print("Error on temp" + error.toString());
       return null;
     }
   }
 
   Future<Calories> getLatestCalories() async {
     try {
+      final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        env.baseUrl + 'lastValue/calories',
+        baseUrl + 'lastValue/calories',
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -239,7 +257,7 @@ class DevicesProvider extends ChangeNotifier {
         return Calories.fromJson(response.data);
       }
     } catch (error) {
-      print("Error on temp"+error.toString());
+      print("Error on temp" + error.toString());
       return null;
     }
   }

@@ -48,10 +48,14 @@ class _MyAppState extends State<MyApp> {
     await _initializeFlutterFire();
 
     final prefs = await SharedPreferences.getInstance();
-    final redeemUrl = await prefs.getString('redeemUrl');
+    final redeemCode = await prefs.getString('redeemCode');
 
-    if (redeemUrl != null) {
-      await prefs.setString('apiBaseUrl', redeemUrl);
+    if (redeemCode != null) {
+      final authUrl = await prefs.getString('authUrl');
+      final baseUrl = await prefs.getString('baseUrl');
+
+      await prefs.setString('authUrl', authUrl);
+      await prefs.setString('apiBaseUrl', baseUrl);
     } else {
       await prefs.setString('apiBaseUrl', env.baseUrl);
     }

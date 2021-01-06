@@ -27,6 +27,17 @@ class AuthProvider with ChangeNotifier {
   DateTime _accessTokenExpiry;
   String _userId;
 
+  Future<String> get _authUrl async {
+    final prefs = await SharedPreferences.getInstance();
+    final authUrl = await prefs.getString('authUrl');
+
+    if (authUrl != null) {
+      return authUrl;
+    } else {
+      return env.authUrl;
+    }
+  }
+
   String get token {
     if (_userExpiryDate != null &&
         _userExpiryDate.isAfter(DateTime.now()) &&
@@ -53,7 +64,9 @@ class AuthProvider with ChangeNotifier {
   Future<String> _refreshAuthToken(String refreshToken) async {
     http.options.headers
         .addAll({"ACCESSKEY": env.accessKey, "SECRET": env.secret});
-    final response = await http.post(env.authUrl + 'oauth/token',
+
+    final authUrl = await _authUrl;
+    final response = await http.post(authUrl + 'oauth/token',
         data: {"refresh_token": refreshToken, "orgId": "PATIENT"});
     final responseData = response.data;
 
@@ -108,8 +121,8 @@ class AuthProvider with ChangeNotifier {
     @required String token,
   }) async {
     try {
-      final response =
-          await http.post(env.authUrl + 'oauth/updatePassword', data: {
+      final authUrl = await _authUrl;
+      final response = await http.post(authUrl + 'oauth/updatePassword', data: {
         "newPassword": password,
         "id_token": _idToken,
       });
@@ -131,7 +144,9 @@ class AuthProvider with ChangeNotifier {
     try {
       http.options.headers
           .addAll({"ACCESSKEY": env.accessKey, "SECRET": env.secret});
-      final response = await http.post(env.authUrl + 'oauth/authorize',
+
+      final authUrl = await _authUrl;
+      final response = await http.post(authUrl + 'oauth/authorize',
           data: {"userName": email, "password": password, "orgId": "PATIENT"});
 
       final responseData = response.data;
@@ -219,7 +234,8 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<dynamic> checkAppVersion() async {
-    final response = await http.post(env.authUrl + 'oauth/appVersion');
+    final authUrl = await _authUrl;
+    final response = await http.post(authUrl + 'oauth/appVersion');
     return response;
   }
 
