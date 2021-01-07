@@ -3,6 +3,7 @@ import 'dart:convert';
 
 import 'package:ceras/config/env.dart';
 import 'package:ceras/models/currentversion_model.dart';
+import 'package:ceras/models/promo_model.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/models/trackers/tracker_data_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
