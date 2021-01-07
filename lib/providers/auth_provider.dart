@@ -66,7 +66,7 @@ class AuthProvider with ChangeNotifier {
         .addAll({"ACCESSKEY": env.accessKey, "SECRET": env.secret});
 
     final authUrl = await _authUrl;
-    final response = await http.post(authUrl + 'oauth/token',
+    final response = await http.post(authUrl + '/oauth/token',
         data: {"refresh_token": refreshToken, "orgId": "PATIENT"});
     final responseData = response.data;
 
@@ -122,7 +122,8 @@ class AuthProvider with ChangeNotifier {
   }) async {
     try {
       final authUrl = await _authUrl;
-      final response = await http.post(authUrl + 'oauth/updatePassword', data: {
+      final response =
+          await http.post(authUrl + '/oauth/updatePassword', data: {
         "newPassword": password,
         "id_token": _idToken,
       });
@@ -146,7 +147,7 @@ class AuthProvider with ChangeNotifier {
           .addAll({"ACCESSKEY": env.accessKey, "SECRET": env.secret});
 
       final authUrl = await _authUrl;
-      final response = await http.post(authUrl + 'oauth/authorize',
+      final response = await http.post(authUrl + '/oauth/authorize',
           data: {"userName": email, "password": password, "orgId": "PATIENT"});
 
       final responseData = response.data;
@@ -235,7 +236,7 @@ class AuthProvider with ChangeNotifier {
 
   Future<dynamic> checkAppVersion() async {
     final authUrl = await _authUrl;
-    final response = await http.post(authUrl + 'oauth/appVersion');
+    final response = await http.post(authUrl + '/oauth/appVersion');
     return response;
   }
 

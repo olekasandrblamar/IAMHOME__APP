@@ -35,8 +35,9 @@ class DevicesProvider extends ChangeNotifier {
   Future<void> fetchAllDevices() async {
     try {
       final baseUrl = await _baseUrl;
+      print(baseUrl);
       final response = await http.get(
-        baseUrl + 'master/masterDevices',
+        baseUrl + '/master/masterDevices',
       );
 
       final responseData = response.data;
@@ -165,7 +166,7 @@ class DevicesProvider extends ChangeNotifier {
     try {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        baseUrl + 'lastValue/temperature',
+        baseUrl + '/lastValue/temperature',
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -183,7 +184,7 @@ class DevicesProvider extends ChangeNotifier {
     try {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        baseUrl + 'lastValue/heartrate',
+        baseUrl + '/lastValue/heartrate',
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -200,7 +201,7 @@ class DevicesProvider extends ChangeNotifier {
     try {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        baseUrl + 'lastValue/bloodOxygen',
+        baseUrl + '/lastValue/bloodOxygen',
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -217,7 +218,7 @@ class DevicesProvider extends ChangeNotifier {
     try {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        baseUrl + 'lastValue/dailySteps',
+        baseUrl + '/lastValue/dailySteps',
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -234,7 +235,7 @@ class DevicesProvider extends ChangeNotifier {
     try {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        baseUrl + 'lastValue/bloodPressure',
+        baseUrl + '/lastValue/bloodPressure',
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -251,7 +252,7 @@ class DevicesProvider extends ChangeNotifier {
     try {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        baseUrl + 'lastValue/calories',
+        baseUrl + '/lastValue/calories',
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -291,7 +292,7 @@ class DevicesProvider extends ChangeNotifier {
   Future<CurrentversionModel> currentVersion() async {
     try {
       final baseUrl = await _baseUrl;
-      final response = await http.get(baseUrl + 'currentVersion');
+      final response = await http.get(baseUrl + '/currentVersion');
 
       if (response.data != null) {
         return CurrentversionModel.fromJson(response.data);
@@ -305,7 +306,7 @@ class DevicesProvider extends ChangeNotifier {
   Future<PromoModel> redeemPromo(String code) async {
     try {
       final baseUrl = await _baseUrl;
-      final response = await http.get(baseUrl + 'environment/' + code);
+      final response = await http.get(baseUrl + '/environment/' + code);
 
       if (response.data != null) {
         return PromoModel.fromJson(response.data);
