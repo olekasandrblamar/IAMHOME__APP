@@ -51,7 +51,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('An Error Occurred!'),
+        title: Text('Invalid Code!'),
         content: Text(
           message ?? 'Could not authenticate you. Please try again later.',
         ),
@@ -96,7 +96,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
   Future<void> _saveForm() async {
     try {
       final isValid = _formKey.currentState.validate();
-      print(isValid);
+
       if (!isValid) {
         return;
       }
@@ -110,20 +110,26 @@ class _RedeemScreenState extends State<RedeemScreen> {
           await Provider.of<DevicesProvider>(context, listen: false)
               .redeemPromo(_code);
 
-      if (promocode != null) {
-        final prefs = await SharedPreferences.getInstance();
-        // final redeemCode = await prefs.getString('redeemCode');
-
-        await prefs.setString('redeemCode', _code);
-        await prefs.setString('apiBaseUrl', promocode.dataUrl);
-        await prefs.setString('authUrl', promocode.authUrl);
-
-        setState(() {
-          _redeemCode = _code;
-        });
-
-        _showOkayDialog();
+      if (promocode == null) {
+        return;
       }
+
+      if (promocode.environmentId == null) {
+        return showErrorDialog(context, 'Please enter a valid code');
+      }
+
+      final prefs = await SharedPreferences.getInstance();
+      // final redeemCode = await prefs.getString('redeemCode');
+
+      await prefs.setString('redeemCode', _code);
+      await prefs.setString('apiBaseUrl', promocode.dataUrl);
+      await prefs.setString('authUrl', promocode.authUrl);
+
+      setState(() {
+        _redeemCode = _code;
+      });
+
+      _showOkayDialog();
     } catch (error) {
       print(error);
       showErrorDialog(context, error.toString());
