@@ -47,7 +47,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
     super.dispose();
   }
 
-  void showErrorDialog(BuildContext context, String message) {
+  void _showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -115,7 +115,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
           _isLoading = false;
         });
 
-        return showErrorDialog(context, 'Please enter a valid code');
+        return _showErrorDialog(context, 'Please enter a valid code');
       }
 
       final prefs = await SharedPreferences.getInstance();
@@ -132,7 +132,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
       _showOkayDialog();
     } catch (error) {
       print(error);
-      showErrorDialog(context, error.toString());
+      _showErrorDialog(context, error.toString());
     }
 
     setState(() {
