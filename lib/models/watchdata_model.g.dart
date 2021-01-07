@@ -19,7 +19,6 @@ WatchModel _$WatchModelFromJson(Map<String, dynamic> json) {
     deviceType: json['deviceType'] as String,
     deviceFound: json['deviceFound'] as bool,
     batteryStatus: json['batteryStatus'] as String,
-
   );
 }
 
@@ -31,6 +30,6 @@ Map<String, dynamic> _$WatchModelToJson(WatchModel instance) =>
       'message': instance.message,
       'deviceType': instance.deviceType,
       'deviceFound': instance.deviceFound,
-      'additionalInformation': instance.additionalInformation,
       'batteryStatus': instance.batteryStatus,
+      'additionalInformation': instance.additionalInformation,
     };

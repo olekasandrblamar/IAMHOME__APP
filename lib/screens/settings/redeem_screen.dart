@@ -1,5 +1,7 @@
 import 'package:ceras/config/env.dart';
+import 'package:ceras/models/promo_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
+import 'package:ceras/providers/devices_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
@@ -104,42 +106,24 @@ class _RedeemScreenState extends State<RedeemScreen> {
         _isLoading = true;
       });
 
-      // final checkLogin = await Provider.of<AuthProvider>(context, listen: false)
-      //     .validateAndLogin(
-      //   email: _email,
-      // );
+      final PromoModel promocode =
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .redeemPromo(_code);
 
-      // if (checkLogin) {
-      //   return Navigator.of(context).pushReplacementNamed(
-      //     routes.DataRoute,
-      //   );
-      // }
+      if (promocode != null) {
+        final prefs = await SharedPreferences.getInstance();
+        // final redeemCode = await prefs.getString('redeemCode');
 
-      final prefs = await SharedPreferences.getInstance();
-      // final redeemCode = await prefs.getString('redeemCode');
+        await prefs.setString('redeemCode', _code);
+        await prefs.setString('apiBaseUrl', promocode.dataUrl);
+        await prefs.setString('authUrl', promocode.authUrl);
 
-      var redeemCode1 = '';
-      var redeemCode2 = '';
+        setState(() {
+          _redeemCode = _code;
+        });
 
-      if (_code == 'alpha') {
-        redeemCode1 = 'https://device.dev.myceras.com/api/v1/device/';
-        redeemCode2 = 'https://auth.dev.myceras.com/';
+        _showOkayDialog();
       }
-
-      if (_code == 'dev') {
-        redeemCode1 = 'https://device.dev.myceras.com/api/v1/device/';
-        redeemCode2 = 'https://auth.dev.myceras.com/';
-      }
-
-      await prefs.setString('redeemCode', _code);
-      await prefs.setString('apiBaseUrl', redeemCode1);
-      await prefs.setString('authUrl', redeemCode2);
-
-      setState(() {
-        _redeemCode = _code;
-      });
-
-      _showOkayDialog();
     } catch (error) {
       print(error);
       showErrorDialog(context, error.toString());

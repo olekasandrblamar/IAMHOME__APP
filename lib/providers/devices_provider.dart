@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 
 import 'package:ceras/config/env.dart';
+import 'package:ceras/models/currentversion_model.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/models/trackers/tracker_data_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
@@ -284,5 +285,33 @@ class DevicesProvider extends ChangeNotifier {
 
     NavigationService.goBackHome();
     // prefs.clear();
+  }
+
+  Future<CurrentversionModel> currentVersion() async {
+    try {
+      final baseUrl = await _baseUrl;
+      final response = await http.get(baseUrl + 'currentVersion');
+
+      if (response.data != null) {
+        return CurrentversionModel.fromJson(response.data);
+      }
+    } catch (error) {
+      print("Error on currentVersion" + error.toString());
+      return null;
+    }
+  }
+
+  Future<PromoModel> redeemPromo(String code) async {
+    try {
+      final baseUrl = await _baseUrl;
+      final response = await http.get(baseUrl + 'environment/' + code);
+
+      if (response.data != null) {
+        return PromoModel.fromJson(response.data);
+      }
+    } catch (error) {
+      print("Error on promo" + error.toString());
+      return null;
+    }
   }
 }
