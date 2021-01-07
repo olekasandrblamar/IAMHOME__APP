@@ -110,11 +110,11 @@ class _RedeemScreenState extends State<RedeemScreen> {
           await Provider.of<DevicesProvider>(context, listen: false)
               .redeemPromo(_code);
 
-      if (promocode == null) {
-        return;
-      }
+      if (promocode == null || promocode.environmentId == null) {
+        setState(() {
+          _isLoading = false;
+        });
 
-      if (promocode.environmentId == null) {
         return showErrorDialog(context, 'Please enter a valid code');
       }
 
