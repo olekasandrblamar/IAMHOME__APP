@@ -281,7 +281,7 @@ class DataCallBack : SimpleDeviceCallback {
                     }
                 }
             }catch (e: Exception){
-                Log.i(WatchDevice.TAG, "Error while  quering BP info")
+                Log.i(WatchDevice.TAG, "Error while  quering BP info",e)
             }
         }
         if(bloodPressureUpload.isNotEmpty())

@@ -51,11 +51,11 @@ class _MyAppState extends State<MyApp> {
     final redeemCode = await prefs.getString('redeemCode');
 
     if (redeemCode != null) {
-      final authUrl = await prefs.getString('authUrl');
-      final baseUrl = await prefs.getString('baseUrl');
-
-      await prefs.setString('authUrl', authUrl);
-      await prefs.setString('apiBaseUrl', baseUrl);
+      // final authUrl = await prefs.getString('authUrl');
+      // final baseUrl = await prefs.getString('baseUrl');
+      //
+      // await prefs.setString('authUrl', authUrl);
+      // await prefs.setString('apiBaseUrl', baseUrl);
     } else {
       await prefs.setString('apiBaseUrl', env.baseUrl);
     }

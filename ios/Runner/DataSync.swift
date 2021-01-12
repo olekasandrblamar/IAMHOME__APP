@@ -51,6 +51,7 @@ class DataSync {
     static let LAST_WEATHER_UPDATE = "last_weather_update"
 
     static func getBaseUrl() -> String{
+        NSLog("Getting base URL \(UserDefaults.standard.string(forKey: DataSync.BASE_URL))")
         return UserDefaults.standard.object(forKey: DataSync.BASE_URL) as! String
     }
     

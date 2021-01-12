@@ -42,6 +42,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 self.reconnect = 1
                 HardManagerSDK.shareBLEManager()?.scanDevices(["ITPOWER01"])
                 DispatchQueue.main.asyncAfter(deadline: .now() + 20) {
+                    self.reconnect = 0
                     self.sendResponse(result: result)
                 }
             }else{
@@ -165,6 +166,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     }
 
     func deviceDidConnected() {
+        self.reconnect = 0
         NSLog("Device connected")
         HardManagerSDK.shareBLEManager()?.stopScanDevice()
         NSLog("Scanning connected")

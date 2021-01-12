@@ -12,6 +12,7 @@ class BuildEnvironment {
   final String accessKey;
   final String secret;
   final String authUrl;
+  final String environmentUrl;
   final BuildFlavor flavor;
 
   BuildEnvironment._init({
@@ -21,6 +22,7 @@ class BuildEnvironment {
     this.accessKey,
     this.secret,
     this.authUrl,
+    this.environmentUrl
   });
 
   /// Sets up the top-level [env] getter on the first call only.
@@ -31,6 +33,7 @@ class BuildEnvironment {
     @required accessKey,
     @required secret,
     @required authUrl,
+    @required environmentUrl,
   }) =>
       _env ??= BuildEnvironment._init(
         flavor: flavor,
@@ -39,5 +42,6 @@ class BuildEnvironment {
         accessKey: accessKey,
         secret: secret,
         authUrl: authUrl,
+        environmentUrl: environmentUrl
       );
 }

@@ -306,7 +306,7 @@ class DevicesProvider extends ChangeNotifier {
   Future<PromoModel> redeemPromo(String code) async {
     try {
       final baseUrl = await _baseUrl;
-      final response = await http.get(baseUrl + '/environment/' + code);
+      final response = await http.get(env.environmentUrl + '/environment/' + code);
 
       if (response.data != null) {
         return PromoModel.fromJson(response.data);
