@@ -45,12 +45,12 @@ dependencies:
   firebase_messaging: ^7.0.3
 
   #  Uncomment for android builds and comment for ios builds
-#  firebase_core: "0.5.2"
-#  firebase_analytics: ^6.2.0
-#  firebase_crashlytics: ^0.2.3
-#  firebase_dynamic_links: ^0.6.2
-#  firebase_performance: ^0.4.2
-#  firebase_in_app_messaging: ^0.2.2
+  #  firebase_core: "0.5.2"
+  #  firebase_analytics: ^6.2.0
+  #  firebase_crashlytics: ^0.2.3
+  #  firebase_dynamic_links: ^0.6.2
+  #  firebase_performance: ^0.4.2
+  #  firebase_in_app_messaging: ^0.2.2
 
   #  Uncomment for ios builds and comment for android builds
   firebase_core: "0.5.0+1"

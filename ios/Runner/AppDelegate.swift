@@ -8,7 +8,7 @@ import BackgroundTasks
 @objc class AppDelegate: FlutterAppDelegate {
     
     static var watchData:WatchData? = nil
-    static var bandDevice:BandDevice? = nil
+//    static var bandDevice:BandDevice? = nil
     static let dateFormatter = DateFormatter()
     static var lastUpdated:Date? = nil
     static var WATCH_TYPE = "WATCH"
@@ -270,9 +270,10 @@ import BackgroundTasks
         UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
         if(deviceType! == AppDelegate.WATCH_TYPE){
             self.getWatchDevice()?.syncData(connectionInfo: connectionData)
-        }else if(deviceType! == AppDelegate.BAND_TYPE){
-            self.getBandDevice()?.syncData(connectionInfo: connectionData)
         }
+//        else if(deviceType! == AppDelegate.BAND_TYPE){
+//            self.getBandDevice()?.syncData(connectionInfo: connectionData)
+//        }
     }
     private func getProfile(){
         let deviceType = getDeviceType()
@@ -290,9 +291,10 @@ import BackgroundTasks
             NSLog("disonnecting Watch")
             self.getWatchDevice()?.disconnect(result: result)
             NSLog("completed Connecting Watch")
-        }else if(deviceType==AppDelegate.BAND_TYPE){
-            getBandDevice()?.disconnectDevice(result: result)
         }
+//        else if(deviceType==AppDelegate.BAND_TYPE){
+//            getBandDevice()?.disconnectDevice(result: result)
+//        }
     }
 
     private func connectDevice(result:@escaping FlutterResult,deviceId:String, deviceType:String) {
@@ -301,9 +303,10 @@ import BackgroundTasks
             NSLog("Connecting Watch")
             self.getWatchDevice()?.startScan(result: result,deviceId:deviceId)
             NSLog("completed Connecting Watch")
-        }else if(deviceType==AppDelegate.BAND_TYPE){
-            getBandDevice()?.connectDevice(result: result, deviceId: deviceId)
         }
+//        else if(deviceType==AppDelegate.BAND_TYPE){
+//            getBandDevice()?.connectDevice(result: result, deviceId: deviceId)
+//        }
     }
     
     private func getDeviceInfo(result:@escaping FlutterResult,connectionInfo:String) throws {
@@ -312,9 +315,10 @@ import BackgroundTasks
         let deviceType = getDeviceType()
         if(deviceType! == AppDelegate.WATCH_TYPE){
             self.getWatchDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
-        }else if(deviceType! == AppDelegate.BAND_TYPE){
-            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
         }
+//        else if(deviceType! == AppDelegate.BAND_TYPE){
+//            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+//        }
     }
     
     private func getConnectionStatus(result:@escaping FlutterResult,connectionInfo:String) throws {
@@ -323,17 +327,18 @@ import BackgroundTasks
         let deviceType = getDeviceType()
         if(deviceType! == AppDelegate.WATCH_TYPE){
             self.getWatchDevice()?.getConnectionStatus(result: result)
-        }else if(deviceType! == AppDelegate.BAND_TYPE){
-            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
         }
+//        else if(deviceType! == AppDelegate.BAND_TYPE){
+//            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+//        }
     }
     
-    private func getBandDevice() -> BandDevice?{
-        if(AppDelegate.bandDevice==nil){
-            AppDelegate.bandDevice = BandDevice()
-        }
-        return AppDelegate.bandDevice
-    }
+//    private func getBandDevice() -> BandDevice?{
+//        if(AppDelegate.bandDevice==nil){
+//            AppDelegate.bandDevice = BandDevice()
+//        }
+//        return AppDelegate.bandDevice
+//    }
     
     private func getWatchDevice() -> WatchData?{
         if(AppDelegate.watchData==nil){
