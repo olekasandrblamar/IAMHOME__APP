@@ -1,3 +1,4 @@
+import 'package:ceras/config/env.dart';
 import 'package:ceras/config/user_deviceinfo.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/screens/settings/debug_screen.dart';
@@ -14,6 +15,7 @@ import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/theme.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -31,12 +33,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
   );
 
   bool _authInfo = false;
+  String _environment;
+  String _redeemCode;
 
   @override
   void initState() {
     super.initState();
     _initPackageInfo();
     _checkAuthInfo();
+    _loadEnvironment();
   }
 
   Future<void> _initPackageInfo() async {
@@ -84,6 +89,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // ),
       // ),
     );
+  }
+
+  void _loadEnvironment() async {
+    final prefs = await SharedPreferences.getInstance();
+    var redeemCode = await prefs.getString('redeemCode');
+    // var environment = await prefs.getString('environment');
+
+    setState(() {
+      _redeemCode = redeemCode;
+      // _environment = environment ??= env.environment;
+    });
   }
 
   @override
@@ -161,46 +177,93 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            Card(
-              child: Container(
-                padding: EdgeInsets.all(15),
-                child: GridTile(
-                  child: InkResponse(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Expanded(
-                          child: Icon(
-                            Icons.redeem,
-                            size: 50,
-                            color: Theme.of(context).primaryColor,
+            _redeemCode != null
+                ? Card(
+                    color: Theme.of(context).primaryColor,
+                    child: Container(
+                      padding: EdgeInsets.all(15),
+                      child: GridTile(
+                        child: InkResponse(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Icon(
+                                  Icons.redeem,
+                                  size: 50,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Container(
+                                height: 10,
+                              ),
+                            ],
+                          ),
+                          onTap: () => {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<Null>(
+                                builder: (BuildContext context) {
+                                  return RedeemScreen();
+                                },
+                                fullscreenDialog: true,
+                              ),
+                            ),
+                          },
+                        ),
+                        footer: Container(
+                          padding: EdgeInsets.only(top: 50),
+                          child: Center(
+                            child: Text(
+                              'Redeemed Code',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
                           ),
                         ),
-                        Container(
-                          height: 10,
-                        ),
-                      ],
+                      ),
                     ),
-                    onTap: () => {
-                      Navigator.of(context).push(
-                        MaterialPageRoute<Null>(
-                          builder: (BuildContext context) {
-                            return RedeemScreen();
+                  )
+                : Card(
+                    child: Container(
+                      padding: EdgeInsets.all(15),
+                      child: GridTile(
+                        child: InkResponse(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Icon(
+                                  Icons.redeem,
+                                  size: 50,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                              Container(
+                                height: 10,
+                              ),
+                            ],
+                          ),
+                          onTap: () => {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<Null>(
+                                builder: (BuildContext context) {
+                                  return RedeemScreen();
+                                },
+                                fullscreenDialog: true,
+                              ),
+                            )
                           },
-                          fullscreenDialog: true,
                         ),
-                      )
-                    },
-                  ),
-                  footer: Container(
-                    padding: EdgeInsets.only(top: 50),
-                    child: Center(
-                      child: Text('Redeem Code'),
+                        footer: Container(
+                          padding: EdgeInsets.only(top: 50),
+                          child: Center(
+                            child: Text('Redeem Code'),
+                          ),
+                        ),
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
             Card(
               child: Container(
                 padding: EdgeInsets.all(15),

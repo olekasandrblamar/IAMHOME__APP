@@ -21,6 +21,7 @@ class _RedeemScreenState extends State<RedeemScreen> {
   String _code;
   bool _isLoading = false;
   String _redeemCode;
+  String _environment;
 
   final TextEditingController _codeController = TextEditingController();
 
@@ -124,9 +125,11 @@ class _RedeemScreenState extends State<RedeemScreen> {
       await prefs.setString('redeemCode', _code);
       await prefs.setString('apiBaseUrl', promocode.dataUrl);
       await prefs.setString('authUrl', promocode.authUrl);
+      await prefs.setString('environment', promocode.environment);
 
       setState(() {
         _redeemCode = _code;
+        _environment = promocode.environment;
       });
 
       _showOkayDialog();
@@ -143,14 +146,17 @@ class _RedeemScreenState extends State<RedeemScreen> {
   Future<void> _loadRedeemCode() async {
     final prefs = await SharedPreferences.getInstance();
     final redeemCode = await prefs.getString('redeemCode');
+    var environment = await prefs.getString('environment');
 
     if (redeemCode != null) {
       setState(() {
         _redeemCode = redeemCode;
+        _environment = environment ??= env.environment;
       });
     } else {
       setState(() {
         _redeemCode = null;
+        _environment = environment ??= env.environment;
       });
     }
   }
@@ -159,6 +165,8 @@ class _RedeemScreenState extends State<RedeemScreen> {
     final prefs = await SharedPreferences.getInstance();
 
     await prefs.remove('redeemCode');
+    await prefs.remove('environment');
+
     await prefs.setString('apiBaseUrl', env.baseUrl);
     await prefs.setString('authUrl', env.authUrl);
 
@@ -235,6 +243,23 @@ class _RedeemScreenState extends State<RedeemScreen> {
                   ),
                 ),
               ),
+      ),
+      bottomNavigationBar: SafeArea(
+        bottom: true,
+        child: Container(
+          width: double.infinity,
+          // alignment: Alignment.center,
+          child: ListTile(
+            title: Text(
+              'Connected To',
+              textAlign: TextAlign.center,
+            ),
+            subtitle: Text(
+              _environment ?? '',
+              textAlign: TextAlign.center,
+            ),
+          ),
+        ),
       ),
     );
   }
