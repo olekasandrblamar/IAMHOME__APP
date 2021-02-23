@@ -15,7 +15,7 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
 
     BuildEnvironment.init(
-      environment: 'Production',
+      environment: 'Ceras',
       flavor: BuildFlavor.production,
       baseUrl: 'https://tracker.ceras.io/api/v1/device/',
       baseUrl2: 'https://api',

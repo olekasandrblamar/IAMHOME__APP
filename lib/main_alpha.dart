@@ -15,12 +15,12 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
 
     BuildEnvironment.init(
-      environment: 'Alpha',
+      environment: 'Ceras',
       flavor: BuildFlavor.alpha,
       environmentUrl: 'https://device.alpha.myceras.com/api/v1/device',
-      baseUrl: 'https://device.alpha.myceras.com/api/v1/device/',
+      baseUrl: 'https://tracker.ceras.io/api/v1/device/',
       baseUrl2: 'https://api',
-      authUrl: 'https://auth.alpha.myceras.com',
+      authUrl: 'https://auth.ceras.io',
       accessKey: 'nya8zsihq17z1w6x',
       secret: 'k72eiwnca95u33er0ujb',
     );
