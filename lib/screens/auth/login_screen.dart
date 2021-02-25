@@ -224,6 +224,32 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
       ),
+      bottomNavigationBar: SafeArea(
+        bottom: true,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+              width: 200,
+              height: 90,
+              padding: EdgeInsets.all(20),
+              child: FlatButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.5),
+                ),
+                // color: Theme.of(context).primaryColor,
+                textColor: Colors.red,
+                child: Text('Forgot Password ??'),
+                onPressed: () {
+                  return Navigator.of(context).pushReplacementNamed(
+                    routes.ForgotPasswordRoute,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
