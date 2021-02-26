@@ -271,7 +271,7 @@ class DevicesProvider extends ChangeNotifier {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
         env.environmentUrl + '/profileInfo',
-        queryParameters: {"deviceId": 'FBFBD21793A1'},
+        queryParameters: {"deviceId": await _getMacId()},
       );
 
       if (response.data != null) {
