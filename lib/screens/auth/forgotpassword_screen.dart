@@ -1,13 +1,16 @@
 import 'dart:async';
 
+import 'package:ceras/providers/auth_provider.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
+import 'package:provider/provider.dart';
+import 'package:ceras/constants/route_paths.dart' as routes;
 
 class ForgotPasswordScreen extends StatefulWidget {
-  final String phoneNumber;
+  final Map<dynamic, dynamic> routeArgs;
 
-  ForgotPasswordScreen(this.phoneNumber);
+  ForgotPasswordScreen({Key key, this.routeArgs}) : super(key: key);
 
   @override
   _ForgotPasswordScreenState createState() => _ForgotPasswordScreenState();
@@ -22,15 +25,24 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
   StreamController<ErrorAnimationType> errorController;
 
   bool hasError = false;
-  String currentText = "";
+  String currentText = '';
   final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
   final formKey = GlobalKey<FormState>();
 
+  String _email = '';
+  String _otpToken = '';
+
   @override
   void initState() {
+    if (widget.routeArgs != null) {
+      _email = widget.routeArgs['email'];
+      forgotPassword();
+    }
+
     onTapRecognizer = TapGestureRecognizer()
       ..onTap = () {
-        Navigator.pop(context);
+        // Navigator.pop(context);
+        forgotPassword();
       };
     errorController = StreamController<ErrorAnimationType>();
     super.initState();
@@ -41,6 +53,67 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     errorController.close();
 
     super.dispose();
+  }
+
+  Future<void> forgotPassword() async {
+    try {
+      var profileInfo = await Provider.of<AuthProvider>(context, listen: false)
+          .forgotPassword(email: _email);
+
+      // var profileInfoData = Map<String, dynamic>.from(profileInfo);
+
+      print('direct');
+      print(profileInfo['otpToken']);
+
+      _otpToken = profileInfo['otpToken'];
+    } catch (ex) {
+      print(ex);
+    }
+  }
+
+  Future<void> validateOtp() async {
+    try {
+      var validateOtpData =
+          await Provider.of<AuthProvider>(context, listen: false)
+              .validateOtp(otpCode: currentText, otpToken: _otpToken);
+
+      // print(validateOtpData);
+
+      if (validateOtpData != null) {
+        if (validateOtpData['otpToken'] != null) {
+          return Navigator.of(context).pushReplacementNamed(
+            routes.PasswordExpiredRoute,
+            arguments: {'token': validateOtpData['otpToken']},
+          );
+        } else {
+          showErrorDialog(validateOtpData['return_string']);
+        }
+      } else {
+        showErrorDialog(null);
+      }
+    } catch (ex) {
+      print(ex);
+    }
+  }
+
+  void showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('An Error Occurred!'),
+        content: Text(
+          message ?? 'Invalid. Please try again later.',
+        ),
+        actions: <Widget>[
+          FlatButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
   }
 
   @override
@@ -81,7 +154,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       text: "Enter the code sent to ",
                       children: [
                         TextSpan(
-                            text: widget.phoneNumber,
+                            text: _email,
                             style: TextStyle(
                                 color: Colors.black,
                                 fontWeight: FontWeight.bold,
@@ -131,7 +204,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       enableActiveFill: true,
                       errorAnimationController: errorController,
                       controller: textEditingController,
-                      keyboardType: TextInputType.number,
+                      keyboardType: TextInputType.text,
                       boxShadows: [
                         BoxShadow(
                           offset: Offset(0, 1),
@@ -175,17 +248,19 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
               RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                    text: "Didn't receive the code? ",
-                    style: TextStyle(color: Colors.black54, fontSize: 15),
-                    children: [
-                      TextSpan(
-                          text: "RESEND",
-                          recognizer: onTapRecognizer,
-                          style: TextStyle(
-                              color: Color(0xffc10b03),
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16))
-                    ]),
+                  text: "Didn't receive the code? ",
+                  style: TextStyle(color: Colors.black54, fontSize: 15),
+                  children: [
+                    TextSpan(
+                      text: 'RESEND',
+                      recognizer: onTapRecognizer,
+                      style: TextStyle(
+                          color: Color(0xffc10b03),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16),
+                    )
+                  ],
+                ),
               ),
               SizedBox(
                 height: 14,
@@ -212,10 +287,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
                       } else {
                         setState(() {
                           hasError = false;
-                          scaffoldKey.currentState.showSnackBar(SnackBar(
-                            content: Text("Invalid!!"),
-                            duration: Duration(seconds: 2),
-                          ));
+                          validateOtp();
                         });
                       }
                     },

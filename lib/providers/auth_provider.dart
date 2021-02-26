@@ -125,12 +125,54 @@ class AuthProvider with ChangeNotifier {
       final response =
           await http.post(authUrl + '/oauth/updatePassword', data: {
         "newPassword": password,
-        "id_token": _idToken,
+        "id_token": token == null ? _idToken : token,
       });
 
       final responseData = response.data;
 
       return true;
+    } on DioError catch (error) {
+      throw HttpException(error?.response?.data['message']);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  Future<dynamic> forgotPassword({
+    @required String email,
+  }) async {
+    try {
+      http.options.headers
+          .addAll({"ACCESSKEY": env.accessKey, "SECRET": env.secret});
+
+      final authUrl = await _authUrl;
+      final response = await http.post(authUrl + '/oauth/forgotPassword',
+          data: {"sendOtp": true, "email": email, "recaptcha_token": ""});
+
+      final responseData = response.data;
+      return responseData;
+    } on DioError catch (error) {
+      throw HttpException(error?.response?.data['message']);
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  Future<dynamic> validateOtp({
+    @required String otpCode,
+    @required String otpToken,
+  }) async {
+    try {
+      _idToken = null;
+      final authUrl = await _authUrl;
+      final response =
+          await http.get(authUrl + '/oauth/validateOtp', queryParameters: {
+        "otpCode": otpCode,
+        "otpToken": otpToken,
+      });
+
+      final responseData = response.data;
+      return responseData;
     } on DioError catch (error) {
       throw HttpException(error?.response?.data['message']);
     } catch (error) {

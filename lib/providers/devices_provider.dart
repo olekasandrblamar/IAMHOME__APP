@@ -4,6 +4,7 @@ import 'dart:convert';
 import 'package:ceras/config/env.dart';
 import 'package:ceras/models/currentversion_model.dart';
 import 'package:ceras/models/promo_model.dart';
+import 'package:ceras/models/profile_model.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/models/trackers/tracker_data_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
@@ -265,6 +266,23 @@ class DevicesProvider extends ChangeNotifier {
     }
   }
 
+  Future<ProfileModel> getProfileInfo() async {
+    try {
+      final baseUrl = await _baseUrl;
+      final response = await mobileDataHttp.get(
+        env.environmentUrl + '/profileInfo',
+        queryParameters: {"deviceId": 'FBFBD21793A1'},
+      );
+
+      if (response.data != null) {
+        return ProfileModel.fromJson(response.data);
+      }
+    } catch (error) {
+      print("Error on profile" + error.toString());
+      return null;
+    }
+  }
+
   Future<bool> saveWatchInfo(WatchModel watchInfo) async {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('watchInfo', json.encode(watchInfo));
@@ -306,7 +324,8 @@ class DevicesProvider extends ChangeNotifier {
   Future<PromoModel> redeemPromo(String code) async {
     try {
       final baseUrl = await _baseUrl;
-      final response = await http.get(env.environmentUrl + '/environment/' + code);
+      final response =
+          await http.get(env.environmentUrl + '/environment/' + code);
 
       if (response.data != null) {
         return PromoModel.fromJson(response.data);

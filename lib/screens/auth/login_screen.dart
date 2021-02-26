@@ -1,4 +1,6 @@
+import 'package:ceras/models/profile_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
+import 'package:ceras/providers/devices_provider.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -66,6 +68,16 @@ class _LoginScreenState extends State<LoginScreen> {
       setState(() {
         _emailController.text = userId;
       });
+    } else {
+      var profileInfo =
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .getProfileInfo();
+
+      if (profileInfo != null && profileInfo?.email != null) {
+        setState(() {
+          _emailController.text = profileInfo?.email;
+        });
+      }
     }
 
     Future.delayed(Duration(milliseconds: 300), () async {
@@ -103,7 +115,7 @@ class _LoginScreenState extends State<LoginScreen> {
       _passwordController.text = null;
     }
     setState(() {});
-    _loadUserData();
+    await _loadUserData();
     _isInit = false;
   }
 
@@ -224,32 +236,39 @@ class _LoginScreenState extends State<LoginScreen> {
                 ),
               ),
       ),
-      bottomNavigationBar: SafeArea(
-        bottom: true,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Container(
-              width: 200,
-              height: 90,
-              padding: EdgeInsets.all(20),
-              child: FlatButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.5),
-                ),
-                // color: Theme.of(context).primaryColor,
-                textColor: Colors.red,
-                child: Text('Forgot Password ??'),
-                onPressed: () {
-                  return Navigator.of(context).pushReplacementNamed(
-                    routes.ForgotPasswordRoute,
-                  );
-                },
+      bottomNavigationBar: _emailController.text != null
+          ? SafeArea(
+              bottom: true,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  Container(
+                    width: 200,
+                    height: 90,
+                    padding: EdgeInsets.all(20),
+                    child: FlatButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.5),
+                      ),
+                      // color: Theme.of(context).primaryColor,
+                      textColor: Colors.red,
+                      child: Text('Forgot Password ??'),
+                      onPressed: () {
+                        return Navigator.of(context).pushReplacementNamed(
+                          routes.ForgotPasswordRoute,
+                          arguments: {
+                            'email': _emailController.text,
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
+            )
+          : Container(
+              height: 0,
             ),
-          ],
-        ),
-      ),
     );
   }
 

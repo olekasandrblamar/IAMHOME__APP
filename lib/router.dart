@@ -39,8 +39,12 @@ Route<dynamic> generateRoute(
     case LoginRoute:
       return MaterialPageRoute(builder: (context) => LoginScreen());
     case ForgotPasswordRoute:
+      var arguments = settings.arguments as Map<dynamic, dynamic>;
       return MaterialPageRoute(
-          builder: (context) => ForgotPasswordScreen('232'));
+        builder: (context) => ForgotPasswordScreen(
+          routeArgs: arguments,
+        ),
+      );
     case PasswordExpiredRoute:
       var arguments = settings.arguments as Map<dynamic, dynamic>;
       return MaterialPageRoute(

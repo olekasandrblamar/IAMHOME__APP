@@ -102,12 +102,16 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
           FlatButton(
             child: Text('Okay'),
             onPressed: () {
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => SetupHomeScreen(),
-                    settings: const RouteSettings(name: routes.SetupHomeRoute),
-                  ),
-                  (Route<dynamic> route) => false);
+              // Navigator.of(context).pushAndRemoveUntil(
+              //     MaterialPageRoute(
+              //       builder: (BuildContext context) => SetupHomeScreen(),
+              //       settings: const RouteSettings(name: routes.SetupHomeRoute),
+              //     ),
+              //     (Route<dynamic> route) => false);
+
+              return Navigator.of(context).pushReplacementNamed(
+                routes.LoginRoute,
+              );
             },
           )
         ],
