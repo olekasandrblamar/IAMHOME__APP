@@ -109,7 +109,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
       _formKey.currentState.save();
 
       return Navigator.of(context).pushReplacementNamed(
-        routes.ForgotPasswordRoute,
+        routes.OtpConfirmationRoute,
         arguments: {
           'email': _emailController.text,
         },
