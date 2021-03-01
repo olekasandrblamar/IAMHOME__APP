@@ -243,7 +243,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Container(
-                    width: 200,
+                    width: 300,
                     height: 90,
                     padding: EdgeInsets.all(20),
                     child: FlatButton(
@@ -256,9 +256,6 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         return Navigator.of(context).pushReplacementNamed(
                           routes.ForgotPasswordRoute,
-                          arguments: {
-                            'email': _emailController.text,
-                          },
                         );
                       },
                     ),

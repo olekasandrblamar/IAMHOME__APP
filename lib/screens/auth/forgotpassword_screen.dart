@@ -1,108 +1,92 @@
-import 'dart:async';
-
+import 'package:ceras/models/profile_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
-import 'package:flutter/gestures.dart';
+import 'package:ceras/providers/devices_provider.dart';
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
-import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 
 class ForgotPasswordScreen extends StatefulWidget {
-  final Map<dynamic, dynamic> routeArgs;
-
-  ForgotPasswordScreen({Key key, this.routeArgs}) : super(key: key);
-
   @override
   _ForgotPasswordScreenState createState() => _ForgotPasswordScreenState();
 }
 
 class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
-  var onTapRecognizer;
-
-  TextEditingController textEditingController = TextEditingController();
-  // ..text = "123456";
-
-  StreamController<ErrorAnimationType> errorController;
-
-  bool hasError = false;
-  String currentText = '';
-  final GlobalKey<ScaffoldState> scaffoldKey = GlobalKey<ScaffoldState>();
-  final formKey = GlobalKey<FormState>();
-
+  final _formKey = GlobalKey<FormState>();
   String _email = '';
-  String _otpToken = '';
 
+  final TextEditingController _emailController = TextEditingController();
+
+  var _isInit = true;
   @override
   void initState() {
-    if (widget.routeArgs != null) {
-      _email = widget.routeArgs['email'];
-      forgotPassword();
-    }
-
-    onTapRecognizer = TapGestureRecognizer()
-      ..onTap = () {
-        // Navigator.pop(context);
-        forgotPassword();
-      };
-    errorController = StreamController<ErrorAnimationType>();
+    // TODO: implement initState
     super.initState();
   }
 
   @override
+  void didChangeDependencies() {
+    _loadInitData();
+
+    super.didChangeDependencies();
+  }
+
+  @override
   void dispose() {
-    errorController.close();
+    _emailController.dispose();
 
     super.dispose();
   }
 
-  Future<void> forgotPassword() async {
-    try {
-      var profileInfo = await Provider.of<AuthProvider>(context, listen: false)
-          .forgotPassword(email: _email);
-
-      // var profileInfoData = Map<String, dynamic>.from(profileInfo);
-
-      print('direct');
-      print(profileInfo['otpToken']);
-
-      _otpToken = profileInfo['otpToken'];
-    } catch (ex) {
-      print(ex);
+  Future<void> _loadUserData() async {
+    if (!mounted) {
+      return;
     }
-  }
 
-  Future<void> validateOtp() async {
-    try {
-      var validateOtpData =
-          await Provider.of<AuthProvider>(context, listen: false)
-              .validateOtp(otpCode: currentText, otpToken: _otpToken);
+    var userId = await Provider.of<AuthProvider>(context, listen: false).userId;
 
-      // print(validateOtpData);
+    if (userId != null) {
+      setState(() {
+        _emailController.text = userId;
+      });
+    } else {
+      var profileInfo =
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .getProfileInfo();
 
-      if (validateOtpData != null) {
-        if (validateOtpData['otpToken'] != null) {
-          return Navigator.of(context).pushReplacementNamed(
-            routes.PasswordExpiredRoute,
-            arguments: {'token': validateOtpData['otpToken']},
-          );
-        } else {
-          showErrorDialog(validateOtpData['return_string']);
-        }
-      } else {
-        showErrorDialog(null);
+      if (profileInfo != null && profileInfo?.email != null) {
+        setState(() {
+          _emailController.text = profileInfo?.email;
+        });
       }
-    } catch (ex) {
-      print(ex);
     }
   }
 
-  void showErrorDialog(String message) {
+  void _loadInitData() async {
+    if (_isInit) {
+      _emailController.text = null;
+    }
+
+    await _loadUserData();
+    _isInit = false;
+  }
+
+  void fieldFocusChange(
+    BuildContext context,
+    FocusNode currentFocus,
+    FocusNode nextFocus,
+  ) {
+    currentFocus.unfocus();
+    FocusScope.of(context).requestFocus(nextFocus);
+  }
+
+  void showErrorDialog(BuildContext context, String message) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: Text('An Error Occurred!'),
         content: Text(
-          message ?? 'Invalid. Please try again later.',
+          message ?? 'Could not authenticate you. Please try again later.',
         ),
         actions: <Widget>[
           FlatButton(
@@ -114,6 +98,26 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _saveForm() async {
+    try {
+      final isValid = _formKey.currentState.validate();
+      if (!isValid) {
+        return;
+      }
+      _formKey.currentState.save();
+
+      return Navigator.of(context).pushReplacementNamed(
+        routes.ForgotPasswordRoute,
+        arguments: {
+          'email': _emailController.text,
+        },
+      );
+    } catch (error) {
+      print(error);
+      showErrorDialog(context, error.toString());
+    }
   }
 
   @override
@@ -128,201 +132,32 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
         // ],
       ),
       backgroundColor: Color(0xffecf3fb),
-      key: scaffoldKey,
-      body: GestureDetector(
-        onTap: () {},
+      body: SafeArea(
+        bottom: true,
         child: Container(
-          height: MediaQuery.of(context).size.height,
-          width: MediaQuery.of(context).size.width,
-          child: ListView(
-            children: <Widget>[
-              _buildLoginTopHeader(),
-              SizedBox(height: 8),
-              Padding(
-                padding: const EdgeInsets.symmetric(vertical: 8.0),
-                child: Text(
-                  'Email Verification',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 30.0, vertical: 8),
-                child: RichText(
-                  text: TextSpan(
-                      text: "Enter the code sent to ",
-                      children: [
-                        TextSpan(
-                            text: _email,
-                            style: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 15)),
-                      ],
-                      style: TextStyle(color: Colors.black54, fontSize: 15)),
-                  textAlign: TextAlign.center,
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Form(
-                key: formKey,
-                child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                        vertical: 8.0, horizontal: 30),
-                    child: PinCodeTextField(
-                      appContext: context,
-                      pastedTextStyle: TextStyle(
-                        color: Colors.green.shade600,
-                        fontWeight: FontWeight.bold,
-                      ),
-                      length: 6,
-                      obscureText: false,
-                      obscuringCharacter: '*',
-                      animationType: AnimationType.fade,
-                      validator: (v) {
-                        if (v.length < 3) {
-                          return "I'm from validator";
-                        } else {
-                          return null;
-                        }
-                      },
-                      pinTheme: PinTheme(
-                        shape: PinCodeFieldShape.box,
-                        borderRadius: BorderRadius.circular(5),
-                        fieldHeight: 60,
-                        fieldWidth: 50,
-                        activeFillColor:
-                            hasError ? Colors.orange : Colors.white,
-                      ),
-                      cursorColor: Colors.black,
-                      animationDuration: Duration(milliseconds: 300),
-                      textStyle: TextStyle(fontSize: 20, height: 1.6),
-                      backgroundColor: Color(0xffecf3fb),
-                      enableActiveFill: true,
-                      errorAnimationController: errorController,
-                      controller: textEditingController,
-                      keyboardType: TextInputType.text,
-                      boxShadows: [
-                        BoxShadow(
-                          offset: Offset(0, 1),
-                          color: Colors.black12,
-                          blurRadius: 10,
-                        )
-                      ],
-                      onCompleted: (v) {
-                        print("Completed");
-                      },
-                      // onTap: () {
-                      //   print("Pressed");
-                      // },
-                      onChanged: (value) {
-                        print(value);
-                        setState(() {
-                          currentText = value;
-                        });
-                      },
-                      beforeTextPaste: (text) {
-                        print("Allowing to paste $text");
-                        //if you return true then it will show the paste confirmation dialog. Otherwise if false, then nothing will happen.
-                        //but you can show anything you want here, like your pop up saying wrong paste format or etc
-                        return true;
-                      },
-                    )),
-              ),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 30.0),
-                child: Text(
-                  hasError ? "*Please fill up all the cells properly" : "",
-                  style: TextStyle(
-                      color: Colors.red,
-                      fontSize: 12,
-                      fontWeight: FontWeight.w400),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              RichText(
-                textAlign: TextAlign.center,
-                text: TextSpan(
-                  text: "Didn't receive the code? ",
-                  style: TextStyle(color: Colors.black54, fontSize: 15),
-                  children: [
-                    TextSpan(
-                      text: 'RESEND',
-                      recognizer: onTapRecognizer,
-                      style: TextStyle(
-                          color: Color(0xffc10b03),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 16),
-                    )
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 14,
-              ),
-              Container(
-                margin:
-                    const EdgeInsets.symmetric(vertical: 16.0, horizontal: 30),
-                child: ButtonTheme(
-                  height: 50,
-                  child: RaisedButton(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(4.5),
+          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+          child: Form(
+            key: _formKey,
+            child: SingleChildScrollView(
+              child: Column(
+                children: [
+                  _buildLoginTopHeader(),
+                  Container(
+                    margin: EdgeInsets.symmetric(
+                      horizontal: 10,
                     ),
-                    onPressed: () {
-                      formKey.currentState.validate();
-                      // conditions for validating
-                      if (currentText.length != 6) {
-                        errorController.add(
-                          ErrorAnimationType.shake,
-                        ); // Triggering error shake animation
-                        setState(() {
-                          hasError = true;
-                        });
-                      } else {
-                        setState(() {
-                          hasError = false;
-                          validateOtp();
-                        });
-                      }
-                    },
-                    child: Center(
-                        child: Text(
-                      "VERIFY".toUpperCase(),
-                      style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold),
-                    )),
+                    child: Column(
+                      children: [
+                        const SizedBox(height: 20),
+                        _emailInput(),
+                        const SizedBox(height: 40),
+                        _submitButton(),
+                      ],
+                    ),
                   ),
-                ),
+                ],
               ),
-              // SizedBox(
-              //   height: 16,
-              // ),
-              // Row(
-              //   mainAxisAlignment: MainAxisAlignment.center,
-              //   children: <Widget>[
-              //     FlatButton(
-              //       child: Text("Clear"),
-              //       onPressed: () {
-              //         textEditingController.clear();
-              //       },
-              //     ),
-              //     FlatButton(
-              //       child: Text("Set Text"),
-              //       onPressed: () {
-              //         textEditingController.text = "123456";
-              //       },
-              //     ),
-              //   ],
-              // )
-            ],
+            ),
           ),
         ),
       ),
@@ -388,6 +223,94 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _emailInput() {
+    return TextFormField(
+      style: TextStyle(
+        fontSize: 24,
+      ),
+      decoration: _inputDecoration('Email', 'e.g abc@gmail.com'),
+      controller: _emailController,
+      keyboardType: TextInputType.emailAddress,
+      textInputAction: TextInputAction.next,
+      autofocus: false,
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'Please enter email.';
+        }
+
+        final isValid = EmailValidator.validate(value);
+        if (!isValid) {
+          return 'Invalid email address';
+        }
+
+        return null;
+      },
+      onFieldSubmitted: (_) {},
+      onSaved: (email) => _email = email,
+      // onChanged: onChangePhoneNumberInput,
+    );
+  }
+
+  Widget _submitButton() {
+    return Padding(
+      padding: const EdgeInsets.all(0.0),
+      child: Container(
+        width: 180.0,
+        height: 60.0,
+        child: RaisedButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(5),
+          ),
+          color: Theme.of(context).primaryColor,
+          textColor: Colors.white,
+          child: Text(
+            'Sent Otp',
+          ),
+          onPressed: () => _saveForm(),
+        ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(labelText, hintText) {
+    return InputDecoration(
+      contentPadding: EdgeInsets.only(
+        left: 15,
+        right: 15,
+        top: 30,
+        bottom: 0,
+      ),
+      filled: true,
+      labelText: labelText,
+      hintText: hintText,
+      border: OutlineInputBorder(),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      disabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        borderSide: BorderSide(color: Colors.grey),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        borderSide: BorderSide(color: Colors.red),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.all(Radius.circular(10.0)),
+        borderSide: BorderSide(color: Colors.red),
+      ),
+      suffixIcon: Container(
+        height: 0,
+        width: 0,
       ),
     );
   }
