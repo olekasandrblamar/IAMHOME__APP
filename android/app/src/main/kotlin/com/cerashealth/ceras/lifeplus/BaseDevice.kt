@@ -43,6 +43,7 @@ open class BaseDevice{
 
         const val WATCH_DEVICE:String = "WATCH"
         const val BAND_DEVICE:String = "BAND"
+        const val B369_DEVICE:String = "B369"
         var isBackground = false
         val TAG = WatchDevice::class.java.simpleName
 
@@ -51,6 +52,7 @@ open class BaseDevice{
             return when(deviceName){
                 WATCH_DEVICE-> WatchDevice()
                 BAND_DEVICE->BandDevice()
+                B369_DEVICE->B369Device()
                 else -> BaseDevice()
             }
         }
