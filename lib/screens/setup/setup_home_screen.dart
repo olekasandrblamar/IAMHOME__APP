@@ -207,19 +207,19 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
       body: SafeArea(
         bottom: true,
         child: SingleChildScrollView(
-          child: _deviceData.isNotEmpty
-              ? Container(
-                  padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      for (int index = 0; index < _deviceData.length; index++)
-                        _buildDevicesList(index),
-                      // _buildNewDevice()
-                    ],
-                  ),
-                )
-              : _buildNewDevice(),
+          // child: _deviceData.isNotEmpty ?
+          child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                for (int index = 0; index < _deviceData.length; index++)
+                  _buildDevicesList(index),
+                _buildNewDevice()
+              ],
+            ),
+          ),
+          // : _buildNewDevice(),
         ),
       ),
       bottomNavigationBar: _deviceData.isNotEmpty

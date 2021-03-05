@@ -62,7 +62,7 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    var userId = await Provider.of<AuthProvider>(context, listen: false).userId;
+    var userId = Provider.of<AuthProvider>(context, listen: false).userId;
 
     if (userId != null) {
       setState(() {
@@ -85,7 +85,7 @@ class _LoginScreenState extends State<LoginScreen> {
           .tryAuthLogin();
 
       if (token) {
-        var didAuthenticate = await auth.authenticateWithBiometrics(
+        var didAuthenticate = await auth.authenticate(
           localizedReason: 'Please authenticate to show your data',
           useErrorDialogs: true,
           stickyAuth: true,
