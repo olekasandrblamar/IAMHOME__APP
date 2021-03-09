@@ -33,6 +33,7 @@ if (keystorePropertiesFile.exists()) {
 
 android {
     compileSdkVersion rootProject.ext.compileSdkVersion
+    ndkVersion "22.0.7026061"
 
     repositories {
         google()
