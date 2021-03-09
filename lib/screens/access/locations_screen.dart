@@ -82,7 +82,7 @@ class _LocationsScreenState extends State<LocationsScreen>
             'Confirm',
           ),
           content: Text(
-            'The Ceras app collects location data to enable your doctor and care team to provide real time health care intervention in the case of emergency even when the app is closed or not in use.',
+            'By turning locations on, the Ceras app on your phone is able to continually receive data from your Ceras device insuring that up to date information is sent securely to our platform where your doctor can access it 24/7.',
           ),
           actions: <Widget>[
             FlatButton(

@@ -37,9 +37,11 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>This app uses biometric authentication to validate the user for automatic login</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app needs access to your location to find you</string>
+	<string>By turning locations on, the Ceras app on your phone is able to continually receive data from your Ceras device insuring that up to date information is sent securely to our platform where your doctor can access it 24/7.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>By turning locations on, the Ceras app on your phone is able to continually receive data from your Ceras device insuring that up to date information is sent securely to our platform where your doctor can access it 24/7.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to your location to find you</string>
+	<string>By turning locations on, the Ceras app on your phone is able to continually receive data from your Ceras device insuring that up to date information is sent securely to our platform where your doctor can access it 24/7.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs access to your camera to scan the image</string>
 	<key>UIBackgroundModes</key>
