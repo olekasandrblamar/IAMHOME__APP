@@ -8,7 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/theme.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+// import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -111,7 +111,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
         _deviceId = connectionStatusData.deviceId;
         _batteryLevel = connectionStatusData.batteryStatus;
       });
-    }else{
+    } else {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString("connected", "false");
     }
@@ -256,17 +256,18 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
         child: SingleChildScrollView(
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-            child: StreamBuilder<BluetoothState>(
-              stream: FlutterBlue.instance.state,
-              initialData: BluetoothState.unknown,
-              builder: (c, snapshot) {
-                final state = snapshot.data;
-                if (state == BluetoothState.on) {
-                  return buildDeviceConnect(context);
-                }
-                return buildBluetoothOff(context);
-              },
-            ),
+            // child: StreamBuilder<BluetoothState>(
+            //   stream: FlutterBlue.instance.state,
+            //   initialData: BluetoothState.unknown,
+            //   builder: (c, snapshot) {
+            //     final state = snapshot.data;
+            //     if (state == BluetoothState.on) {
+            //       return ;
+            //     }
+            //     return buildBluetoothOff(context);
+            //   },
+            // ),
+            child: buildDeviceConnect(context),
           ),
         ),
       ),

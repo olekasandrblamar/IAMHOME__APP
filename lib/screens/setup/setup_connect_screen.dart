@@ -9,7 +9,7 @@ import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/helpers/errordialog_popup.dart';
 import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/theme.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+// import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
 
 class UpperCaseTextFormatter extends TextInputFormatter {
@@ -153,8 +153,10 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
       _loadingDialog();
 
-      FlutterBlue flutterBlue = FlutterBlue.instance;
-      var checkAvailability = await flutterBlue.isOn;
+      // FlutterBlue flutterBlue = FlutterBlue.instance;
+      // var checkAvailability = await flutterBlue.isOn;
+
+      var checkAvailability = true;
 
       if (!checkAvailability) {
         _resetWithError();

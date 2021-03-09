@@ -27,3 +27,5 @@ const String DataRoute = '/data';
 const String AuthRoute = '/auth';
 const String LoginRoute = '$AuthRoute/login';
 const String PasswordExpiredRoute = '$AuthRoute/passwordExpired';
+const String ForgotPasswordRoute = '$AuthRoute/forgotPassword';
+const String OtpConfirmationRoute = '$AuthRoute/otpConfirmation';

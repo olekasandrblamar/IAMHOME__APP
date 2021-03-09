@@ -5,7 +5,6 @@ import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/nodata_widget.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
