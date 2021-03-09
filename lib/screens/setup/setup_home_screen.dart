@@ -215,7 +215,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
                     children: <Widget>[
                       for (int index = 0; index < _deviceData.length; index++)
                         _buildDevicesList(index),
-                      _buildNewDevice()
+                      // _buildNewDevice()
                     ],
                   ),
                 )
