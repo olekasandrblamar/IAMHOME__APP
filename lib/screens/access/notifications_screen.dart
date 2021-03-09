@@ -21,6 +21,41 @@ class NotificationsScreen extends StatelessWidget {
     }
   }
 
+  void _showDialog(context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Confirm',
+          ),
+          content: Text(
+            'By turning notifications on, the Ceras app on your phone is able to continually receive data from your Ceras device insuring that up to date information is sent securely to our platform where your doctor can access it 24/7.',
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+              ),
+            ),
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _goToLocations(context);
+              },
+              child: Text(
+                'Ok',
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   dynamic _goToLocations(context) {
     return Navigator.of(context).pushReplacementNamed(
       routes.LocationsRoute,
@@ -37,7 +72,7 @@ class NotificationsScreen extends StatelessWidget {
       body: AccessWidget(
         type: 'notifications',
         accessData: locationData,
-        onNothingSelected: () => _goToLocations(context),
+        onNothingSelected: () => _showDialog(context),
         onPermissionSelected: () => _checkPermission(context),
       ),
     );
