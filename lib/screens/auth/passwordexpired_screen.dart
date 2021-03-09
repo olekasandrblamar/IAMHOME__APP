@@ -108,6 +108,10 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
                     settings: const RouteSettings(name: routes.SetupHomeRoute),
                   ),
                   (Route<dynamic> route) => false);
+
+              // return Navigator.of(context).pushReplacementNamed(
+              //   routes.LoginRoute,
+              // );
             },
           )
         ],
