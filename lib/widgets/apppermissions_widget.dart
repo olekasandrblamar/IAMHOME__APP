@@ -86,7 +86,7 @@ class _PermissionState extends State<PermissionWidget> {
 
   final AppLocalizations _appLocalization;
   final Permission _permission;
-  PermissionStatus _permissionStatus = PermissionStatus.undetermined;
+  PermissionStatus _permissionStatus = PermissionStatus.denied;
 
   @override
   void initState() {

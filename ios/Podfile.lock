@@ -26,11 +26,11 @@ PODS:
   - Firebase/Performance (7.3.0):
     - Firebase/CoreOnly
     - FirebasePerformance (~> 7.3.0)
-  - firebase_analytics (7.1.0):
+  - firebase_analytics (7.1.1):
     - Firebase/Analytics (= 7.3.0)
     - firebase_core
     - Flutter
-  - firebase_core (1.0.0):
+  - firebase_core (1.0.1):
     - Firebase/CoreOnly (= 7.3.0)
     - Flutter
   - firebase_crashlytics (1.0.0):
@@ -270,8 +270,8 @@ SPEC CHECKSUMS:
   connectivity: c4130b2985d4ef6fd26f9702e886bd5260681467
   device_info: d7d233b645a32c40dfdc212de5cf646ca482f175
   Firebase: 26223c695fe322633274198cb19dca8cb7e54416
-  firebase_analytics: 205d78b0ee1d03ad55753bb5ea2720ac8f73c180
-  firebase_core: f47224dd6a9b928b4cf0128b0d004ec9e47d4bf2
+  firebase_analytics: ee4abb07bfa857e7c95d97144efe9eb68be414cd
+  firebase_core: d2e03528e2a600891f6f460b5e92932624480d1d
   firebase_crashlytics: a62319db93baf2bfeca8a2384af3f29e3d62b09c
   firebase_dynamic_links: e222260696317885f2f2592fddf8783158f4e7df
   firebase_in_app_messaging: 9afd04f54878e6c225a176bd99c41daac8ccac23
@@ -310,4 +310,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: e3229786c14a0924bda2f3dc6e228464e4f7adb9
 
-COCOAPODS: 1.9.3
+COCOAPODS: 1.10.0
