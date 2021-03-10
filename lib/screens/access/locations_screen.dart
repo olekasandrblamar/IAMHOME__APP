@@ -20,7 +20,6 @@ class LocationsScreen extends StatefulWidget {
 
 class _LocationsScreenState extends State<LocationsScreen>
     with WidgetsBindingObserver {
-
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -33,7 +32,7 @@ class _LocationsScreenState extends State<LocationsScreen>
     if (Platform.isIOS) {
       _checkPermission(context);
     } else {
-      _showDialog(context);
+      _showDialog(context, false);
     }
   }
 
@@ -73,7 +72,7 @@ class _LocationsScreenState extends State<LocationsScreen>
     }
   }
 
-  void _showDialog(context) {
+  void _showDialog(context, bool skip) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -86,21 +85,26 @@ class _LocationsScreenState extends State<LocationsScreen>
           ),
           actions: <Widget>[
             FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
               child: Text(
                 'Cancel',
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
             ),
             FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+
+                if (skip) {
+                  _goToCamera(context);
+                } else {
+                  _checkPermission(context);
+                }
+              },
               child: Text(
                 'Ok',
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _checkPermission(context);
-              },
             ),
           ],
         );
@@ -139,7 +143,7 @@ class _LocationsScreenState extends State<LocationsScreen>
       body: AccessWidget(
         type: 'locations',
         accessData: locationData,
-        onNothingSelected: () => _goToCamera(context),
+        onNothingSelected: () => _showDialog(context, true),
         onPermissionSelected: () => _checkDevice(context),
       ),
     );
