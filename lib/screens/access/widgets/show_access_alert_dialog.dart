@@ -17,21 +17,21 @@ void showAccessAlertDialog(context) {
         ),
         actions: <Widget>[
           FlatButton(
-            child: Text(
-              _appLocalization.translate('access.alert.buttons.close'),
-            ),
             onPressed: () {
               Navigator.of(context).pop();
             },
+            child: Text(
+              _appLocalization.translate('access.alert.buttons.close'),
+            ),
           ),
           FlatButton(
-            child: Text(
-              _appLocalization.translate('access.alert.buttons.open'),
-            ),
             onPressed: () {
               Navigator.of(context).pop();
               openAppSettings();
             },
+            child: Text(
+              _appLocalization.translate('access.alert.buttons.open'),
+            ),
           ),
         ],
       );

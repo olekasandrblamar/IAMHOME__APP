@@ -95,6 +95,20 @@ class _PermissionState extends State<PermissionWidget> {
     _listenForPermissionStatus();
   }
 
+  _requestPermisson() async {
+    if (PermissionStatus.denied == _permissionStatus) {
+      if (_permission == Permission.notification) {
+        await Permission.notification.request();
+      }
+
+      if (_permission == Permission.location) {
+        await Permission.locationAlways.request();
+      }
+    } else {
+      await openAppSettings();
+    }
+  }
+
   void _listenForPermissionStatus() async {
     final status = await _permission.status;
     setState(() => _permissionStatus = status);
@@ -151,37 +165,40 @@ class _PermissionState extends State<PermissionWidget> {
             margin: EdgeInsets.only(
               bottom: 10,
             ),
-            child: Card(
-              child: Column(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      getPermissionName,
+            child: InkWell(
+              onTap: () => _requestPermisson(),
+              child: Card(
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(
+                        getPermissionName,
+                      ),
+                      subtitle: Text(
+                        getPermissionStatus,
+                        style: TextStyle(color: getPermissionColor()),
+                      ),
+                      trailing: _permissionStatus == PermissionStatus.granted
+                          ? Icon(
+                              Icons.check_circle,
+                              color: Color(0xff008bc6),
+                            )
+                          : Icon(
+                              Icons.remove_circle,
+                              color: Color(0xffc10b03),
+                            ),
                     ),
-                    subtitle: Text(
-                      getPermissionStatus,
-                      style: TextStyle(color: getPermissionColor()),
-                    ),
-                    trailing: _permissionStatus == PermissionStatus.granted
-                        ? Icon(
-                            Icons.check_circle,
-                            color: Color(0xff008bc6),
-                          )
-                        : Icon(
-                            Icons.remove_circle,
-                            color: Color(0xffc10b03),
-                          ),
-                  ),
-                  // Divider(
-                  //   height: 0,
-                  // ),
-                  // Container(
-                  //   child: ListTile(
-                  //     title: Text('Capture Images'),
-                  //     subtitle: Text('Capture images for '),
-                  //   ),
-                  // ),
-                ],
+                    // Divider(
+                    //   height: 0,
+                    // ),
+                    // Container(
+                    //   child: ListTile(
+                    //     title: Text('Capture Images'),
+                    //     subtitle: Text('Capture images for '),
+                    //   ),
+                    // ),
+                  ],
+                ),
               ),
             ),
           )
