@@ -74,6 +74,10 @@
     native <methods>;
 }
 
+-keepclassmembers enum com.google.android.datatransport.Priority {
+    public static **[] values();
+}
+
 # Application classes that will be serialized/deserialized over Gson
 #-keep class com.google.gson.examples.android.model.* { *; }
 

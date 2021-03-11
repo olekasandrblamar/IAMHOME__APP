@@ -5,7 +5,7 @@ import 'dart:io';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ceras/config/background_fetch.dart';
+//import 'package:ceras/config/background_fetch.dart';
 
 import 'app.dart';
 import 'config/env.dart';
@@ -15,12 +15,12 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
 
     BuildEnvironment.init(
-      environment: 'Ceras Alpha',
+      environment: 'Ceras',
       flavor: BuildFlavor.alpha,
       environmentUrl: 'https://device.alpha.myceras.com/api/v1/device',
-      baseUrl: 'https://device.alpha.myceras.com/api/v1/device/',
+      baseUrl: 'https://tracker.ceras.io/api/v1/device/',
       baseUrl2: 'https://api',
-      authUrl: 'https://auth.alpha.myceras.com',
+      authUrl: 'https://auth.ceras.io',
       accessKey: 'nya8zsihq17z1w6x',
       secret: 'k72eiwnca95u33er0ujb',
     );
