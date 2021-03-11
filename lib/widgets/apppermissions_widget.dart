@@ -98,11 +98,25 @@ class _PermissionState extends State<PermissionWidget> {
   _requestPermisson() async {
     if (PermissionStatus.denied == _permissionStatus) {
       if (_permission == Permission.notification) {
-        await Permission.notification.request();
+        var status = await Permission.notification.request();
+
+        if (PermissionStatus.granted == status) {
+          setState(() {
+            _permissionStatus = PermissionStatus.granted;
+          });
+        }
       }
 
       if (_permission == Permission.location) {
-        await Permission.locationAlways.request();
+        var status = Platform.isIOS
+            ? await Permission.location.request()
+            : await Permission.locationAlways.request();
+
+        if (PermissionStatus.granted == status) {
+          setState(() {
+            _permissionStatus = PermissionStatus.granted;
+          });
+        }
       }
     } else {
       await openAppSettings();
