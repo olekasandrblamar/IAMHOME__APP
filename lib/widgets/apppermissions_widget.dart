@@ -95,7 +95,7 @@ class _PermissionState extends State<PermissionWidget> {
     _listenForPermissionStatus();
   }
 
-  _requestPermisson() async {
+  void _requestPermisson() async {
     if (PermissionStatus.denied == _permissionStatus) {
       if (_permission == Permission.notification) {
         var status = await Permission.notification.request();
