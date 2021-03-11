@@ -113,12 +113,9 @@ class _PermissionState extends State<PermissionWidget> {
             : await Permission.locationAlways.request();
 
         if (Platform.isAndroid) {
-          var alwaysStatus = (await Permission.locationAlways.status) ==
-              PermissionStatus.granted;
-          var inUseStatus = (await Permission.locationWhenInUse.status) ==
-              PermissionStatus.granted;
-          var locationStatus =
-              (await Permission.location.status) == PermissionStatus.granted;
+          var alwaysStatus = status == PermissionStatus.granted;
+          var inUseStatus = status == PermissionStatus.granted;
+          var locationStatus = status == PermissionStatus.granted;
 
           if (locationStatus || inUseStatus || alwaysStatus) {
             setState(() {
