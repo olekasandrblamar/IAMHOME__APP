@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/providers/devices_provider.dart';
+import 'package:ceras/screens/setup/setup_connected_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
@@ -269,19 +270,24 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
   void _redirectTo() {
     Navigator.of(context).pop();
-    // Navigator.of(context).pushAndRemoveUntil(
-    //     MaterialPageRoute(
-    //       builder: (BuildContext context) => SetupActiveScreen(),
-    //       settings: const RouteSettings(name: routes.SetupActiveRoute),
-    //     ),
-    //     (Route<dynamic> route) => false);
 
-    Navigator.of(context).pushNamed(
-      routes.SetupConnectedRoute,
-      arguments: {
-        'displayImage': _displayImage,
-      },
-    );
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (BuildContext context) => SetupConnectedScreen(
+            routeArgs: {
+              'displayImage': _displayImage,
+            },
+          ),
+          settings: const RouteSettings(name: routes.SetupConnectedRoute),
+        ),
+        (Route<dynamic> route) => false);
+
+    // Navigator.of(context).pushNamed(
+    //   routes.SetupConnectedRoute,
+    //   arguments: {
+    //     'displayImage': _displayImage,
+    //   },
+    // );
   }
 
   @override
