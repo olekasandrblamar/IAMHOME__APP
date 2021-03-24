@@ -31,7 +31,7 @@ class _SetupConnectedScreenState extends State<SetupConnectedScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        leading: BackButton(color: Colors.black),
+        // leading: BackButton(color: Colors.black),
         backgroundColor: Colors.white,
         elevation: 0,
       ),
