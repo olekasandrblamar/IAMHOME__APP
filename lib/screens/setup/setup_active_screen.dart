@@ -237,6 +237,48 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     );
   }
 
+  void _upgradeDevice() async {
+    var deviceType = (_deviceData?.deviceMaster != null &&
+            _deviceData?.deviceMaster['deviceType']['displayName'] != null)
+        ? _deviceData?.deviceMaster['deviceType']['displayName']
+        : null;
+  }
+
+  void _showUpgrade() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Confirm',
+          ),
+          content: Text(
+            'Do you want to Upgrade',
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(
+                'Cancel',
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text(
+                'Ok',
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+                _upgradeDevice();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
