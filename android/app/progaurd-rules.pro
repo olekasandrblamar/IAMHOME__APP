@@ -69,6 +69,7 @@
 -keep class com.walnutin.**.* {*;}
 -keep class android.**.* {*;}
 -keep class com.android.**.* {*;}
+-keep class io.grpc.okhttp.**.* { *; }
 
 -keepclasseswithmembernames,includedescriptorclasses class * {
     native <methods>;

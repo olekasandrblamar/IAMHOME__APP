@@ -244,13 +244,13 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             let oxygenLevel = Int(heartMap["oxygen"] ?? "0")
             
             //Only upload valid values and ignore 0 values
-            if(distolic != 0 && measureDate!.timeIntervalSince1970 > 10000){
-                bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic!, systolic: systolic!, deviceId: deviceId))
+            if( distolic != nil && distolic != 0 && measureDate != nil && measureDate!.timeIntervalSince1970 > 10000){
+                bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic ?? 0, systolic: systolic ?? 0, deviceId: deviceId))
             }
-            if(oxygenLevel != 0 && measureDate!.timeIntervalSince1970 > 10000){
+            if(oxygenLevel != nil && oxygenLevel != 0 && measureDate != nil && measureDate!.timeIntervalSince1970 > 10000){
                 oxygenUploads.append(OxygenLevelUpload(measureTime: measureDate!,oxygenLevel: oxygenLevel!,deviceId:deviceId))
             }
-            if(heartRate != 0 && measureDate!.timeIntervalSince1970 > 10000){
+            if(heartRate != nil && heartRate != 0 && measureDate != nil && measureDate!.timeIntervalSince1970 > 10000){
                 heartRateUploads.append(HeartRateUpload(measureTime: measureDate!, heartRate: heartRate!, deviceId: deviceId))
             }
         }
