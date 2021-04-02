@@ -28,7 +28,7 @@ import java.util.*
 
 class ConnectDeviceCallBack : SimpleDeviceCallback {
 
-    private var retries = 1;
+    private var retries = 1
 
     companion object{
         var currentCallBack:ConnectDeviceCallBack? = null
@@ -79,6 +79,12 @@ class DataCallBack : SimpleDeviceCallback {
 
     private var batteryResult: MethodChannel.Result? = null
 
+    private var batteryComplete = false
+    private var versionComplete = false
+    private var batteryPercentage = ""
+    private var versionUpdate = false
+    private var currentVersion:String? = null
+
     override fun equals(other: Any?): Boolean {
         other?.let {
             return it is DataCallBack
@@ -97,6 +103,10 @@ class DataCallBack : SimpleDeviceCallback {
 
     fun updateBatteryResult(result: MethodChannel.Result?){
         this.batteryResult = result
+        this.batteryComplete = false
+        this.versionComplete = false
+        this.batteryPercentage = ""
+        this.versionUpdate = false
     }
 
     fun updateResult(result: MethodChannel.Result?){
@@ -159,17 +169,25 @@ class DataCallBack : SimpleDeviceCallback {
 
     }
 
+    private fun checkAndSendStatusResponse(){
+        if(this.batteryComplete && this.versionComplete) {
+            try {
+                batteryResult?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
+                        deviceName = "", additionalInfo = mapOf(), deviceType = "", batteryStatus = this.batteryPercentage,versionUpdate = this.versionUpdate))
+                this.batteryResult = null
+            } catch (ex: Exception) {
+                Log.e(WatchDevice.TAG, "Error while sending response ", ex)
+            }
+        }
+    }
+
     override fun onCallbackResult(flag: Int, state: Boolean, obj: Any?) {
         super.onCallbackResult(flag, state, obj)
         Log.d(WatchDevice.TAG, "onCallbackResult: ${flag}")
         if (flag == GlobalValue.BATTERY) {
-            try{
-                batteryResult?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
-                        deviceName = "", additionalInfo = mapOf(), deviceType = "", batteryStatus = obj.toString()))
-                this.batteryResult = null
-            }catch (ex: Exception){
-                Log.e(WatchDevice.TAG, "Error while sending response ", ex)
-            }
+            this.batteryComplete = true
+            this.batteryPercentage = obj.toString()
+            checkAndSendStatusResponse()
         }
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult from sync: Connected ${HardSdk.getInstance().isDevConnected}")
@@ -202,20 +220,36 @@ class DataCallBack : SimpleDeviceCallback {
             Log.d(WatchDevice.TAG, "onCallbackResult: Sync complete")
 
         } else if (flag == GlobalValue.Firmware_Version) {
-            Log.d(WatchDevice.TAG, "version ${obj as String}")
+            val existingVersion = obj as String
+            Log.d(WatchDevice.TAG, "version $existingVersion")
+            this.currentVersion = existingVersion
+            HardSdk.getInstance().checkNewFirmware(existingVersion)
         } else if (flag == GlobalValue.Hardware_Version) {
         } else if (flag == GlobalValue.DISCOVERY_DEVICE_SHAKE) {
         } else if (flag == GlobalValue.Firmware_DownFile) {
         } else if (flag == GlobalValue.Firmware_Start_Upgrade) {
+            Log.i(WatchDevice.TAG,"Firmware update")
         } else if (flag == GlobalValue.Firmware_Info_Error) {
+            Log.i(WatchDevice.TAG,"Firmware info error")
         } else if (flag == GlobalValue.Firmware_Server_Status) {
             Log.i(WatchDevice.TAG, "Server status: $obj \n")
+            this.versionComplete = true
             if (obj != null) {
                 val serverVersion = obj as Version
                 Log.i(WatchDevice.TAG, "Version：" + Gson().toJson(serverVersion))
+                Log.d(WatchDevice.TAG,"Currenr version ${currentVersion}.bin compared to ${serverVersion.firmwareName}")
+                //If the version is updated check and update
+                if(serverVersion.firmwareName != "${currentVersion}.bin") {
+                    Log.d(WatchDevice.TAG,"version updated")
+                    this.versionUpdate = true
+                    HardSdk.getInstance().startUpdateBLE()
+                }
+                checkAndSendStatusResponse()
             }
         } else if (flag == GlobalValue.Firmware_Upgrade_Progress) {
+            Log.i(WatchDevice.TAG,"Firmware update progress ${obj}")
         } else if (flag == GlobalValue.Firmware_Server_Failed) {
+            Log.i(WatchDevice.TAG,"Firmware update failed ${obj as String}")
         } else if (flag == GlobalValue.READ_TEMP_FINISH_2) { // -273.15代表绝对0度作为无效值
             val tempStatus = obj as TempStatus
             Log.i(WatchDevice.TAG, "temp ${Gson().toJson(tempStatus)}")
@@ -360,8 +394,9 @@ class WatchDevice:BaseDevice()     {
 
     companion object {
         var isTestingHeart = false;
-        val TAG = BaseDevice::class.java.simpleName
+        val TAG = WatchDevice::class.java.simpleName
         var dataCallback: DataCallBack? = null
+        var updateInProgress = false
 
         fun syncProfile(){
             val userInfo = DataSync.getUserInfo()
@@ -526,6 +561,7 @@ class WatchDevice:BaseDevice()     {
         if(connectionStatus){
             dataCallback?.updateBatteryResult(result)
             HardSdk.getInstance().findBattery()
+            HardSdk.getInstance().queryFirmVesion()
         }else{
             //If it is not connected or it is syncing send the status
             sendConnectionResponse(connectionInfo.deviceId, connectionStatus, result)
