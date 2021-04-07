@@ -21,6 +21,9 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var statusConnectionInfo: ConnectionInfo? = nil
     var reconnect:Int = 0;
     
+    var batteryComplete = false
+    var versionComplete = false
+    
     override init() {
         super.init()
         self.dayFormat.dateFormat = "yyyy-MM-dd"
@@ -76,6 +79,20 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         NSLog("Got device in dif find device \(deviceName ?? "No name ") - \(deviceUUID)")
     }
     
+    private func checkAndSendResponse(){
+        if(batteryComplete){
+            do{
+                let deviceJson = try JSONEncoder().encode(statusConnectionInfo)
+                let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                NSLog("Sending Connection data back from battery info \(connectionInfoData)")
+                statusResult?(connectionInfoData)
+            }catch{
+                NSLog("Error getting watch info from battery getDeviceInfo \(error)")
+                statusResult?("Error")
+            }
+        }
+    }
+    
     func gettingFallBack(_ option: HardGettingOption, values: [AnyHashable : Any]!) {
         //NSLog("Got option \(option.rawValue) value %@", values)
         //For tempartire History
@@ -95,16 +112,17 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             }
             
         }
+//        else if(option == HardGettingOption.){
+//
+//        }
         else if(option == HardGettingOption.battery){
             NSLog("battery \(values)")
             do{
                 if(values["battery"] != nil){
                     statusConnectionInfo?.batteryStatus = values["battery"] as! String
                 }
-                let deviceJson = try JSONEncoder().encode(statusConnectionInfo)
-                let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
-                NSLog("Sending Connection data back from battery info \(connectionInfoData)")
-                statusResult?(connectionInfoData)
+                batteryComplete = true
+                checkAndSendResponse()
              }catch{
                 NSLog("Error getting watch info from battery getDeviceInfo \(error)")
                 statusResult?("Error")
@@ -137,9 +155,29 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         if(connectionInfo.connected == nil || !connectionInfo.connected!){
             HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connInfo.deviceId!)
         }
-        do{
+        do{ 
             if(connectionInfo.connected != nil && connectionInfo.connected!){
+                batteryComplete = false
                 HardManagerSDK.shareBLEManager()?.getHardBattery()
+                let version = HardManagerSDK.shareBLEManager()?.firmwareVersion
+                
+                NSLog("got verison \(version)")
+                
+                //Check the version and if it is not the latest version, update the device
+                if(version != nil && version!.lowercased().starts(with: "sw07s") && version?.lowercased() != "sw07s_2.56.00_210324"){
+                    NSLog("Tryinng to upgrade")
+                    let upgradePath = Bundle.main.path(forResource: "SW07s_2.56.00_210324", ofType: "bin", inDirectory: "HardSDK")
+                    NSLog("Upgrade path \(upgradePath)")
+                    
+                    let errorPtr: NSErrorPointer = nil
+                    HardManagerSDK.shareBLEManager().setUpgradeDeviceFirmwareWithFilePath(upgradePath,error: errorPtr)
+                    if(errorPtr != nil){
+                        let error:NSError? = errorPtr?.pointee
+                    }
+                    
+                }
+                
+                //HardManagerSDK.shareBLEManager()?.getHardFirmwareVersionFormServe()
                 statusConnectionInfo = connectionInfo
                 statusResult = result
             }else{
@@ -151,7 +189,6 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         }catch{
             NSLog("Error getting watch info from getDeviceInfo \(error)")
             result("Error")
-            
         }
     }
     
