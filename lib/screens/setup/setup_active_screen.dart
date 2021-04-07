@@ -198,6 +198,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       if (disconnect != null) {
         await Provider.of<DevicesProvider>(context, listen: false)
             .removeDevice(_deviceIndex);
+
+        Navigator.of(context).pop();
       }
     }
   }
