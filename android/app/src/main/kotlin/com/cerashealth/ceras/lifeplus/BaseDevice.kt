@@ -22,6 +22,11 @@ open class BaseDevice{
         Log.i(TAG,"Calling default device Info")
     }
 
+    open fun checkForUpdate(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
+        Log.i(TAG,"Calling default Update")
+        result?.success("{status:'Success'}")
+    }
+
     open fun disconnectDevice(result: MethodChannel.Result?){
         Log.i(TAG,"Calling default disconnect device")
     }

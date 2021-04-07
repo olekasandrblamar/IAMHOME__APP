@@ -44,10 +44,11 @@ class ConnectionInfo{
     var additionalInformation = mapOf<String,String>()
     var deviceType:String? = null
     var batteryStatus:String? = null
+    var versionUpdate = false
 
     companion object{
         fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null
-                           ,additionalInfo: Map<String, String> = mapOf<String,String>(),deviceType:String? = null,deviceFound:Boolean = true,batteryStatus:String? = null):String{
+                           ,additionalInfo: Map<String, String> = mapOf<String,String>(),deviceType:String? = null,deviceFound:Boolean = true,batteryStatus:String? = null,versionUpdate:Boolean = false):String{
             Log.i("DataSync","performing data sync ")
             val connectionData =  Gson().toJson(ConnectionInfo().apply {
                 this.deviceId = deviceId
@@ -58,6 +59,7 @@ class ConnectionInfo{
                 this.deviceType = deviceType
                 this.deviceFound = deviceFound
                 this.batteryStatus = batteryStatus
+                this.versionUpdate = versionUpdate
             })
             Log.i(MainActivity.TAG,"Sending connection data back $connectionData")
             return connectionData
