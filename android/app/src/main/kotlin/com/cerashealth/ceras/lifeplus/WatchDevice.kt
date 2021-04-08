@@ -100,6 +100,9 @@ class DataCallBack : SimpleDeviceCallback {
         this.result = result
     }
 
+    fun updateVersionResult(result: MethodChannel.Result?){
+        this.batteryResult = result
+    }
 
     fun updateBatteryResult(result: MethodChannel.Result?){
         this.batteryResult = result
@@ -242,12 +245,19 @@ class DataCallBack : SimpleDeviceCallback {
                 if(serverVersion.firmwareName != "${currentVersion}.bin") {
                     Log.d(WatchDevice.TAG,"version updated")
                     this.versionUpdate = true
-                    HardSdk.getInstance().startUpdateBLE()
                 }
                 checkAndSendStatusResponse()
             }
         } else if (flag == GlobalValue.Firmware_Upgrade_Progress) {
             Log.i(WatchDevice.TAG,"Firmware update progress ${obj}")
+            //If the progress is complete
+            if((obj as Int) == 100){
+                try {
+                    batteryResult?.success("Success")
+                }catch (e:java.lang.Exception){
+                    Log.e(WatchDevice.TAG,"Error while sending upgrade response ${e.message}")
+                }
+            }
         } else if (flag == GlobalValue.Firmware_Server_Failed) {
             Log.i(WatchDevice.TAG,"Firmware update failed ${obj as String}")
         } else if (flag == GlobalValue.READ_TEMP_FINISH_2) { // -273.15代表绝对0度作为无效值
@@ -543,6 +553,15 @@ class WatchDevice:BaseDevice()     {
 
     override fun getConnectionStatus(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
         result?.success(HardSdk.getInstance().isDevConnected)
+    }
+
+    override fun upgradeDevice(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
+        val connectionStatus = HardSdk.getInstance().isDevConnected
+        Log.i(TAG,"Getting device information $connectionStatus");
+        if(connectionStatus){
+            dataCallback?.updateVersionResult(result)
+            HardSdk.getInstance().startUpdateBLE()
+        }
     }
 
     override fun getDeviceInfo(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {

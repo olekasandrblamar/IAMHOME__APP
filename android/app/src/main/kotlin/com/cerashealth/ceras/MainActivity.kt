@@ -126,6 +126,12 @@ class MainActivity: FlutterFragmentActivity()  {
             }else if(call.method =="disconnect"){
                 val deviceType = call.argument<String>("deviceType")
                 BaseDevice.getDeviceImpl(deviceType).disconnectDevice(result)
+            }else if(call.method == "upgradeDevice"){
+                val deviceDataString = call.argument<String>("connectionInfo")
+                Log.i(TAG,"got upgrade device data with arguments $deviceDataString")
+                val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
+                deviceId = deviceData.deviceId?:""
+                BaseDevice.getDeviceImpl(deviceData.deviceType).upgradeDevice(result,deviceData,this)
             }
             else {
                 result.notImplemented()

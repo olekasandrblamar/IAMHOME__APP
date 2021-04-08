@@ -150,6 +150,17 @@ import BackgroundTasks
             NSLog("Disconnecting device")
             let deviceType:String = (args as? [String: Any])?["deviceType"] as! String
             self?.disconectDevice(result: result, deviceType: deviceType)
+        }else if(call.method=="upgradeDevice"){
+            guard let args = call.arguments else {
+              result("iOS could not recognize flutter arguments in method: (sendParams)")
+              return
+            }
+            let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
+            do{
+                try self?.upgradeDevice(result: result, connectionInfo: connectionInfo)
+            }catch{
+                result("Error")
+            }
         }
         else {
           result(FlutterMethodNotImplemented)
@@ -333,6 +344,18 @@ import BackgroundTasks
 //        }
     }
     
+    private func upgradeDevice(result:@escaping FlutterResult,connectionInfo:String) throws {
+        let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
+        NSLog("Getting device info ")
+        let deviceType = getDeviceType()
+        if(deviceType! == AppDelegate.WATCH_TYPE){
+            self.getWatchDevice()?.upgradeDevice(connInfo: connectionData, result: result)
+        }
+//        else if(deviceType! == AppDelegate.BAND_TYPE){
+//            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+//        }
+    }
+    
 //    private func getBandDevice() -> BandDevice?{
 //        if(AppDelegate.bandDevice==nil){
 //            AppDelegate.bandDevice = BandDevice()
@@ -356,4 +379,5 @@ struct ConnectionInfo:Codable {
     var message:String?
     var additionalInformation: [String:String] = [:]
     var batteryStatus:String? = nil
+    var upgradeAvailable:Bool = false
 }

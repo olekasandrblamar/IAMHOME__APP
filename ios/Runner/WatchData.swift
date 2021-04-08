@@ -22,7 +22,6 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var reconnect:Int = 0;
     
     var batteryComplete = false
-    var versionComplete = false
     
     override init() {
         super.init()
@@ -132,6 +131,17 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         
     }
     
+    func hardManager(_ manager: HardManagerSDK!, firmwareUpgradeStep step: HardFirmwareUpgradeStep, result: HardFirmwareUpgradStepResult) {
+        NSLog("Step \(step.rawValue)")
+        NSLog("Result \(result.rawValue)")
+    }
+    
+    func hardManager(_ manager: HardManagerSDK!, firmwareUpgradeNextStep step: HardFirmwareUpgradeStep) {
+        if(step == HardFirmwareUpgradeStep.finished){
+            statusResult?("Success")
+        }
+    }
+    
     func connectedDeviceMacDidUpdate(_ hardManager: HardManagerSDK!) {
         NSLog("Mac updated \(hardManager.connectedDeviceMAC)")
         if(hardManager.connectedDeviceMAC != nil){
@@ -144,6 +154,32 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             return result(false)
         }else{
             return result(HardManagerSDK.shareBLEManager()!.isConnected)
+        }
+    }
+    
+    
+    func upgradeDevice(connInfo: ConnectionInfo, result:@escaping FlutterResult){
+        var connectionInfo = ConnectionInfo()
+        connectionInfo.deviceId = getMacId()
+        connectionInfo.connected = HardManagerSDK.shareBLEManager()?.isConnected
+        NSLog("Got mac id \(connectionInfo.deviceId)")
+        do{
+            if(connectionInfo.connected != nil && connectionInfo.connected!){
+                NSLog("Trying to upgrade")
+                let upgradePath = Bundle.main.path(forResource: "SW07s_2.56.00_210324", ofType: "bin", inDirectory: "HardSDK")
+                NSLog("Upgrade path \(upgradePath)")
+
+                let errorPtr: NSErrorPointer = nil
+                HardManagerSDK.shareBLEManager().setUpgradeDeviceFirmwareWithFilePath(upgradePath,error: errorPtr)
+                if(errorPtr != nil){
+                    let error:NSError? = errorPtr?.pointee
+                }
+                statusResult = result
+            }
+        }
+        catch{
+            NSLog("Error upgrading watch\(error)")
+            result("Error")
         }
     }
     
@@ -162,18 +198,11 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 let version = HardManagerSDK.shareBLEManager()?.firmwareVersion
                 
                 NSLog("got verison \(version)")
+                connectionInfo.upgradeAvailable = false
                 
                 //Check the version and if it is not the latest version, update the device
                 if(version != nil && version!.lowercased().starts(with: "sw07s") && version?.lowercased() != "sw07s_2.56.00_210324"){
-                    NSLog("Tryinng to upgrade")
-                    let upgradePath = Bundle.main.path(forResource: "SW07s_2.56.00_210324", ofType: "bin", inDirectory: "HardSDK")
-                    NSLog("Upgrade path \(upgradePath)")
-                    
-                    let errorPtr: NSErrorPointer = nil
-                    HardManagerSDK.shareBLEManager().setUpgradeDeviceFirmwareWithFilePath(upgradePath,error: errorPtr)
-                    if(errorPtr != nil){
-                        let error:NSError? = errorPtr?.pointee
-                    }
+                    connectionInfo.upgradeAvailable = true
                     
                 }
                 
@@ -244,6 +273,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     func settingFallBack(_ option: HardSettingOption, status: HardOptionStatus) {
         
     }
+    
     
     private func getMacId() -> String{
         let macAddress = UserDefaults.standard.string(forKey: DataSync.MAC_ADDRESS_NAME)

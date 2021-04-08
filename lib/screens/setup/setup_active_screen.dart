@@ -111,6 +111,9 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
         _deviceId = connectionStatusData.deviceId;
         _batteryLevel = connectionStatusData.batteryStatus;
       });
+      if(connectionStatusData.upgradeAvailable){
+        _showUpgrade();
+      }
     } else {
       final prefs = await SharedPreferences.getInstance();
       await prefs.setString("connected", "false");
@@ -238,10 +241,32 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   }
 
   void _upgradeDevice() async {
-    var deviceType = (_deviceData?.deviceMaster != null &&
-            _deviceData?.deviceMaster['deviceType']['displayName'] != null)
-        ? _deviceData?.deviceMaster['deviceType']['displayName']
-        : null;
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.reload();
+    final connectionInfo = prefs.getString('watchInfo');
+    if (connectionInfo != null) {
+      _setIsLoading(true);
+
+      final upgrade = BackgroundFetchData.platform.invokeMethod(
+        'upgradeDevice',
+        <String, dynamic>{'connectionInfo': connectionInfo},
+      );
+      upgrade.then((value){
+        if((value as String) == "Success" ){
+          _setIsLoading(false);
+        }else{
+          //Add Code to Show failure
+        }
+      },onError: (error){
+        //Add code to show failure
+      });
+
+      //If we don't get response in 30 seconds close the loading
+      Future.delayed(Duration(seconds: 240), () {
+        _setIsLoading(false);
+        //Add a timeout error
+      });
+    }
   }
 
   void _showUpgrade() {
@@ -250,10 +275,10 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       builder: (BuildContext context) {
         return AlertDialog(
           title: Text(
-            'Confirm',
+            'Upgrade available',
           ),
           content: Text(
-            'Do you want to Upgrade',
+            'An upgrade to the device is aviailable. Do you want to Upgrade',
           ),
           actions: <Widget>[
             FlatButton(

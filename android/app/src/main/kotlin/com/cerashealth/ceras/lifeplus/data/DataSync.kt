@@ -44,7 +44,7 @@ class ConnectionInfo{
     var additionalInformation = mapOf<String,String>()
     var deviceType:String? = null
     var batteryStatus:String? = null
-    var versionUpdate = false
+    var upgradeAvailable = false
 
     companion object{
         fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null
@@ -59,7 +59,7 @@ class ConnectionInfo{
                 this.deviceType = deviceType
                 this.deviceFound = deviceFound
                 this.batteryStatus = batteryStatus
-                this.versionUpdate = versionUpdate
+                this.upgradeAvailable = versionUpdate
             })
             Log.i(MainActivity.TAG,"Sending connection data back $connectionData")
             return connectionData

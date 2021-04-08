@@ -27,6 +27,11 @@ open class BaseDevice{
         result?.success("{status:'Success'}")
     }
 
+    open fun upgradeDevice(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
+        Log.i(TAG,"Calling default upgrade")
+        result?.success("Success")
+    }
+
     open fun disconnectDevice(result: MethodChannel.Result?){
         Log.i(TAG,"Calling default disconnect device")
     }
