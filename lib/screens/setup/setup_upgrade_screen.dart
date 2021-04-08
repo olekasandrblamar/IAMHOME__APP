@@ -49,6 +49,7 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> {
       await upgrade.then((value) {
         if ((value as String) == 'Success') {
           _setIsUpgrading(false);
+          _navigateToHomePage();
         } else {
           _showUpgradeFail('Upgrade to device is unsuccessfull');
         }
@@ -89,13 +90,7 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
 
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => SetupHomeScreen(),
-                      settings:
-                          const RouteSettings(name: routes.SetupHomeRoute),
-                    ),
-                    (Route<dynamic> route) => false);
+                _navigateToHomePage();
               },
               child: Text(
                 'Ok',
@@ -107,86 +102,98 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> {
     );
   }
 
+  void _navigateToHomePage() {
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (BuildContext context) => SetupHomeScreen(),
+          settings: const RouteSettings(name: routes.SetupHomeRoute),
+        ),
+        (Route<dynamic> route) => false);
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      // appBar: AppBar(
-      //   title: Text('Upgrading Device'),
-      // ),
-      backgroundColor: AppTheme.white,
-      body: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            SizedBox(height: 5.0),
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Column(
-                children: <Widget>[
-                  Container(
-                    constraints: BoxConstraints(
-                      maxHeight: 300.0,
+    return WillPopScope(
+      onWillPop: () async => false,
+      child: Scaffold(
+        // appBar: AppBar(
+        //   title: Text('Upgrading Device'),
+        // ),
+        backgroundColor: AppTheme.white,
+        body: Container(
+          width: double.infinity,
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: <Widget>[
+              SizedBox(height: 5.0),
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 10.0),
+                child: Column(
+                  children: <Widget>[
+                    Container(
+                      constraints: BoxConstraints(
+                        maxHeight: 300.0,
+                      ),
+                      padding: const EdgeInsets.all(10.0),
+                      child: Image.asset(
+                        'assets/images/upgrading.png',
+                      ),
                     ),
-                    padding: const EdgeInsets.all(10.0),
-                    child: Image.asset(
-                      'assets/images/upgrading.png',
+                    SizedBox(
+                      height: 25,
                     ),
-                  ),
-                  SizedBox(
-                    height: 25,
-                  ),
-                  Container(
-                    padding: const EdgeInsets.all(10.0),
-                    child: Text(
-                      'Upgrade in progress',
-                      overflow: TextOverflow.ellipsis,
-                      textAlign: TextAlign.center,
-                      style: AppTheme.title,
+                    Container(
+                      padding: const EdgeInsets.all(10.0),
+                      child: Text(
+                        'Upgrade in progress',
+                        overflow: TextOverflow.ellipsis,
+                        textAlign: TextAlign.center,
+                        style: AppTheme.title,
+                      ),
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.symmetric(
-                      // vertical: 5.0,
-                      horizontal: 35.0,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        // vertical: 5.0,
+                        horizontal: 35.0,
+                      ),
+                      child: Text(
+                        'Please do not close the app',
+                        textAlign: TextAlign.center,
+                        style: AppTheme.subtitle,
+                      ),
                     ),
-                    child: Text(
-                      'Please do not close the app',
-                      textAlign: TextAlign.center,
-                      style: AppTheme.subtitle,
+                    SizedBox(
+                      height: 25,
                     ),
-                  ),
-                  SizedBox(
-                    height: 25,
-                  ),
-                  !isUpgrading
-                      ? Container(
-                          width: 200,
-                          height: 75,
-                          padding: EdgeInsets.all(10),
-                          child: RaisedButton(
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(4.5),
-                            ),
-                            color: Theme.of(context).primaryColor,
-                            textColor: Colors.white,
-                            onPressed: () => _upgradeDevice(),
-                            child: Text(
-                              'Retry Upgrade',
-                              style: TextStyle(
-                                fontSize: 14,
+                    !isUpgrading
+                        ? Container(
+                            width: 200,
+                            height: 75,
+                            padding: EdgeInsets.all(10),
+                            child: RaisedButton(
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(4.5),
+                              ),
+                              color: Theme.of(context).primaryColor,
+                              textColor: Colors.white,
+                              onPressed: () => _upgradeDevice(),
+                              child: Text(
+                                'Retry Upgrade',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                ),
                               ),
                             ),
+                          )
+                        : Container(
+                            height: 0,
                           ),
-                        )
-                      : Container(
-                          height: 0,
-                        ),
-                ],
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
