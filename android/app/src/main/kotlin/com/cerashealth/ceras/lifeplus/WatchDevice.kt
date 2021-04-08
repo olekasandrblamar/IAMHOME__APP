@@ -406,7 +406,6 @@ class WatchDevice:BaseDevice()     {
         var isTestingHeart = false;
         val TAG = WatchDevice::class.java.simpleName
         var dataCallback: DataCallBack? = null
-        var updateInProgress = false
 
         fun syncProfile(){
             val userInfo = DataSync.getUserInfo()

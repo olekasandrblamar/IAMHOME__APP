@@ -20,6 +20,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var statusResult:FlutterResult? = nil
     var statusConnectionInfo: ConnectionInfo? = nil
     var reconnect:Int = 0;
+    var upgradeInProcess = false
     
     var batteryComplete = false
     
@@ -125,7 +126,6 @@ class WatchData: NSObject,HardManagerSDKDelegate{
              }catch{
                 NSLog("Error getting watch info from battery getDeviceInfo \(error)")
                 statusResult?("Error")
-                
             }
         }
         
@@ -134,11 +134,16 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     func hardManager(_ manager: HardManagerSDK!, firmwareUpgradeStep step: HardFirmwareUpgradeStep, result: HardFirmwareUpgradStepResult) {
         NSLog("Step \(step.rawValue)")
         NSLog("Result \(result.rawValue)")
+        if(step == HardFirmwareUpgradeStep.finished){
+            upgradeInProcess = false
+        }
+        
     }
     
     func hardManager(_ manager: HardManagerSDK!, firmwareUpgradeNextStep step: HardFirmwareUpgradeStep) {
         if(step == HardFirmwareUpgradeStep.finished){
             statusResult?("Success")
+            upgradeInProcess = false
         }
     }
     
@@ -171,6 +176,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
 
                 let errorPtr: NSErrorPointer = nil
                 HardManagerSDK.shareBLEManager().setUpgradeDeviceFirmwareWithFilePath(upgradePath,error: errorPtr)
+                upgradeInProcess = true
                 if(errorPtr != nil){
                     let error:NSError? = errorPtr?.pointee
                 }
@@ -180,6 +186,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         catch{
             NSLog("Error upgrading watch\(error)")
             result("Error")
+            upgradeInProcess = false
         }
     }
     
@@ -192,7 +199,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connInfo.deviceId!)
         }
         do{ 
-            if(connectionInfo.connected != nil && connectionInfo.connected!){
+            if(connectionInfo.connected != nil && connectionInfo.connected! && !upgradeInProcess){
                 batteryComplete = false
                 HardManagerSDK.shareBLEManager()?.getHardBattery()
                 let version = HardManagerSDK.shareBLEManager()?.firmwareVersion

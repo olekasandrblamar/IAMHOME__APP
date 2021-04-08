@@ -37,6 +37,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   String _batteryLevel = "---";
   bool _connected = true;
   bool isLoading = true;
+  bool isUpgrading = false;
 
   @override
   void initState() {
@@ -186,6 +187,14 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     }
   }
 
+  void _setIsUpgrading(bool upgradeInProgress) {
+    if (mounted) {
+      setState(() {
+        isUpgrading = upgradeInProgress;
+      });
+    }
+  }
+
   void _removeDevice() async {
     var deviceType = (_deviceData?.deviceMaster != null &&
             _deviceData?.deviceMaster['deviceType']['displayName'] != null)
@@ -245,7 +254,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     await prefs.reload();
     final connectionInfo = prefs.getString('watchInfo');
     if (connectionInfo != null) {
-      _setIsLoading(true);
+      _setIsUpgrading(true);
 
       final upgrade = BackgroundFetchData.platform.invokeMethod(
         'upgradeDevice',
@@ -253,7 +262,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       );
       upgrade.then((value){
         if((value as String) == "Success" ){
-          _setIsLoading(false);
+          _setIsUpgrading(false);
         }else{
           //Add Code to Show failure
         }
@@ -263,7 +272,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
       //If we don't get response in 30 seconds close the loading
       Future.delayed(Duration(seconds: 240), () {
-        _setIsLoading(false);
+        _setIsUpgrading(false);
         //Add a timeout error
       });
     }
@@ -439,8 +448,28 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
           SizedBox(
             height: 35,
           ),
-          if (isLoading)
+          if (isLoading || isUpgrading)
             CircularProgressIndicator()
+          // else if(isUpgrading) // This is used to display upgrade process
+          //   Container(
+          //     child: Column(
+          //       children: <Widget>[
+          //         SizedBox(
+          //           height: 200.0,
+          //           child: Stack(
+          //             children: <Widget>[
+          //               Center(
+          //                 child: Container(
+          //                   child: CircularProgressIndicator(),
+          //                 ),
+          //               ),
+          //               Center(child: Text('Upgrading')),
+          //             ],
+          //           ),
+          //         ),
+          //       ],
+          //     ),
+          //   )
           else
             ..._buildInfo(_appLocalization),
         ],
