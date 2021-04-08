@@ -45,15 +45,18 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       _deviceIndex = widget.routeArgs['deviceIndex'];
     }
 
+    WidgetsBinding.instance.addObserver(this);
+
     // _changeLastUpdated();
     _syncDataFromDevice();
-    super.initState();
 
-    WidgetsBinding.instance.addObserver(this);
+    super.initState();
   }
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+
     super.dispose();
   }
 

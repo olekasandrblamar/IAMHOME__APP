@@ -20,8 +20,8 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> {
 
   @override
   void initState() {
-    // _changeLastUpdated();
-    // _upgradeDevice();
+    _upgradeDevice();
+
     super.initState();
   }
 
