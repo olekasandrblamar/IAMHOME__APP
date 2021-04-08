@@ -34,14 +34,12 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
   bool _paused = false;
 
-
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     print('Got state ${state}');
     switch (state) {
       case AppLifecycleState.resumed:
-        if(!Platform.isIOS) {
+        if (!Platform.isIOS) {
           _goToLogin();
         }
         break;
@@ -61,6 +59,13 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
     // TODO: implement initState
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+
+    super.dispose();
   }
 
   Future<void> _initData() async {
@@ -96,7 +101,6 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       _loadCalories();
       _loadSteps();
       _loadOxygenLevel();
-
     } on PlatformException catch (e) {
       print(e);
       _goToLogin();
@@ -666,10 +670,9 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                               child: Text(
                                 _bloodPressure != null
                                     ? 'Last Updated: ' +
-                                    _formatDate(
-                                        _oxygenLevel.measureTime) +
-                                    ' ' +
-                                    _formatTime(_oxygenLevel.measureTime)
+                                        _formatDate(_oxygenLevel.measureTime) +
+                                        ' ' +
+                                        _formatTime(_oxygenLevel.measureTime)
                                     : '--',
                                 style: TextStyle(
                                   fontSize: 12,
