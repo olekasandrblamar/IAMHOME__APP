@@ -49,6 +49,7 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> {
       await upgrade.then((value) {
         if ((value as String) == 'Success') {
           _setIsUpgrading(false);
+          _navigateToHomePage();
         } else {
           _showUpgradeFail('Upgrade to device is unsuccessfull');
         }
@@ -89,13 +90,7 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> {
               onPressed: () {
                 Navigator.of(context).pop();
 
-                Navigator.of(context).pushAndRemoveUntil(
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => SetupHomeScreen(),
-                      settings:
-                          const RouteSettings(name: routes.SetupHomeRoute),
-                    ),
-                    (Route<dynamic> route) => false);
+                _navigateToHomePage();
               },
               child: Text(
                 'Ok',
@@ -105,6 +100,15 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> {
         );
       },
     );
+  }
+
+  void _navigateToHomePage() {
+    Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(
+          builder: (BuildContext context) => SetupHomeScreen(),
+          settings: const RouteSettings(name: routes.SetupHomeRoute),
+        ),
+        (Route<dynamic> route) => false);
   }
 
   @override
