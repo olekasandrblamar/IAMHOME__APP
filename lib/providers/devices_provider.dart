@@ -6,7 +6,7 @@ import 'package:ceras/models/currentversion_model.dart';
 import 'package:ceras/models/promo_model.dart';
 import 'package:ceras/models/profile_model.dart';
 import 'package:ceras/models/devices_model.dart';
-import 'package:ceras/models/trackers/tracker_data_model.dart';
+import 'package:ceras/models/tracker_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
@@ -163,17 +163,21 @@ class DevicesProvider extends ChangeNotifier {
     return {"devices": await _getMacId()};
   }
 
-  Future<Temperature> getLatestTemperature() async {
+  Future<TrackerData> getLatestTrackerData(Tracker trackerMasterData) async {
     try {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        baseUrl + '/lastValue/temperature',
+        baseUrl + '/lastValue/' + trackerMasterData.trackerType,
         queryParameters: await _getDeviceRequest(),
       );
 
       if (response.data != null) {
-        print("Got temp ${response.data}");
-        return Temperature.fromJson(response.data);
+        print("Got ${response.data}");
+
+        response.data['data'] =
+            response.data[trackerMasterData.trackerValues[0].dataPropertyName];
+
+        return TrackerData.fromJson(response.data);
       }
     } catch (error) {
       print("Error on temp" + error.toString());
@@ -181,84 +185,25 @@ class DevicesProvider extends ChangeNotifier {
     }
   }
 
-  Future<HeartRate> getLatestHeartRate() async {
+  Future<TrackerDataMultiple> getLatestTrackerMultipleData(
+      Tracker trackerMasterData) async {
     try {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        baseUrl + '/lastValue/heartrate',
+        baseUrl + '/lastValue/' + trackerMasterData.trackerType,
         queryParameters: await _getDeviceRequest(),
       );
 
       if (response.data != null) {
-        return HeartRate.fromJson(response.data);
-      }
-    } catch (error) {
-      print("Error on temp" + error.toString());
-      return null;
-    }
-  }
+        print("Got ${response.data}");
 
-  Future<OxygenLevel> getLatestOxygenLevel() async {
-    try {
-      final baseUrl = await _baseUrl;
-      final response = await mobileDataHttp.get(
-        baseUrl + '/lastValue/bloodOxygen',
-        queryParameters: await _getDeviceRequest(),
-      );
+        response.data['data1'] =
+            response.data[trackerMasterData.trackerValues[0].dataPropertyName];
 
-      if (response.data != null) {
-        return OxygenLevel.fromJson(response.data);
-      }
-    } catch (error) {
-      print("Error on temp" + error.toString());
-      return null;
-    }
-  }
+        response.data['data2'] =
+            response.data[trackerMasterData.trackerValues[1].dataPropertyName];
 
-  Future<DailySteps> getLatestSteps() async {
-    try {
-      final baseUrl = await _baseUrl;
-      final response = await mobileDataHttp.get(
-        baseUrl + '/lastValue/dailySteps',
-        queryParameters: await _getDeviceRequest(),
-      );
-
-      if (response.data != null) {
-        return DailySteps.fromJson(response.data);
-      }
-    } catch (error) {
-      print("Error on temp" + error.toString());
-      return null;
-    }
-  }
-
-  Future<BloodPressure> getLatestBloodPressure() async {
-    try {
-      final baseUrl = await _baseUrl;
-      final response = await mobileDataHttp.get(
-        baseUrl + '/lastValue/bloodPressure',
-        queryParameters: await _getDeviceRequest(),
-      );
-
-      if (response.data != null) {
-        return BloodPressure.fromJson(response.data);
-      }
-    } catch (error) {
-      print("Error on temp" + error.toString());
-      return null;
-    }
-  }
-
-  Future<Calories> getLatestCalories() async {
-    try {
-      final baseUrl = await _baseUrl;
-      final response = await mobileDataHttp.get(
-        baseUrl + '/lastValue/calories',
-        queryParameters: await _getDeviceRequest(),
-      );
-
-      if (response.data != null) {
-        return Calories.fromJson(response.data);
+        return TrackerDataMultiple.fromJson(response.data);
       }
     } catch (error) {
       print("Error on temp" + error.toString());

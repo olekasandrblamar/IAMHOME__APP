@@ -18,5 +18,5 @@ DevicesModel _$DevicesModelFromJson(Map<String, dynamic> json) {
 Map<String, dynamic> _$DevicesModelToJson(DevicesModel instance) =>
     <String, dynamic>{
       'deviceMaster': instance.deviceMaster,
-      'watchInfo': instance.watchInfo?.toJson(),
+      'watchInfo': instance.watchInfo,
     };
