@@ -8,7 +8,7 @@ part of 'tracker_model.dart';
 
 TrackerData _$TrackerDataFromJson(Map<String, dynamic> json) {
   return TrackerData(
-    data: json['data'] as int,
+    data: (json['data'] as num)?.toDouble(),
     measureTime: json['measureTime'] == null
         ? null
         : DateTime.parse(json['measureTime'] as String),
@@ -25,8 +25,8 @@ Map<String, dynamic> _$TrackerDataToJson(TrackerData instance) =>
 
 TrackerDataMultiple _$TrackerDataMultipleFromJson(Map<String, dynamic> json) {
   return TrackerDataMultiple(
-    data1: json['data1'] as int,
-    data2: json['data2'] as int,
+    data1: (json['data1'] as num)?.toDouble(),
+    data2: (json['data2'] as num)?.toDouble(),
     measureTime: json['measureTime'] == null
         ? null
         : DateTime.parse(json['measureTime'] as String),
@@ -76,13 +76,13 @@ TrackerValues _$TrackerValuesFromJson(Map<String, dynamic> json) {
     id: json['id'] as int,
     displayName: json['displayName'] as String,
     valueName: json['valueName'] as String,
-    baseLineMin: json['baseLineMin'] as int,
-    baseLineMax: json['baseLineMax'] as int,
-    minValue: json['minValue'] as int,
-    maxValue: json['maxValue'] as int,
-    baseSeverity: json['baseSeverity'] as int,
+    baseLineMin: (json['baseLineMin'] as num)?.toDouble(),
+    baseLineMax: (json['baseLineMax'] as num)?.toDouble(),
+    minValue: (json['minValue'] as num)?.toDouble(),
+    maxValue: (json['maxValue'] as num)?.toDouble(),
+    baseSeverity: (json['baseSeverity'] as num)?.toDouble(),
     units: json['units'] as String,
-    offset: json['offset'] as int,
+    offset: (json['offset'] as num)?.toDouble(),
     unitsDisplayName: json['unitsDisplayName'] as String,
     severities: (json['severities'] as List)
         ?.map((e) =>
@@ -114,8 +114,8 @@ Map<String, dynamic> _$TrackerValuesToJson(TrackerValues instance) =>
 Severities _$SeveritiesFromJson(Map<String, dynamic> json) {
   return Severities(
     id: json['id'] as int,
-    minValue: json['minValue'] as int,
-    maxValue: json['maxValue'] as int,
+    minValue: (json['minValue'] as num)?.toDouble(),
+    maxValue: (json['maxValue'] as num)?.toDouble(),
     severity: json['severity'] as int,
   );
 }

@@ -63,6 +63,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           await Provider.of<DevicesProvider>(context, listen: false)
               .getDeviceTrackers();
 
+      print(deviceTrackers);
+
       setState(() {
         trackerTypeData = deviceTrackers;
       });
@@ -137,12 +139,11 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
               delegate: SliverChildListDelegate(
                 [
                   const SizedBox(height: 16),
-                  ...trackerTypeData.map(
-                    (trackerMasterData) {
-                      return TrackerDataWidget(
-                          trackerMasterData: trackerMasterData);
-                    },
-                  ),
+                  ...trackerTypeData?.map((trackerMasterData) {
+                        return TrackerDataWidget(
+                            trackerMasterData: trackerMasterData);
+                      }) ??
+                      [],
                   const SizedBox(height: 16),
                 ],
               ),
@@ -170,8 +171,7 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
   _TrackerDataWidgetState(this.trackerMasterData);
 
   final Tracker trackerMasterData;
-  TrackerData _trackerData;
-  TrackerDataMultiple _trackerDataMultiple;
+  dynamic _trackerData;
 
   @override
   void initState() {
@@ -183,13 +183,13 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
 
   Future<void> _loadData() async {
     if (trackerMasterData.graphType == 'MULTIPLE_LINE_GRAPH') {
-      var trackerDataMultiple =
-          await Provider.of<DevicesProvider>(context, listen: false)
-              .getLatestTrackerMultipleData(trackerMasterData);
+      // var trackerDataMultiple =
+      //     await Provider.of<DevicesProvider>(context, listen: false)
+      //         .getLatestTrackerMultipleData(trackerMasterData);
 
-      setState(() {
-        _trackerDataMultiple = trackerDataMultiple;
-      });
+      // setState(() {
+      //   _trackerData = trackerDataMultiple;
+      // });
     } else {
       var trackerData =
           await Provider.of<DevicesProvider>(context, listen: false)
@@ -203,35 +203,40 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Card(
-        // color: Color(0xffdfeffd),
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Column(
-          children: [
-            trackerDisplayName(trackerMasterData),
-            Container(
-              padding: EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  singleDisplayText(trackerMasterData, _trackerData)
+    return _trackerData != null
+        ? Container(
+            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+            child: Card(
+              // color: Color(0xffdfeffd),
+              elevation: 5,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20.0),
+              ),
+              child: Column(
+                children: [
+                  trackerDisplayName(trackerMasterData),
+                  Container(
+                    padding: EdgeInsets.all(16),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        if (trackerMasterData.graphType == 'SINGLE_LINE_GRAPH')
+                          singleDisplayText(trackerMasterData, _trackerData),
+                        if (trackerMasterData.graphType ==
+                            'MULTIPLE_LINE_GRAPH')
+                          multipleDisplayText(trackerMasterData, _trackerData),
+                      ],
+                    ),
+                  ),
+                  lastUpdated(_trackerData),
+                  const SizedBox(height: 10),
                 ],
               ),
             ),
-            if (trackerMasterData.graphType == 'SINGLE_LINE_GRAPH')
-              lastUpdated(_trackerData),
-            if (trackerMasterData.graphType == 'MULTIPLE_LINE_GRAPH')
-              lastUpdated(_trackerDataMultiple),
-            const SizedBox(height: 10),
-          ],
-        ),
-      ),
-    );
+          )
+        : Container(
+            height: 0,
+          );
   }
 }
 
@@ -309,10 +314,10 @@ Expanded multipleDisplayText(trackerMasterData, _trackerData) {
       child: RichText(
         text: TextSpan(children: [
           TextSpan(
-            text: _trackerData.data1 != null
-                ? _trackerData.data1.toString() +
+            text: _trackerData.data1 != null && _trackerData.data2 != null
+                ? _trackerData.data1.toStringAsFixed(2) +
                     '/' +
-                    _trackerData.data2.toString()
+                    _trackerData.data2.toStringAsFixed(2)
                 : '0/0',
             style: TextStyle(
               fontSize: 40,
@@ -347,7 +352,9 @@ Expanded singleDisplayText(trackerMasterData, _trackerData) {
       child: RichText(
         text: TextSpan(children: [
           TextSpan(
-            text: (_trackerData != null ? _trackerData.data.toString() : '0'),
+            text: (_trackerData != null
+                ? _trackerData.data.toStringAsFixed(2)
+                : '0'),
             style: TextStyle(
               fontSize: 40,
               fontWeight: FontWeight.bold,

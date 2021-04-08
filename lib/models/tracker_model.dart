@@ -6,7 +6,7 @@ part 'tracker_model.g.dart';
 class TrackerData {
   DateTime measureTime;
   String deviceId;
-  int data = 0;
+  double data = 0;
 
   TrackerData({this.data, this.measureTime, this.deviceId});
 
@@ -20,8 +20,8 @@ class TrackerData {
 class TrackerDataMultiple {
   DateTime measureTime;
   String deviceId;
-  int data1 = 0;
-  int data2 = 0;
+  double data1 = 0;
+  double data2 = 0;
 
   TrackerDataMultiple(
       {this.data1, this.data2, this.measureTime, this.deviceId});
@@ -64,13 +64,13 @@ class TrackerValues {
   int id;
   String displayName;
   String valueName;
-  int baseLineMin;
-  int baseLineMax;
-  int minValue;
-  int maxValue;
-  int baseSeverity;
+  double baseLineMin;
+  double baseLineMax;
+  double minValue;
+  double maxValue;
+  double baseSeverity;
   String units;
-  int offset;
+  double offset;
   String unitsDisplayName;
   List<Severities> severities;
   int order;
@@ -101,8 +101,8 @@ class TrackerValues {
 @JsonSerializable()
 class Severities {
   int id;
-  int minValue;
-  int maxValue;
+  double minValue;
+  double maxValue;
   int severity;
 
   Severities({this.id, this.minValue, this.maxValue, this.severity});

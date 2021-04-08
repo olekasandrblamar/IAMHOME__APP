@@ -196,17 +196,25 @@ class DevicesProvider extends ChangeNotifier {
     try {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        baseUrl + '/lastValue/' + trackerMasterData.trackerType,
+        baseUrl + '/lastValue/' + trackerMasterData.trackerName,
         queryParameters: await _getDeviceRequest(),
       );
 
       if (response.data != null) {
         print("Got ${response.data}");
 
-        response.data['data'] =
-            response.data[trackerMasterData.trackerValues[0].dataPropertyName];
+        final responseData = response.data;
 
-        return TrackerData.fromJson(response.data);
+        final dataValue =
+            responseData[trackerMasterData.trackerValues[0].dataPropertyName];
+
+        var formattedData = {
+          'data': dataValue != null ? dataValue : 0,
+          'deviceId': responseData['deviceId'],
+          'measureTime': responseData['measureTime'],
+        };
+
+        return TrackerData.fromJson(formattedData);
       }
     } catch (error) {
       print("Error on temp" + error.toString());
@@ -219,20 +227,28 @@ class DevicesProvider extends ChangeNotifier {
     try {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
-        baseUrl + '/lastValue/' + trackerMasterData.trackerType,
+        baseUrl + '/lastValue/' + trackerMasterData.trackerName,
         queryParameters: await _getDeviceRequest(),
       );
 
       if (response.data != null) {
         print("Got ${response.data}");
 
-        response.data['data1'] =
-            response.data[trackerMasterData.trackerValues[0].dataPropertyName];
+        final responseData = response.data;
 
-        response.data['data2'] =
-            response.data[trackerMasterData.trackerValues[1].dataPropertyName];
+        final dataValue1 =
+            responseData[trackerMasterData.trackerValues[0].dataPropertyName];
+        final dataValue2 =
+            responseData[trackerMasterData.trackerValues[1].dataPropertyName];
 
-        return TrackerDataMultiple.fromJson(response.data);
+        var formattedData = {
+          'data1': dataValue1 != null ? dataValue1 : 0,
+          'data2': dataValue2 != null ? dataValue2 : 0,
+          'deviceId': responseData['deviceId'],
+          'measureTime': responseData['measureTime'],
+        };
+
+        return TrackerDataMultiple.fromJson(formattedData);
       }
     } catch (error) {
       print("Error on temp" + error.toString());
