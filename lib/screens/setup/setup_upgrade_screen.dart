@@ -48,6 +48,8 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> {
 
       await upgrade.then((value) {
         if ((value as String) == 'Success') {
+          _setIsUpgrading(false);
+          _showUpgradeSuccess();
           Future.delayed(Duration(seconds: 5),(){
             _setIsUpgrading(false);
             _navigateToHomePage();
@@ -66,6 +68,32 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> {
         //Add a timeout error
       });
     }
+  }
+
+  void _showUpgradeSuccess() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Success',
+          ),
+          content: Text('Successfully upgraded your device to latest version'),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+
+                _navigateToHomePage();
+              },
+              child: Text(
+                'Ok',
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _showUpgradeFail(String message) {
