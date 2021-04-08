@@ -184,7 +184,7 @@ class DevicesProvider extends ChangeNotifier {
           },
         );
 
-        return formattedData
+        return formattedData;
       }
     } catch (error) {
       print("Error on Device Tracker Data" + error.toString());
