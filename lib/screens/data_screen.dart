@@ -431,12 +431,6 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                   const SizedBox(height: 16),
                   ...trackerTypeData.map(
                     (trackerMasterData) {
-                      if (trackerMasterData.graphType ==
-                          'MULTIPLE_LINE_GRAPH') {
-                        return TrackerDataMultipleWidget(
-                            trackerMasterData: trackerMasterData);
-                      }
-
                       return TrackerDataWidget(
                           trackerMasterData: trackerMasterData);
                     },
@@ -469,6 +463,7 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
 
   final Tracker trackerMasterData;
   TrackerData _trackerData;
+  TrackerDataMultiple _trackerDataMultiple;
 
   @override
   void initState() {
@@ -478,21 +473,24 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
     super.initState();
   }
 
-  String _formatDate(DateTime date) {
-    return DateFormat.yMMMMd().format(date.toLocal());
-  }
-
-  String _formatTime(DateTime date) {
-    return DateFormat.jm().format(date.toLocal());
-  }
-
   Future<void> _loadData() async {
-    var trackerData = await Provider.of<DevicesProvider>(context, listen: false)
-        .getLatestTrackerData(trackerMasterData);
+    if (trackerMasterData.graphType == 'MULTIPLE_LINE_GRAPH') {
+      var trackerDataMultiple =
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .getLatestTrackerMultipleData(trackerMasterData);
 
-    setState(() {
-      _trackerData = trackerData;
-    });
+      setState(() {
+        _trackerDataMultiple = trackerDataMultiple;
+      });
+    } else {
+      var trackerData =
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .getLatestTrackerData(trackerMasterData);
+
+      setState(() {
+        _trackerData = trackerData;
+      });
+    }
   }
 
   @override
@@ -507,100 +505,20 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
         ),
         child: Column(
           children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.10),
-                    blurRadius: 10.0,
-                    // spreadRadius: 1.0,
-                    offset: Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Container(
-                padding: EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Image.asset(
-                      'assets/icons/icons_dailysteps.png',
-                      height: 25,
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      trackerMasterData?.displayName,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
+            trackerDisplayName(trackerMasterData),
             Container(
               padding: EdgeInsets.all(16),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: <Widget>[
-                  Expanded(
-                    flex: 6,
-                    child: FittedBox(
-                      child: RichText(
-                        text: TextSpan(children: [
-                          TextSpan(
-                            text: (_trackerData != null
-                                ? _trackerData.data.toString()
-                                : '0'),
-                            style: TextStyle(
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                          WidgetSpan(
-                            child: Transform.translate(
-                              offset: const Offset(2, 2),
-                              child: Text(
-                                trackerMasterData?.trackerValues[0].units,
-                                //superscript is usually smaller in size
-                                textScaleFactor: 2,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ]),
-                      ),
-                    ),
-                  ),
+                  singleDisplayText(trackerMasterData, _trackerData)
                 ],
               ),
             ),
-            Container(
-              child: FittedBox(
-                child: Text(
-                  _trackerData != null
-                      ? 'Last Updated: ' +
-                          _formatDate(_trackerData.measureTime) +
-                          ' ' +
-                          _formatTime(_trackerData.measureTime)
-                      : '--',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
+            if (trackerMasterData.graphType == 'SINGLE_LINE_GRAPH')
+              lastUpdated(_trackerData),
+            if (trackerMasterData.graphType == 'MULTIPLE_LINE_GRAPH')
+              lastUpdated(_trackerDataMultiple),
             const SizedBox(height: 10),
           ],
         ),
@@ -609,32 +527,47 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
   }
 }
 
-class TrackerDataMultipleWidget extends StatefulWidget {
-  final Tracker trackerMasterData;
-
-  const TrackerDataMultipleWidget({
-    @required this.trackerMasterData,
-  });
-
-  @override
-  _TrackerDataMultipleWidgetState createState() =>
-      _TrackerDataMultipleWidgetState(trackerMasterData);
+Container trackerDisplayName(trackerMasterData) {
+  return Container(
+    decoration: BoxDecoration(
+      borderRadius: BorderRadius.only(
+        topLeft: Radius.circular(20),
+        topRight: Radius.circular(20),
+      ),
+      color: Colors.white,
+      boxShadow: [
+        BoxShadow(
+          color: Color.fromRGBO(0, 0, 0, 0.10),
+          blurRadius: 10.0,
+          // spreadRadius: 1.0,
+          offset: Offset(0, 10),
+        ),
+      ],
+    ),
+    child: Container(
+      padding: EdgeInsets.all(16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: <Widget>[
+          Image.asset(
+            'assets/icons/icons_bloodpressure.png',
+            height: 25,
+          ),
+          const SizedBox(width: 16),
+          Text(
+            trackerMasterData?.displayName,
+            style: TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ],
+      ),
+    ),
+  );
 }
 
-class _TrackerDataMultipleWidgetState extends State<TrackerDataMultipleWidget> {
-  _TrackerDataMultipleWidgetState(this.trackerMasterData);
-
-  final Tracker trackerMasterData;
-  TrackerDataMultiple _trackerData;
-
-  @override
-  void initState() {
-    _loadData();
-
-    // TODO: implement initState
-    super.initState();
-  }
-
+Container lastUpdated(_trackerData) {
   String _formatDate(DateTime date) {
     return DateFormat.yMMMMd().format(date.toLocal());
   }
@@ -643,127 +576,92 @@ class _TrackerDataMultipleWidgetState extends State<TrackerDataMultipleWidget> {
     return DateFormat.jm().format(date.toLocal());
   }
 
-  Future<void> _loadData() async {
-    var trackerData = await Provider.of<DevicesProvider>(context, listen: false)
-        .getLatestTrackerMultipleData(trackerMasterData);
-
-    setState(() {
-      _trackerData = trackerData;
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Card(
-        // color: Color(0xffdfeffd),
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Column(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20),
-                  topRight: Radius.circular(20),
-                ),
-                color: Colors.white,
-                boxShadow: [
-                  BoxShadow(
-                    color: Color.fromRGBO(0, 0, 0, 0.10),
-                    blurRadius: 10.0,
-                    // spreadRadius: 1.0,
-                    offset: Offset(0, 10),
-                  ),
-                ],
-              ),
-              child: Container(
-                padding: EdgeInsets.all(16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    Image.asset(
-                      'assets/icons/icons_bloodpressure.png',
-                      height: 25,
-                    ),
-                    const SizedBox(width: 16),
-                    Text(
-                      trackerMasterData?.displayName,
-                      style: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Expanded(
-                    flex: 6,
-                    child: FittedBox(
-                      child: RichText(
-                        text: TextSpan(children: [
-                          TextSpan(
-                            text: _trackerData.data1 != null
-                                ? _trackerData.data1.toString() +
-                                    '/' +
-                                    _trackerData.data2.toString()
-                                : '0/0',
-                            style: TextStyle(
-                              fontSize: 40,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.black,
-                            ),
-                          ),
-                          WidgetSpan(
-                            child: Transform.translate(
-                              offset: const Offset(2, 2),
-                              child: Text(
-                                trackerMasterData?.trackerValues[0].units,
-                                //superscript is usually smaller in size
-                                textScaleFactor: 2,
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                        ]),
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              child: FittedBox(
-                child: Text(
-                  _trackerData != null
-                      ? 'Last Updated: ' +
-                          _formatDate(_trackerData.measureTime) +
-                          ' ' +
-                          _formatTime(_trackerData.measureTime)
-                      : '--',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-          ],
+  return Container(
+    child: FittedBox(
+      child: Text(
+        _trackerData != null
+            ? 'Last Updated: ' +
+                _formatDate(_trackerData.measureTime) +
+                ' ' +
+                _formatTime(_trackerData.measureTime)
+            : '--',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
         ),
       ),
-    );
-  }
+    ),
+  );
+}
+
+Expanded multipleDisplayText(trackerMasterData, _trackerData) {
+  return Expanded(
+    flex: 6,
+    child: FittedBox(
+      child: RichText(
+        text: TextSpan(children: [
+          TextSpan(
+            text: _trackerData.data1 != null
+                ? _trackerData.data1.toString() +
+                    '/' +
+                    _trackerData.data2.toString()
+                : '0/0',
+            style: TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          WidgetSpan(
+            child: Transform.translate(
+              offset: const Offset(2, 2),
+              child: Text(
+                trackerMasterData?.trackerValues[0].units,
+                //superscript is usually smaller in size
+                textScaleFactor: 2,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ]),
+      ),
+    ),
+  );
+}
+
+Expanded singleDisplayText(trackerMasterData, _trackerData) {
+  return Expanded(
+    flex: 6,
+    child: FittedBox(
+      child: RichText(
+        text: TextSpan(children: [
+          TextSpan(
+            text: (_trackerData != null ? _trackerData.data.toString() : '0'),
+            style: TextStyle(
+              fontSize: 40,
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
+            ),
+          ),
+          WidgetSpan(
+            child: Transform.translate(
+              offset: const Offset(2, 2),
+              child: Text(
+                trackerMasterData?.trackerValues[0].units,
+                //superscript is usually smaller in size
+                textScaleFactor: 2,
+                style: TextStyle(
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+        ]),
+      ),
+    ),
+  );
 }
