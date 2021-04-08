@@ -163,6 +163,35 @@ class DevicesProvider extends ChangeNotifier {
     return {"devices": await _getMacId()};
   }
 
+  Future<List<Tracker>> getDeviceTrackers() async {
+    try {
+      final baseUrl = await _baseUrl;
+      final response = await mobileDataHttp.get(
+        baseUrl + '/master/deviceTrackers',
+        queryParameters: await _getDeviceRequest(),
+      );
+
+      if (response.data != null) {
+        print("Got ${response.data}");
+
+        final formattedData = <Tracker>[];
+
+        response.data.forEach(
+          (data) {
+            formattedData.add(
+              Tracker.fromJson(data),
+            );
+          },
+        );
+
+        return formattedData
+      }
+    } catch (error) {
+      print("Error on Device Tracker Data" + error.toString());
+      return null;
+    }
+  }
+
   Future<TrackerData> getLatestTrackerData(Tracker trackerMasterData) async {
     try {
       final baseUrl = await _baseUrl;
