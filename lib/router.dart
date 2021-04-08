@@ -7,6 +7,7 @@ import 'package:ceras/screens/data_screen.dart';
 import 'package:ceras/screens/setup/connection_notfound_screen.dart';
 import 'package:ceras/screens/setup/setup_connected_screen.dart';
 import 'package:ceras/screens/setup/setup_devices_screen.dart';
+import 'package:ceras/screens/setup/setup_upgrade_screen.dart';
 import 'package:ceras/screens/setup/unabletoconnect_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
@@ -73,6 +74,8 @@ Route<dynamic> generateRoute(
       return MaterialPageRoute(builder: (context) => SetupHomeScreen());
     case SetupSearchRoute:
       return MaterialPageRoute(builder: (context) => SetupSearchScreen());
+    case SetupUpgradeRoute:
+      return MaterialPageRoute(builder: (context) => SetupUpgradeScreen());
     case SetupActiveRoute:
       var arguments = settings.arguments as Map<dynamic, dynamic>;
       return MaterialPageRoute(

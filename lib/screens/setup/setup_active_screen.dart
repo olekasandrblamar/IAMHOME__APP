@@ -4,6 +4,7 @@ import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/devices_provider.dart';
+import 'package:ceras/screens/setup/setup_upgrade_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/theme.dart';
@@ -30,14 +31,13 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   static const platform = MethodChannel('ceras.iamhome.mobile/device');
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  int _deviceIndex = null;
-  String _lastUpdated = null;
-  DevicesModel _deviceData = null;
-  String _deviceId = "---";
+  int _deviceIndex;
+  String _lastUpdated;
+  DevicesModel _deviceData;
+  String _deviceId = '---';
   String _batteryLevel = "---";
   bool _connected = true;
   bool isLoading = true;
-  bool isUpgrading = false;
 
   @override
   void initState() {
@@ -98,26 +98,26 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       <String, dynamic>{'connectionInfo': connectionInfo},
     ) as String;
 
-    if (connectionStatus != "Error") {
-      print("Got connection info response ${connectionStatus}");
-      final WatchModel connectionStatusData = WatchModel.fromJson(
+    if (connectionStatus != 'Error') {
+      print('Got connection info response $connectionStatus');
+      final connectionStatusData = WatchModel.fromJson(
           json.decode(connectionStatus) as Map<String, dynamic>);
 
       if (!mounted) return;
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString("connected", "true");
+      await prefs.setString('connected', 'true');
 
       setState(() {
         _connected = connectionStatusData.connected;
         _deviceId = connectionStatusData.deviceId;
         _batteryLevel = connectionStatusData.batteryStatus;
       });
-      if(connectionStatusData.upgradeAvailable){
+      if (connectionStatusData.upgradeAvailable) {
         _showUpgrade();
       }
     } else {
       final prefs = await SharedPreferences.getInstance();
-      await prefs.setString("connected", "false");
+      await prefs.setString('connected', 'false');
     }
   }
 
@@ -126,7 +126,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     await prefs.reload();
     final lastUpdate = prefs.getString('last_sync');
 
-    print("Last updated at ${lastUpdate}");
+    print('Last updated at $lastUpdate');
 
     if (mounted) {
       setState(() {
@@ -164,7 +164,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     _setIsLoading(true);
 
     await syncDataFromDevice();
-    await _changeLastUpdated();
+    _changeLastUpdated();
   }
 
   void _showSuccessMessage() {
@@ -183,14 +183,6 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     if (mounted) {
       setState(() {
         isLoading = loading;
-      });
-    }
-  }
-
-  void _setIsUpgrading(bool upgradeInProgress) {
-    if (mounted) {
-      setState(() {
-        isUpgrading = upgradeInProgress;
       });
     }
   }
@@ -227,55 +219,26 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
           ),
           actions: <Widget>[
             FlatButton(
-              child: Text(
-                'Cancel',
-              ),
               onPressed: () {
                 Navigator.of(context).pop();
               },
+              child: Text(
+                'Cancel',
+              ),
             ),
             FlatButton(
-              child: Text(
-                'Ok',
-              ),
               onPressed: () {
                 Navigator.of(context).pop();
                 _removeDevice();
               },
+              child: Text(
+                'Ok',
+              ),
             ),
           ],
         );
       },
     );
-  }
-
-  void _upgradeDevice() async {
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.reload();
-    final connectionInfo = prefs.getString('watchInfo');
-    if (connectionInfo != null) {
-      _setIsUpgrading(true);
-
-      final upgrade = BackgroundFetchData.platform.invokeMethod(
-        'upgradeDevice',
-        <String, dynamic>{'connectionInfo': connectionInfo},
-      );
-      upgrade.then((value){
-        if((value as String) == "Success" ){
-          _setIsUpgrading(false);
-        }else{
-          //Add Code to Show failure
-        }
-      },onError: (error){
-        //Add code to show failure
-      });
-
-      //If we don't get response in 30 seconds close the loading
-      Future.delayed(Duration(seconds: 240), () {
-        _setIsUpgrading(false);
-        //Add a timeout error
-      });
-    }
   }
 
   void _showUpgrade() {
@@ -291,21 +254,29 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
           ),
           actions: <Widget>[
             FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
               child: Text(
                 'Cancel',
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
             ),
             FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // _upgradeDevice();
+
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => SetupUpgradeScreen(),
+                      settings:
+                          const RouteSettings(name: routes.SetupUpgradeRoute),
+                    ),
+                    (Route<dynamic> route) => false);
+              },
               child: Text(
                 'Ok',
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _upgradeDevice();
-              },
             ),
           ],
         );
@@ -448,28 +419,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
           SizedBox(
             height: 35,
           ),
-          if (isLoading || isUpgrading)
+          if (isLoading)
             CircularProgressIndicator()
-          // else if(isUpgrading) // This is used to display upgrade process
-          //   Container(
-          //     child: Column(
-          //       children: <Widget>[
-          //         SizedBox(
-          //           height: 200.0,
-          //           child: Stack(
-          //             children: <Widget>[
-          //               Center(
-          //                 child: Container(
-          //                   child: CircularProgressIndicator(),
-          //                 ),
-          //               ),
-          //               Center(child: Text('Upgrading')),
-          //             ],
-          //           ),
-          //         ),
-          //       ],
-          //     ),
-          //   )
           else
             ..._buildInfo(_appLocalization),
         ],

@@ -14,6 +14,7 @@ const String SetupSearchRoute = '/setup/search';
 const String SetupActiveRoute = '/setup/active';
 const String SetupConnectRoute = '/setup/connect';
 const String SetupConnectedRoute = '/setup/connected';
+const String SetupUpgradeRoute = '/setup/upgrade';
 const String BluetoothNotfoundRoute = '/setup/bluetoothNotfound';
 const String ConnectionNotfoundRoute = '/setup/connectionNotfound';
 const String UnabletoconnectRoute = '/setup/unabletoconnect';
