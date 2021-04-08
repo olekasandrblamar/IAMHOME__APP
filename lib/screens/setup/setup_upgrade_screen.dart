@@ -48,8 +48,10 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> {
 
       await upgrade.then((value) {
         if ((value as String) == 'Success') {
-          _setIsUpgrading(false);
-          _navigateToHomePage();
+          Future.delayed(Duration(seconds: 5),(){
+            _setIsUpgrading(false);
+            _navigateToHomePage();
+          });
         } else {
           _showUpgradeFail('Upgrade to device is unsuccessfull');
         }
