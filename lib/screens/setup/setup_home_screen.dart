@@ -338,6 +338,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
       ),
       child: InkWell(
         borderRadius: BorderRadius.circular(10.0),
+        onTap: () => openDetailsScreen(context, index),
         child: Container(
           height: 150,
           padding: EdgeInsets.all(10),
@@ -404,7 +405,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
                       ),
                       SizedBox(height: 5),
                       FittedBox(
-                        child: Text('Last Updated - ${_lastUpdated}'),
+                        child: Text('Last Updated - $_lastUpdated'),
                       ),
                     ],
                   ),
@@ -413,7 +414,6 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
             ],
           ),
         ),
-        onTap: () => {openDetailsScreen(context, index)},
       ),
     );
   }
@@ -460,6 +460,11 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
             ),
             child: InkWell(
               borderRadius: BorderRadius.circular(10.0),
+              onTap: () => {
+                Navigator.of(context).pushNamed(
+                  routes.SetupDevicesRoute,
+                ),
+              },
               child: Container(
                 height: 150,
                 padding: EdgeInsets.all(10),
@@ -484,11 +489,6 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
                   ],
                 ),
               ),
-              onTap: () => {
-                Navigator.of(context).pushNamed(
-                  routes.SetupDevicesRoute,
-                ),
-              },
             ),
           ),
         ],
