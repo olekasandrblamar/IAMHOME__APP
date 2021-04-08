@@ -47,6 +47,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
     // _changeLastUpdated();
     _syncDataFromDevice();
+
     super.initState();
 
     WidgetsBinding.instance.addObserver(this);
@@ -54,6 +55,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+
     super.dispose();
   }
 
