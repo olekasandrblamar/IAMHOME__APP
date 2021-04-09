@@ -28,6 +28,13 @@ class _LocationsScreenState extends State<LocationsScreen>
     super.initState();
   }
 
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+
+    super.dispose();
+  }
+
   void _checkDevice(context) {
     if (Platform.isIOS) {
       _checkPermission(context);
@@ -41,7 +48,7 @@ class _LocationsScreenState extends State<LocationsScreen>
     print('Got state ${state}');
     switch (state) {
       case AppLifecycleState.resumed:
-        await _checkAndGoNext();
+        _checkAndGoNext();
         break;
       case AppLifecycleState.inactive:
         // TODO: Handle this case.
