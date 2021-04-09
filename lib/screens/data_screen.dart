@@ -183,13 +183,13 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
 
   Future<void> _loadData() async {
     if (trackerMasterData.graphType == 'MULTIPLE_LINE_GRAPH') {
-      // var trackerDataMultiple =
-      //     await Provider.of<DevicesProvider>(context, listen: false)
-      //         .getLatestTrackerMultipleData(trackerMasterData);
+      var trackerDataMultiple =
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .getLatestTrackerMultipleData(trackerMasterData);
 
-      // setState(() {
-      //   _trackerData = trackerDataMultiple;
-      // });
+      setState(() {
+        _trackerData = trackerDataMultiple;
+      });
     } else {
       var trackerData =
           await Provider.of<DevicesProvider>(context, listen: false)
@@ -263,8 +263,18 @@ Container trackerDisplayName(trackerMasterData) {
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Image.asset(
-            'assets/icons/icons_bloodpressure.png',
+            'assets/icons/icons_' + trackerMasterData?.trackerName + '.png',
             height: 25,
+            errorBuilder: (
+              BuildContext context,
+              Object exception,
+              StackTrace stackTrace,
+            ) {
+              return Image.asset(
+                'assets/images/placeholder.jpg',
+                height: 25,
+              );
+            },
           ),
           const SizedBox(width: 16),
           Text(
@@ -315,9 +325,9 @@ Expanded multipleDisplayText(trackerMasterData, _trackerData) {
         text: TextSpan(children: [
           TextSpan(
             text: _trackerData.data1 != null && _trackerData.data2 != null
-                ? _trackerData.data1.toStringAsFixed(2) +
+                ? _trackerData.data1.toStringAsFixed(1) +
                     '/' +
-                    _trackerData.data2.toStringAsFixed(2)
+                    _trackerData.data2.toStringAsFixed(1)
                 : '0/0',
             style: TextStyle(
               fontSize: 40,
@@ -353,7 +363,7 @@ Expanded singleDisplayText(trackerMasterData, _trackerData) {
         text: TextSpan(children: [
           TextSpan(
             text: (_trackerData != null
-                ? _trackerData.data.toStringAsFixed(2)
+                ? _trackerData.data.toStringAsFixed(1)
                 : '0'),
             style: TextStyle(
               fontSize: 40,
