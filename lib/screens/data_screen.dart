@@ -12,6 +12,8 @@ import 'package:provider/provider.dart';
 
 import 'dart:io';
 
+import '../theme.dart';
+
 class DataScreen extends StatefulWidget {
   @override
   _DataScreenState createState() => _DataScreenState();
@@ -91,64 +93,71 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     final _appLocalization = AppLocalizations.of(context);
 
     return Scaffold(
-      // appBar: AppBar(
-      //   elevation: 0,
-      //   title: Text(
-      //     'My Data',
-      //   ),
-      //   // actions: <Widget>[
-      //   //   SwitchStoreIcon(),
-      //   // ],
-      // ),
-      // backgroundColor: AppTheme.white,
-      body: Container(
-        decoration: BoxDecoration(
-          color: Color(0xffecf3fb),
+      appBar: AppBar(
+        elevation: 0,
+        title: Text(
+          'My Data',
         ),
-        child: CustomScrollView(
-          physics: BouncingScrollPhysics(),
-          slivers: [
-            SliverAppBar(
-              // backgroundColor: Colors.transparent,
-              // elevation: 0.0,
-              pinned: true,
-              expandedHeight: 150.0,
-              stretch: true,
-              stretchTriggerOffset: 75,
-              flexibleSpace: FlexibleSpaceBar(
-                title: Text(
-                  'My Data',
-                  style: TextStyle(
-                    fontSize: 25,
-                    // fontWeight: FontWeight.bold,
-                    // color: Colors.black,
-                  ),
-                ),
-                stretchModes: [
-                  StretchMode.zoomBackground,
-                  // StretchMode.blurBackground,
-                  // StretchMode.fadeTitle,
-                ],
-                background: Image.asset(
-                  'assets/images/clouds.png',
-                  fit: BoxFit.cover,
-                ),
-              ),
-            ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  const SizedBox(height: 16),
-                  ...trackerTypeData?.map((trackerMasterData) {
-                        return TrackerDataWidget(
-                            trackerMasterData: trackerMasterData);
-                      }) ??
-                      [],
-                  const SizedBox(height: 16),
-                ],
-              ),
-            ),
-          ],
+        // actions: <Widget>[
+        //   SwitchStoreIcon(),
+        // ],
+      ),
+      backgroundColor: Color(0xffecf3fb),
+      // body: Container(
+      //   decoration: BoxDecoration(
+      //     color: Color(0xffecf3fb),
+      //   ),
+      //   child: CustomScrollView(
+      //     physics: BouncingScrollPhysics(),
+      //     slivers: [
+      //       SliverAppBar(
+      //         // backgroundColor: Colors.transparent,
+      //         // elevation: 0.0,
+      //         pinned: true,
+      //         expandedHeight: 150.0,
+      //         stretch: true,
+      //         stretchTriggerOffset: 75,
+      //         flexibleSpace: FlexibleSpaceBar(
+      //           title: Text(
+      //             'My Data',
+      //             style: TextStyle(
+      //               fontSize: 25,
+      //               // fontWeight: FontWeight.bold,
+      //               // color: Colors.black,
+      //             ),
+      //           ),
+      //           stretchModes: [
+      //             StretchMode.zoomBackground,
+      //             // StretchMode.blurBackground,
+      //             // StretchMode.fadeTitle,
+      //           ],
+      //           background: Image.asset(
+      //             'assets/images/clouds.png',
+      //             fit: BoxFit.cover,
+      //           ),
+      //         ),
+      //       ),
+      //       SliverList(
+      //         delegate: SliverChildListDelegate(
+      //           []
+      //         ),
+      //       ),
+      //     ],
+      //   ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(8.0),
+          child: Column(
+            children: [
+              const SizedBox(height: 16),
+              ...trackerTypeData?.map((trackerMasterData) {
+                    return TrackerDataWidget(
+                        trackerMasterData: trackerMasterData);
+                  }) ??
+                  [],
+              const SizedBox(height: 16),
+            ],
+          ),
         ),
       ),
     );
@@ -268,7 +277,9 @@ Container trackerDisplayName(trackerMasterData) {
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
           Image.asset(
-            'assets/icons/icons_' + trackerMasterData?.trackerName + '.png',
+            'assets/icons/icons_' +
+                trackerMasterData?.trackerName?.toLowerCase() +
+                '.png',
             height: 25,
             errorBuilder: (
               BuildContext context,

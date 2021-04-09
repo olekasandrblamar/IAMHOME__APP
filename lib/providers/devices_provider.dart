@@ -178,9 +178,11 @@ class DevicesProvider extends ChangeNotifier {
 
         response.data.forEach(
           (data) {
-            formattedData.add(
-              Tracker.fromJson(data),
-            );
+            if (data != null && data['active']) {
+              formattedData.add(
+                Tracker.fromJson(data),
+              );
+            }
           },
         );
 
@@ -188,7 +190,6 @@ class DevicesProvider extends ChangeNotifier {
       }
     } catch (error) {
       print("Error on Device Tracker Data" + error.toString());
-      return null;
     }
   }
 
