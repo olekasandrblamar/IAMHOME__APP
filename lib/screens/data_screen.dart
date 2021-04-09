@@ -203,19 +203,19 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return _trackerData != null
-        ? Container(
-            padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-            child: Card(
-              // color: Color(0xffdfeffd),
-              elevation: 5,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20.0),
-              ),
-              child: Column(
-                children: [
-                  trackerDisplayName(trackerMasterData),
-                  Container(
+    return Container(
+      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      child: Card(
+        // color: Color(0xffdfeffd),
+        elevation: 5,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20.0),
+        ),
+        child: Column(
+          children: [
+            trackerDisplayName(trackerMasterData),
+            _trackerData != null
+                ? Container(
                     padding: EdgeInsets.all(16),
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -227,16 +227,21 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
                           multipleDisplayText(trackerMasterData, _trackerData),
                       ],
                     ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: CircularProgressIndicator(),
                   ),
-                  lastUpdated(_trackerData),
-                  const SizedBox(height: 10),
-                ],
-              ),
-            ),
-          )
-        : Container(
-            height: 0,
-          );
+            _trackerData != null
+                ? lastUpdated(_trackerData)
+                : Container(
+                    height: 0,
+                  ),
+            const SizedBox(height: 10),
+          ],
+        ),
+      ),
+    );
   }
 }
 
