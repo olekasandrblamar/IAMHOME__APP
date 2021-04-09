@@ -334,17 +334,45 @@ Container lastUpdated(_trackerData) {
 }
 
 Expanded multipleDisplayText(trackerMasterData, _trackerData) {
+  String trackerDataValue1;
+  String trackerDataValue2;
+
+  if (_trackerData.data1 != null && _trackerData.data2 != null) {
+    if (trackerMasterData?.trackerValues[0]?.valueDataType == 'INTEGER') {
+      trackerDataValue1 = _trackerData?.data1?.toInt().toString();
+    }
+
+    if (trackerMasterData?.trackerValues[1]?.valueDataType == 'INTEGER') {
+      trackerDataValue2 = _trackerData?.data2?.toInt().toString();
+    }
+
+    if (trackerMasterData?.trackerValues[0]?.valueDataType == 'DOUBLE') {
+      trackerDataValue1 = _trackerData?.data1?.toStringAsFixed(1);
+    }
+
+    if (trackerMasterData?.trackerValues[1]?.valueDataType == 'DOUBLE') {
+      trackerDataValue2 = _trackerData?.data2?.toStringAsFixed(1);
+    }
+
+    if (trackerMasterData?.trackerValues[0]?.valueDataType == 'STRING') {
+      trackerDataValue1 = _trackerData?.data1.toString();
+    }
+
+    if (trackerMasterData?.trackerValues[1]?.valueDataType == 'STRING') {
+      trackerDataValue1 = _trackerData?.data2.toString();
+    }
+  } else {
+    trackerDataValue1 = '0';
+    trackerDataValue2 = '0';
+  }
+
   return Expanded(
     flex: 6,
     child: FittedBox(
       child: RichText(
         text: TextSpan(children: [
           TextSpan(
-            text: _trackerData.data1 != null && _trackerData.data2 != null
-                ? _trackerData.data1.toStringAsFixed(1) +
-                    '/' +
-                    _trackerData.data2.toStringAsFixed(1)
-                : '0/0',
+            text: trackerDataValue1 + '/' + trackerDataValue2,
             style: TextStyle(
               fontSize: 40,
               fontWeight: FontWeight.bold,
@@ -372,15 +400,31 @@ Expanded multipleDisplayText(trackerMasterData, _trackerData) {
 }
 
 Expanded singleDisplayText(trackerMasterData, _trackerData) {
+  String trackerDataValue;
+
+  if (_trackerData != null) {
+    if (trackerMasterData?.trackerValues[0]?.valueDataType == 'INTEGER') {
+      trackerDataValue = _trackerData?.data?.toInt().toString();
+    }
+
+    if (trackerMasterData?.trackerValues[0]?.valueDataType == 'DOUBLE') {
+      trackerDataValue = _trackerData?.data?.toStringAsFixed(1);
+    }
+
+    if (trackerMasterData?.trackerValues[0]?.valueDataType == 'STRING') {
+      trackerDataValue = _trackerData?.data.toString();
+    }
+  } else {
+    trackerDataValue = '0';
+  }
+
   return Expanded(
     flex: 6,
     child: FittedBox(
       child: RichText(
         text: TextSpan(children: [
           TextSpan(
-            text: (_trackerData != null
-                ? _trackerData.data.toStringAsFixed(1)
-                : '0'),
+            text: trackerDataValue,
             style: TextStyle(
               fontSize: 40,
               fontWeight: FontWeight.bold,

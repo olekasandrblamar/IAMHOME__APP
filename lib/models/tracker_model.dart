@@ -75,6 +75,7 @@ class TrackerValues {
   List<Severities> severities;
   int order;
   String dataPropertyName;
+  String valueDataType;
 
   TrackerValues(
       {this.id,
@@ -90,7 +91,8 @@ class TrackerValues {
       this.unitsDisplayName,
       this.severities,
       this.order,
-      this.dataPropertyName});
+      this.dataPropertyName,
+      this.valueDataType});
 
   factory TrackerValues.fromJson(Map<String, dynamic> json) =>
       _$TrackerValuesFromJson(json);

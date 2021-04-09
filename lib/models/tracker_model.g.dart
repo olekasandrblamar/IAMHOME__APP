@@ -90,6 +90,7 @@ TrackerValues _$TrackerValuesFromJson(Map<String, dynamic> json) {
         ?.toList(),
     order: json['order'] as int,
     dataPropertyName: json['dataPropertyName'] as String,
+    valueDataType: json['valueDataType'] as String,
   );
 }
 
@@ -109,6 +110,7 @@ Map<String, dynamic> _$TrackerValuesToJson(TrackerValues instance) =>
       'severities': instance.severities,
       'order': instance.order,
       'dataPropertyName': instance.dataPropertyName,
+      'valueDataType': instance.valueDataType,
     };
 
 Severities _$SeveritiesFromJson(Map<String, dynamic> json) {
