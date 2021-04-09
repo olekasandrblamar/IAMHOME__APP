@@ -178,7 +178,7 @@ class DevicesProvider extends ChangeNotifier {
 
         response.data.forEach(
           (data) {
-            if (data != null && data['active']) {
+            if (data != null && data['active'] && data['mobileDisplay']) {
               formattedData.add(
                 Tracker.fromJson(data),
               );

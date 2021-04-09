@@ -338,11 +338,11 @@ Expanded multipleDisplayText(trackerMasterData, _trackerData) {
   String trackerDataValue2;
 
   if (_trackerData.data1 != null && _trackerData.data2 != null) {
-    if (trackerMasterData?.trackerValues[0]?.valueDataType == 'INTEGER') {
+    if (trackerMasterData?.trackerValues[0]?.valueDataType == 'INT') {
       trackerDataValue1 = _trackerData?.data1?.toInt().toString();
     }
 
-    if (trackerMasterData?.trackerValues[1]?.valueDataType == 'INTEGER') {
+    if (trackerMasterData?.trackerValues[1]?.valueDataType == 'INT') {
       trackerDataValue2 = _trackerData?.data2?.toInt().toString();
     }
 
@@ -402,8 +402,8 @@ Expanded multipleDisplayText(trackerMasterData, _trackerData) {
 Expanded singleDisplayText(trackerMasterData, _trackerData) {
   String trackerDataValue;
 
-  if (_trackerData != null) {
-    if (trackerMasterData?.trackerValues[0]?.valueDataType == 'INTEGER') {
+  if (_trackerData.data != null) {
+    if (trackerMasterData?.trackerValues[0]?.valueDataType == 'INT') {
       trackerDataValue = _trackerData?.data?.toInt().toString();
     }
 
@@ -435,7 +435,7 @@ Expanded singleDisplayText(trackerMasterData, _trackerData) {
             child: Transform.translate(
               offset: const Offset(2, 2),
               child: Text(
-                trackerMasterData?.trackerValues[0].units,
+                trackerMasterData?.trackerValues[0].units ?? '',
                 //superscript is usually smaller in size
                 textScaleFactor: 2,
                 style: TextStyle(
