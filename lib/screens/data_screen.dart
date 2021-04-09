@@ -191,7 +191,7 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
   }
 
   Future<void> _loadData() async {
-    if (trackerMasterData.graphType == 'MULTIPLE_LINE_GRAPH') {
+    if (trackerMasterData.trackerType == 'DOUBLE_VALUE') {
       var trackerDataMultiple =
           await Provider.of<DevicesProvider>(context, listen: false)
               .getLatestTrackerMultipleData(trackerMasterData);
@@ -229,10 +229,9 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
-                        if (trackerMasterData.graphType == 'SINGLE_LINE_GRAPH')
+                        if (trackerMasterData.trackerType == 'SINGLE_VALUE')
                           singleDisplayText(trackerMasterData, _trackerData),
-                        if (trackerMasterData.graphType ==
-                            'MULTIPLE_LINE_GRAPH')
+                        if (trackerMasterData.trackerType == 'DOUBLE_VALUE')
                           multipleDisplayText(trackerMasterData, _trackerData),
                       ],
                     ),
