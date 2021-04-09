@@ -300,8 +300,8 @@ class DevicesProvider extends ChangeNotifier {
     notifyListeners();
 
     final prefs = await SharedPreferences.getInstance();
-    prefs.setString('watchInfo', "");
-    prefs.setString('deviceData', json.encode(_deviceData));
+    await prefs.remove('watchInfo');
+    await prefs.setString('deviceData', json.encode(_deviceData));
 
     NavigationService.goBackHome();
     // prefs.clear();
