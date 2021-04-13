@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
@@ -400,25 +401,17 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
             height: 35,
           ),
           Container(
-            height: 250.0,
-            width: 250.0,
-            child: FadeInImage(
-              placeholder: AssetImage(
-                'assets/images/placeholder.jpg',
-              ),
-              image: imageData != null
-                  ? NetworkImage(
-                      imageData,
-                    )
-                  : AssetImage(
-                      'assets/images/placeholder.jpg',
-                    ),
-              fit: BoxFit.contain,
-              alignment: Alignment.center,
-              fadeInDuration: Duration(milliseconds: 200),
-              fadeInCurve: Curves.easeIn,
-            ),
-          ),
+              height: 250.0,
+              width: 250.0,
+              child: CachedNetworkImage(
+                imageUrl: imageData,
+                fit: BoxFit.contain,
+                alignment: Alignment.center,
+                fadeInDuration: Duration(milliseconds: 200),
+                fadeInCurve: Curves.easeIn,
+                errorWidget: (context, url, error) =>
+                    Image.asset('assets/images/placeholder.jpg'),
+              )),
           SizedBox(
             height: 35,
           ),

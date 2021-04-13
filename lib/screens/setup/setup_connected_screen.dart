@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ceras/screens/setup/setup_home_screen.dart';
 import 'package:flutter/material.dart';
 
@@ -75,21 +76,14 @@ class _SetupConnectedScreenState extends State<SetupConnectedScreen> {
                   maxHeight: 250.0,
                 ),
                 padding: const EdgeInsets.all(10.0),
-                child: FadeInImage(
-                  placeholder: AssetImage(
-                    'assets/images/placeholder.jpg',
-                  ),
-                  image: _displayImage != null
-                      ? NetworkImage(
-                          _displayImage,
-                        )
-                      : AssetImage(
-                          'assets/images/placeholder.jpg',
-                        ),
+                child: CachedNetworkImage(
+                  imageUrl: _displayImage,
                   fit: BoxFit.contain,
                   alignment: Alignment.center,
                   fadeInDuration: Duration(milliseconds: 200),
                   fadeInCurve: Curves.easeIn,
+                  errorWidget: (context, url, error) =>
+                      Image.asset('assets/images/placeholder.jpg'),
                 ),
               ),
               Container(

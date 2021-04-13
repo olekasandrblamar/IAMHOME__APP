@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/providers/devices_provider.dart';
@@ -127,12 +128,6 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           _statusTitle,
           textAlign: TextAlign.center,
         ),
-        children: <Widget>[
-          Text(
-            _statusDescription,
-            textAlign: TextAlign.center,
-          ),
-        ],
         // backgroundColor: Colors.blueAccent,
         elevation: 4,
         shape: StadiumBorder(
@@ -140,6 +135,12 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
             style: BorderStyle.none,
           ),
         ),
+        children: <Widget>[
+          Text(
+            _statusDescription,
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
@@ -210,7 +211,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           var watchInfo = json.decode(connectionInfo) as Map<String, dynamic>;
 
           print("Creating devices model from json");
-          Map<String, dynamic> updatedJson = {
+          var updatedJson = <String, dynamic>{
             'deviceMaster': _deviceData.deviceMaster,
             'watchInfo': watchInfo
           };
@@ -344,21 +345,15 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                 child: Hero(
                   transitionOnUserGestures: true,
                   tag: _deviceTag,
-                  child: FadeInImage(
-                    placeholder: AssetImage(
-                      'assets/images/placeholder.jpg',
-                    ),
-                    image: _displayImage != null
-                        ? NetworkImage(
-                            _displayImage,
-                          )
-                        : AssetImage(
-                            'assets/images/placeholder.jpg',
-                          ),
+                  child: CachedNetworkImage(
+                    imageUrl: _displayImage,
                     fit: BoxFit.contain,
                     alignment: Alignment.center,
                     fadeInDuration: Duration(milliseconds: 200),
                     fadeInCurve: Curves.easeIn,
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                        Image.asset('assets/images/placeholder.jpg'),
                   ),
                 ),
               ),
@@ -381,10 +376,11 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
               Row(
                 children: <Widget>[
                   Flexible(
-                    child: Container(),
                     flex: 2,
+                    child: Container(),
                   ),
                   Flexible(
+                    flex: 4,
                     child: Container(
                       // margin: EdgeInsets.symmetric(horizontal: 40),
                       child: TextField(
@@ -395,7 +391,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                         decoration: InputDecoration(
                           // border: OutlineInputBorder(),
                           // labelText: 'Phone',
-                          hintText: "-   -   -   -",
+                          hintText: '-   -   -   -',
                         ),
                         controller: _deviceIdController,
                         keyboardType: TextInputType.text,
@@ -409,11 +405,10 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                         ],
                       ),
                     ),
-                    flex: 4,
                   ),
                   Flexible(
-                    child: Container(),
                     flex: 2,
+                    child: Container(),
                   ),
                 ],
               ),

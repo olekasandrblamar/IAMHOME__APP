@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/auth/login_screen.dart';
@@ -140,6 +141,19 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                       borderRadius: BorderRadius.circular(10.0),
                     ),
                     child: InkWell(
+                      onTap: () => {
+                        Navigator.of(context).pushNamed(
+                          routes.SetupConnectRoute,
+                          arguments: {
+                            'tag': 'imageHero' + index.toString(),
+                            'deviceData': hardwareDataSnapshot.data[index],
+                            'deviceType': hardwareDataSnapshot.data[index]
+                                .deviceMaster['deviceType']['displayName']
+                                .toUpperCase(),
+                            'displayImage': imageData,
+                          },
+                        ),
+                      },
                       child: Container(
                         padding: EdgeInsets.all(5),
                         child: GridTile(
@@ -150,23 +164,17 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                                 child: Hero(
                                   transitionOnUserGestures: true,
                                   tag: 'imageHero' + index.toString(),
-                                  child: FadeInImage(
-                                    placeholder: AssetImage(
-                                      'assets/images/placeholder.jpg',
-                                    ),
-                                    image: imageData != null
-                                        ? NetworkImage(
-                                            imageData,
-                                          )
-                                        : AssetImage(
-                                            'assets/images/placeholder.jpg',
-                                          ),
+                                  child: CachedNetworkImage(
+                                    imageUrl: imageData,
                                     fit: BoxFit.contain,
                                     alignment: Alignment.center,
                                     fadeInDuration: Duration(milliseconds: 200),
                                     fadeInCurve: Curves.easeIn,
                                     width: double.infinity,
                                     height: double.infinity,
+                                    errorWidget: (context, url, error) =>
+                                        Image.asset(
+                                            'assets/images/placeholder.jpg'),
                                   ),
                                 ),
                               ),
@@ -193,19 +201,6 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                           ),
                         ),
                       ),
-                      onTap: () => {
-                        Navigator.of(context).pushNamed(
-                          routes.SetupConnectRoute,
-                          arguments: {
-                            'tag': 'imageHero' + index.toString(),
-                            'deviceData': hardwareDataSnapshot.data[index],
-                            'deviceType': hardwareDataSnapshot.data[index]
-                                .deviceMaster['deviceType']['displayName']
-                                .toUpperCase(),
-                            'displayImage': imageData,
-                          },
-                        ),
-                      },
                     ),
                   );
                 },
