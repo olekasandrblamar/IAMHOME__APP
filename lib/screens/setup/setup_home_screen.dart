@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/models/devices_model.dart';
@@ -349,25 +350,17 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
               Container(
                 padding: EdgeInsets.all(10),
                 child: Container(
-                  height: 100.0,
-                  width: 100.0,
-                  child: FadeInImage(
-                    placeholder: AssetImage(
-                      'assets/images/placeholder.jpg',
-                    ),
-                    image: imageData != null
-                        ? NetworkImage(
-                            imageData,
-                          )
-                        : AssetImage(
-                            'assets/images/placeholder.jpg',
-                          ),
-                    fit: BoxFit.contain,
-                    alignment: Alignment.center,
-                    fadeInDuration: Duration(milliseconds: 200),
-                    fadeInCurve: Curves.easeIn,
-                  ),
-                ),
+                    height: 100.0,
+                    width: 100.0,
+                    child: CachedNetworkImage(
+                      imageUrl: imageData,
+                      fit: BoxFit.contain,
+                      alignment: Alignment.center,
+                      fadeInDuration: Duration(milliseconds: 200),
+                      fadeInCurve: Curves.easeIn,
+                      errorWidget: (context, url, error) =>
+                          Image.asset('assets/images/placeholder.jpg'),
+                    )),
               ),
               Expanded(
                 child: Container(
