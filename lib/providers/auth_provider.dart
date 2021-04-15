@@ -125,7 +125,7 @@ class AuthProvider with ChangeNotifier {
       final response =
           await http.post(authUrl + '/oauth/updatePassword', data: {
         "newPassword": password,
-        "id_token": token == null ? _idToken : token,
+        "id_token": token == null|| token == "" ? _idToken : token,
       });
 
       final responseData = response.data;
