@@ -7,8 +7,8 @@ import BackgroundTasks
 @UIApplicationMain
 @objc class AppDelegate: FlutterAppDelegate {
     
-    var watchData:WatchData = WatchData()
-    static var bandDevice:BandDevice? = nil
+    static var watchData:WatchData? = nil
+//    static var bandDevice:BandDevice? = nil
     static let dateFormatter = DateFormatter()
     static var lastUpdated:Date? = nil
     static var WATCH_TYPE = "WATCH"
@@ -16,11 +16,48 @@ import BackgroundTasks
     static var DEVICE_TYPE_KEY = "flutter.deviceType"
     static let BG_SYNC_TASK = "com.cerashealth.datasync"
   
-    override func application(_ application: UIApplication,
-                              performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void){
-        //TSBackgroundFetch.sharedInstance()?.perform(completionHandler: completionHandler, applicationState: application.applicationState)
+//    override func application(_ application: UIApplication,
+//                              performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void){
+//        //TSBackgroundFetch.sharedInstance()?.perform(completionHandler: completionHandler, applicationState: application.applicationState)
+//    }
+    
+    override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable: Any]) {
+        self.processBackgroundData()
     }
     
+    private func processBackgroundData(){
+        let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
+        NSLog("Got connection info in background from \(connectionInfo)")
+        do{
+            if(connectionInfo != nil){
+                try self.syncData(connectionInfo: connectionInfo!)
+            }
+        }catch{
+            NSLog("Error while syncing data")
+        }
+    }
+    
+
+    //This is called when the remote notification is triggered
+    override func application(_ application: UIApplication, didReceiveRemoteNotification userInfo: [AnyHashable : Any], fetchCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void) {
+        self.processBackgroundData()
+        completionHandler(UIBackgroundFetchResult.noData)
+    }
+    
+    override func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        NSLog("Registered with notification")
+        Messaging.messaging().apnsToken = deviceToken
+        do{
+            let tokenData = try JSONEncoder().encode(deviceToken)
+            NSLog("Decided data \(tokenData)")
+            let token = Messaging.messaging().fcmToken as? String
+            NSLog("Got toke \(token)")
+        }catch{
+            NSLog("Error while decding")
+        }
+        
+    }
+
   override func application(
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
@@ -93,6 +130,18 @@ import BackgroundTasks
             }catch{
                 result("Error")
             }
+        }else if(call.method=="connectionStatus"){
+            
+            guard let args = call.arguments else {
+              result("iOS could not recognize flutter arguments in method: (sendParams)")
+              return
+            }
+            let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
+            do{
+                try self?.getConnectionStatus(result: result, connectionInfo: connectionInfo)
+            }catch{
+                result(false)
+            }
         }else if(call.method=="disconnect"){
             guard let args = call.arguments else {
               result("iOS could not recognize flutter arguments in method: (sendParams)")
@@ -101,6 +150,17 @@ import BackgroundTasks
             NSLog("Disconnecting device")
             let deviceType:String = (args as? [String: Any])?["deviceType"] as! String
             self?.disconectDevice(result: result, deviceType: deviceType)
+        }else if(call.method=="upgradeDevice"){
+            guard let args = call.arguments else {
+              result("iOS could not recognize flutter arguments in method: (sendParams)")
+              return
+            }
+            let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
+            do{
+                try self?.upgradeDevice(result: result, connectionInfo: connectionInfo)
+            }catch{
+                result("Error")
+            }
         }
         else {
           result(FlutterMethodNotImplemented)
@@ -209,17 +269,29 @@ import BackgroundTasks
     
     
     private func syncData(connectionInfo:String) throws {
+        Messaging.messaging().subscribe(toTopic: "ios_updates") { error in
+          NSLog("Subscribed to ios_updates with error \(error)")
+        }
+        
+        //DataSync.loadWeatherData()
+        
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         let deviceType = getDeviceType()
         NSLog("Syncing data for device \(deviceType)")
         UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
         if(deviceType! == AppDelegate.WATCH_TYPE){
-            self.watchData.syncData(connectionInfo: connectionData)
-        }else if(deviceType! == AppDelegate.BAND_TYPE){
-            self.getBandDevice()?.syncData(connectionInfo: connectionData)
+            self.getWatchDevice()?.syncData(connectionInfo: connectionData)
         }
+//        else if(deviceType! == AppDelegate.BAND_TYPE){
+//            self.getBandDevice()?.syncData(connectionInfo: connectionData)
+//        }
     }
-    
+    private func getProfile(){
+        let deviceType = getDeviceType()
+        NSLog("Syncing data for device \(deviceType)")
+
+    }
+
     private func getDeviceType() -> String?{
         return UserDefaults.standard.string(forKey: AppDelegate.DEVICE_TYPE_KEY)
     }
@@ -228,22 +300,24 @@ import BackgroundTasks
         NSLog("disconnecting device \(deviceType)")
         if(deviceType==AppDelegate.WATCH_TYPE){
             NSLog("disonnecting Watch")
-            self.watchData.disconnect(result: result)
+            self.getWatchDevice()?.disconnect(result: result)
             NSLog("completed Connecting Watch")
-        }else if(deviceType==AppDelegate.BAND_TYPE){
-            getBandDevice()?.disconnectDevice(result: result)
         }
+//        else if(deviceType==AppDelegate.BAND_TYPE){
+//            getBandDevice()?.disconnectDevice(result: result)
+//        }
     }
-    
+
     private func connectDevice(result:@escaping FlutterResult,deviceId:String, deviceType:String) {
         NSLog("Connecting device \(deviceType)")
         if(deviceType==AppDelegate.WATCH_TYPE){
             NSLog("Connecting Watch")
-            self.watchData.startScan(result: result,deviceId:deviceId)
+            self.getWatchDevice()?.startScan(result: result,deviceId:deviceId)
             NSLog("completed Connecting Watch")
-        }else if(deviceType==AppDelegate.BAND_TYPE){
-            getBandDevice()?.connectDevice(result: result, deviceId: deviceId)
         }
+//        else if(deviceType==AppDelegate.BAND_TYPE){
+//            getBandDevice()?.connectDevice(result: result, deviceId: deviceId)
+//        }
     }
     
     private func getDeviceInfo(result:@escaping FlutterResult,connectionInfo:String) throws {
@@ -251,17 +325,49 @@ import BackgroundTasks
         NSLog("Getting device info ")
         let deviceType = getDeviceType()
         if(deviceType! == AppDelegate.WATCH_TYPE){
-            self.watchData.getCurrentDeviceStatus(connInfo: connectionData, result: result)
-        }else if(deviceType! == AppDelegate.BAND_TYPE){
-            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+            self.getWatchDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
         }
+//        else if(deviceType! == AppDelegate.BAND_TYPE){
+//            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+//        }
     }
     
-    private func getBandDevice() -> BandDevice?{
-        if(AppDelegate.bandDevice==nil){
-            AppDelegate.bandDevice = BandDevice()
+    private func getConnectionStatus(result:@escaping FlutterResult,connectionInfo:String) throws {
+        let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
+        NSLog("Getting device info ")
+        let deviceType = getDeviceType()
+        if(deviceType! == AppDelegate.WATCH_TYPE){
+            self.getWatchDevice()?.getConnectionStatus(result: result)
         }
-        return AppDelegate.bandDevice
+//        else if(deviceType! == AppDelegate.BAND_TYPE){
+//            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+//        }
+    }
+    
+    private func upgradeDevice(result:@escaping FlutterResult,connectionInfo:String) throws {
+        let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
+        NSLog("Getting device info ")
+        let deviceType = getDeviceType()
+        if(deviceType! == AppDelegate.WATCH_TYPE){
+            self.getWatchDevice()?.upgradeDevice(connInfo: connectionData, result: result)
+        }
+//        else if(deviceType! == AppDelegate.BAND_TYPE){
+//            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+//        }
+    }
+    
+//    private func getBandDevice() -> BandDevice?{
+//        if(AppDelegate.bandDevice==nil){
+//            AppDelegate.bandDevice = BandDevice()
+//        }
+//        return AppDelegate.bandDevice
+//    }
+    
+    private func getWatchDevice() -> WatchData?{
+        if(AppDelegate.watchData==nil){
+            AppDelegate.watchData = WatchData()
+        }
+        return AppDelegate.watchData
     }
 }
 
@@ -272,4 +378,6 @@ struct ConnectionInfo:Codable {
     var deviceFound:Bool? = false
     var message:String?
     var additionalInformation: [String:String] = [:]
+    var batteryStatus:String? = nil
+    var upgradeAvailable:Bool = false
 }

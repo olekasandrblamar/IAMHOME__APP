@@ -5,13 +5,15 @@ part 'watchdata_model.g.dart';
 
 @JsonSerializable()
 class WatchModel {
-  final bool connected;
+  bool connected;
   final String deviceId;
   final String deviceName;
   final String message;
   final String deviceType;
   final bool deviceFound;
+  String batteryStatus;
   final Map<String, String> additionalInformation;
+  final bool upgradeAvailable;
 
   WatchModel({
     this.connected,
@@ -20,7 +22,9 @@ class WatchModel {
     this.message,
     this.additionalInformation,
     this.deviceType,
-    this.deviceFound
+    this.deviceFound,
+    this.batteryStatus,
+    this.upgradeAvailable
   });
 
   factory WatchModel.fromJson(Map<String, dynamic> json) =>

@@ -6,26 +6,45 @@ BuildEnvironment get env => _env;
 BuildEnvironment _env;
 
 class BuildEnvironment {
+  final String environment;
+
   /// The backend server.
   final String baseUrl;
   final String baseUrl2;
+  final String accessKey;
+  final String secret;
+  final String authUrl;
+  final String environmentUrl;
   final BuildFlavor flavor;
 
-  BuildEnvironment._init({
-    this.flavor,
-    this.baseUrl,
-    this.baseUrl2,
-  });
+  BuildEnvironment._init(
+      {this.environment,
+      this.flavor,
+      this.baseUrl,
+      this.baseUrl2,
+      this.accessKey,
+      this.secret,
+      this.authUrl,
+      this.environmentUrl});
 
   /// Sets up the top-level [env] getter on the first call only.
   static void init({
+    @required environment,
     @required flavor,
     @required baseUrl,
     @required baseUrl2,
+    @required accessKey,
+    @required secret,
+    @required authUrl,
+    @required environmentUrl,
   }) =>
       _env ??= BuildEnvironment._init(
-        flavor: flavor,
-        baseUrl: baseUrl,
-        baseUrl2: baseUrl2,
-      );
+          environment: environment,
+          flavor: flavor,
+          baseUrl: baseUrl,
+          baseUrl2: baseUrl2,
+          accessKey: accessKey,
+          secret: secret,
+          authUrl: authUrl,
+          environmentUrl: environmentUrl);
 }

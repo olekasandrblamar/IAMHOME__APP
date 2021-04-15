@@ -1,41 +1,49 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:package_info/package_info.dart';
 import 'package:device_info/device_info.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
-Future<Map<String, dynamic>> getUserDeviceInfo() async {
+Future<void> updateDeviceInfo() async {
   final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   final PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
+  Map<String,dynamic> deviceData = {};
+
   if (Platform.isIOS) {
-    final IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
-    return {
-      'deviceInfo': {
-        'name': iosDeviceInfo.name,
-        'systemName': iosDeviceInfo.systemName,
-        'systemVersion': iosDeviceInfo.systemVersion,
-        'model': iosDeviceInfo.model,
-        'localizedModel': iosDeviceInfo.localizedModel,
-        'identifierForVendor': iosDeviceInfo.identifierForVendor,
-        'isPhysicalDevice': iosDeviceInfo.isPhysicalDevice,
-        'utsname.sysname': iosDeviceInfo.utsname.sysname,
-        'utsname.nodename': iosDeviceInfo.utsname.nodename,
-        'utsname.release': iosDeviceInfo.utsname.release,
-        'utsname.version': iosDeviceInfo.utsname.version,
-        'utsname.machine': iosDeviceInfo.utsname.machine,
-      },
-      'appInfo': {
-        'appName': packageInfo.appName,
-        'packageName': packageInfo.packageName,
-        'version': packageInfo.version,
-        'buildNumber': packageInfo.buildNumber,
-      }
-    };
+    try {
+      final IosDeviceInfo iosDeviceInfo = await deviceInfo.iosInfo;
+      deviceData = {
+        'deviceInfo': {
+          'name': iosDeviceInfo.name,
+          'systemName': iosDeviceInfo.systemName,
+          'systemVersion': iosDeviceInfo.systemVersion,
+          'model': iosDeviceInfo.model,
+          'localizedModel': iosDeviceInfo.localizedModel,
+          'identifierForVendor': iosDeviceInfo.identifierForVendor,
+          'isPhysicalDevice': iosDeviceInfo.isPhysicalDevice,
+          'utsname.sysname': iosDeviceInfo.utsname.sysname,
+          'utsname.nodename': iosDeviceInfo.utsname.nodename,
+          'utsname.release': iosDeviceInfo.utsname.release,
+          'utsname.version': iosDeviceInfo.utsname.version,
+          'utsname.machine': iosDeviceInfo.utsname.machine,
+        },
+        'appInfo': {
+          'appName': packageInfo.appName,
+          'packageName': packageInfo.packageName,
+          'version': packageInfo.version,
+          'buildNumber': packageInfo.buildNumber,
+        }
+      };
+    } on Exception catch(e){
+      deviceData = {};
+    }
   }
 
   if (Platform.isAndroid) {
     final AndroidDeviceInfo androidDeviceInfo = await deviceInfo.androidInfo;
-    return <String, dynamic>{
+    deviceData = <String, dynamic>{
       'deviceInfo': {
         'version.securityPatch': androidDeviceInfo.version.securityPatch,
         'version.sdkInt': androidDeviceInfo.version.sdkInt,
@@ -73,6 +81,8 @@ Future<Map<String, dynamic>> getUserDeviceInfo() async {
       }
     };
   }
+  
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString("userDeviceInfo", json.encode(deviceData));
 
-  return {};
 }

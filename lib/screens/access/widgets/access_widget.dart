@@ -83,13 +83,13 @@ class AccessWidget extends StatelessWidget {
                   ),
                   color: Theme.of(context).primaryColor,
                   textColor: Colors.white,
+                  onPressed: () => onPermissionSelected(),
                   child: Text(
                     _appLocalization.translate('access.buttons.imin'),
                     style: TextStyle(
                       fontSize: 14,
                     ),
                   ),
-                  onPressed: () => onPermissionSelected(),
                 ),
               ),
               Container(
@@ -102,13 +102,13 @@ class AccessWidget extends StatelessWidget {
                   ),
                   color: Color(0XFFE6E6E6),
                   textColor: Colors.black,
+                  onPressed: () => onNothingSelected(),
                   child: Text(
                     _appLocalization.translate('access.buttons.nothanks'),
                     style: TextStyle(
                       fontSize: 14,
                     ),
                   ),
-                  onPressed: () => onNothingSelected(),
                 ),
               )
             ],

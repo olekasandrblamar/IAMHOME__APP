@@ -70,6 +70,15 @@ class _LanguageSelectionState extends State<LanguageSelection> {
                   borderRadius: BorderRadius.circular(5.0),
                 ),
                 child: InkWell(
+                  onTap: () {
+                    _appLanguage.changeLanguage(
+                      Locale(_languages[index]['language_code']),
+                    );
+
+                    setState(() {
+                      _language = _languages[index]['value'];
+                    });
+                  },
                   child: Container(
                     padding: EdgeInsets.all(5),
                     child: GridTile(
@@ -103,15 +112,6 @@ class _LanguageSelectionState extends State<LanguageSelection> {
                       ),
                     ),
                   ),
-                  onTap: () {
-                    _appLanguage.changeLanguage(
-                      Locale(_languages[index]['language_code']),
-                    );
-
-                    setState(() {
-                      _language = _languages[index]['value'];
-                    });
-                  },
                 ),
               );
             },

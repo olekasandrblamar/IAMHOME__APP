@@ -1,6 +1,8 @@
+import 'package:ceras/config/env.dart';
 import 'package:ceras/config/user_deviceinfo.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/screens/settings/debug_screen.dart';
+import 'package:ceras/screens/settings/redeem_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
@@ -13,6 +15,7 @@ import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/theme.dart';
 import 'package:package_info/package_info.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   @override
@@ -29,13 +32,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     buildNumber: 'Unknown',
   );
 
-  bool _watchInfo = false;
+  bool _authInfo = false;
+  String _environment;
+  String _redeemCode;
 
   @override
   void initState() {
     super.initState();
     _initPackageInfo();
-    _checkWatchInfo();
+    _checkAuthInfo();
+    _loadEnvironment();
   }
 
   Future<void> _initPackageInfo() async {
@@ -53,30 +59,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  void _checkWatchInfo() async {
+  void _checkAuthInfo() async {
     final isValid =
         await Provider.of<AuthProvider>(context, listen: false).isAuth;
 
     print(isValid);
     setState(() {
-      _watchInfo = isValid;
+      _authInfo = isValid;
     });
   }
 
   void _logout() async {
-    var deviceType =
-        await Provider.of<AuthProvider>(context, listen: false).deviceType;
-
-    if (deviceType != null) {
-      var disconnect = await platform.invokeMethod(
-        'disconnect',
-        <String, dynamic>{'deviceType': deviceType},
-      ) as String;
-
-      if (disconnect != null) {
-        await Provider.of<AuthProvider>(context, listen: false).logout();
-      }
-    }
+    await Provider.of<AuthProvider>(context, listen: false).logout();
   }
 
   void _openBrowser() {
@@ -95,6 +89,17 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // ),
       // ),
     );
+  }
+
+  void _loadEnvironment() async {
+    final prefs = await SharedPreferences.getInstance();
+    var redeemCode = await prefs.getString('redeemCode');
+    // var environment = await prefs.getString('environment');
+
+    setState(() {
+      _redeemCode = redeemCode;
+      // _environment = environment ??= env.environment;
+    });
   }
 
   @override
@@ -136,7 +141,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               child: Container(
                 padding: EdgeInsets.all(15),
                 child: GridTile(
-                  child: new InkResponse(
+                  child: InkResponse(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
@@ -172,6 +177,93 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
+            _redeemCode != null
+                ? Card(
+                    color: Theme.of(context).primaryColor,
+                    child: Container(
+                      padding: EdgeInsets.all(15),
+                      child: GridTile(
+                        child: InkResponse(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Icon(
+                                  Icons.redeem,
+                                  size: 50,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              Container(
+                                height: 10,
+                              ),
+                            ],
+                          ),
+                          onTap: () => {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<Null>(
+                                builder: (BuildContext context) {
+                                  return RedeemScreen();
+                                },
+                                fullscreenDialog: true,
+                              ),
+                            ),
+                          },
+                        ),
+                        footer: Container(
+                          padding: EdgeInsets.only(top: 50),
+                          child: Center(
+                            child: Text(
+                              'Redeemed Code',
+                              style: TextStyle(
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  )
+                : Card(
+                    child: Container(
+                      padding: EdgeInsets.all(15),
+                      child: GridTile(
+                        child: InkResponse(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Expanded(
+                                child: Icon(
+                                  Icons.redeem,
+                                  size: 50,
+                                  color: Theme.of(context).primaryColor,
+                                ),
+                              ),
+                              Container(
+                                height: 10,
+                              ),
+                            ],
+                          ),
+                          onTap: () => {
+                            Navigator.of(context).push(
+                              MaterialPageRoute<Null>(
+                                builder: (BuildContext context) {
+                                  return RedeemScreen();
+                                },
+                                fullscreenDialog: true,
+                              ),
+                            )
+                          },
+                        ),
+                        footer: Container(
+                          padding: EdgeInsets.only(top: 50),
+                          child: Center(
+                            child: Text('Redeem Code'),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
             Card(
               child: Container(
                 padding: EdgeInsets.all(15),
@@ -248,7 +340,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ),
             ),
-            if (_watchInfo)
+            if (_authInfo)
               Card(
                 color: Theme.of(context).primaryColor,
                 child: Container(
@@ -275,7 +367,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       padding: EdgeInsets.only(top: 50),
                       child: Center(
                         child: Text(
-                          'Disconnect',
+                          'Logout',
                           style: TextStyle(
                             color: Colors.white,
                           ),

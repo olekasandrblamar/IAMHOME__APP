@@ -1,16 +1,17 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/devices_model.dart';
+import 'package:ceras/providers/devices_provider.dart';
+import 'package:ceras/screens/setup/setup_connected_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/helpers/errordialog_popup.dart';
 import 'package:ceras/models/watchdata_model.dart';
-import 'package:ceras/providers/auth_provider.dart';
-import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/theme.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+// import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
 
 class UpperCaseTextFormatter extends TextInputFormatter {
@@ -127,12 +128,6 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           _statusTitle,
           textAlign: TextAlign.center,
         ),
-        children: <Widget>[
-          Text(
-            _statusDescription,
-            textAlign: TextAlign.center,
-          ),
-        ],
         // backgroundColor: Colors.blueAccent,
         elevation: 4,
         shape: StadiumBorder(
@@ -140,6 +135,12 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
             style: BorderStyle.none,
           ),
         ),
+        children: <Widget>[
+          Text(
+            _statusDescription,
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
@@ -154,8 +155,10 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
       _loadingDialog();
 
-      FlutterBlue flutterBlue = FlutterBlue.instance;
-      var checkAvailability = await flutterBlue.isOn;
+      // FlutterBlue flutterBlue = FlutterBlue.instance;
+      // var checkAvailability = await flutterBlue.isOn;
+
+      var checkAvailability = true;
 
       if (!checkAvailability) {
         _resetWithError();
@@ -190,21 +193,40 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           _statusDescription = 'Verifying.....';
         });
 
+        print("Device found");
+
         if (connectionData.connected) {
+          print("Device connected");
           setState(() {
             _statusTitle = 'Device Found';
             _statusDescription = 'Connecting.....';
           });
 
           //TODO - Add code to check the result and add actions based on that
-          await Provider.of<AuthProvider>(context, listen: false)
+          await Provider.of<DevicesProvider>(context, listen: false)
               .saveWatchInfo(connectionData);
 
-          await Provider.of<AuthProvider>(context, listen: false)
-              .setDeviceType(_deviceType);
+          // await Provider.of<WatchProvider>(context, listen: false)
+          //     .setDeviceType(_deviceType);
+          var watchInfo = json.decode(connectionInfo) as Map<String, dynamic>;
 
-          await Provider.of<AuthProvider>(context, listen: false)
-              .setDeviceData(_deviceData);
+          print("Creating devices model from json");
+          var updatedJson = <String, dynamic>{
+            'deviceMaster': _deviceData.deviceMaster,
+            'watchInfo': watchInfo
+          };
+
+          print("created map and converting to json");
+          print(updatedJson['watchInfo']);
+          var formattedData = DevicesModel.fromJson(updatedJson);
+
+          print("Device master");
+          print(formattedData.deviceMaster);
+          print("formatted data");
+          print(formattedData);
+
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .setDeviceData(formattedData);
 
           setState(() {
             _isLoading = false;
@@ -249,12 +271,24 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
   void _redirectTo() {
     Navigator.of(context).pop();
+
     Navigator.of(context).pushAndRemoveUntil(
         MaterialPageRoute(
-          builder: (BuildContext context) => SetupActiveScreen(),
-          settings: const RouteSettings(name: routes.SetupActiveRoute),
+          builder: (BuildContext context) => SetupConnectedScreen(
+            routeArgs: {
+              'displayImage': _displayImage,
+            },
+          ),
+          settings: const RouteSettings(name: routes.SetupConnectedRoute),
         ),
         (Route<dynamic> route) => false);
+
+    // Navigator.of(context).pushNamed(
+    //   routes.SetupConnectedRoute,
+    //   arguments: {
+    //     'displayImage': _displayImage,
+    //   },
+    // );
   }
 
   @override
@@ -274,41 +308,79 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
           child: Column(
             children: <Widget>[
               Container(
+                width: double.infinity,
+                padding: const EdgeInsets.only(
+                  bottom: 10.0,
+                ),
+                child: Text(
+                  // _appLocalization.translate('setup.active.devicefound'),
+                  'Device ID located back on device',
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.left,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    letterSpacing: 0.18,
+                    color: Colors.red,
+                  ),
+                ),
+              ),
+              Container(
+                width: double.infinity,
+                child: Text(
+                  'Please Enter Device ID',
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.left,
+                  style: AppTheme.title,
+                ),
+              ),
+              SizedBox(
+                height: 20,
+              ),
+              Container(
                 constraints: BoxConstraints(
-                  maxHeight: 300.0,
+                  maxHeight: 250.0,
                 ),
                 padding: const EdgeInsets.all(10.0),
                 child: Hero(
                   transitionOnUserGestures: true,
                   tag: _deviceTag,
-                  child: FadeInImage(
-                    placeholder: AssetImage(
-                      'assets/images/placeholder.jpg',
-                    ),
-                    image: _displayImage != null
-                        ? NetworkImage(
-                            _displayImage,
-                          )
-                        : AssetImage(
-                            'assets/images/placeholder.jpg',
-                          ),
+                  child: CachedNetworkImage(
+                    imageUrl: _displayImage,
                     fit: BoxFit.contain,
                     alignment: Alignment.center,
                     fadeInDuration: Duration(milliseconds: 200),
                     fadeInCurve: Curves.easeIn,
+                    placeholder: (context, url) => CircularProgressIndicator(),
+                    errorWidget: (context, url, error) =>
+                        Image.asset('assets/images/placeholder.jpg'),
                   ),
                 ),
               ),
               SizedBox(
-                height: 25,
+                height: 20,
+              ),
+              Container(
+                padding: const EdgeInsets.only(bottom: 20.0),
+                child: FittedBox(
+                  child: Text(
+                    (_deviceData?.deviceMaster != null &&
+                            _deviceData?.deviceMaster['displayName'] != null)
+                        ? _deviceData?.deviceMaster['displayName'] + ' Tracker'
+                        : '',
+                    textAlign: TextAlign.center,
+                    style: AppTheme.title,
+                  ),
+                ),
               ),
               Row(
                 children: <Widget>[
                   Flexible(
-                    child: Container(),
                     flex: 2,
+                    child: Container(),
                   ),
                   Flexible(
+                    flex: 4,
                     child: Container(
                       // margin: EdgeInsets.symmetric(horizontal: 40),
                       child: TextField(
@@ -319,7 +391,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                         decoration: InputDecoration(
                           // border: OutlineInputBorder(),
                           // labelText: 'Phone',
-                          hintText: "-   -   -   -",
+                          hintText: '-   -   -   -',
                         ),
                         controller: _deviceIdController,
                         keyboardType: TextInputType.text,
@@ -333,26 +405,12 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                         ],
                       ),
                     ),
-                    flex: 4,
                   ),
                   Flexible(
-                    child: Container(),
                     flex: 2,
+                    child: Container(),
                   ),
                 ],
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              Container(
-                padding: const EdgeInsets.all(10.0),
-                child: FittedBox(
-                  child: Text(
-                    _appLocalization.translate('setup.connect.last4'),
-                    textAlign: TextAlign.center,
-                    style: AppTheme.title,
-                  ),
-                ),
               ),
               // SizedBox(
               //   height: 25,

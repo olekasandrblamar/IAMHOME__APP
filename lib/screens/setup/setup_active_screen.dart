@@ -1,13 +1,17 @@
 import 'dart:convert';
 
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
+import 'package:ceras/providers/devices_provider.dart';
+import 'package:ceras/screens/setup/setup_upgrade_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/theme.dart';
-import 'package:ceras/widgets/setup_appbar_widget.dart';
-import 'package:flutter_blue/flutter_blue.dart';
+import 'package:flutter/services.dart';
+// import 'package:flutter_blue/flutter_blue.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
@@ -15,25 +19,36 @@ import 'package:ceras/constants/route_paths.dart' as routes;
 import 'widgets/bluetooth_notfound_widget.dart';
 
 class SetupActiveScreen extends StatefulWidget {
+  final Map<dynamic, dynamic> routeArgs;
+
+  SetupActiveScreen({Key key, this.routeArgs}) : super(key: key);
+
   @override
   _SetupActiveScreenState createState() => _SetupActiveScreenState();
 }
 
 class _SetupActiveScreenState extends State<SetupActiveScreen>
     with WidgetsBindingObserver {
+  static const platform = MethodChannel('ceras.iamhome.mobile/device');
   final _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  String _lastUpdated = null;
-  String _deviceType = null;
-  DevicesModel _deviceData = null;
-  String _deviceId = null;
+  int _deviceIndex;
+  String _lastUpdated;
+  DevicesModel _deviceData;
+  String _deviceId = '---';
+  String _batteryLevel = "---";
   bool _connected = true;
   bool isLoading = true;
 
   @override
   void initState() {
+    if (widget.routeArgs != null) {
+      _deviceIndex = widget.routeArgs['deviceIndex'];
+    }
+
     // _changeLastUpdated();
     _syncDataFromDevice();
+
     super.initState();
 
     WidgetsBinding.instance.addObserver(this);
@@ -41,6 +56,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
   @override
   void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+
     super.dispose();
   }
 
@@ -79,20 +96,32 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     print('detach');
   }
 
-  void getDeviceStatus(String connectionInfo) async {
+  void _getDeviceStatus(String connectionInfo) async {
     final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
       'deviceStatus',
       <String, dynamic>{'connectionInfo': connectionInfo},
     ) as String;
-    if (connectionStatus != "Error") {
-      print("Got connection info response ${connectionStatus}");
-      final WatchModel connectionStatusData = WatchModel.fromJson(
+
+    if (connectionStatus != 'Error') {
+      print('Got connection info response $connectionStatus');
+      final connectionStatusData = WatchModel.fromJson(
           json.decode(connectionStatus) as Map<String, dynamic>);
+
+      if (!mounted) return;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('connected', 'true');
 
       setState(() {
         _connected = connectionStatusData.connected;
         _deviceId = connectionStatusData.deviceId;
+        _batteryLevel = connectionStatusData.batteryStatus;
       });
+      if (connectionStatusData.upgradeAvailable) {
+        _showUpgrade();
+      }
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('connected', 'false');
     }
   }
 
@@ -100,39 +129,46 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
     final lastUpdate = prefs.getString('last_sync');
-    final deviceType = prefs.getString('deviceType');
 
-    final deviceData = DevicesModel.fromJson(
-        json.decode(prefs.getString('deviceData')) as Map<String, dynamic>);
+    print('Last updated at $lastUpdate');
 
-    print("Last updated at ${lastUpdate}");
-    setState(() {
-      _lastUpdated = lastUpdate;
-      _deviceType = deviceType;
-      _deviceData = deviceData;
-    });
-    final connectionInfo = prefs.getString('watchInfo');
-    setState(() {
-      isLoading = true;
-    });
-
-    Future.delayed(Duration(seconds: 3), () {
-      getDeviceStatus(connectionInfo);
+    if (mounted) {
       setState(() {
-        isLoading = false;
+        _lastUpdated = lastUpdate;
       });
-    });
+    }
 
-    _showSuccessMessage();
+    _loadDeviceData();
+
+    final connectionInfo = prefs.getString('watchInfo');
+    if (connectionInfo != null) {
+      _setIsLoading(true);
+
+      Future.delayed(Duration(seconds: 3), () {
+        _getDeviceStatus(connectionInfo);
+        _setIsLoading(false);
+      });
+    }
+
+    // _showSuccessMessage();
+  }
+
+  void _loadDeviceData() async {
+    var deviceData = await Provider.of<DevicesProvider>(context, listen: false)
+        .getDeviceData(_deviceIndex);
+
+    if (mounted) {
+      setState(() {
+        _deviceData = deviceData;
+      });
+    }
   }
 
   void _syncDataFromDevice() async {
-    setState(() {
-      isLoading = true;
-    });
+    _setIsLoading(true);
 
     await syncDataFromDevice();
-    await _changeLastUpdated();
+    _changeLastUpdated();
   }
 
   void _showSuccessMessage() {
@@ -144,34 +180,170 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     );
     _scaffoldKey.currentState.showSnackBar(snackBar);
 
-    setState(() {
-      isLoading = false;
-    });
+    _setIsLoading(false);
+  }
+
+  void _setIsLoading(bool loading) {
+    if (mounted) {
+      setState(() {
+        isLoading = loading;
+      });
+    }
+  }
+
+  void _removeDevice() async {
+    var deviceType = (_deviceData?.deviceMaster != null &&
+            _deviceData?.deviceMaster['deviceType']['displayName'] != null)
+        ? _deviceData?.deviceMaster['deviceType']['displayName']
+        : null;
+
+    if (deviceType != null) {
+      var disconnect = await platform.invokeMethod(
+        'disconnect',
+        <String, dynamic>{'deviceType': deviceType.toUpperCase()},
+      ) as String;
+
+      if (disconnect != null) {
+        await Provider.of<DevicesProvider>(context, listen: false)
+            .removeDevice(_deviceIndex);
+      }
+    }
+  }
+
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Confirm',
+          ),
+          content: Text(
+            'Do you want to remove the device',
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+              ),
+            ),
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                _removeDevice();
+              },
+              child: Text(
+                'Ok',
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showUpgrade() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Upgrade available',
+          ),
+          content: Text(
+            'An upgrade to the device is aviailable. Do you want to Upgrade',
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+              ),
+            ),
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // _upgradeDevice();
+
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => SetupUpgradeScreen(),
+                      settings:
+                          const RouteSettings(name: routes.SetupUpgradeRoute),
+                    ),
+                    (Route<dynamic> route) => false);
+              },
+              child: Text(
+                'Ok',
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       key: _scaffoldKey,
-      appBar: SetupAppBar(name: 'Selected Device'),
+      appBar: AppBar(
+        title: Text('Selected Device'),
+        // actions: [
+        //   IconButton(
+        //     icon: const Icon(Icons.highlight_off),
+        //     onPressed: () => _showDialog(),
+        //   )
+        // ],
+      ),
       backgroundColor: AppTheme.white,
       body: SafeArea(
         bottom: true,
         child: SingleChildScrollView(
           child: Container(
             padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-            child: StreamBuilder<BluetoothState>(
-              stream: FlutterBlue.instance.state,
-              initialData: BluetoothState.unknown,
-              builder: (c, snapshot) {
-                final state = snapshot.data;
-                if (state == BluetoothState.on) {
-                  return buildDeviceConnect(context);
-                }
-                return buildBluetoothOff(context);
-              },
-            ),
+            // child: StreamBuilder<BluetoothState>(
+            //   stream: FlutterBlue.instance.state,
+            //   initialData: BluetoothState.unknown,
+            //   builder: (c, snapshot) {
+            //     final state = snapshot.data;
+            //     if (state == BluetoothState.on) {
+            //       return ;
+            //     }
+            //     return buildBluetoothOff(context);
+            //   },
+            // ),
+            child: buildDeviceConnect(context),
           ),
+        ),
+      ),
+      bottomNavigationBar: SafeArea(
+        bottom: true,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+            Container(
+              // width: 200,
+              // height: 90,
+              padding: EdgeInsets.all(20),
+              child: Ink(
+                decoration: const ShapeDecoration(
+                  color: Colors.red,
+                  shape: CircleBorder(),
+                ),
+                child: IconButton(
+                  icon: Icon(Icons.delete),
+                  color: Colors.white,
+                  onPressed: () => _showDialog(),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -189,49 +361,57 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       width: double.infinity,
       padding: const EdgeInsets.all(16.0),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
+        mainAxisAlignment: MainAxisAlignment.start,
+        // crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(
+              bottom: 5.0,
+            ),
+            child: Text(
+              // _appLocalization.translate('setup.active.devicefound'),
+              (_deviceData?.deviceMaster != null &&
+                      _deviceData?.deviceMaster['displayName'] != null)
+                  ? _deviceData?.deviceMaster['displayName']
+                  : '',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.left,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 18,
+                letterSpacing: 0.18,
+                color: Colors.red,
+              ),
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(
+              bottom: 5.0,
+            ),
+            child: Text(
+              'Device Details',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.left,
+              style: AppTheme.title,
+            ),
+          ),
           SizedBox(
             height: 35,
           ),
           Container(
-            height: 200.0,
-            width: 200.0,
-            padding: const EdgeInsets.all(40.0),
-            margin: const EdgeInsets.all(40.0),
-            decoration: BoxDecoration(
-              border: Border.all(
-                width: 1.0,
-                color: _connected ? Color(0xff008bc6) : Colors.red,
-              ),
-              shape: BoxShape.circle,
-              color: Colors.white,
-              boxShadow: [
-                BoxShadow(
-                  color: _connected ? Color(0xff008bc6) : Colors.red,
-                  blurRadius: 60.0,
-                  spreadRadius: 30.0,
-                )
-              ],
-            ),
-            child: FadeInImage(
-              placeholder: AssetImage(
-                'assets/images/placeholder.jpg',
-              ),
-              image: imageData != null
-                  ? NetworkImage(
-                      imageData,
-                    )
-                  : AssetImage(
-                      'assets/images/placeholder.jpg',
-                    ),
-              fit: BoxFit.contain,
-              alignment: Alignment.center,
-              fadeInDuration: Duration(milliseconds: 200),
-              fadeInCurve: Curves.easeIn,
-            ),
-          ),
+              height: 250.0,
+              width: 250.0,
+              child: CachedNetworkImage(
+                imageUrl: imageData,
+                fit: BoxFit.contain,
+                alignment: Alignment.center,
+                fadeInDuration: Duration(milliseconds: 200),
+                fadeInCurve: Curves.easeIn,
+                errorWidget: (context, url, error) =>
+                    Image.asset('assets/images/placeholder.jpg'),
+              )),
           SizedBox(
             height: 35,
           ),
@@ -239,36 +419,6 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
             CircularProgressIndicator()
           else
             ..._buildInfo(_appLocalization),
-          // SizedBox(
-          //   height: 25,
-          // ),
-//           Container(
-//             width: 150,
-//             height: 75,
-//             padding: EdgeInsets.all(10),
-//             child: RaisedButton(
-//               shape: RoundedRectangleBorder(
-//                 borderRadius: BorderRadius.circular(4.5),
-//               ),
-//               color: Theme.of(context).primaryColor,
-//               textColor: Colors.white,
-//               child: FittedBox(
-//                 child: Text(
-//                   // _appLocalization.translate('setup.active.syncdata'),
-//                   'Send Data',
-//                   style: TextStyle(
-//                     fontSize: 14,
-//                   ),
-//                 ),
-//               ),
-//               onPressed: () async {
-// //                  return Navigator.of(context).pushReplacementNamed(
-// //                    routes.SetupHomeRoute,
-// //                  );
-//                 await _syncDataFromDevice();
-//               },
-//             ),
-//           ),
         ],
       ),
     );
@@ -277,41 +427,120 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   List<Widget> _buildInfo(_appLocalization) {
     return [
       Container(
-        padding: const EdgeInsets.only(
-          bottom: 5.0,
-        ),
-        child: Text(
-          // _appLocalization.translate('setup.active.devicefound'),
-          (_deviceData?.deviceMaster != null &&
-                  _deviceData?.deviceMaster['displayName'] != null)
-              ? _deviceData?.deviceMaster['displayName']
-              : '',
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-          style: AppTheme.title,
-        ),
-      ),
-      Container(
-        padding: const EdgeInsets.all(5.0),
-        child: Text(
-          // _appLocalization.translate('setup.active.devicefound'),
-          'Device ID - ${_deviceId}',
-          overflow: TextOverflow.ellipsis,
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontWeight: FontWeight.w500,
-            fontSize: 18,
-            letterSpacing: 0.18,
-            color: Color(0xFF17262A),
-          ),
+        child: Row(
+          children: [
+            Text(
+              'Device',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                letterSpacing: 0.18,
+              ),
+            ),
+            Text(
+              ' | ',
+            ),
+            Text(
+              // _appLocalization.translate('setup.active.devicefound'),
+              _connected ? 'Connected' : '',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 16,
+                letterSpacing: 0.18,
+                color: Colors.red,
+              ),
+            ),
+          ],
         ),
       ),
+      SizedBox(
+        height: 15,
+      ),
       Container(
-        child: Text(
-          _appLocalization.translate('setup.active.lastconnected') +
-              ' ${_lastUpdated}.',
-          textAlign: TextAlign.center,
-          style: AppTheme.subtitle,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Last Synced',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                letterSpacing: 0.18,
+                color: Color(0xFF797979),
+              ),
+            ),
+            Text(
+              '${_lastUpdated}',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
+                letterSpacing: 0.18,
+              ),
+            ),
+          ],
+        ),
+      ),
+      SizedBox(
+        height: 10,
+      ),
+      Container(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'Battery Level',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                letterSpacing: 0.18,
+                color: Color(0xFF797979),
+              ),
+            ),
+            Text(
+              '${_batteryLevel}%',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
+                letterSpacing: 0.18,
+              ),
+            ),
+          ],
+        ),
+      ),
+      SizedBox(
+        height: 10,
+      ),
+      Container(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              'MAC ID',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 16,
+                letterSpacing: 0.18,
+                color: Color(0xFF797979),
+              ),
+            ),
+            Text(
+              '${_deviceId}',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontWeight: FontWeight.w500,
+                fontSize: 16,
+                letterSpacing: 0.18,
+              ),
+            ),
+          ],
         ),
       ),
     ];

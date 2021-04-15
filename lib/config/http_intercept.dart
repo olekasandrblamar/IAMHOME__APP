@@ -9,25 +9,20 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ceras/app.dart';
 import 'package:ceras/config/navigation_service.dart';
 
-class AppInterceptors extends Interceptor {
+class MobileDataInterceptor extends Interceptor {
   @override
   Future<dynamic> onRequest(RequestOptions options) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
+    //reload with latest data
+    await prefs.reload();
 
     if (prefs.containsKey('userData')) {
       final extractedUserData =
           json.decode(prefs.getString('userData')) as Map<String, Object>;
 
-      options.headers.addAll({"x-auth-token": extractedUserData['authToken']});
+      options.headers.addAll({"Authorization": extractedUserData['authToken']});
     }
-
-    if (prefs.containsKey('locationData')) {
-      final extractedUserData =
-          json.decode(prefs.getString('locationData')) as Map<String, Object>;
-
-      options.headers
-          .addAll({"location-token": extractedUserData['locationToken']});
-    }
+    print("Calling ${options.path} with headers ${options.headers.toString()}");
   }
 
   @override
