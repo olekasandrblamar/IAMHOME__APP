@@ -6,7 +6,61 @@ import 'package:ceras/theme.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
 
-class PrivacyScreen extends StatelessWidget {
+class PrivacyScreen extends StatefulWidget {
+  @override
+  _PrivacyScreenState createState() => _PrivacyScreenState();
+}
+
+class _PrivacyScreenState extends State<PrivacyScreen> {
+  Map<String, bool> terms = {
+    'term1': false,
+    'term2': false,
+    'term3': false,
+  };
+
+  void _agree() {
+    bool checkAll = true;
+    terms.forEach(
+      (k, v) => {
+        if (!v) {checkAll = false}
+      },
+    );
+
+    if (checkAll) {
+      Navigator.of(context).pushReplacementNamed(
+        routes.NotificationsRoute,
+      );
+    } else {
+      _showDialog();
+    }
+  }
+
+  void _showDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Missing Fields!',
+          ),
+          content: Text(
+            'Please verify all details.',
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text(
+                'Okay',
+              ),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   void _openBrowser() {
     final browser = InAppBrowser();
     browser.openFile(
@@ -81,6 +135,44 @@ class PrivacyScreen extends StatelessWidget {
                     style: AppTheme.subtitle,
                   ),
                 ),
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: Text('To call 911 in case of emergency.'),
+                  value: terms['term1'],
+                  onChanged: (bool value) {
+                    print(value);
+                    setState(() {
+                      terms['term1'] = value;
+                    });
+                  },
+                ),
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: Text(
+                    'There can be a delay in the data transmission from my device for reasons beyond Ceras Health control impacting the timely response from my care team including Ceras Health.',
+                  ),
+                  value: terms['term2'],
+                  onChanged: (bool value) {
+                    setState(() {
+                      terms['term2'] = value;
+                    });
+                  },
+                ),
+                SizedBox(
+                  height: 15,
+                ),
+                CheckboxListTile(
+                  controlAffinity: ListTileControlAffinity.leading,
+                  title: Text(
+                    'The wearable device provided to me at times can malfunction for reasons beyond Ceras Health control. If such an event occurs, I shall contact Ceras immediately.',
+                  ),
+                  value: terms['term3'],
+                  onChanged: (bool value) {
+                    setState(() {
+                      terms['term3'] = value;
+                    });
+                  },
+                ),
                 SizedBox(
                   height: 25,
                 ),
@@ -100,11 +192,7 @@ class PrivacyScreen extends StatelessWidget {
                         fontSize: 14,
                       ),
                     ),
-                    onPressed: () {
-                      return Navigator.of(context).pushReplacementNamed(
-                        routes.NotificationsRoute,
-                      );
-                    },
+                    onPressed: () => _agree(),
                   ),
                 ),
                 Container(

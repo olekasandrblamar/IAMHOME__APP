@@ -1,10 +1,11 @@
 import 'dart:io';
 
+import 'package:ceras/config/env.dart';
+import 'package:ceras/config/user_deviceinfo.dart';
 import 'package:ceras/providers/applanguage_provider.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/intro_screen.dart';
-import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/screens/splash_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -14,6 +15,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config/app_localizations.dart';
 import 'config/dynamiclinks_setup.dart';
@@ -44,6 +46,21 @@ class _MyAppState extends State<MyApp> {
 
   Future<void> _handleStartUpLogic() async {
     await _initializeFlutterFire();
+
+    final prefs = await SharedPreferences.getInstance();
+    final redeemCode = await prefs.getString('redeemCode');
+
+    if (redeemCode != null) {
+      // final authUrl = await prefs.getString('authUrl');
+      // final baseUrl = await prefs.getString('baseUrl');
+      //
+      // await prefs.setString('authUrl', authUrl);
+      // await prefs.setString('apiBaseUrl', baseUrl);
+    } else {
+      await prefs.setString('apiBaseUrl', env.baseUrl);
+    }
+
+    await updateDeviceInfo();
 
     await PushNotificationsManager().init();
 
@@ -143,18 +160,16 @@ class _MyAppState extends State<MyApp> {
 
   Widget _buildHomeWidget(AuthProvider auth) {
     if (auth.isAuth) {
-      return SetupActiveScreen();
+      return SetupHomeScreen();
     } else {
       return FutureBuilder(
-        future: Future.wait([auth.checkWalthrough(), auth.tryAutoLogin()]),
+        future: Future.wait([
+          auth.checkWalthrough(),
+        ]),
         builder: (ctx, authResultSnapshot) {
           if (authResultSnapshot.connectionState == ConnectionState.done) {
             if (authResultSnapshot.data[0]) {
-              if (authResultSnapshot.data[1]) {
-                return SetupHomeScreen();
-              } else {
-                return IntroScreen();
-              }
+              return IntroScreen();
             } else {
               return SetupHomeScreen();
             }

@@ -4,10 +4,7 @@
 <dict>
 	<key>BGTaskSchedulerPermittedIdentifiers</key>
 	<array>
-<!--		<string>com.transistorsoft.fetch</string>-->
-<!--		<string>com.transistorsoft.datasync</string>-->
-<!--		<string>com.transistorsoft.dataupdate</string>-->
-        <string>com.cerashealth.datasync</string>
+		<string>com.cerashealth.datasync</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
@@ -37,12 +34,14 @@
 	<string>This app needs access to your bluetooth to scan the device</string>
 	<key>NSCameraUsageDescription</key>
 	<string>This app needs access to your camera to scan the barcode</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>This app uses biometric authentication to validate the user for automatic login</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
-	<string>This app needs access to your location to find you</string>
+	<string>By turning locations on, the Ceras app on your phone is able to continually receive data from your Ceras device insuring that up to date information is sent securely to our platform where your doctor can access it 24/7.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>This app needs access to your location to find you</string>
+	<string>By turning locations on, the Ceras app on your phone is able to continually receive data from your Ceras device insuring that up to date information is sent securely to our platform where your doctor can access it 24/7.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>This app needs access to your location to find you</string>
+	<string>By turning locations on, the Ceras app on your phone is able to continually receive data from your Ceras device insuring that up to date information is sent securely to our platform where your doctor can access it 24/7.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>This app needs access to your camera to scan the image</string>
 	<key>UIBackgroundModes</key>

@@ -86,13 +86,56 @@ class _PermissionState extends State<PermissionWidget> {
 
   final AppLocalizations _appLocalization;
   final Permission _permission;
-  PermissionStatus _permissionStatus = PermissionStatus.undetermined;
+  PermissionStatus _permissionStatus = PermissionStatus.denied;
 
   @override
   void initState() {
     super.initState();
 
     _listenForPermissionStatus();
+  }
+
+  void _requestPermisson() async {
+    if (PermissionStatus.denied == _permissionStatus) {
+      if (_permission == Permission.notification) {
+        var status = await Permission.notification.request();
+
+        if (PermissionStatus.granted == status) {
+          setState(() {
+            _permissionStatus = PermissionStatus.granted;
+          });
+        }
+      }
+
+      if (_permission == Permission.location) {
+        var status = Platform.isIOS
+            ? await Permission.location.request()
+            : await Permission.locationAlways.request();
+
+        if (Platform.isAndroid) {
+          var alwaysStatus = (await Permission.locationAlways.status) ==
+              PermissionStatus.granted;
+          var inUseStatus = (await Permission.locationWhenInUse.status) ==
+              PermissionStatus.granted;
+          var locationStatus =
+              (await Permission.location.status) == PermissionStatus.granted;
+
+          if (locationStatus || inUseStatus || alwaysStatus) {
+            setState(() {
+              _permissionStatus = PermissionStatus.granted;
+            });
+          }
+        } else {
+          if (PermissionStatus.granted == status) {
+            setState(() {
+              _permissionStatus = PermissionStatus.granted;
+            });
+          }
+        }
+      }
+    } else {
+      await openAppSettings();
+    }
   }
 
   void _listenForPermissionStatus() async {
@@ -151,37 +194,40 @@ class _PermissionState extends State<PermissionWidget> {
             margin: EdgeInsets.only(
               bottom: 10,
             ),
-            child: Card(
-              child: Column(
-                children: <Widget>[
-                  ListTile(
-                    title: Text(
-                      getPermissionName,
+            child: InkWell(
+              onTap: () => _requestPermisson(),
+              child: Card(
+                child: Column(
+                  children: <Widget>[
+                    ListTile(
+                      title: Text(
+                        getPermissionName,
+                      ),
+                      subtitle: Text(
+                        getPermissionStatus,
+                        style: TextStyle(color: getPermissionColor()),
+                      ),
+                      trailing: _permissionStatus == PermissionStatus.granted
+                          ? Icon(
+                              Icons.check_circle,
+                              color: Color(0xff008bc6),
+                            )
+                          : Icon(
+                              Icons.remove_circle,
+                              color: Color(0xffc10b03),
+                            ),
                     ),
-                    subtitle: Text(
-                      getPermissionStatus,
-                      style: TextStyle(color: getPermissionColor()),
-                    ),
-                    trailing: _permissionStatus == PermissionStatus.granted
-                        ? Icon(
-                            Icons.check_circle,
-                            color: Color(0xff008bc6),
-                          )
-                        : Icon(
-                            Icons.remove_circle,
-                            color: Color(0xffc10b03),
-                          ),
-                  ),
-                  // Divider(
-                  //   height: 0,
-                  // ),
-                  // Container(
-                  //   child: ListTile(
-                  //     title: Text('Capture Images'),
-                  //     subtitle: Text('Capture images for '),
-                  //   ),
-                  // ),
-                ],
+                    // Divider(
+                    //   height: 0,
+                    // ),
+                    // Container(
+                    //   child: ListTile(
+                    //     title: Text('Capture Images'),
+                    //     subtitle: Text('Capture images for '),
+                    //   ),
+                    // ),
+                  ],
+                ),
               ),
             ),
           )

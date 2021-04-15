@@ -13,16 +13,73 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'widgets/show_access_alert_dialog.dart';
 
-class LocationsScreen extends StatelessWidget {
+class LocationsScreen extends StatefulWidget {
+  @override
+  _LocationsScreenState createState() => _LocationsScreenState();
+}
+
+class _LocationsScreenState extends State<LocationsScreen>
+    with WidgetsBindingObserver {
+  @override
+  void initState() {
+    WidgetsBinding.instance.addObserver(this);
+
+    // TODO: implement initState
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+
+    super.dispose();
+  }
+
   void _checkDevice(context) {
     if (Platform.isIOS) {
       _checkPermission(context);
     } else {
-      _showDialog(context);
+      _showDialog(context, false);
     }
   }
 
-  void _showDialog(context) {
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    print('Got state ${state}');
+    switch (state) {
+      case AppLifecycleState.resumed:
+        _checkAndGoNext();
+        break;
+      case AppLifecycleState.inactive:
+        // TODO: Handle this case.
+        break;
+      case AppLifecycleState.paused:
+        // TODO: Handle this case.
+        break;
+      case AppLifecycleState.detached:
+        // TODO: Handle this case.
+        break;
+    }
+  }
+
+  void _checkAndGoNext() async {
+    if (Platform.isAndroid) {
+      var alwaysStatus =
+          (await Permission.locationAlways.status) == PermissionStatus.granted;
+      var inUseStatus = (await Permission.locationWhenInUse.status) ==
+          PermissionStatus.granted;
+      var locationStatus =
+          (await Permission.location.status) == PermissionStatus.granted;
+      print(
+          'Checking and going forward ${alwaysStatus} ${inUseStatus} ${locationStatus}');
+      //if any of the permission is granted move to the next screen automatically
+      if (locationStatus || inUseStatus || alwaysStatus) {
+        await _goToCamera(context);
+      }
+    }
+  }
+
+  void _showDialog(context, bool skip) {
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -31,25 +88,30 @@ class LocationsScreen extends StatelessWidget {
             'Confirm',
           ),
           content: Text(
-            'The Ceras app collects location data to enable your doctor and care team to provide real time health care intervention in the case of emergency even when the app is closed or not in use.',
+            'By turning locations on, the Ceras app on your phone is able to continually receive data from your Ceras device insuring that up to date information is sent securely to our platform where your doctor can access it 24/7.',
           ),
           actions: <Widget>[
             FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
               child: Text(
                 'Cancel',
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
             ),
             FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+
+                if (skip) {
+                  _goToCamera(context);
+                } else {
+                  _checkPermission(context);
+                }
+              },
               child: Text(
                 'Ok',
               ),
-              onPressed: () {
-                Navigator.of(context).pop();
-                _checkPermission(context);
-              },
             ),
           ],
         );
@@ -88,7 +150,7 @@ class LocationsScreen extends StatelessWidget {
       body: AccessWidget(
         type: 'locations',
         accessData: locationData,
-        onNothingSelected: () => _goToCamera(context),
+        onNothingSelected: () => _showDialog(context, true),
         onPermissionSelected: () => _checkDevice(context),
       ),
     );

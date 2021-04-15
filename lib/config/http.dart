@@ -3,9 +3,10 @@ import 'package:dio/dio.dart';
 import 'http_intercept.dart';
 
 class HttpClient {
-  Dio get httpIncercept {
+
+  Dio get mobileDataHttp {
     var dio = Dio();
-    dio.interceptors.add(AppInterceptors());
+    dio.interceptors.add(MobileDataInterceptor());
     return dio;
   }
 

@@ -15,10 +15,10 @@ publish_to: "none" # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+44
+version: 1.2.0+21
 
 environment:
-  sdk: ">=2.9.0 <3.0.0"
+  sdk: ">=2.10.5 <3.0.0"
 
 dependencies:
   flutter:
@@ -26,35 +26,43 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_cupertino_localizations: ^1.0.1
-  provider: ^4.3.2+2
-  intl: ^0.16.1
+  provider: ^5.0.0
+  intl: ^0.17.0
   dio: ^3.0.10
-  package_info: ^0.4.3
-  device_info: ^0.4.2+8
-  shared_preferences: ^0.5.12
-  json_annotation: ^3.1.0
+  package_info: ^2.0.0
+  device_info: ^2.0.0
+  shared_preferences: ^2.0.5
+  json_annotation: ^3.1.1
   progress_dialog: ^1.2.4
-  cupertino_icons: ^1.0.0
-  flutter_blue: ^0.7.2
-  permission_handler: "^5.0.1+1"
-  permission_handler_platform_interface: "2.0.1"
+  cupertino_icons: ^1.0.2
+  # flutter_blue: ^0.7.3
+  permission_handler: "^6.1.1"
+  permission_handler_platform_interface: "3.1.2"
   #background_fetch: "^0.6.0"
-  flutter_inappwebview: ^4.0.0+4
-  url_launcher: ^5.7.2
-  launch_review: ^2.0.0
-  firebase_core: "0.5.0+1"
-  firebase_analytics: ^6.0.2
-  firebase_crashlytics: ^0.2.1+1
-  firebase_dynamic_links: ^0.6.0+2
-  firebase_performance: ^0.4.0+2
-  firebase_messaging: ^7.0.3
-  firebase_in_app_messaging: ^0.2.0+3
+  flutter_inappwebview: ^5.3.2
+  url_launcher: ^6.0.3
+  launch_review: ^3.0.1
+  firebase_messaging: ^9.1.1
+  firebase_core: "1.0.3"
+  firebase_analytics: ^7.1.1
+  firebase_crashlytics: ^2.0.0
+  firebase_dynamic_links: ^0.8.0
+  firebase_performance: ^0.7.0
+  firebase_in_app_messaging: ^0.4.0+1
+  email_validator: "^2.0.1"
+  local_auth: ^1.1.4
+  connectivity: ^3.0.3
+  pin_code_fields: ^7.0.0
+  cached_network_image: ^2.5.0
+
+dependency_overrides:
+  plugin_platform_interface: ">=2.0.0"
 
 dev_dependencies:
-  pedantic: ^1.9.0
-  flutter_launcher_icons: ^0.8.1
-  json_serializable: ^3.5.0
-  build_runner: ^1.10.3
+  pedantic: ^1.11.0
+  flutter_launcher_icons: ^0.9.0
+  json_serializable: ^3.5.1
+  build_runner: ^1.11.5
 
   flutter_test:
     sdk: flutter
@@ -77,16 +85,25 @@ flutter:
     - assets/images/camera.png
     - assets/images/push_notification.png
     - assets/images/ceraswithletter.png
-    - assets/images/Picture1.jpg
-    - assets/images/Picture2.jpg
+    - assets/images/bWell.jpg
+    - assets/images/bActive.jpg
     - assets/images/condition.png
     - assets/images/bluetooth.png
     - assets/images/devicenotfound.png
+    - assets/images/noConnection.png
+    - assets/images/noconnection_ceras.png
     - assets/images/health.png
     - assets/images/connected.png
     - assets/images/support.png
     - assets/images/t&c.png
     - assets/images/emptyImage.png
+    - assets/icons/
+    - assets/images/clouds.png
+    - assets/images/bee_left.png
+    - assets/images/bee_right.png
+    - assets/images/Bluechecked.png
+    - assets/images/AddNewDeviceDefault.png
+    - assets/images/upgrading.png
 
   fonts:
     - family: Roboto

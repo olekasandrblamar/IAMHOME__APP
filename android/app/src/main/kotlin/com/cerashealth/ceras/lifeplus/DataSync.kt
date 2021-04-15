@@ -1,4 +1,4 @@
-package com.cerashealth.ceras
+package com.cerashealth.ceras.lifeplus
 
 import android.Manifest
 import android.content.Context
@@ -6,12 +6,15 @@ import android.content.pm.PackageManager
 import android.location.LocationManager
 import android.util.Log
 import androidx.core.content.ContextCompat
-import com.example.ceras.BaseDevice
+import com.cerashealth.ceras.*
+import com.cerashealth.ceras.lifeplus.data.*
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.IOException
+import java.text.SimpleDateFormat
 import java.util.*
 
 class DataSync {
@@ -24,14 +27,26 @@ class DataSync {
         private val gson = GsonBuilder().setDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSZ").create()
         private const val LAST_UPDATE_VAL = "flutter.last_sync_updates"
         private const val USER_PROFILE = "flutter.user_profile_data"
+        private const val MAC_ADDRESS_NAME = "flutter.device_macid"
+        private const val BASE_URL = "flutter.apiBaseUrl"
         var CURRENT_MAC_ADDRESS:String? = null
+
 
         fun uploadTemperature(temperatures:List<TemperatureUpload>){
             makePostRequest(gson.toJson(temperatures),"temperature")
         }
 
+        private fun getBaseUrl():String?{
+            MainActivity.currentContext?.let { currentContext ->
+                currentContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString(BASE_URL, "")?.let { baseUrl ->
+                    return baseUrl
+                }
+            }
+            return null
+        }
+
         private fun updateLastSync(type:String, lastMeasure:Date){
-            MainActivity.currentContext?.let {currentContext->
+            MainActivity.currentContext?.let { currentContext->
                 var lastUpdatedDate:MutableMap<String,String> = mutableMapOf()
                 val existingData = currentContext.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString(LAST_UPDATE_VAL,"")
                 if(existingData?.length!! > 0){
@@ -78,7 +93,7 @@ class DataSync {
                 if(loadProfileData){
                     Log.d(TAG,"Loading profile")
                     CURRENT_MAC_ADDRESS?.let {
-                        val postReq = Request.Builder().url("$baseUrl/profileInfo?deviceId=$it")
+                        val postReq = Request.Builder().url("${getBaseUrl()}profileInfo?deviceId=$it")
                                 .get()
                                 .addHeader("BACKGROUND_STATUS",BaseDevice.isBackground.toString())
                                 .build()
@@ -89,13 +104,17 @@ class DataSync {
 
                             override fun onResponse(call: Call, response: Response) {
                                 Log.i(TAG,"Got response ${response.isSuccessful} for call ${call.request().url}")
-                                val userProfile = gson.fromJson<UserProfile>(response.body?.string(),UserProfile::class.java)
-                                userProfile.lastUpdated = Date()
-                                currentContext.getSharedPreferences(MainActivity
-                                        .SharedPrefernces,Context.MODE_PRIVATE).edit()
-                                        .putString(USER_PROFILE,gson.toJson(userProfile)).commit()
-                                response.body?.close()
-                                response.close()
+                                try {
+                                    val userProfile = gson.fromJson<UserProfile>(response.body?.string(), UserProfile::class.java)
+                                    userProfile.lastUpdated = Date()
+                                    currentContext.getSharedPreferences(MainActivity
+                                            .SharedPrefernces, Context.MODE_PRIVATE).edit()
+                                            .putString(USER_PROFILE, gson.toJson(userProfile)).commit()
+                                    response.body?.close()
+                                    response.close()
+                                }catch (ex:Exception){
+                                    Log.e(TAG,"Error while getting profile info ",ex)
+                                }
                             }
 
                         })
@@ -111,7 +130,7 @@ class DataSync {
             val type = "oxygen"
             val userProfile = getUserInfo()
             oxygenLevels.forEach { it.userProfile =  userProfile}
-            makePostRequest(gson.toJson(oxygenLevels),type)
+            makePostRequest(gson.toJson(oxygenLevels.filter { it.oxygenLevel>0 }),type)
             val lastMeasure = oxygenLevels.maxBy { it.measureTime }
             lastMeasure?.let {
                 updateLastSync(type,lastMeasure = lastMeasure?.measureTime)
@@ -121,7 +140,7 @@ class DataSync {
         fun uploadBloodPressure(bpLevels:List<BpUpload>){
             val userProfile = getUserInfo()
             bpLevels.forEach { it.userProfile =  userProfile}
-            makePostRequest(gson.toJson(bpLevels),"bloodpressure")
+            makePostRequest(gson.toJson(bpLevels.filter { it.distolic>0 }),"bloodpressure")
             val lastMeasure = bpLevels.maxBy { it.measureTime }
             lastMeasure?.let {
                 updateLastSync("bloodpressure",lastMeasure = lastMeasure?.measureTime)
@@ -129,7 +148,7 @@ class DataSync {
         }
 
         fun uploadHeartRate(heartRates:List<HeartRateUpload>){
-            makePostRequest(gson.toJson(heartRates),"heartrate")
+            makePostRequest(gson.toJson(heartRates.filter { it.heartRate>0 }),"heartrate")
             val lastMeasure = heartRates.maxBy { it.measureTime }
             lastMeasure?.let {
                 updateLastSync("heartrate",lastMeasure = lastMeasure?.measureTime)
@@ -182,9 +201,80 @@ class DataSync {
             }
         }
 
+        /**
+         * This method loads the weather info
+         */
+        fun loadWeatherInfo(){
+            try {
+                MainActivity.currentContext?.let { context ->
+
+                    val lastUpdate = context.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("last_weather_update", "")
+
+                    val today = SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().time)
+
+                    //If the last update is not today update the weather
+                    if (lastUpdate != today) {
+                        Log.i(TAG, "Updating last connected")
+                        val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
+                        if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
+                                && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                            val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
+
+                            val weatherUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?lat=${location.latitude}&lon=${location.longitude}&appid=4e33f6fdb2e35eeb5277b08ee0ff98bf&units=metric"
+                            var getReq = Request.Builder().url(weatherUrl)
+                                    .get()
+                                    .build()
+                            okHttp.newCall(getReq).enqueue(object : Callback {
+                                override fun onFailure(call: Call, e: IOException) {
+                                    Log.e(TAG, "Failed calling ${call.request().url}", e)
+                                }
+
+                                override fun onResponse(call: Call, response: Response) {
+                                    Log.i(TAG, "Got response ${response.isSuccessful} for call ${call.request().url}")
+                                    try {
+                                        val weatherData = gson.fromJson<Map<String, Any>>(response.body?.string(), Map::class.java)
+                                        response.body?.close()
+                                        response.close()
+                                        val temps = (weatherData["list"] as List<Map<String, Any>>).map { weatherData ->
+                                            val utcMillis = weatherData["dt"] as Double
+                                            val tempData = weatherData["temp"] as Map<String, Any?>
+                                            val weatherDetails = weatherData["weather"] as List<Map<String, Any?>>
+                                            var weatherId = 0;
+                                            if (weatherDetails.isNotEmpty()) {
+                                                weatherId = (weatherDetails[0]["id"] as Double).toInt()
+                                            }
+                                            val weatherType = when (weatherId) {
+                                                in 200..299 -> WeatherType.THUNDER
+                                                in 300..599 -> WeatherType.RAIN
+                                                in 600..699 -> WeatherType.SNOW
+                                                800 -> WeatherType.SUNNY
+                                                in 801..804 -> WeatherType.CLOUD
+                                                else -> WeatherType.UNK
+                                            }
+                                            WeatherInfo(utcMillis = utcMillis.toLong(), minTemp = tempData["min"] as Double, maxTemp = tempData["max"] as Double, weatherType)
+                                        }
+                                        val deviceDataString = context.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.watchInfo", "")
+                                        val deviceData = Gson().fromJson(deviceDataString, ConnectionInfo::class.java)
+                                        BaseDevice.getDeviceImpl(deviceData.deviceType).syncWeather(temps)
+                                        //Update the last weather update
+                                        context.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).edit().putString("last_weather_update", today)
+                                    } catch (ex: Exception) {
+                                        Log.e(TAG, "Error while getting profile info ", ex)
+                                    }
+                                }
+
+                            })
+                        }
+                    }
+                }
+            }catch(ex:Exception){
+                Log.e(TAG,"Error while syncing weather ",ex)
+            }
+        }
+
         private fun makePostRequest(postData:String,url:String){
             Log.d(TAG,"Uploading data to $url with data $postData")
-            val postReq = Request.Builder().url("$baseUrl/$url")
+            val postReq = Request.Builder().url("${getBaseUrl()}$url")
                     .post(postData.toRequestBody(jsonMediaType))
                     .addHeader("BACKGROUND_STATUS",BaseDevice.isBackground.toString())
                     .build()
@@ -205,31 +295,15 @@ class DataSync {
 
 }
 
-class UserProfile{
-    var age = 0
-    var weightInKgs = 0.0
-    var heightInCm = 0
-    var sex:String = ""
-    var lastUpdated = Date()
+data class WeatherInfo (val utcMillis:Long,val minTemp:Double,val maxTemp: Double,val weatherType:WeatherType = WeatherType.UNK){
 }
 
-data class TemperatureUpload(val measureTime:Date, var celsius:Double, val fahrenheit:Double, val deviceId:String)
-
-data class StepUpload(val measureTime:Date, var steps:Int,val deviceId:String)
-
-data class DailyStepUpload(val measureTime:Date, var steps:Int,val deviceId:String)
-
-data class CaloriesUpload(val measureTime:Date, var calories:Int,val deviceId:String)
-
-data class BpUpload(val measureTime:Date, var distolic:Int,var systolic:Int,val deviceId:String,var userProfile:UserProfile? = null)
-
-data class HeartRateUpload(val measureTime:Date, var heartRate:Int,val deviceId:String)
-
-data class OxygenLevelUpload(val measureTime:Date, var oxygenLevel:Int,val deviceId:String,var userProfile:UserProfile? = null)
-
-data class HeartBeat(val deviceId:String?,val macAddress:String?){
-    var deviceInfo:String? = null
-    var background = false
-    var latitude:Double? = null
-    var longitude:Double? = null
+enum class WeatherType{
+    SUNNY,
+    RAIN,
+    SNOW,
+    CLOUD,
+    THUNDER,
+    SMOG,
+    UNK
 }

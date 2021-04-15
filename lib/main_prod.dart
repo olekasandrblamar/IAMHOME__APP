@@ -15,9 +15,14 @@ void main() {
     WidgetsFlutterBinding.ensureInitialized();
 
     BuildEnvironment.init(
+      environment: 'Ceras',
       flavor: BuildFlavor.production,
+      environmentUrl: 'https://tracker.ceras.io/api/v1/device',
       baseUrl: 'https://tracker.ceras.io/api/v1/device/',
       baseUrl2: 'https://api',
+      authUrl: 'https://auth.ceras.io',
+      accessKey: 'QU5CZRR7XXBR',
+      secret: 'NUSR82XMJ9GGH57YK03V',
     );
 
     assert(env != null);

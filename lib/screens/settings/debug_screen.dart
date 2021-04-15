@@ -13,7 +13,15 @@ class _DebugScreenState extends State<DebugScreen> {
   bool isLoading = true;
   SharedPreferences prefs;
 
-  List data = ['userDeviceInfo', 'watchInfo', 'countryCode', 'language_code','device_macid',"last_sync_updates","user_profile_data"];
+  List data = [
+    'userDeviceInfo',
+    'watchInfo',
+    'countryCode',
+    'language_code',
+    'device_macid',
+    "last_sync_updates",
+    "user_profile_data"
+  ];
 
   @override
   void initState() {

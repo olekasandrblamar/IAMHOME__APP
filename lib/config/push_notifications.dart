@@ -9,7 +9,7 @@ class PushNotificationsManager {
   static final PushNotificationsManager _instance =
       PushNotificationsManager._();
 
-  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging();
+  final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static FirebaseInAppMessaging fiam = FirebaseInAppMessaging();
 
   bool _initialized = false;
@@ -19,24 +19,36 @@ class PushNotificationsManager {
       // For iOS request permission first.
       // _firebaseMessaging.requestNotificationPermissions();
 
-      _firebaseMessaging.configure(
-        onMessage: (Map<String, dynamic> message) async {
-          print("onMessage: $message");
-          // _handleNotification(message);
-        },
-        onLaunch: (Map<String, dynamic> message) async {
-          print("onLaunch: $message");
-          // _navigateToItemDetail(message);
-        },
-        onResume: (Map<String, dynamic> message) async {
-          print("onResume: $message");
-          // _navigateToItemDetail(message);
-        },
-      );
+      // _firebaseMessaging.configure(
+      //   onMessage: (Map<String, dynamic> message) async {
+      //     print("onMessage: $message");
+      //     // _handleNotification(message);
+      //   },
+      //   onLaunch: (Map<String, dynamic> message) async {
+      //     print("onLaunch: $message");
+      //     // _navigateToItemDetail(message);
+      //   },
+      //   onResume: (Map<String, dynamic> message) async {
+      //     print("onResume: $message");
+      //     // _navigateToItemDetail(message);
+      //   },
+      // );
 
       // For testing purposes print the Firebase Messaging token
-      String token = await _firebaseMessaging.getToken();
-      print("FirebaseMessaging token: $token");
+      // String token = await _firebaseMessaging.getToken();
+      // print("FirebaseMessaging token: $token");
+
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        RemoteNotification notification = message.notification;
+        AndroidNotification android = message.notification?.android;
+
+        if (notification != null && android != null) {}
+      });
+
+      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+        print('A new onMessageOpenedApp event was published!');
+        print(message);
+      });
 
       _initialized = true;
     }
