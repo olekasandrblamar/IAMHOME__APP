@@ -396,6 +396,7 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
       labelText: labelText,
       hintText: hintText,
       border: OutlineInputBorder(),
+      errorStyle: TextStyle(color: Colors.red),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
         borderSide: BorderSide(color: Colors.grey),
