@@ -385,14 +385,14 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     private func loadData(deviceId:String?){
         DataSync.sendHeartBeat(heartBeat: HeartBeat(deviceId: deviceId, macAddress: getMacId()))
         DataSync.loadWeatherData()
+        let last2Days = Calendar.current.date(byAdding: .day,value: -2, to: Date())
+        HardManagerSDK.shareBLEManager()?.getHardHistoryBodyTemperature(last2Days)
         let last24Hours = Calendar.current.date(byAdding: .hour,value: -24, to: Date())
         HardManagerSDK.shareBLEManager().getHardExercise(with: last24Hours)
         HardManagerSDK.shareBLEManager().getHardStepDaysAgo(0)
         for days:Int32 in 0...2{
             HardManagerSDK.shareBLEManager().getHardHeartDaysAgo(days)
         }
-        let last2Days = Calendar.current.date(byAdding: .day,value: -2, to: Date())
-        HardManagerSDK.shareBLEManager()?.getHardHistoryBodyTemperature(last2Days)
     }
     
     func loadWeather(tempDataList: [WeatherData]){

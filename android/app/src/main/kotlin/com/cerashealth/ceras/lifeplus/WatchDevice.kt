@@ -438,7 +438,7 @@ class WatchDevice:BaseDevice()     {
                     HardSdk.getInstance().syncStepData(0)
                     HardSdk.getInstance().syncSleepData(0)
                 }
-                DataSync.loadWeatherInfo()
+                DataSync.loadWeatherInfo(BaseDevice.WATCH_DEVICE)
             }catch (ex: Exception){
                 Log.e(TAG, "Error while syncing data", ex)
             }

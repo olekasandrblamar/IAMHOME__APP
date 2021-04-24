@@ -204,7 +204,7 @@ class DataSync {
         /**
          * This method loads the weather info
          */
-        fun loadWeatherInfo(){
+        fun loadWeatherInfo(deviceType:String){
             try {
                 MainActivity.currentContext?.let { context ->
 
@@ -212,14 +212,16 @@ class DataSync {
 
                     val today = SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().time)
 
+                    Log.i(TAG,"Weather last update at ${lastUpdate} and today ${today}")
+
                     //If the last update is not today update the weather
                     if (lastUpdate != today) {
-                        Log.i(TAG, "Updating last connected")
+                        Log.i(TAG, "Updating weather")
                         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
                         if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
                                 && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                             val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-
+                            Log.i(TAG," Calling weather at ${location.latitude} and ${location.longitude}")
                             val weatherUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?lat=${location.latitude}&lon=${location.longitude}&appid=4e33f6fdb2e35eeb5277b08ee0ff98bf&units=metric"
                             var getReq = Request.Builder().url(weatherUrl)
                                     .get()
@@ -253,9 +255,9 @@ class DataSync {
                                             }
                                             WeatherInfo(utcMillis = utcMillis.toLong(), minTemp = tempData["min"] as Double, maxTemp = tempData["max"] as Double, weatherType)
                                         }
-                                        val deviceDataString = context.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.watchInfo", "")
-                                        val deviceData = Gson().fromJson(deviceDataString, ConnectionInfo::class.java)
-                                        BaseDevice.getDeviceImpl(deviceData.deviceType).syncWeather(temps)
+//                                        val deviceDataString = context.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.watchInfo", "")
+//                                        val deviceData = Gson().fromJson(deviceDataString, ConnectionInfo::class.java)
+                                        BaseDevice.getDeviceImpl(deviceType).syncWeather(temps)
                                         //Update the last weather update
                                         context.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).edit().putString("last_weather_update", today)
                                     } catch (ex: Exception) {
