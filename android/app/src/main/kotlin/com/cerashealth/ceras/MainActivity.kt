@@ -16,13 +16,17 @@ import com.transistorsoft.tsbackgroundfetch.BackgroundFetchConfig
 import io.flutter.app.FlutterApplication
 import io.flutter.embedding.android.*
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.EventChannel.StreamHandler
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugins.GeneratedPluginRegistrant
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity: FlutterFragmentActivity()  {
 
     private val CHANNEL = "ceras.iamhome.mobile/device"
+    private val DEVICE_EVENTS = "ceras.iamhome.mobile/device_events"
     private var sycnDevice: BaseDevice? = null
 
     companion object{
@@ -132,6 +136,9 @@ class MainActivity: FlutterFragmentActivity()  {
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceData.deviceType).upgradeDevice(result,deviceData,this)
+            }else if(call.method == "readLineData"){
+                val deviceDataString = call.argument<String>("connectionInfo")
+
             }
             else {
                 result.notImplemented()
@@ -139,11 +146,37 @@ class MainActivity: FlutterFragmentActivity()  {
         }
     }
 
+    private fun readDataFromDevice(eventSink:EventChannel.EventSink){
+        currentContext = this
+        currentActivity = this
+        BaseDevice.isBackground = false
+    }
+
+    private fun connectEventChannel(flutterEngine: FlutterEngine){
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, DEVICE_EVENTS)
+                .setStreamHandler(object: StreamHandler{
+                    var eventSink:EventChannel.EventSink? = null
+                    override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                        eventSink = events
+                        readDataFromDevice(eventSink!!)
+                        Log.d(TAG,"Got arguments")
+                    }
+
+                    override fun onCancel(arguments: Any?) {
+                        eventSink?.let {
+                            it.endOfStream()
+                        }
+                    }
+                })
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
+        GeneratedPluginRegistrant.registerWith(flutterEngine);
         //GeneratedPluginRegistrant.registerWith(flutterEngine);
         // requestPermission()
         scheduleBackgroundTasks()
+        connectEventChannel(flutterEngine)
         connectDeviceChannel(flutterEngine)
     }
 
