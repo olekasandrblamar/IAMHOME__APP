@@ -22,6 +22,9 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var reconnect:Int = 0;
     var eventSink: FlutterEventSink? = nil
     var readingTemperature = false
+    var readingHr = false
+    var readingBp = false
+    var readingo2 = false
     var upgradeInProcess = false
     
     var batteryComplete = false
@@ -152,8 +155,81 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 let returnData = "{\"error\":\"true\"}"
                 eventSink?(returnData)
             }
+        }else if(option == HardGettingOption.measuring){
+            let tempData = values as! [String:String]
+            NSLog("Got values \(values)")
+            let type:HardMeasureType = HardMeasureType(rawValue: Int(tempData["type"] as! String)!)!;
+            do{
+                switch type {
+                    case HardMeasureType.heartRate:
+                        let heartRateVal = tempData["heart"]
+                        NSLog("Heart rate \(heartRateVal)")
+                        if(heartRateVal != nil){
+                            let heartRate = Int(heartRateVal!)!
+                            let returnData = HeartRateReading(heartRate: heartRate)
+                            let heartRateUpload = HeartRateUpload(measureTime: Date(), heartRate: returnData.heartRate, deviceId: getMacId())
+                            DataSync.uploadHeartRateInfo(heartRates: [heartRateUpload])
+                            let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
+                            NSLog("Returning HR data \(returnDataValue)")
+                            eventSink?(returnDataValue)
+                        }
+                    
+                    case HardMeasureType.bloodOxygen:
+                        if (tempData["oxygen"] != nil) {
+                            NSLog("Oxygen \(tempData["oxygen"])")
+                            let oxygenLevel = Int(tempData["oxygen"] as! String)!
+                            if(oxygenLevel>0){
+                                let returnData = OxygenLevel(oxygenLevel: oxygenLevel)
+                                let oxygenUpload = OxygenLevelUpload(measureTime: Date(), oxygenLevel: oxygenLevel, deviceId: getMacId(), userProfile: DataSync.getUserInfo())
+                                DataSync.uploadOxygenLevels(oxygenLevels: [oxygenUpload])
+                                let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
+                                NSLog("Returning O2 data \(returnDataValue)")
+                                self.eventSink?(returnDataValue)
+                            }
+                        }
+                    
+                    case HardMeasureType.bloodPressure:
+                        if (tempData["systolicPressure"] != nil) {
+                            NSLog("Systolic \(values["systolicPressure"]) diastolic \(values["diastolicPressure"]) ")
+                        }
+                        let systolic = Int(tempData["systolicPressure"] as! String)!
+                        if(systolic>0){
+                            let returnData = BpReading(systolic: systolic, diastolic: Int(tempData["diastolicPressure"] as! String)!)
+                            let bpUpload = BpUpload(measureTime: Date(), distolic: returnData.diastolic, systolic: returnData.systolic, deviceId: getMacId(), userProfile: DataSync.getUserInfo())
+                            let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
+                            NSLog("Returning BP data \(returnDataValue)")
+                            self.eventSink?(returnDataValue)
+                        }
+                default:
+                    NSLog("type not found")
+                    
+                }
+            }catch{
+                let returnData = "{\"error\":\"true\"}"
+                eventSink?(returnData)
+            }
+            
+        }else if(option == HardGettingOption.measurementEnd){
+            NSLog("Measuring end \(values)")
+            let tempData = values as! [String:String]
+            NSLog("Got values \(values)")
+            let type:HardMeasureType = HardMeasureType(rawValue: Int(tempData["type"] as! String)!)!;
+            switch type {
+                case HardMeasureType.heartRate:
+                    readingHr = false
+                    eventSink?(FlutterEndOfEventStream)
+                case HardMeasureType.bloodOxygen:
+                    readingo2 = false
+                    eventSink?(FlutterEndOfEventStream)
+                case HardMeasureType.bloodPressure:
+                    readingBp = false
+                    eventSink?(FlutterEndOfEventStream)
+                default:
+                    NSLog("type not found")
+                
+            }
         }
-        
+            
     }
     
     func hardManager(_ manager: HardManagerSDK!, firmwareUpgradeStep step: HardFirmwareUpgradeStep, result: HardFirmwareUpgradStepResult) {
@@ -483,6 +559,18 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                     }
                     NSLog("Inside timer")
                 }
+            }else if(readingType == "HR"){
+                self.eventSink = events
+                self.readingHr = true
+                HardManagerSDK.shareBLEManager()?.setStartHeartMeasurement()
+            }else if(readingType == "BP"){
+                self.eventSink = events
+                self.readingBp = true
+                HardManagerSDK.shareBLEManager()?.setStartBloodPressureMeasurement()
+            }else if(readingType == "O2"){
+                self.eventSink = events
+                self.readingo2 = true
+                HardManagerSDK.shareBLEManager()?.setStartBloodOxygenMeasurement()
             }else{
                 events(FlutterEndOfEventStream)
             }

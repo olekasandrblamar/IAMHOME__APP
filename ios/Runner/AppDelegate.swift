@@ -424,3 +424,16 @@ struct TemperatureReading:Codable {
     var celsius:Double = 0
     var fahrenheit:Double = 0
 }
+
+struct BpReading:Codable{
+    var systolic:Int = 0
+    var diastolic:Int = 0
+}
+
+struct OxygenLevel:Codable{
+    var oxygenLevel:Int = 0
+}
+
+struct HeartRateReading:Codable {
+    var heartRate:Int = 0
+}
