@@ -18,13 +18,18 @@ import com.walnutin.hardsdk.ProductNeed.entity.Device
 import com.walnutin.hardsdk.ProductNeed.entity.TempStatus
 import com.walnutin.hardsdk.ProductNeed.entity.Version
 import com.walnutin.hardsdk.ProductNeed.entity.Weather
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
+import io.reactivex.Flowable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class ConnectDeviceCallBack : SimpleDeviceCallback {
 
@@ -65,7 +70,11 @@ class ConnectDeviceCallBack : SimpleDeviceCallback {
                 HardSdk.getInstance().startScan()
             } else {
                 HardSdk.getInstance().stopScan()
-                result.success(ConnectionInfo.createResponse(message = "Timeout"))
+                try {
+                    result.success(ConnectionInfo.createResponse(message = "Timeout"))
+                }catch (e: java.lang.Exception){
+                    Log.e(WatchDevice.TAG, "Error while responding ", e)
+                }
             }
         }
     }
@@ -134,7 +143,7 @@ class DataCallBack : SimpleDeviceCallback {
 //            Log.d(WatchDevice.TAG,"Time ${tempCal}")
             TemperatureUpload(measureTime = tempCal.time, deviceId = MainActivity.deviceId, celsius = celsius.toDouble(), fahrenheit = fahrenheit.toDouble())
         }
-        DataSync.uploadTemperature(tempUploads.filter { it.celsius >0 && it.measureTime.time > 10000 })
+        DataSync.uploadTemperature(tempUploads.filter { it.celsius > 0 && it.measureTime.time > 10000 })
     }
 
     private fun uploadSteps(){
@@ -149,7 +158,7 @@ class DataCallBack : SimpleDeviceCallback {
             Log.i(WatchDevice.TAG, "step info ${Gson().toJson(stepInfos)}")
             if(stepInfos.dates!=null) {
                 val startOfDate = dateFormat.parse(stepInfos.dates)
-                dailySteps.add(DailyStepUpload(measureTime = startOfDate, deviceId = MainActivity.deviceId, steps = stepInfos.step,calories = stepInfos.calories,distance = stepInfos.distance))
+                dailySteps.add(DailyStepUpload(measureTime = startOfDate, deviceId = MainActivity.deviceId, steps = stepInfos.step, calories = stepInfos.calories, distance = stepInfos.distance))
                 calories.add(CaloriesUpload(measureTime = startOfDate, deviceId = MainActivity.deviceId, calories = stepInfos.calories))
                 stepInfos.stepOneHourInfo?.let {
                     stepList.addAll(stepInfos.stepOneHourInfo.map {
@@ -176,7 +185,7 @@ class DataCallBack : SimpleDeviceCallback {
         if(this.batteryComplete && this.versionComplete) {
             try {
                 batteryResult?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
-                        deviceName = "", additionalInfo = mapOf(), deviceType = "", batteryStatus = this.batteryPercentage,versionUpdate = this.versionUpdate))
+                        deviceName = "", additionalInfo = mapOf(), deviceType = "", batteryStatus = this.batteryPercentage, versionUpdate = this.versionUpdate))
                 this.batteryResult = null
             } catch (ex: Exception) {
                 Log.e(WatchDevice.TAG, "Error while sending response ", ex)
@@ -214,8 +223,8 @@ class DataCallBack : SimpleDeviceCallback {
             try {
                 val sleepModel = HardSdk.getInstance().queryOneDaySleepInfo(beforeTime)
                 Log.i(WatchDevice.TAG, "Got sleep info ${Gson().toJson(sleepModel)}")
-            }catch (e:Exception){
-                Log.e(WatchDevice.TAG,"Error getting sleep information",e)
+            }catch (e: Exception){
+                Log.e(WatchDevice.TAG, "Error getting sleep information", e)
             }
         } else if (flag == GlobalValue.OFFLINE_EXERCISE_SYNC_OK) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Exercise Sync")
@@ -231,41 +240,61 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.DISCOVERY_DEVICE_SHAKE) {
         } else if (flag == GlobalValue.Firmware_DownFile) {
         } else if (flag == GlobalValue.Firmware_Start_Upgrade) {
-            Log.i(WatchDevice.TAG,"Firmware update")
+            Log.i(WatchDevice.TAG, "Firmware update")
         } else if (flag == GlobalValue.Firmware_Info_Error) {
-            Log.i(WatchDevice.TAG,"Firmware info error")
+            Log.i(WatchDevice.TAG, "Firmware info error")
         } else if (flag == GlobalValue.Firmware_Server_Status) {
             Log.i(WatchDevice.TAG, "Server status: $obj \n")
             this.versionComplete = true
             if (obj != null) {
                 val serverVersion = obj as Version
                 Log.i(WatchDevice.TAG, "Version：" + Gson().toJson(serverVersion))
-                Log.d(WatchDevice.TAG,"Currenr version ${currentVersion}.bin compared to ${serverVersion.firmwareName}")
+                Log.d(WatchDevice.TAG, "Currenr version ${currentVersion}.bin compared to ${serverVersion.firmwareName}")
                 //If the version is updated check and update
                 if(serverVersion.firmwareName != "${currentVersion}.bin") {
-                    Log.d(WatchDevice.TAG,"version updated")
+                    Log.d(WatchDevice.TAG, "version updated")
                     this.versionUpdate = true
                 }
                 checkAndSendStatusResponse()
             }
         } else if (flag == GlobalValue.Firmware_Upgrade_Progress) {
-            Log.i(WatchDevice.TAG,"Firmware update progress ${obj}")
+            Log.i(WatchDevice.TAG, "Firmware update progress ${obj}")
             //If the progress is complete
             if((obj as Int) == 100){
                 try {
                     batteryResult?.success("Success")
-                }catch (e:java.lang.Exception){
-                    Log.e(WatchDevice.TAG,"Error while sending upgrade response ${e.message}")
+                }catch (e: java.lang.Exception){
+                    Log.e(WatchDevice.TAG, "Error while sending upgrade response ${e.message}")
                 }
             }
         } else if (flag == GlobalValue.Firmware_Server_Failed) {
-            Log.i(WatchDevice.TAG,"Firmware update failed ${obj as String}")
-        } else if (flag == GlobalValue.READ_TEMP_FINISH_2) { // -273.15代表绝对0度作为无效值
+            Log.i(WatchDevice.TAG, "Firmware update failed ${obj as String}")
+        } else if (flag == GlobalValue.READ_TEMP_FINISH_2) {
             val tempStatus = obj as TempStatus
             Log.i(WatchDevice.TAG, "temp ${Gson().toJson(tempStatus)}")
             if (tempStatus.downTime == 0) {
+                WatchDevice.isTestingTemp = false
+                val celsius = tempStatus.bodyTemperature
+                val fahrenheit = (celsius*9/5)+32
+                val upload = TemperatureUpload(measureTime = Calendar.getInstance().time, deviceId = MainActivity.deviceId, celsius = celsius.toDouble(), fahrenheit = fahrenheit.toDouble())
+                DataSync.uploadTemperature(listOf(upload))
+                WatchDevice.eventSink?.let {
+                    it.success(Gson().toJson(mapOf("celsius" to celsius,"fahrenheit" to fahrenheit,"countDown" to 0)))
+                    it.endOfStream()
+                    WatchDevice.eventSink = null
+                }
+            }else{
+                WatchDevice.eventSink?.let {
+                    it.success(Gson().toJson(mapOf("countDown" to tempStatus.downTime)))
+                }
             }
-        } else if (flag == GlobalValue.TEMP_HIGH) { //
+        } else if (flag == GlobalValue.READ_TEMP_FINISH) {
+            val tempStatus = obj as TempStatus
+            Log.i(WatchDevice.TAG, "temp ${Gson().toJson(tempStatus)}")
+            if (tempStatus.downTime == 0) {
+
+            }
+        }else if (flag == GlobalValue.TEMP_HIGH) { //
         } else if (flag == GlobalValue.SYNC_BODY_FINISH) { //Body temperature complete
             Log.i(WatchDevice.TAG, "Sync Body finish")
             uploadTemperature()
@@ -294,7 +323,7 @@ class DataCallBack : SimpleDeviceCallback {
     }
 
     private fun uploadBloodPressureInfo(){
-        Log.i(WatchDevice.TAG,"Uploading blood pressure")
+        Log.i(WatchDevice.TAG, "Uploading blood pressure")
         val tempTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
         val bloodPressureUpload = mutableListOf<BpUpload>()
         val oxygenLevels = mutableListOf<OxygenLevelUpload>()
@@ -303,7 +332,7 @@ class DataCallBack : SimpleDeviceCallback {
         val gender = if(userInfo?.sex?.toLowerCase()=="male") 0 else 1
         (0..2).forEach {
             val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), it);
-            Log.i(WatchDevice.TAG,"Loading BP info")
+            Log.i(WatchDevice.TAG, "Loading BP info")
             try {
                 HardSdk.getInstance().queryOneDayBP(beforeTime).forEach {
                     try {
@@ -325,15 +354,15 @@ class DataCallBack : SimpleDeviceCallback {
                     }
                 }
             }catch (e: Exception){
-                Log.i(WatchDevice.TAG, "Error while  quering BP info",e)
+                Log.i(WatchDevice.TAG, "Error while  quering BP info", e)
             }
         }
         if(bloodPressureUpload.isNotEmpty())
-            DataSync.uploadBloodPressure(bloodPressureUpload.filter { it.distolic!=0 && it.measureTime.time>10000 })
+            DataSync.uploadBloodPressure(bloodPressureUpload.filter { it.distolic != 0 && it.measureTime.time > 10000 })
         if(heartRates.isNotEmpty())
             DataSync.uploadHeartRate(heartRates.filter { it.heartRate > 0 && it.measureTime.time > 1000 })
         if(oxygenLevels.isNotEmpty())
-            DataSync.uploadOxygenData(oxygenLevels.filter { it.oxygenLevel>0 && it.measureTime.time > 10000 })
+            DataSync.uploadOxygenData(oxygenLevels.filter { it.oxygenLevel > 0 && it.measureTime.time > 10000 })
     }
 
     override fun onStepChanged(
@@ -403,9 +432,12 @@ class DataCallBack : SimpleDeviceCallback {
 class WatchDevice:BaseDevice()     {
 
     companion object {
-        var isTestingHeart = false;
+        var isTestingHeart = false
         val TAG = WatchDevice::class.java.simpleName
         var dataCallback: DataCallBack? = null
+        var eventSink:EventChannel.EventSink? = null
+        var isTestingTemp = false
+        var tempUpdates:Disposable? = null
 
         fun syncProfile(){
             val userInfo = DataSync.getUserInfo()
@@ -445,6 +477,33 @@ class WatchDevice:BaseDevice()     {
         }
     }
 
+    override fun readDataFromDevice(eventSink: EventChannel.EventSink, readingType: String) {
+        when(readingType){
+            "TEMPERATURE" -> {
+                if (HardSdk.getInstance().isDevConnected) {
+                    WatchDevice.eventSink = eventSink
+                    Log.d(TAG,"Reading temperature")
+                    HardSdk.getInstance().enterTempMeasure()
+                    isTestingTemp = true
+                    tempUpdates = Flowable.interval(1, 1, TimeUnit.SECONDS).observeOn(AndroidSchedulers.mainThread())
+                            .subscribe { v: Long? ->
+                                if(isTestingTemp)
+                                    HardSdk.getInstance().readTempValue()
+                                else {
+                                    Log.d(TAG,"Disposing the observable")
+                                    tempUpdates?.dispose()
+                                }
+                                Log.d(TAG,"Inside the temp observable")
+                            }
+
+                } else {
+                    eventSink.endOfStream()
+                }
+            }
+            else -> eventSink.endOfStream()
+        }
+    }
+
     override fun disconnectDevice(result: MethodChannel.Result?) {
         if(HardSdk.getInstance().isDevConnected) {
             Log.i(TAG, "Device is connected and disconnecting it")
@@ -457,9 +516,9 @@ class WatchDevice:BaseDevice()     {
 
     override fun syncWeather(weatherList: List<WeatherInfo>) {
         if(HardSdk.getInstance().isDevConnected){
-            Log.i(TAG,"Sending weather to the watch device")
+            Log.i(TAG, "Sending weather to the watch device")
             var index = 0;
-            val updatedWeatherList = weatherList.map {weatherInfo ->
+            val updatedWeatherList = weatherList.map { weatherInfo ->
                 val cal = Calendar.getInstance()
                 cal.timeInMillis = weatherInfo.utcMillis*1000
                 Weather().apply {
@@ -469,11 +528,11 @@ class WatchDevice:BaseDevice()     {
                     humidity = 10
                     isDaisan = 0
                     type = when(weatherInfo.weatherType){
-                        WeatherType.CLOUD->2
-                        WeatherType.SUNNY->1
-                        WeatherType.SNOW->4
-                        WeatherType.RAIN->3
-                        WeatherType.THUNDER->6
+                        WeatherType.CLOUD -> 2
+                        WeatherType.SUNNY -> 1
+                        WeatherType.SNOW -> 4
+                        WeatherType.RAIN -> 3
+                        WeatherType.THUNDER -> 6
                         else -> 0
                     }
                     time = TimeUtil.getformatData(cal.time)
@@ -481,7 +540,7 @@ class WatchDevice:BaseDevice()     {
             }.filter { it.serial<5 }.toMutableList()
 
             updatedWeatherList.forEach{
-                Log.d(TAG,"Sending weather for ${it.time} with max ${it.high} and low ${it.low} and type ${it.type}")
+                Log.d(TAG, "Sending weather for ${it.time} with max ${it.high} and low ${it.low} and type ${it.type}")
             }
 
             HardSdk.getInstance().setWeatherList(updatedWeatherList)
@@ -527,7 +586,7 @@ class WatchDevice:BaseDevice()     {
         //If the device is not connected  try to connect
         if(!HardSdk.getInstance().isDevConnected &&
                 !HardSdk.getInstance().isConnecting){
-            Log.i(TAG,"Re-Connecting from sync data")
+            Log.i(TAG, "Re-Connecting from sync data")
             dataCallback?.updateResult(result)
             HardSdk.getInstance().init(context)
             returnValue = false
@@ -556,7 +615,7 @@ class WatchDevice:BaseDevice()     {
 
     override fun upgradeDevice(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
         val connectionStatus = HardSdk.getInstance().isDevConnected
-        Log.i(TAG,"Getting device information $connectionStatus");
+        Log.i(TAG, "Getting device information $connectionStatus");
         if(connectionStatus){
             dataCallback?.updateVersionResult(result)
             HardSdk.getInstance().startUpdateBLE()
@@ -565,7 +624,7 @@ class WatchDevice:BaseDevice()     {
 
     override fun getDeviceInfo(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
         val connectionStatus = HardSdk.getInstance().isDevConnected
-        Log.i(TAG,"Getting device information ${connectionStatus}");
+        Log.i(TAG, "Getting device information ${connectionStatus}");
         if(!connectionStatus && !HardSdk.getInstance().isConnecting){
             DataSync.CURRENT_MAC_ADDRESS = connectionInfo.deviceId
             HardSdk.getInstance().init(context)

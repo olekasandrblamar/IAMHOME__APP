@@ -20,6 +20,8 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var statusResult:FlutterResult? = nil
     var statusConnectionInfo: ConnectionInfo? = nil
     var reconnect:Int = 0;
+    var eventSink: FlutterEventSink? = nil
+    var readingTemperature = false
     var upgradeInProcess = false
     
     var batteryComplete = false
@@ -126,6 +128,29 @@ class WatchData: NSObject,HardManagerSDKDelegate{
              }catch{
                 NSLog("Error getting watch info from battery getDeviceInfo \(error)")
                 statusResult?("Error")
+            }
+        }else if(option == HardGettingOption.bodyTemperature){
+            NSLog("body temperature \(values)")
+            let tempData = values as! [String:String]
+            let seconds = Int(tempData["second"] as! String)
+            do{
+                var returnData = TemperatureReading(countDown: seconds!, celsius: 0, fahrenheit: 0)
+                if(seconds==0){
+                    let bodyTemp = Double(tempData["bodyTemperature"] as! String)
+                    readingTemperature = false
+                    returnData.celsius = Double(bodyTemp!)
+                    DataSync.uploadTemparatures(temps: [TemperatureUpload(measureTime: Date(), celsius: returnData.celsius, deviceId: getMacId())])
+                    returnData.fahrenheit = Double((bodyTemp!*9/5)+32)
+                }
+                let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
+                NSLog("Returning data \(returnDataValue)")
+                eventSink?(returnDataValue)
+                if(seconds == 0){
+                    eventSink?(FlutterEndOfEventStream)
+                }
+            }catch{
+                let returnData = "{\"error\":\"true\"}"
+                eventSink?(returnData)
             }
         }
         
@@ -440,6 +465,29 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             NSLog("Syncing data")
             self.syncDeviceInfo();
             loadData(deviceId: connectionInfo.deviceId)
+        }
+    }
+    
+    func readDataFromDevice(eventSink events: @escaping FlutterEventSink,readingType:String){
+        if(HardManagerSDK.shareBLEManager().isConnected){
+            //Device is connected
+            if(readingType == "TEMPERATURE"){
+                self.eventSink = events
+                self.readingTemperature = true
+                HardManagerSDK.shareBLEManager()?.setHardBodyTemperatureMeasurement()
+                Timer.scheduledTimer(withTimeInterval: 1, repeats: true) { timer in
+                    if(self.readingTemperature){
+                        HardManagerSDK.shareBLEManager()?.getHardCurrentTemperature()
+                    }else{
+                        timer.invalidate()
+                    }
+                    NSLog("Inside timer")
+                }
+            }else{
+                events(FlutterEndOfEventStream)
+            }
+        }else{
+            events(FlutterEndOfEventStream)
         }
     }
     

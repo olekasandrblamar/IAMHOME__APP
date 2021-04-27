@@ -146,10 +146,14 @@ class MainActivity: FlutterFragmentActivity()  {
         }
     }
 
-    private fun readDataFromDevice(eventSink:EventChannel.EventSink){
+    private fun readDataFromDevice(eventSink:EventChannel.EventSink,readingRequest: ReadingRequest){
         currentContext = this
         currentActivity = this
         BaseDevice.isBackground = false
+
+        //fire the reading on the device
+        BaseDevice.getDeviceImpl(readingRequest.deviceType).readDataFromDevice(eventSink,readingRequest.readingType)
+
     }
 
     private fun connectEventChannel(flutterEngine: FlutterEngine){
@@ -158,8 +162,17 @@ class MainActivity: FlutterFragmentActivity()  {
                     var eventSink:EventChannel.EventSink? = null
                     override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
                         eventSink = events
-                        readDataFromDevice(eventSink!!)
-                        Log.d(TAG,"Got arguments")
+                        val args = arguments as Map<String, String>
+                        Log.d(TAG,"arguments $args ")
+//                        val deviceDataString = arguments.toString()
+//                        Log.d(TAG,"Got device data string $deviceDataString")
+//                        val readingRequest = Gson().fromJson<Map<String,String>>(deviceDataString,Map::class.java)
+                        val deviceType = args["deviceType"]
+                        val readingType = args["readingType"]
+                        readDataFromDevice(eventSink!!,ReadingRequest().apply {
+                            this.deviceType = deviceType!!
+                            this.readingType = readingType!!
+                        })
                     }
 
                     override fun onCancel(arguments: Any?) {
@@ -172,7 +185,6 @@ class MainActivity: FlutterFragmentActivity()  {
 
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        GeneratedPluginRegistrant.registerWith(flutterEngine);
         //GeneratedPluginRegistrant.registerWith(flutterEngine);
         // requestPermission()
         scheduleBackgroundTasks()
@@ -200,6 +212,10 @@ class MainActivity: FlutterFragmentActivity()  {
 //
 //
 //}
+class ReadingRequest{
+    lateinit var deviceType: String
+    lateinit var readingType: String
+}
 
 class CerasBluetoothSync{
 

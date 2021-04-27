@@ -11,6 +11,7 @@ import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 
 import 'dart:io';
+import 'dart:convert';
 
 class DataScreen extends StatefulWidget {
   @override
@@ -33,6 +34,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   HeartRate _lastHr;
 
   bool _paused = false;
+
+  final eventChannel = EventChannel("ceras.iamhome.mobile/device_events");
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
@@ -111,6 +114,39 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     await Navigator.of(context).pushReplacementNamed(
       routes.SetupHomeRoute,
     );
+  }
+
+  void _readDataFromDevice(String dataType) async {
+    print('Loading data type $dataType');
+    var deviceList = await Provider.of<DevicesProvider>(context, listen: false)
+        .getDevicesData();
+    var device = deviceList[0];
+    final requestData = {'deviceType':device.watchInfo.deviceType,'readingType':dataType};
+    var request = json.encode(requestData);
+    var currentTemp = _lastTemperature;
+    print('Sending request $request');
+    setState(() {
+      _lastTemperature = null;
+    });
+    var subscription = eventChannel.receiveBroadcastStream(requestData).listen((event) {
+      print('reading data $event');
+      if(dataType == 'TEMPERATURE'){
+        final returnData = json.decode(event);
+        if(returnData['countDown'] == 0) {
+          var updatedTemp = Temperature();
+          updatedTemp.celsius = returnData['celsius'];
+          updatedTemp.fahrenheit = returnData['fahrenheit'];
+          updatedTemp.measureTime = DateTime.now();
+          setState(() {
+            _lastTemperature = updatedTemp;
+          });
+        }
+      }
+    },onError: (dynamic error){
+      print('Got error $error for data type $dataType');
+    },onDone: (){
+      print('completed for $dataType');
+    },cancelOnError: true);
   }
 
   void _goToLogin() async {
@@ -264,20 +300,31 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                             child: Container(
                               padding: EdgeInsets.all(16),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
-                                  Image.asset(
-                                    'assets/icons/icons_themometer.png',
-                                    height: 25,
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    'Temperature',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
+                                 Row(
+                                      mainAxisAlignment: MainAxisAlignment.start,
+                                      children: <Widget>[
+                                        Image.asset(
+                                          'assets/icons/icons_themometer.png',
+                                          height: 25,
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Text(
+                                          'Temperature',
+                                          style: TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ],
                                     ),
-                                  ),
+                                  IconButton(
+                                        icon :Icon(Icons.refresh),
+                                        onPressed: () {
+                                          _readDataFromDevice('TEMPERATURE');
+                                        },
+                                      )
                                 ],
                               ),
                             ),

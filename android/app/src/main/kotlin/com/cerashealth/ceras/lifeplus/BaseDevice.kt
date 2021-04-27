@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.cerashealth.ceras.*
 import com.cerashealth.ceras.lifeplus.data.*
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 
 open class BaseDevice{
@@ -30,6 +31,10 @@ open class BaseDevice{
     open fun upgradeDevice(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
         Log.i(TAG,"Calling default upgrade")
         result?.success("Success")
+    }
+
+    open fun readDataFromDevice(eventSink: EventChannel.EventSink,readingType:String){
+        eventSink.endOfStream()
     }
 
     open fun disconnectDevice(result: MethodChannel.Result?){
