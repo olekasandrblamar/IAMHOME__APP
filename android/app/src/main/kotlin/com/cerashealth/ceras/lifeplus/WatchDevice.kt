@@ -451,7 +451,7 @@ class DataCallBack : SimpleDeviceCallback {
                 bloodPressure.diastolicPressure = heartRateAdditional.get_diastolic_blood_pressure()
                 if (status == GlobalValue.RATE_TEST_FINISH || status == GlobalValue.RATE_TEST_INTERRUPT) {
                     val bpUpload = BpUpload(measureTime = Calendar.getInstance().time,systolic = bloodPressure.systolicPressure,
-                            distolic = bloodPressure.systolicPressure,userProfile = userInfo,deviceId = MainActivity.deviceId)
+                            distolic = bloodPressure.diastolicPressure,userProfile = userInfo,deviceId = MainActivity.deviceId)
                     DataSync.uploadBloodPressure(listOf(bpUpload))
                     WatchDevice.isTestingBp = false
                     HardSdk.getInstance().stopBpMeasure(bloodPressure)
