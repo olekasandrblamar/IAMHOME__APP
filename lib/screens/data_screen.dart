@@ -404,9 +404,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         child: Column(
           children: [
             ..._buildTrackerHeader('Temperature', 'temperature'),
-            _lastTemperature != null
-                ? _loadTemperatureData()
-                : CircularProgressIndicator(),
+            if (_lastTemperature != null) ..._loadTemperatureData(),
+            if (_lastTemperature == null) CircularProgressIndicator(),
           ],
         ),
       ),
@@ -476,7 +475,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         child: Column(
           children: [
             ..._buildTrackerHeader('Heart Rate', 'hr'),
-            _lastHr != null ? _loadHrData() : CircularProgressIndicator(),
+            if (_lastHr != null) ..._loadHrData(),
+            if (_lastHr == null) CircularProgressIndicator(),
           ],
         ),
       ),
@@ -539,9 +539,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         child: Column(
           children: [
             ..._buildTrackerHeader('Blood Pressure', 'bp'),
-            _bloodPressure != null
-                ? _loadBpData()
-                : CircularProgressIndicator(),
+            if (_bloodPressure != null) ..._loadBpData(),
+            if (_bloodPressure == null) CircularProgressIndicator(),
           ],
         ),
       ),
@@ -608,9 +607,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         child: Column(
           children: [
             ..._buildTrackerHeader('Oxygen Level', 'o2'),
-            _oxygenLevel != null
-                ? _loadOxygenData()
-                : CircularProgressIndicator(),
+            if (_oxygenLevel != null) ..._loadOxygenData(),
+            if (_oxygenLevel == null) CircularProgressIndicator(),
           ],
         ),
       ),
@@ -675,9 +673,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         child: Column(
           children: [
             ..._buildTrackerHeader('Calories', 'calories'),
-            _lastCalories != null
-                ? _buildCaloriesData()
-                : CircularProgressIndicator(),
+            if (_lastCalories != null) ..._buildCaloriesData(),
+            if (_lastCalories == null) CircularProgressIndicator(),
             // _buildLatestDataButton('Calories')
           ],
         ),
@@ -744,9 +741,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         child: Column(
           children: [
             ..._buildTrackerHeader('Steps', 'steps'),
-            _lastSteps != null
-                ? _buildStepsData()
-                : CircularProgressIndicator(),
+            if (_lastSteps != null) ..._buildStepsData(),
+            if (_lastSteps == null) CircularProgressIndicator(),
           ],
         ),
       ),
