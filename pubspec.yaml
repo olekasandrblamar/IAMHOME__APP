@@ -54,6 +54,7 @@ dependencies:
   connectivity: ^3.0.3
   pin_code_fields: ^7.0.0
   cached_network_image: ^2.5.0
+  flutter_svg: ^0.22.0
 
 dependency_overrides:
   plugin_platform_interface: ">=2.0.0"
@@ -99,6 +100,7 @@ flutter:
     - assets/images/t&c.png
     - assets/images/emptyImage.png
     - assets/icons/
+    - assets/trackers/
     - assets/images/clouds.png
     - assets/images/bee_left.png
     - assets/images/bee_right.png
