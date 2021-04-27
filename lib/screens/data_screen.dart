@@ -323,95 +323,60 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     final _appLocalization = AppLocalizations.of(context);
 
     return Scaffold(
-      // appBar: AppBar(
-      //   elevation: 0,
-      //   title: Text(
-      //     'My Data',
-      //   ),
-      //   // actions: <Widget>[
-      //   //   SwitchStoreIcon(),
-      //   // ],
-      // ),
+      appBar: AppBar(
+        elevation: 0,
+        title: Text(
+          'My Data',
+        ),
+        // actions: <Widget>[
+        //   SwitchStoreIcon(),
+        // ],
+      ),
       // backgroundColor: AppTheme.white,
       body: Container(
         decoration: BoxDecoration(
           color: Color(0xffecf3fb),
         ),
-        child: CustomScrollView(
-          physics: BouncingScrollPhysics(),
-          slivers: [
-            SliverAppBar(
-              // backgroundColor: Colors.transparent,
-              // elevation: 0.0,
-              pinned: true,
-              expandedHeight: 150.0,
-              stretch: true,
-              stretchTriggerOffset: 75,
-              flexibleSpace: FlexibleSpaceBar(
-                title: Text(
-                  'My Data',
-                  style: TextStyle(
-                    fontSize: 25,
-                    // fontWeight: FontWeight.bold,
-                    // color: Colors.black,
-                  ),
+        child: Column(
+          children: [
+            Expanded(
+              child: PageView.builder(
+                scrollDirection: Axis.horizontal,
+                controller: _pageController,
+                onPageChanged: _onPageChanged,
+                itemCount: trackers.length,
+                itemBuilder: (ctx, i) => Transform(
+                  transform: Matrix4.identity()..rotateX(currentPageValue - i),
+                  child: (i == 0)
+                      ? _tracker1()
+                      : (i == 1)
+                          ? _tracker2()
+                          : (i == 2)
+                              ? _tracker3()
+                              : (i == 3)
+                                  ? _tracker4()
+                                  : (i == 4)
+                                      ? _tracker5()
+                                      : (i == 5)
+                                          ? _tracker6()
+                                          : Container(),
                 ),
-                stretchModes: [
-                  StretchMode.zoomBackground,
-                  // StretchMode.blurBackground,
-                  // StretchMode.fadeTitle,
-                ],
-                background: Image.asset(
-                  'assets/images/clouds.png',
-                  fit: BoxFit.cover,
-                ),
+                // physics: NeverScrollableScrollPhysics(),
               ),
             ),
-            SliverList(
-              delegate: SliverChildListDelegate(
-                [
-                  Expanded(
-                    child: PageView.builder(
-                      scrollDirection: Axis.horizontal,
-                      controller: _pageController,
-                      onPageChanged: _onPageChanged,
-                      itemCount: trackers.length,
-                      itemBuilder: (ctx, i) => Transform(
-                        transform: Matrix4.identity()
-                          ..rotateX(currentPageValue - i),
-                        child: (i == 0)
-                            ? _tracker1()
-                            : (i == 1)
-                                ? _tracker2()
-                                : (i == 2)
-                                    ? _tracker3()
-                                    : (i == 3)
-                                        ? _tracker4()
-                                        : (i == 4)
-                                            ? _tracker5()
-                                            : (i == 5)
-                                                ? _tracker6()
-                                                : Container(),
-                      ),
-                      // physics: NeverScrollableScrollPhysics(),
-                    ),
-                  ),
-                  Container(
-                    margin: const EdgeInsets.only(
-                      bottom: 10,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        for (int i = 0; i < trackers.length; i++)
-                          if (i == _currentPage)
-                            _buildSlideDots(context, true, i)
-                          else
-                            _buildSlideDots(context, false, i)
-                      ],
-                    ),
-                  ),
+            Container(
+              margin: const EdgeInsets.only(
+                bottom: 10,
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: <Widget>[
+                  for (int i = 0; i < trackers.length; i++)
+                    if (i == _currentPage)
+                      _buildSlideDots(context, true, i)
+                    else
+                      _buildSlideDots(context, false, i)
                 ],
               ),
             ),
