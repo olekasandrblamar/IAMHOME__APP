@@ -957,7 +957,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
             Container(
               padding: EdgeInsets.all(16),
               child: SvgPicture.asset(
-                'assets/trackers/hr.svg',
+                'assets/trackers/calories.svg',
                 height: 150,
               ),
             ),
@@ -1088,7 +1088,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
             Container(
               padding: EdgeInsets.all(16),
               child: SvgPicture.asset(
-                'assets/trackers/hr.svg',
+                'assets/trackers/steps.svg',
                 height: 150,
               ),
             ),

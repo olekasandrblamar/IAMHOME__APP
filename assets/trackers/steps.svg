@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="109px" height="115px" viewBox="0 0 109 115" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <title>steps</title>
+    <defs>
+        <polygon id="path-1" points="0 0 24.3054 0 24.3054 26.996 0 26.996"></polygon>
+    </defs>
+    <g id="Version-1.0" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Splash-Screen-Copy-10" transform="translate(-142.000000, -215.000000)">
+            <g id="steps" transform="translate(145.000000, 218.000000)">
+                <path d="M38.1069,83.8535 L38.1069,66.1445 L19.9649,51.6485 C19.9649,51.6485 18.4889,24.9995 27.7769,24.9995 C36.7179,24.9995 36.7179,36.5445 37.3259,47.1345 L51.4749,43.1415" id="Stroke-1" stroke="#24557C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <polyline id="Stroke-3" stroke="#24557C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" points="0 52.1699 4.948 34.8089 12.239 30.6419"></polyline>
+                <line x1="22.7427" y1="66.1445" x2="12.2397" y2="99.6515" id="Stroke-5" stroke="#24557C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></line>
+                <path d="M28.9058,0 C33.2688,0 36.8048,3.537 36.8048,7.899 C36.8048,12.262 33.2688,15.798 28.9058,15.798 C24.5438,15.798 21.0068,12.262 21.0068,7.899 C21.0068,3.537 24.5438,0 28.9058,0 Z" id="Stroke-7" stroke="#24557C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+                <polyline id="Stroke-9" stroke="#24557C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" points="6.1631 109.2002 33.4201 109.2002 33.4201 93.9232 53.0381 93.9232 53.0381 79.0792 73.9571 79.0792 73.9571 63.4542 99.4771 63.4542"></polyline>
+                <line x1="80.3809" y1="62.5859" x2="80.3809" y2="6.3369" id="Stroke-11" stroke="#24557C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></line>
+                <g id="Group-15" transform="translate(81.682600, 7.465300)">
+                    <mask id="mask-2" fill="white">
+                        <use xlink:href="#path-1"></use>
+                    </mask>
+                    <g id="Clip-14"></g>
+                    <polygon id="Fill-13" fill="#FF4F6D" mask="url(#mask-2)" points="0 0 24.306 14.409 0 26.996"></polygon>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>
