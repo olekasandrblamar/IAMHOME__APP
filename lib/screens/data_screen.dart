@@ -630,12 +630,12 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                                       ),
                                     ],
                                   ),
-                                  IconButton(
-                                    icon :Icon(Icons.refresh),
-                                    onPressed: () {
-                                      _readDataFromDevice('BP');
-                                    },
-                                  )
+                                  // IconButton(
+                                  //   icon :Icon(Icons.refresh),
+                                  //   onPressed: () {
+                                  //     _readDataFromDevice('BP');
+                                  //   },
+                                  // )
                                 ],
                               ),
                             ),
