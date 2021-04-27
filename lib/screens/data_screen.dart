@@ -123,24 +123,86 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     var device = deviceList[0];
     final requestData = {'deviceType':device.watchInfo.deviceType,'readingType':dataType};
     var request = json.encode(requestData);
-    var currentTemp = _lastTemperature;
+    //var currentTemp = _lastTemperature;
     print('Sending request $request');
-    setState(() {
-      _lastTemperature = null;
-    });
+    switch(dataType){
+      case 'TEMPERATURE' :{
+        setState(() {
+          _lastTemperature = null;
+        });
+      }break;
+      case 'HR' :{
+        setState(() {
+          _lastHr = null;
+        });
+      }break;
+      case 'O2' :{
+        setState(() {
+          _oxygenLevel = null;
+        });
+      }break;
+      case 'BP' :{
+        setState(() {
+          _bloodPressure = null;
+        });
+      }break;
+      default :{}
+      break;
+    }
+
     var subscription = eventChannel.receiveBroadcastStream(requestData).listen((event) {
-      print('reading data $event');
-      if(dataType == 'TEMPERATURE'){
-        final returnData = json.decode(event);
-        if(returnData['countDown'] == 0) {
-          var updatedTemp = Temperature();
-          updatedTemp.celsius = returnData['celsius'];
-          updatedTemp.fahrenheit = returnData['fahrenheit'];
-          updatedTemp.measureTime = DateTime.now();
-          setState(() {
-            _lastTemperature = updatedTemp;
-          });
+      final returnData = json.decode(event);
+      switch(dataType){
+        case 'TEMPERATURE' :{
+          if(returnData['countDown'] == 0) {
+            var updatedTemp = Temperature();
+            updatedTemp.celsius = returnData['celsius'];
+            updatedTemp.fahrenheit = returnData['fahrenheit'];
+            updatedTemp.measureTime = DateTime.now();
+            setState(() {
+              _lastTemperature = updatedTemp;
+            });
+          }
         }
+        break;
+        case 'HR' :{
+          if(returnData['rate'] != 0) {
+            var updatedHr = HeartRate();
+            updatedHr.heartRate = returnData['heartRate'];
+            updatedHr.measureTime = DateTime.now();
+            setState(() {
+              _lastHr = updatedHr;
+            });
+          }
+        }
+        break;
+        case 'BP' :{
+          if(returnData['systolic'] != 0) {
+            var updatedBp = BloodPressure();
+            updatedBp.systolic = returnData['systolic'];
+            updatedBp.distolic = returnData['diastolic'];
+            updatedBp.measureTime = DateTime.now();
+            setState(() {
+              _bloodPressure = updatedBp;
+            });
+          }
+        }
+        break;
+        case 'O2' :{
+          if(returnData['oxygenLevel'] != 0) {
+            var updateo2 = OxygenLevel();
+            updateo2.oxygenLevel = returnData['oxygenLevel'];
+            updateo2.measureTime = DateTime.now();
+            setState(() {
+              _oxygenLevel = updateo2;
+            });
+          }
+        }
+        break;
+        default :{
+
+        }
+        break;
       }
     },onError: (dynamic error){
       print('Got error $error for data type $dataType');
@@ -428,21 +490,32 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                             ),
                             child: Container(
                               padding: EdgeInsets.all(16),
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                              child:  Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
-                                  Image.asset(
-                                    'assets/icons/icons_heartbeat.png',
-                                    height: 25,
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Image.asset(
+                                        'assets/icons/icons_heartbeat.png',
+                                        height: 25,
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Text(
+                                        'Heart Rate',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    'Heart Rate',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  IconButton(
+                                    icon :Icon(Icons.refresh),
+                                    onPressed: () {
+                                      _readDataFromDevice('HR');
+                                    },
+                                  )
                                 ],
                               ),
                             ),
@@ -538,20 +611,31 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                             child: Container(
                               padding: EdgeInsets.all(16),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
-                                  Image.asset(
-                                    'assets/icons/icons_bloodpressure.png',
-                                    height: 25,
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Image.asset(
+                                        'assets/icons/icons_bloodpressure.png',
+                                        height: 25,
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Text(
+                                        'Blood Pressure',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    'Blood Pressure',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  IconButton(
+                                    icon :Icon(Icons.refresh),
+                                    onPressed: () {
+                                      _readDataFromDevice('BP');
+                                    },
+                                  )
                                 ],
                               ),
                             ),
@@ -652,22 +736,34 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                             child: Container(
                               padding: EdgeInsets.all(16),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: <Widget>[
-                                  Image.asset(
-                                    'assets/icons/icons_bloodpressure.png',
-                                    height: 25,
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: <Widget>[
+                                      Image.asset(
+                                        'assets/icons/icons_bloodpressure.png',
+                                        height: 25,
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Text(
+                                        'Oxygen Level',
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ],
                                   ),
-                                  const SizedBox(width: 16),
-                                  Text(
-                                    'Oxygen Level',
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
+                                  IconButton(
+                                    icon :Icon(Icons.refresh),
+                                    onPressed: () {
+                                      _readDataFromDevice('O2');
+                                    },
+                                  )
                                 ],
                               ),
+
                             ),
                           ),
                           Container(
@@ -715,7 +811,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                           Container(
                             child: FittedBox(
                               child: Text(
-                                _bloodPressure != null
+                                _oxygenLevel != null
                                     ? 'Last Updated: ' +
                                         _formatDate(_oxygenLevel.measureTime) +
                                         ' ' +

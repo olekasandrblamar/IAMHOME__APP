@@ -3,6 +3,7 @@ package com.cerashealth.ceras.lifeplus
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.Context
+import android.nfc.Tag
 import android.text.TextUtils
 import android.util.Log
 import com.cerashealth.ceras.MainActivity
@@ -14,10 +15,7 @@ import com.walnutin.hardsdk.ProductList.sdk.HardSdk
 import com.walnutin.hardsdk.ProductList.sdk.TimeUtil
 import com.walnutin.hardsdk.ProductNeed.Jinterface.IHardScanCallback
 import com.walnutin.hardsdk.ProductNeed.Jinterface.SimpleDeviceCallback
-import com.walnutin.hardsdk.ProductNeed.entity.Device
-import com.walnutin.hardsdk.ProductNeed.entity.TempStatus
-import com.walnutin.hardsdk.ProductNeed.entity.Version
-import com.walnutin.hardsdk.ProductNeed.entity.Weather
+import com.walnutin.hardsdk.ProductNeed.entity.*
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import io.reactivex.Flowable
@@ -376,56 +374,110 @@ class DataCallBack : SimpleDeviceCallback {
 
     override fun onHeartRateChanged(rate: Int, status: Int) {
         super.onHeartRateChanged(rate, status)
-        Log.d(WatchDevice.TAG, "onHeartRateChanged: status:$status")
+        Log.d(WatchDevice.TAG, "onHeartRateChanged: status:$status rate $rate")
         if (WatchDevice.isTestingHeart) {
-            WatchDevice.isTestingHeart = true
-            if (status == GlobalValue.RATE_TEST_FINISH) {
+            if (status == GlobalValue.RATE_TEST_FINISH || status == GlobalValue.RATE_TEST_INTERRUPT) {
                 WatchDevice.isTestingHeart = false
-                Log.i(WatchDevice.TAG, "Heart rate finished")
+                HardSdk.getInstance().stopRateTest()
+                val hrUpload = HeartRateUpload(measureTime = Calendar.getInstance().time,heartRate= rate,deviceId = MainActivity.deviceId)
+                DataSync.uploadHeartRate(listOf(hrUpload))
+                WatchDevice.eventSink?.let {
+                    it.success(Gson().toJson(mapOf("heartRate" to rate,"countDown" to 0)))
+                    it.endOfStream()
+                    WatchDevice.eventSink = null
+                }
+                Log.d(WatchDevice.TAG, "Heart rate finished")
+            }else{
+                if(rate!=0) {
+                    Log.d(WatchDevice.TAG,"heart rate status $status rate $rate")
+                    WatchDevice.eventSink?.let {
+                        it.success(Gson().toJson(mapOf("heartRate" to rate, "countDown" to status)))
+                    }
+                }
             }
         }
-//            else if (isTestingOxygen == true) {
-//                val heartRateAdditional = HeartRateAdditional(
-//                    System.currentTimeMillis() / 1000,
-//                    rate,
-//                    height,
-//                    weight,
-//                    sex,
-//                    yearOld
-//                )
-//                oxygen = heartRateAdditional.get_blood_oxygen()
-//                contentInfo.append("实时血氧值：$oxygen\n")
-//                if (status == GlobalValue.RATE_TEST_FINISH) {
-//                    contentInfo.append(
-//                        """
-//                            测量血氧结束
-//
-//                            """.trimIndent()
-//                    )
-//                    isTestingOxygen = false
-//                }
-//            } else if (isTestingBp) {
-//                val heartRateAdditional = HeartRateAdditional(
-//                    System.currentTimeMillis() / 1000,
-//                    rate,
-//                    height,
-//                    weight,
-//                    sex,
-//                    yearOld
-//                )
-//                bloodPressure = BloodPressure()
-//                bloodPressure.systolicPressure = heartRateAdditional.get_systolic_blood_pressure()
-//                bloodPressure.diastolicPressure = heartRateAdditional.get_diastolic_blood_pressure()
-//                contentInfo.append(
-//                    """
-//                        实时血压值：${bloodPressure.getDiastolicPressure()}/${bloodPressure.getSystolicPressure()}
-//
-//                        """.trimIndent()
-//                )
-//                if (status == GlobalValue.RATE_TEST_FINISH) {
-//                    isTestingBp = false
-//                }
-//            }
+            else if (WatchDevice.isTestingOxygen) {
+                val userInfo = DataSync.getUserInfo()
+                if(userInfo != null) {
+                    userInfo?.let { userProfile ->
+                        val heartRateAdditional = HeartRateAdditional(
+                                System.currentTimeMillis() / 1000,
+                                rate,
+                                userProfile.heightInCm,
+                                userProfile.weightInKgs.toInt(),
+                                if (userInfo?.sex?.toLowerCase() == "female") GlobalValue.SEX_GIRL else GlobalValue.SEX_BOY,
+                                userProfile.age
+                        )
+                        val oxygen = heartRateAdditional.get_blood_oxygen()
+                        if (status == GlobalValue.RATE_TEST_FINISH || status == GlobalValue.RATE_TEST_INTERRUPT) {
+                            WatchDevice.isTestingOxygen = false
+                            HardSdk.getInstance().stopOxygenMeasure(oxygen)
+                            WatchDevice.eventSink?.let {
+                                val oxygenUpload = OxygenLevelUpload(measureTime = Calendar.getInstance().time,deviceId = MainActivity.deviceId,oxygenLevel = oxygen,userProfile = userProfile)
+                                DataSync.uploadOxygenData(listOf(oxygenUpload))
+                                it.success(Gson().toJson(mapOf("oxygenLevel" to oxygen, "countDown" to status)))
+                                it.endOfStream()
+                            }
+                        }else{
+                            Log.d(WatchDevice.TAG,"oxygen status $status rate $rate")
+                            WatchDevice.eventSink?.let {
+                                it.success(Gson().toJson(mapOf("oxygenLevel" to oxygen, "countDown" to status)))
+                            }
+                        }
+                    }
+                }else{
+                    WatchDevice.isTestingOxygen = false
+                    HardSdk.getInstance().stopOxygenMeasure(0)
+                    WatchDevice.eventSink?.let {
+                        it.success(Gson().toJson(mapOf("oxygenLevel" to 0, "countDown" to 0)))
+                        it.endOfStream()
+                    }
+                }
+
+            }
+          else if (WatchDevice.isTestingBp) {
+            val userInfo = DataSync.getUserInfo()
+            if(userInfo != null) {
+                val heartRateAdditional = HeartRateAdditional(
+                        System.currentTimeMillis() / 1000,
+                        rate,
+                        userInfo.heightInCm,
+                        userInfo.weightInKgs.toInt(),
+                        if (userInfo.sex.toLowerCase() == "female") GlobalValue.SEX_GIRL else GlobalValue.SEX_BOY,
+                        userInfo.age
+                )
+                val bloodPressure = BloodPressure()
+                bloodPressure.systolicPressure = heartRateAdditional.get_systolic_blood_pressure()
+                bloodPressure.diastolicPressure = heartRateAdditional.get_diastolic_blood_pressure()
+                if (status == GlobalValue.RATE_TEST_FINISH || status == GlobalValue.RATE_TEST_INTERRUPT) {
+                    val bpUpload = BpUpload(measureTime = Calendar.getInstance().time,systolic = bloodPressure.systolicPressure,
+                            distolic = bloodPressure.systolicPressure,userProfile = userInfo,deviceId = MainActivity.deviceId)
+                    DataSync.uploadBloodPressure(listOf(bpUpload))
+                    WatchDevice.isTestingBp = false
+                    HardSdk.getInstance().stopBpMeasure(bloodPressure)
+                    WatchDevice.eventSink?.let {
+                        it.success(Gson().toJson(mapOf("systolic" to bpUpload.systolic, "diastolic" to bpUpload.distolic, "countDown" to 0)))
+                        it.endOfStream()
+                    }
+                }else{
+                    Log.d(WatchDevice.TAG,"Bp status $status rate $rate")
+                    WatchDevice.eventSink?.let {
+                        it.success(Gson().toJson(mapOf("systolic" to bloodPressure.systolicPressure, "diastolic" to bloodPressure.diastolicPressure, "countDown" to 0)))
+                    }
+                }
+            }else{
+                WatchDevice.isTestingBp = false
+                HardSdk.getInstance().stopBpMeasure(BloodPressure().apply {
+                    diastolicPressure = 0
+                    systolicPressure = 0
+                })
+                WatchDevice.eventSink?.let {
+                    it.success(Gson().toJson(mapOf("systolic" to 0,"diastolic" to 0, "countDown" to 0)))
+                    it.endOfStream()
+                }
+            }
+
+        }
     }
 }
 
@@ -433,6 +485,8 @@ class WatchDevice:BaseDevice()     {
 
     companion object {
         var isTestingHeart = false
+        var isTestingBp = false
+        var isTestingOxygen = false
         val TAG = WatchDevice::class.java.simpleName
         var dataCallback: DataCallBack? = null
         var eventSink:EventChannel.EventSink? = null
@@ -499,6 +553,33 @@ class WatchDevice:BaseDevice()     {
                 } else {
                     eventSink.endOfStream()
                 }
+            }
+            "HR" -> {
+                if(HardSdk.getInstance().isDevConnected){
+                    WatchDevice.eventSink = eventSink
+                    isTestingHeart = true
+                    Log.d(TAG,"Reading Heart rate")
+                    HardSdk.getInstance().startRateTest()
+                }else
+                    eventSink.endOfStream()
+            }
+            "BP" -> {
+                if(HardSdk.getInstance().isDevConnected){
+                    WatchDevice.eventSink = eventSink
+                    isTestingBp = true
+                    Log.d(TAG,"Reading BP rate")
+                    HardSdk.getInstance().startRateTest()
+                }else
+                    eventSink.endOfStream()
+            }
+            "O2" -> {
+                if(HardSdk.getInstance().isDevConnected){
+                    WatchDevice.eventSink = eventSink
+                    isTestingOxygen = true
+                    Log.d(TAG,"Reading Oxygen rate")
+                    HardSdk.getInstance().startRateTest()
+                }else
+                    eventSink.endOfStream()
             }
             else -> eventSink.endOfStream()
         }
