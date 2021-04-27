@@ -279,7 +279,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                                                 ? _tracker6()
                                                 : Container(),
                       ),
-                      physics: NeverScrollableScrollPhysics(),
+                      // physics: NeverScrollableScrollPhysics(),
                     ),
                   ),
                   Container(
