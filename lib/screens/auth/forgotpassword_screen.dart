@@ -268,7 +268,11 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           color: Theme.of(context).primaryColor,
           textColor: Colors.white,
           child: Text(
-            'Send Otp',
+            'Get One Time Passcode',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15.0,
+            ),
           ),
           onPressed: () => _saveForm(),
         ),
