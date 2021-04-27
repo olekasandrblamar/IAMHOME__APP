@@ -400,639 +400,284 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              // spreadRadius: 5,
-              blurRadius: 5,
-              offset: Offset(0, 3), // changes position of shadow
-            ),
-          ],
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFFFFFFF), Color(0xFFDBFBFF)],
-          ),
-        ),
+        decoration: _cardDecoration(),
         child: Column(
           children: [
-            Container(
-              margin: EdgeInsets.only(
-                top: 30,
-                bottom: 10,
-              ),
-              child: Text(
-                'Temperature',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(16),
-              child: SvgPicture.asset(
-                'assets/trackers/temperature.svg',
-                height: 150,
-              ),
-            ),
+            ..._buildTrackerHeader('Temperature', 'temperature'),
             _lastTemperature != null
-                ? Container(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        // Expanded(
-                        //   flex: 6,
-                        // child: FittedBox(
-                        // child:
-                        RichText(
-                          text: TextSpan(children: [
-                            TextSpan(
-                              text: (_lastTemperature != null
-                                  ? _lastTemperature.fahrenheit
-                                      .toStringAsFixed(1)
-                                  : '0'),
-                              style: TextStyle(
-                                fontSize: 50,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            WidgetSpan(
-                              child: Transform.translate(
-                                offset: const Offset(10, 0),
-                                child: Text(
-                                  '°',
-                                  //superscript is usually smaller in size
-                                  textScaleFactor: 3,
-                                  style: TextStyle(color: Colors.black),
-                                ),
-                              ),
-                            ),
-                            TextSpan(
-                              text: ' F',
-                              style: TextStyle(
-                                fontSize: 30,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ]),
-                          // ),
-                          // ),
-                        ),
-                      ],
-                    ),
-                  )
+                ? _loadTemperatureData()
                 : CircularProgressIndicator(),
-            Container(
-              child: FittedBox(
-                child: Text(
-                  _lastTemperature != null
-                      ? 'Last Updated: ' +
-                          _formatDate(_lastTemperature.measureTime) +
-                          ' ' +
-                          _formatTime(_lastTemperature.measureTime)
-                      : '--',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: 250,
-              height: 100,
-              padding: EdgeInsets.all(15),
-              child: FlatButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  side: BorderSide(color: Colors.grey),
-                ),
-                color: Colors.transparent,
-                // textColor: Colors.white,
-                onPressed: () {
-                  return _readDataFromDevice('TEMPERATURE');
-                },
-                child: Text(
-                  'Get latest data',
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> _loadTemperatureData() {
+    return [
+      Container(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            // Expanded(
+            //   flex: 6,
+            // child: FittedBox(
+            // child:
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                  text: (_lastTemperature != null
+                      ? _lastTemperature.fahrenheit.toStringAsFixed(1)
+                      : '0'),
+                  style: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                WidgetSpan(
+                  child: Transform.translate(
+                    offset: const Offset(10, 0),
+                    child: Text(
+                      '°',
+                      //superscript is usually smaller in size
+                      textScaleFactor: 3,
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
+                ),
+                TextSpan(
+                  text: ' F',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+              ]),
+              // ),
+              // ),
+            ),
+          ],
+        ),
+      ),
+      _buildLastUpdatedTime(_lastTemperature.measureTime),
+      const SizedBox(height: 10),
+      _buildLatestDataButton('TEMPERATURE')
+    ];
   }
 
   Widget _tracker2() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              // spreadRadius: 5,
-              blurRadius: 5,
-              offset: Offset(0, 3), // changes position of shadow
-            ),
-          ],
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFFFFFFF), Color(0xFFDBFBFF)],
-          ),
-        ),
+        decoration: _cardDecoration(),
         child: Column(
           children: [
-            Container(
-              margin: EdgeInsets.only(
-                top: 30,
-                bottom: 10,
-              ),
-              child: Text(
-                'Heart Rate',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(16),
-              child: SvgPicture.asset(
-                'assets/trackers/hr.svg',
-                height: 150,
-              ),
-            ),
-            _lastHr != null
-                ? Container(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        // Expanded(
-                        //   flex: 6,
-                        //   child: FittedBox(
-                        //     child:
-                        RichText(
-                          text: TextSpan(children: [
-                            TextSpan(
-                              text: _lastHr != null
-                                  ? _lastHr.heartRate.toString()
-                                  : '0',
-                              style: TextStyle(
-                                fontSize: 50,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            WidgetSpan(
-                              child: Transform.translate(
-                                offset: const Offset(2, 2),
-                                child: Text(
-                                  ' bpm',
-                                  //superscript is usually smaller in size
-                                  textScaleFactor: 2,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ]),
-                        ),
-                        //   ),
-                        // ),
-                      ],
-                    ),
-                  )
-                : CircularProgressIndicator(),
-            Container(
-              child: FittedBox(
-                child: Text(
-                  _lastHr != null
-                      ? 'Last Updated: ' +
-                          _formatDate(_lastHr.measureTime) +
-                          ' ' +
-                          _formatTime(_lastHr.measureTime)
-                      : '--',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: 250,
-              height: 100,
-              padding: EdgeInsets.all(15),
-              child: FlatButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  side: BorderSide(color: Colors.grey),
-                ),
-                color: Colors.transparent,
-                // textColor: Colors.white,
-                onPressed: () {
-                  return _readDataFromDevice('HR');
-                },
-                child: Text(
-                  'Get latest data',
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-            ),
+            ..._buildTrackerHeader('Heart Rate', 'hr'),
+            _lastHr != null ? _loadHrData() : CircularProgressIndicator(),
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> _loadHrData() {
+    return [
+      Container(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            // Expanded(
+            //   flex: 6,
+            //   child: FittedBox(
+            //     child:
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                  text: _lastHr != null ? _lastHr.heartRate.toString() : '0',
+                  style: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                WidgetSpan(
+                  child: Transform.translate(
+                    offset: const Offset(2, 2),
+                    child: Text(
+                      ' bpm',
+                      //superscript is usually smaller in size
+                      textScaleFactor: 2,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
+            ),
+            //   ),
+            // ),
+          ],
+        ),
+      ),
+      _buildLastUpdatedTime(_lastHr.measureTime),
+      const SizedBox(height: 10),
+      _buildLatestDataButton('HR')
+    ];
   }
 
   Widget _tracker3() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              // spreadRadius: 5,
-              blurRadius: 5,
-              offset: Offset(0, 3), // changes position of shadow
-            ),
-          ],
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFFFFFFF), Color(0xFFDBFBFF)],
-          ),
-        ),
+        decoration: _cardDecoration(),
         child: Column(
           children: [
-            Container(
-              margin: EdgeInsets.only(
-                top: 30,
-                bottom: 10,
-              ),
-              child: Text(
-                'Blood Pressure',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(16),
-              child: SvgPicture.asset(
-                'assets/trackers/bp.svg',
-                height: 150,
-              ),
-            ),
+            ..._buildTrackerHeader('Blood Pressure', 'bp'),
             _bloodPressure != null
-                ? Container(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        // Expanded(
-                        //   flex: 6,
-                        //   child: FittedBox(
-                        //     child:
-                        RichText(
-                          text: TextSpan(children: [
-                            TextSpan(
-                              text: _bloodPressure != null
-                                  ? _bloodPressure.systolic.toString() +
-                                      '/' +
-                                      _bloodPressure.distolic.toString()
-                                  : '0/0',
-                              style: TextStyle(
-                                fontSize: 50,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            WidgetSpan(
-                              child: Transform.translate(
-                                offset: const Offset(2, 2),
-                                child: Text(
-                                  ' mmHg',
-                                  //superscript is usually smaller in size
-                                  textScaleFactor: 2,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ]),
-                        ),
-                        //   ),
-                        // ),
-                      ],
-                    ),
-                  )
+                ? _loadBpData()
                 : CircularProgressIndicator(),
-            Container(
-              child: FittedBox(
-                child: Text(
-                  _bloodPressure != null
-                      ? 'Last Updated: ' +
-                          _formatDate(_bloodPressure.measureTime) +
-                          ' ' +
-                          _formatTime(_bloodPressure.measureTime)
-                      : '--',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: 250,
-              height: 100,
-              padding: EdgeInsets.all(15),
-              child: FlatButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  side: BorderSide(color: Colors.grey),
-                ),
-                color: Colors.transparent,
-                // textColor: Colors.white,
-                onPressed: () {
-                  return _readDataFromDevice('BP');
-                },
-                child: Text(
-                  'Get latest data',
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
     );
+  }
+
+  List<Widget> _loadBpData() {
+    return [
+      Container(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            // Expanded(
+            //   flex: 6,
+            //   child: FittedBox(
+            //     child:
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                  text: _bloodPressure != null
+                      ? _bloodPressure.systolic.toString() +
+                          '/' +
+                          _bloodPressure.distolic.toString()
+                      : '0/0',
+                  style: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                WidgetSpan(
+                  child: Transform.translate(
+                    offset: const Offset(2, 2),
+                    child: Text(
+                      ' mmHg',
+                      //superscript is usually smaller in size
+                      textScaleFactor: 2,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
+            ),
+            //   ),
+            // ),
+          ],
+        ),
+      ),
+      _buildLastUpdatedTime(_bloodPressure.measureTime),
+      const SizedBox(height: 10),
+      _buildLatestDataButton('BP')
+    ];
   }
 
   Widget _tracker4() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              // spreadRadius: 5,
-              blurRadius: 5,
-              offset: Offset(0, 3), // changes position of shadow
-            ),
-          ],
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFFFFFFF), Color(0xFFDBFBFF)],
-          ),
-        ),
+        decoration: _cardDecoration(),
         child: Column(
           children: [
-            Container(
-              margin: EdgeInsets.only(
-                top: 30,
-                bottom: 10,
-              ),
-              child: Text(
-                'Oxygen Level',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(16),
-              child: SvgPicture.asset(
-                'assets/trackers/o2.svg',
-                height: 150,
-              ),
-            ),
+            ..._buildTrackerHeader('Oxygen Level', 'o2'),
             _oxygenLevel != null
-                ? Container(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        // Expanded(
-                        //   flex: 6,
-                        //   child: FittedBox(
-                        //     child:
-                        RichText(
-                          text: TextSpan(children: [
-                            TextSpan(
-                              text: _oxygenLevel != null
-                                  ? _oxygenLevel.oxygenLevel.toString()
-                                  : '0',
-                              style: TextStyle(
-                                fontSize: 50,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.black,
-                              ),
-                            ),
-                            WidgetSpan(
-                              child: Transform.translate(
-                                offset: const Offset(2, 2),
-                                child: Text(
-                                  ' %',
-                                  //superscript is usually smaller in size
-                                  textScaleFactor: 2,
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ]),
-                        ),
-                        //   ),
-                        // ),
-                      ],
-                    ),
-                  )
+                ? _loadOxygenData()
                 : CircularProgressIndicator(),
-            Container(
-              child: FittedBox(
-                child: Text(
-                  _oxygenLevel != null
-                      ? 'Last Updated: ' +
-                          _formatDate(_oxygenLevel.measureTime) +
-                          ' ' +
-                          _formatTime(_oxygenLevel.measureTime)
-                      : '--',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            Container(
-              width: 250,
-              height: 100,
-              padding: EdgeInsets.all(15),
-              child: FlatButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5),
-                  side: BorderSide(color: Colors.grey),
-                ),
-                color: Colors.transparent,
-                // textColor: Colors.white,
-                onPressed: () {
-                  return _readDataFromDevice('O2');
-                },
-                child: Text(
-                  'Get latest data',
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
-              ),
-            ),
           ],
         ),
       ),
     );
   }
 
+  List<Widget> _loadOxygenData() {
+    return [
+      Container(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            // Expanded(
+            //   flex: 6,
+            //   child: FittedBox(
+            //     child:
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                  text: _oxygenLevel != null
+                      ? _oxygenLevel.oxygenLevel.toString()
+                      : '0',
+                  style: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                WidgetSpan(
+                  child: Transform.translate(
+                    offset: const Offset(2, 2),
+                    child: Text(
+                      ' %',
+                      //superscript is usually smaller in size
+                      textScaleFactor: 2,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
+            ),
+            //   ),
+            // ),
+          ],
+        ),
+      ),
+      _buildLastUpdatedTime(_oxygenLevel.measureTime),
+      const SizedBox(height: 10),
+      _buildLatestDataButton('O2')
+    ];
+  }
+
   Widget _tracker5() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              // spreadRadius: 5,
-              blurRadius: 5,
-              offset: Offset(0, 3), // changes position of shadow
-            ),
-          ],
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFFFFFFF), Color(0xFFDBFBFF)],
-          ),
-        ),
+        decoration: _cardDecoration(),
         child: Column(
           children: [
-            Container(
-              margin: EdgeInsets.only(
-                top: 30,
-                bottom: 10,
-              ),
-              child: Text(
-                'Calories',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(16),
-              child: SvgPicture.asset(
-                'assets/trackers/calories.svg',
-                height: 150,
-              ),
-            ),
+            ..._buildTrackerHeader('Calories', 'calories'),
             _lastCalories != null
-                ? Container(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: <Widget>[
-                        // Expanded(
-                        //   flex: 6,
-                        //   child: FittedBox(
-                        //     child:
-                        RichText(
-                          text: TextSpan(
-                            children: [
-                              TextSpan(
-                                text: _lastCalories != null
-                                    ? _lastCalories.calories.toString()
-                                    : '0',
-                                style: TextStyle(
-                                  fontSize: 50,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.black,
-                                ),
-                              ),
-                              WidgetSpan(
-                                child: Transform.translate(
-                                  offset: const Offset(2, 2),
-                                  child: Text(
-                                    ' Cals',
-                                    //superscript is usually smaller in size
-                                    textScaleFactor: 2,
-                                    style: TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                          //   ),
-                          // ),
-                        ),
-                      ],
-                    ),
-                  )
+                ? _buildCaloriesData()
                 : CircularProgressIndicator(),
-            Container(
-              child: FittedBox(
-                child: Text(
-                  _lastCalories != null
-                      ? 'Last Updated: ' +
-                          _formatDate(_lastCalories.measureTime) +
-                          ' ' +
-                          _formatTime(_lastCalories.measureTime)
-                      : '--',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
             // _buildLatestDataButton('Calories')
           ],
         ),
@@ -1040,109 +685,159 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     );
   }
 
+  List<Widget> _buildCaloriesData() {
+    return [
+      Container(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            // Expanded(
+            //   flex: 6,
+            //   child: FittedBox(
+            //     child:
+            RichText(
+              text: TextSpan(
+                children: [
+                  TextSpan(
+                    text: _lastCalories != null
+                        ? _lastCalories.calories.toString()
+                        : '0',
+                    style: TextStyle(
+                      fontSize: 50,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.black,
+                    ),
+                  ),
+                  WidgetSpan(
+                    child: Transform.translate(
+                      offset: const Offset(2, 2),
+                      child: Text(
+                        ' Cals',
+                        //superscript is usually smaller in size
+                        textScaleFactor: 2,
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              //   ),
+              // ),
+            ),
+          ],
+        ),
+      ),
+      _buildLastUpdatedTime(_lastCalories.measureTime),
+      const SizedBox(height: 10),
+    ];
+  }
+
   Widget _tracker6() {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.all(Radius.circular(20)),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.grey.withOpacity(0.5),
-              // spreadRadius: 5,
-              blurRadius: 5,
-              offset: Offset(0, 3), // changes position of shadow
-            ),
-          ],
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [Color(0xFFFFFFFF), Color(0xFFDBFBFF)],
-          ),
-        ),
+        decoration: _cardDecoration(),
         child: Column(
           children: [
-            Container(
-              margin: EdgeInsets.only(
-                top: 30,
-                bottom: 10,
-              ),
-              child: Text(
-                'Steps',
-                style: TextStyle(
-                  fontSize: 26,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(16),
-              child: SvgPicture.asset(
-                'assets/trackers/steps.svg',
-                height: 150,
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.all(16),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  // Expanded(
-                  //   flex: 6,
-                  //   child: FittedBox(
-                  //     child:
-                  RichText(
-                    text: TextSpan(children: [
-                      TextSpan(
-                        text: (_lastSteps != null
-                            ? _lastSteps.steps.toString()
-                            : '0'),
-                        style: TextStyle(
-                          fontSize: 50,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black,
-                        ),
-                      ),
-                      WidgetSpan(
-                        child: Transform.translate(
-                          offset: const Offset(2, 2),
-                          child: Text(
-                            ' Steps',
-                            //superscript is usually smaller in size
-                            textScaleFactor: 2,
-                            style: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ]),
-                    //   ),
-                    // ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              child: FittedBox(
-                child: Text(
-                  _lastSteps != null
-                      ? 'Last Updated: ' +
-                          _formatDate(_lastSteps.measureTime) +
-                          ' ' +
-                          _formatTime(_lastSteps.measureTime)
-                      : '--',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 10),
-            // _buildLatestDataButton('steps')
+            ..._buildTrackerHeader('Steps', 'steps'),
+            _lastSteps != null
+                ? _buildStepsData()
+                : CircularProgressIndicator(),
           ],
+        ),
+      ),
+    );
+  }
+
+  List<Widget> _buildStepsData() {
+    return [
+      Container(
+        padding: EdgeInsets.all(16),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            // Expanded(
+            //   flex: 6,
+            //   child: FittedBox(
+            //     child:
+            RichText(
+              text: TextSpan(children: [
+                TextSpan(
+                  text:
+                      (_lastSteps != null ? _lastSteps.steps.toString() : '0'),
+                  style: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
+                ),
+                WidgetSpan(
+                  child: Transform.translate(
+                    offset: const Offset(2, 2),
+                    child: Text(
+                      ' Steps',
+                      //superscript is usually smaller in size
+                      textScaleFactor: 2,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ]),
+              //   ),
+              // ),
+            ),
+          ],
+        ),
+      ),
+      _buildLastUpdatedTime(_lastSteps.measureTime),
+      const SizedBox(height: 10),
+      // _buildLatestDataButton('steps')
+    ];
+  }
+
+  List<Widget> _buildTrackerHeader(title, image) {
+    return [
+      Container(
+        margin: EdgeInsets.only(
+          top: 30,
+          bottom: 10,
+        ),
+        child: Text(
+          title,
+          style: TextStyle(
+            fontSize: 26,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      Container(
+        padding: EdgeInsets.all(16),
+        child: SvgPicture.asset(
+          'assets/trackers/' + image + '.svg',
+          height: 150,
+        ),
+      ),
+    ];
+  }
+
+  Widget _buildLastUpdatedTime(time) {
+    return Container(
+      child: FittedBox(
+        child: Text(
+          _lastSteps != null
+              ? 'Last Updated: ' + _formatDate(time) + ' ' + _formatTime(time)
+              : '--',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.bold,
+          ),
         ),
       ),
     );
@@ -1194,6 +889,25 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       //     ),
       //   ),
       // ),
+    );
+  }
+
+  BoxDecoration _cardDecoration() {
+    return BoxDecoration(
+      borderRadius: BorderRadius.all(Radius.circular(20)),
+      boxShadow: [
+        BoxShadow(
+          color: Colors.grey.withOpacity(0.5),
+          // spreadRadius: 5,
+          blurRadius: 5,
+          offset: Offset(0, 3), // changes position of shadow
+        ),
+      ],
+      gradient: LinearGradient(
+        begin: Alignment.topCenter,
+        end: Alignment.bottomCenter,
+        colors: [Color(0xFFFFFFFF), Color(0xFFDBFBFF)],
+      ),
     );
   }
 }
