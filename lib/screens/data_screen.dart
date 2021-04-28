@@ -24,6 +24,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   int _currentPage = 0;
   var trackers = [1, 2, 3, 4, 5, 6];
 
+  bool canScroll;
+
   final PageController _pageController = PageController(
     initialPage: 0,
     // viewportFraction: 0.8,
@@ -140,6 +142,9 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   }
 
   void _readDataFromDevice(String dataType) async {
+    setState(() {
+      canScroll = false;
+    });
     print('Loading data type $dataType');
     var deviceList = await Provider.of<DevicesProvider>(context, listen: false)
         .getDevicesData();
@@ -245,8 +250,14 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       }
     }, onError: (dynamic error) {
       print('Got error $error for data type $dataType');
+      setState(() {
+        canScroll = true;
+      });
     }, onDone: () {
       print('completed for $dataType');
+      setState(() {
+        canScroll = true;
+      });
     }, cancelOnError: true);
   }
 
@@ -365,7 +376,9 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                                           ? _tracker6()
                                           : Container(),
                 ),
-                // physics: NeverScrollableScrollPhysics(),
+                physics: canScroll
+                    ? ScrollPhysics()
+                    : NeverScrollableScrollPhysics(),
               ),
             ),
             SizedBox(
@@ -840,28 +853,32 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   }
 
   Widget _buildLatestDataButton(type) {
-    return Container(
-      width: 250,
-      height: 100,
-      padding: EdgeInsets.all(15),
-      child: FlatButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(5),
-          // side: BorderSide(color: Colors.grey),
-        ),
-        color: Theme.of(context).primaryColor,
-        textColor: Colors.white,
-        onPressed: () {
-          return _readDataFromDevice(type);
-        },
-        child: Text(
-          'Get latest data',
-          style: TextStyle(
-            fontSize: 20,
-          ),
-        ),
-      ),
-    );
+    return !canScroll
+        ? Container(
+            height: 0,
+          )
+        : Container(
+            width: 250,
+            height: 100,
+            padding: EdgeInsets.all(15),
+            child: FlatButton(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(5),
+                // side: BorderSide(color: Colors.grey),
+              ),
+              color: Theme.of(context).primaryColor,
+              textColor: Colors.white,
+              onPressed: () {
+                return _readDataFromDevice(type);
+              },
+              child: Text(
+                'Get latest data',
+                style: TextStyle(
+                  fontSize: 20,
+                ),
+              ),
+            ),
+          );
   }
 
   Widget _buildSlideDots(BuildContext context, bool isActive, int index) {
