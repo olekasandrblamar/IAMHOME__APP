@@ -24,7 +24,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   int _currentPage = 0;
   var trackers = [1, 2, 3, 4, 5, 6];
 
-  bool canScroll;
+  bool canScroll = true;
 
   final PageController _pageController = PageController(
     initialPage: 0,
@@ -431,7 +431,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           children: [
             ..._buildTrackerHeader('Temperature', 'temperature'),
             if (_lastTemperature != null) ..._loadTemperatureData(),
-            if (_lastTemperature == null) CircularProgressIndicator(),
+            if (_lastTemperature == null) _loadCircularIndicator('Loading Temperature'),
           ],
         ),
       ),
@@ -502,10 +502,21 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           children: [
             ..._buildTrackerHeader('Heart Rate', 'hr'),
             if (_lastHr != null) ..._loadHrData(),
-            if (_lastHr == null) CircularProgressIndicator(),
+            if (_lastHr == null) _loadCircularIndicator('Heart Rate'),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _loadCircularIndicator(String text){
+    return Column(
+      children: [
+        SizedBox(height: 10),
+        CircularProgressIndicator(),
+        SizedBox(height: 20),
+        Text('Loading '+text, style: TextStyle(fontSize: 20,color: Colors.black))
+      ],
     );
   }
 
@@ -566,7 +577,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           children: [
             ..._buildTrackerHeader('Blood Pressure', 'bp'),
             if (_bloodPressure != null) ..._loadBpData(),
-            if (_bloodPressure == null) CircularProgressIndicator(),
+            if (_bloodPressure == null) _loadCircularIndicator('Blood Pressure'),
           ],
         ),
       ),
@@ -621,7 +632,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       ),
       _buildLastUpdatedTime(_bloodPressure.measureTime),
       const SizedBox(height: 10),
-      _buildLatestDataButton('BP')
+      //_buildLatestDataButton('BP')
     ];
   }
 
@@ -634,7 +645,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           children: [
             ..._buildTrackerHeader('Oxygen Level', 'o2'),
             if (_oxygenLevel != null) ..._loadOxygenData(),
-            if (_oxygenLevel == null) CircularProgressIndicator(),
+            if (_oxygenLevel == null) _loadCircularIndicator('Oxygen Level'),
           ],
         ),
       ),
@@ -867,9 +878,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
   Widget _buildLatestDataButton(type) {
     return !canScroll
-        ? Container(
-            height: 0,
-          )
+        ? _loadCircularIndicator(type)
         : Container(
             width: 250,
             height: 100,
