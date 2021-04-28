@@ -47,6 +47,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
   bool _paused = false;
 
+  Map<String, bool> processingMap = {};
+
   final eventChannel = EventChannel("ceras.iamhome.mobile/device_events");
 
   @override
@@ -146,6 +148,11 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       canScroll = false;
     });
     print('Loading data type $dataType');
+    var _processingMap = processingMap;
+    _processingMap[dataType] = true;
+    setState(() {
+      processingMap = _processingMap;
+    });
     var deviceList = await Provider.of<DevicesProvider>(context, listen: false)
         .getDevicesData();
     var device = deviceList[0];
@@ -249,14 +256,20 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           break;
       }
     }, onError: (dynamic error) {
-      print('Got error $error for data type $dataType');
+      var _processingMap = processingMap;
+      _processingMap[dataType] = false;
       setState(() {
+        processingMap = _processingMap;
         canScroll = true;
       });
+      print('Got error $error for data type $dataType');
     }, onDone: () {
       print('completed for $dataType');
+      var _processingMap = processingMap;
+      _processingMap[dataType] = false;
       setState(() {
         canScroll = true;
+        processingMap = _processingMap;
       });
     }, cancelOnError: true);
   }
