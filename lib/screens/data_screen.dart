@@ -502,7 +502,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-      _buildLatestDataButton('TEMPERATURE'),
+      _buildLatestDataButton('TEMPERATURE','TEMPERATURE'),
       const SizedBox(height: 10),
       _buildLastUpdatedTime(_lastTemperature.measureTime),
     ];
@@ -555,7 +555,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         countdownCurrentColor: Colors.blue,
         countdownRemainingColor: Colors.blue,
         strokeWidth: 10,
-        gapFactor: 6,
+        gapFactor: 2,
       textStyle: TextStyle(
         fontSize: 50,
         fontWeight: FontWeight.bold,
@@ -620,7 +620,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-      _buildLatestDataButton('Heart Rate'),
+      _buildLatestDataButton('HR','Heart Rate'),
       const SizedBox(height: 10),
       _buildLastUpdatedTime(_lastHr.measureTime),
     ];
@@ -754,7 +754,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-      _buildLatestDataButton('Oxygen Saturation'),
+      _buildLatestDataButton('O2','Oxygen Saturation'),
       const SizedBox(height: 10),
       _buildLastUpdatedTime(_oxygenLevel.measureTime)
 
@@ -936,9 +936,9 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     );
   }
 
-  Widget _buildLatestDataButton(type) {
+  Widget _buildLatestDataButton(type,displayName) {
     return !canScroll
-        ? _loadCircularIndicator(type)
+        ? _loadCircularIndicator(displayName)
         : Container(
       width: 270,
       height: 80,

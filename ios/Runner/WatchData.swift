@@ -150,10 +150,12 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 eventSink?(returnDataValue)
                 if(seconds == 0){
                     eventSink?(FlutterEndOfEventStream)
+                    eventSink = nil
                 }
             }catch{
                 let returnData = "{\"error\":\"true\"}"
                 eventSink?(returnData)
+                eventSink = nil
             }
         }else if(option == HardGettingOption.measuring){
             let tempData = values as! [String:String]
@@ -207,6 +209,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             }catch{
                 let returnData = "{\"error\":\"true\"}"
                 eventSink?(returnData)
+                eventSink = nil
             }
             
         }else if(option == HardGettingOption.measurementEnd){
@@ -218,12 +221,15 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 case HardMeasureType.heartRate:
                     readingHr = false
                     eventSink?(FlutterEndOfEventStream)
+                    eventSink = nil
                 case HardMeasureType.bloodOxygen:
                     readingo2 = false
                     eventSink?(FlutterEndOfEventStream)
+                    eventSink = nil
                 case HardMeasureType.bloodPressure:
                     readingBp = false
                     eventSink?(FlutterEndOfEventStream)
+                    eventSink = nil
                 default:
                     NSLog("type not found")
                 
@@ -575,6 +581,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 events(FlutterEndOfEventStream)
             }
         }else{
+            NSLog("Device is not conected")
             events(FlutterEndOfEventStream)
         }
     }
