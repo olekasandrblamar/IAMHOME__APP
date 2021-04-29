@@ -3,6 +3,7 @@ import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/trackers/tracker_data_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
+import 'package:circular_countdown/circular_countdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -42,6 +43,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   DailySteps _lastSteps;
 
   OxygenLevel _oxygenLevel;
+
+  TimeCircularCountdown _currentCountDown;
 
   HeartRate _lastHr;
 
@@ -262,6 +265,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         processingMap = _processingMap;
         canScroll = true;
       });
+      _currentCountDown = null;
       print('Got error $error for data type $dataType');
     }, onDone: () {
       print('completed for $dataType');
@@ -269,6 +273,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       _processingMap[dataType] = false;
       setState(() {
         canScroll = true;
+        _currentCountDown = null;
         processingMap = _processingMap;
       });
     }, cancelOnError: true);
@@ -397,19 +402,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
             SizedBox(
               height: 25,
             ),
-            Container(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  for (int i = 0; i < trackers.length; i++)
-                    if (i == _currentPage)
-                      _buildSlideDots(context, true, i)
-                    else
-                      _buildSlideDots(context, false, i)
-                ],
-              ),
-            ),
+            _populateDots(),
             SizedBox(
               height: 150,
             ),
@@ -423,6 +416,27 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     return EdgeInsets.symmetric(horizontal: 40, vertical: 5);
   }
 
+  Widget _populateDots(){
+    if(canScroll) {
+      return Container(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            for (int i = 0; i < trackers.length; i++)
+              if (i == _currentPage)
+                _buildSlideDots(context, true, i)
+              else
+                _buildSlideDots(context, false, i)
+          ],
+        ),
+      );
+    }
+    else {
+      return SizedBox(height:25);
+    }
+  }
+
   Widget _tracker1() {
     return Container(
       padding: _trackerPadding(),
@@ -430,9 +444,9 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         decoration: _cardDecoration(),
         child: Column(
           children: [
-            ..._buildTrackerHeader('Temperature', 'temperature'),
+            if(_lastTemperature !=null)..._buildTrackerHeader('Temperature', 'temperature'),
             if (_lastTemperature != null) ..._loadTemperatureData(),
-            if (_lastTemperature == null) _loadCircularIndicator('Temperature'),
+            if (_lastTemperature == null) _loadCountDownTimer(70, 'Temperature'),
           ],
         ),
       ),
@@ -501,9 +515,9 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         decoration: _cardDecoration(),
         child: Column(
           children: [
-            ..._buildTrackerHeader('Heart Rate', 'hr'),
+            if(_lastHr !=null) ..._buildTrackerHeader('Heart Rate', 'hr'),
             if (_lastHr != null) ..._loadHrData(),
-            if (_lastHr == null) _loadCircularIndicator('Heart Rate'),
+            if (_lastHr == null) _loadCountDownTimer(45, 'Heart Rate'),
           ],
         ),
       ),
@@ -516,8 +530,51 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         SizedBox(height: 10),
         CircularProgressIndicator(),
         SizedBox(height: 20),
-        Text('Loading '+text, style: TextStyle(fontSize: 20,color: Colors.black))
+        Text('Reading '+text, style: TextStyle(fontSize: 20,color: Colors.black))
       ],
+    );
+  }
+
+  Widget _loadCountDownTimer(int seconds, String type){
+    _currentCountDown = TimeCircularCountdown(
+        unit: CountdownUnit.second,
+        countdownTotal: seconds,
+        onUpdated: (unit, remainingTime) => print('Updated'),
+        onFinished: (){
+          if(_currentCountDown!=null) {
+            setState(() {
+              canScroll = false;
+            });
+          }
+        },
+        onCanceled: (CountdownUnit unit,int remaining){
+
+        },
+        diameter: 200,
+        countdownTotalColor: Colors.white,
+        countdownCurrentColor: Colors.blue,
+        countdownRemainingColor: Colors.blue,
+        strokeWidth: 10,
+        gapFactor: 6,
+      textStyle: TextStyle(
+        fontSize: 50,
+        fontWeight: FontWeight.bold,
+        color: Colors.redAccent,
+      ),
+    );
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+      SizedBox(height: 100),
+        _currentCountDown,
+      SizedBox(height: 20),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text('Reading '+type, style: TextStyle(fontSize: 20,color: Colors.black))
+        ],
+      ),],
     );
   }
 
@@ -563,7 +620,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-      _buildLatestDataButton('HR'),
+      _buildLatestDataButton('Heart Rate'),
       const SizedBox(height: 10),
       _buildLastUpdatedTime(_lastHr.measureTime),
     ];
@@ -644,9 +701,9 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         decoration: _cardDecoration(),
         child: Column(
           children: [
-            ..._buildTrackerHeader('Oxygen Level', 'o2'),
+            if (_oxygenLevel != null) ..._buildTrackerHeader('Oxygen Saturation', 'o2'),
             if (_oxygenLevel != null) ..._loadOxygenData(),
-            if (_oxygenLevel == null) _loadCircularIndicator('Oxygen Level'),
+            if (_oxygenLevel == null) _loadCountDownTimer(45, 'Oxygen Saturation'),
           ],
         ),
       ),
@@ -697,7 +754,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-      _buildLatestDataButton('O2'),
+      _buildLatestDataButton('Oxygen Saturation'),
       const SizedBox(height: 10),
       _buildLastUpdatedTime(_oxygenLevel.measureTime)
 
