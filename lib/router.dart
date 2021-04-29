@@ -4,7 +4,6 @@ import 'package:ceras/screens/auth/login_screen.dart';
 import 'package:ceras/screens/auth/otpconfirmation_screen.dart';
 import 'package:ceras/screens/auth/passwordexpired_screen.dart';
 import 'package:ceras/screens/data_screen.dart';
-import 'package:ceras/screens/data_screen_updated.dart';
 import 'package:ceras/screens/setup/connection_notfound_screen.dart';
 import 'package:ceras/screens/setup/setup_connected_screen.dart';
 import 'package:ceras/screens/setup/setup_devices_screen.dart';
@@ -110,9 +109,7 @@ Route<dynamic> generateRoute(
     case SettingsRoute:
       return MaterialPageRoute(builder: (context) => SettingsScreen());
     case DataRoute:
-      return MaterialPageRoute(builder: (context) => DataScreenUpdate());
-    // case DataRoute:
-    //   return MaterialPageRoute(builder: (context) => DataScreen());
+      return MaterialPageRoute(builder: (context) => DataScreen());
     default:
       return MaterialPageRoute(
         builder: (context) => Scaffold(
