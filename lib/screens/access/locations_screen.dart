@@ -87,8 +87,21 @@ class _LocationsScreenState extends State<LocationsScreen>
           title: Text(
             'Confirm',
           ),
-          content: Text(
-            'By turning locations on, the Ceras app on your phone is able to continually receive data from your Ceras device insuring that up to date information is sent securely to our platform where your doctor can access it 24/7.',
+          content: Container(
+            height: 200,
+            padding: EdgeInsets.fromLTRB(0, 0, 0, 0),
+            child: Column(
+              children: [
+                Text('By turning the location on, you understand:'),
+                SizedBox(height: 5,),
+                Container(
+                  margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
+                  child: Text(
+                    '\u25C9 As long as the Ceras app is in use, or in the background the Ceras app is able to continually receive the health data from your Ceras device ensuring that up to date information is transmitted to our platform for your doctor’s user 24x7.'
+                  ),
+                )
+              ],
+            ),
           ),
           actions: <Widget>[
             FlatButton(

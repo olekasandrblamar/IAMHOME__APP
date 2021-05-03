@@ -26,6 +26,8 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var readingBp = false
     var readingo2 = false
     var upgradeInProcess = false
+    //var firmwareVersion = "SW07s_2.56.00_210423"
+    var firmwareVersion = "SW07s_2.56.00_210324"
     
     var batteryComplete = false
     
@@ -278,7 +280,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         do{
             if(connectionInfo.connected != nil && connectionInfo.connected!){
                 NSLog("Trying to upgrade")
-                let upgradePath = Bundle.main.path(forResource: "SW07s_2.56.00_210324", ofType: "bin", inDirectory: "HardSDK")
+                let upgradePath = Bundle.main.path(forResource: firmwareVersion, ofType: "bin", inDirectory: "HardSDK")
                 NSLog("Upgrade path \(upgradePath)")
 
                 let errorPtr: NSErrorPointer = nil
@@ -315,7 +317,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 connectionInfo.upgradeAvailable = false
                 
                 //Check the version and if it is not the latest version, update the device
-                if(version != nil && version!.lowercased().starts(with: "sw07s") && version?.lowercased() != "sw07s_2.56.00_210324"){
+                if(version != nil && version!.lowercased().starts(with: "sw07s") && version?.lowercased() != firmwareVersion.lowercased()){
                     connectionInfo.upgradeAvailable = true
                     
                 }
