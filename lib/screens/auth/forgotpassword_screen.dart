@@ -259,7 +259,7 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
     return Padding(
       padding: const EdgeInsets.all(0.0),
       child: Container(
-        width: 180.0,
+        width: 220.0,
         height: 60.0,
         child: RaisedButton(
           shape: RoundedRectangleBorder(
@@ -267,14 +267,16 @@ class _ForgotPasswordScreenState extends State<ForgotPasswordScreen> {
           ),
           color: Theme.of(context).primaryColor,
           textColor: Colors.white,
-          child: Text(
-            'Get One Time Passcode',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 15.0,
+          onPressed: () => _saveForm(),
+          child: FittedBox(
+            child: Text(
+              'Get One Time Passcode',
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontSize: 15.0,
+              ),
             ),
           ),
-          onPressed: () => _saveForm(),
         ),
       ),
     );

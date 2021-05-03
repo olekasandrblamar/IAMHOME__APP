@@ -59,9 +59,9 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     print('Got state ${state}');
     switch (state) {
       case AppLifecycleState.resumed:
-        if (!Platform.isIOS) {
-          _goToLogin();
-        }
+        // if (!Platform.isIOS) {
+        //   _goToLogin();
+        // }
         break;
       case AppLifecycleState.inactive:
         break;
@@ -286,7 +286,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   }
 
   String _formatDate(DateTime date) {
-    return DateFormat.yMMMMd().format(date.toLocal());
+    return DateFormat.MMMMd().format(date.toLocal());
   }
 
   String _formatTime(DateTime date) {
@@ -296,10 +296,12 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   Future<void> _loadTemperature() async {
     var temperature = await Provider.of<DevicesProvider>(context, listen: false)
         .getLatestTemperature();
-
-    setState(() {
-      _lastTemperature = temperature;
+    // Future.delayed(Duration(seconds: 10),(){
+      setState(() {
+        _lastTemperature = temperature;
+      // });
     });
+
   }
 
   Future<void> _loadBloodPressure() async {
@@ -362,7 +364,6 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         //   SwitchStoreIcon(),
         // ],
       ),
-      // backgroundColor: AppTheme.white,
       body: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -404,7 +405,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
             ),
             _populateDots(),
             SizedBox(
-              height: 150,
+              height: MediaQuery.of(context).size.width * 0.2,
             ),
           ],
         ),
@@ -442,13 +443,15 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       padding: _trackerPadding(),
       child: Container(
         decoration: _cardDecoration(),
-        child: Column(
+        child: SingleChildScrollView(
+          child:Column(
           children: [
             if(_lastTemperature !=null)..._buildTrackerHeader('Temperature', 'temperature'),
             if (_lastTemperature != null) ..._loadTemperatureData(),
             if (_lastTemperature == null) _loadCountDownTimer(70, 'Temperature'),
           ],
         ),
+      ),
       ),
     );
   }
@@ -505,6 +508,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       _buildLatestDataButton('TEMPERATURE','TEMPERATURE'),
       const SizedBox(height: 10),
       _buildLastUpdatedTime(_lastTemperature.measureTime),
+      const SizedBox(height: 10),
     ];
   }
 
@@ -513,12 +517,14 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       padding: _trackerPadding(),
       child: Container(
         decoration: _cardDecoration(),
-        child: Column(
+        child: SingleChildScrollView(
+        child:Column(
           children: [
             if(_lastHr !=null) ..._buildTrackerHeader('Heart Rate', 'hr'),
             if (_lastHr != null) ..._loadHrData(),
             if (_lastHr == null) _loadCountDownTimer(45, 'Heart Rate'),
           ],
+        ),
         ),
       ),
     );
@@ -562,17 +568,40 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         color: Colors.redAccent,
       ),
     );
+    var buttonText = canScroll?'Loading $type ...':'Reading $type ...';
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
       SizedBox(height: 100),
+      canScroll?
+        // TimeCircularCountdown(
+        //   unit: CountdownUnit.second,
+        //   countdownTotal: 10,
+        //   diameter: 200,
+        //   countdownTotalColor: Colors.white,
+        //   countdownCurrentColor: Colors.blue,
+        //   countdownRemainingColor: Colors.blue,
+        //   strokeWidth: 20,
+        //   gapFactor: 5,
+        //   repeat: true,
+        //   onUpdated: (unit, remainingTime) => print('Updated'),
+        // // textStyle: TextStyle(
+        // // fontSize: 50,
+        // // fontWeight: FontWeight.bold,
+        // // color: Colors.redAccent,
+        // // ),
+        // )
+        Container()
+        :
         _currentCountDown,
       SizedBox(height: 20),
       Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Reading '+type, style: TextStyle(fontSize: 20,color: Colors.black))
+          FittedBox(
+            child: Text(buttonText, style: TextStyle(fontSize: 20,color: Colors.black)),
+          )
         ],
       ),],
     );
@@ -623,6 +652,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       _buildLatestDataButton('HR','Heart Rate'),
       const SizedBox(height: 10),
       _buildLastUpdatedTime(_lastHr.measureTime),
+      const SizedBox(height: 10),
     ];
   }
 
@@ -631,12 +661,14 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       padding: _trackerPadding(),
       child: Container(
         decoration: _cardDecoration(),
-        child: Column(
+        child: SingleChildScrollView(
+        child:Column(
           children: [
             ..._buildTrackerHeader('Blood Pressure', 'bp'),
             if (_bloodPressure != null) ..._loadBpData(),
             if (_bloodPressure == null) _loadCircularIndicator('Blood Pressure'),
           ],
+        ),
         ),
       ),
     );
@@ -699,12 +731,14 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       padding: _trackerPadding(),
       child: Container(
         decoration: _cardDecoration(),
-        child: Column(
+        child: SingleChildScrollView(
+        child:Column(
           children: [
             if (_oxygenLevel != null) ..._buildTrackerHeader('Oxygen Saturation', 'o2'),
             if (_oxygenLevel != null) ..._loadOxygenData(),
             if (_oxygenLevel == null) _loadCountDownTimer(45, 'Oxygen Saturation'),
           ],
+        ),
         ),
       ),
     );
@@ -766,13 +800,15 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       padding: _trackerPadding(),
       child: Container(
         decoration: _cardDecoration(),
-        child: Column(
+        child: SingleChildScrollView(
+        child:Column(
           children: [
             ..._buildTrackerHeader('Calories', 'calories'),
             if (_lastCalories != null) ..._buildCaloriesData(),
             if (_lastCalories == null) CircularProgressIndicator(),
             // _buildLatestDataButton('Calories')
           ],
+        ),
         ),
       ),
     );
@@ -834,12 +870,14 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       padding: _trackerPadding(),
       child: Container(
         decoration: _cardDecoration(),
-        child: Column(
+        child: SingleChildScrollView(
+        child:Column(
           children: [
             ..._buildTrackerHeader('Steps', 'steps'),
             if (_lastSteps != null) ..._buildStepsData(),
             if (_lastSteps == null) CircularProgressIndicator(),
           ],
+        ),
         ),
       ),
     );
@@ -909,14 +947,13 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           ),
         ),
       ),
-      SizedBox(height: 60),
+      SizedBox(height: MediaQuery.of(context).size.width * 0.1,),
       Container(
         padding: EdgeInsets.all(16),
         child: SvgPicture.asset(
           'assets/trackers/' + image + '.svg',
-          height: 100,
+          height: MediaQuery.of(context).size.width * 0.2,),
         ),
-      ),
       SizedBox(height: 20),
     ];
   }
@@ -953,12 +990,14 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         onPressed: () {
           return _readDataFromDevice(type);
         },
-        child: Text(
-          'Get Measurement',
-          style: TextStyle(
-            fontSize: 20,
+        child:FittedBox(
+          child: Text(
+          'Measure Now',
+            style: TextStyle(
+              fontSize: 20,
+            ),
           ),
-        ),
+        )
       ),
     );
   }

@@ -292,27 +292,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
                 ],
               ),
             )
-          : SafeArea(
-              bottom: true,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    height: 90,
-                    padding: EdgeInsets.all(20),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.5),
-                      ),
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      child: Text('Access Health Data'),
-                      onPressed: () => _authenticate(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          : SizedBox(height: 25,)
     );
   }
 
