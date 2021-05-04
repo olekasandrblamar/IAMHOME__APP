@@ -317,6 +317,17 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.PIC_TRANSF_FINISH) {
         } else if (flag == GlobalValue.PIC_TRANSF_START) {
         } else if (flag == GlobalValue.PIC_TRANSF_ING) {
+        } else if (flag == GlobalValue.BLOODPRESUURE__STATUS){
+            if(obj!=null){
+                val bpValues = obj.toString()
+                val systolic = Integer.parseInt(bpValues.substring(0,2),16) - 20
+                val diastolic = Integer.parseInt(bpValues.substring(2,4),16) - 5
+                Log.d(WatchDevice.TAG,"Got String $obj systolic  ${ Integer.parseInt(bpValues.substring(0,2),16)} to $systolic diastolic ${Integer.parseInt(bpValues.substring(2,4),16)} $diastolic")
+                
+                HardSdk.getInstance().setBloodPressureAndHeart(systolic,diastolic,0)
+
+            }
+
         }
     }
 
@@ -370,6 +381,10 @@ class DataCallBack : SimpleDeviceCallback {
             finish_status: Boolean
     ) {
         Log.d(WatchDevice.TAG, "onStepChanged: step:$step")
+    }
+
+    override fun onBloodPressureChanged(p0: Int, p1: Int, p2: Int) {
+        Log.d(WatchDevice.TAG,"Blood pressure changed $p0 $p1 $p2")
     }
 
     override fun onHeartRateChanged(rate: Int, status: Int) {
@@ -436,7 +451,14 @@ class DataCallBack : SimpleDeviceCallback {
 
             }
           else if (WatchDevice.isTestingBp) {
-            val userInfo = DataSync.getUserInfo()
+            //val userInfo = DataSync.getUserInfo()
+            val userInfo = UserProfile().apply {
+                heightInCm = 180
+                weightInKgs = 80.0
+                sex = "male"
+                age = 37
+
+            }
             if(userInfo != null) {
                 val heartRateAdditional = HeartRateAdditional(
                         System.currentTimeMillis() / 1000,
@@ -447,8 +469,10 @@ class DataCallBack : SimpleDeviceCallback {
                         userInfo.age
                 )
                 val bloodPressure = BloodPressure()
-                bloodPressure.systolicPressure = heartRateAdditional.get_systolic_blood_pressure()
-                bloodPressure.diastolicPressure = heartRateAdditional.get_diastolic_blood_pressure()
+                bloodPressure.systolicPressure = heartRateAdditional.get_systolic_blood_pressure() - 20
+                bloodPressure.diastolicPressure = heartRateAdditional.get_diastolic_blood_pressure() - 5
+
+                Log.i(WatchDevice.TAG,"writing blood pressure systolic ${bloodPressure.systolicPressure} diastolic ${bloodPressure.diastolicPressure}")
                 if (status == GlobalValue.RATE_TEST_FINISH || status == GlobalValue.RATE_TEST_INTERRUPT) {
                     val bpUpload = BpUpload(measureTime = Calendar.getInstance().time,systolic = bloodPressure.systolicPressure,
                             distolic = bloodPressure.diastolicPressure,userProfile = userInfo,deviceId = MainActivity.deviceId)
@@ -755,14 +779,15 @@ class WatchDataCallBack : IHardScanCallback {
         var deviceName: String? = null
         var deviceAddr: String? = null
         var targetDevice: Device? = null
-    }
 
-    private fun byteArrHexToString(bytes: ByteArray?): String {
-        var ret = ""
-        bytes?.forEach {
-            ret += String.format("%02X", it)
+        fun byteArrHexToString(bytes: ByteArray?): String {
+            var ret = ""
+            bytes?.forEach {
+                ret += String.format("%02X", it)
+            }
+            return ret.toUpperCase()
         }
-        return ret.toUpperCase()
+
     }
 
     private fun byteArrToShort(b: ByteArray, index: Int): Int {
