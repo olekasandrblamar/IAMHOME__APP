@@ -1,3 +1,14 @@
+//
+//  HardDefine.h
+//  HardManagerSDK
+//
+//  Created by xianfei zou on 2019/11/20.
+//  Copyright © 2019 xianfei zou. All rights reserved.
+//
+
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
+
 typedef NS_ENUM(NSInteger, HardGettingOption) {
     /// 获取电量
     HardGettingBattery = 0,
@@ -22,6 +33,8 @@ typedef NS_ENUM(NSInteger, HardGettingOption) {
     ///
     HardGettingRealTemperatureHistory,
     HardGettingMeasurementStart,
+    /// 心率测量种 - 手环主动发起   (value：@{@"rate" : NSNumber, @"sp" :  NSNumber, @"dp" : NSNumber})
+    HardGettingMeasuringPassively,
     /// 心率测量中，通过此项返回数据
     HardGettingMeasuring,
     /// 心率测量结束

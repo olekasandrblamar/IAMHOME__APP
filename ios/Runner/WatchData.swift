@@ -103,6 +103,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     func gettingFallBack(_ option: HardGettingOption, values: [AnyHashable : Any]!) {
         //NSLog("Got option \(option.rawValue) value %@", values)
         //For tempartire History
+        NSLog("Got option \(option == HardGettingOption.measuringPassively) \(values)")
         if(option == HardGettingOption.bodyTemperatureHistory){
             let tempArray = values["temperatureArray"] as! [[String:String]]
             syncTemparature(tempArray: tempArray)
@@ -235,6 +236,23 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 default:
                     NSLog("type not found")
                 
+            }
+        }else if(option == HardGettingOption.measuringPassively){
+            let bpData = values as? [String:Int]
+            NSLog("Passive dat \(bpData)")
+            if(bpData != nil){
+                let hr = bpData!["rate"]!
+                var dp = bpData!["dp"]!
+                var sp = bpData!["sp"]!
+                
+                if(dp>0){
+                    dp = dp-10
+                }
+                if(sp>0){
+                    sp = sp-20
+                }
+                
+                HardManagerSDK.shareBLEManager()?.setBloodPressurePassvielyMeasurementWithHeartRate(sp, sp: dp, dp: hr)
             }
         }
             
