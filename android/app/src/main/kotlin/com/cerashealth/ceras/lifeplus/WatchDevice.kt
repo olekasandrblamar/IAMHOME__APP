@@ -3,7 +3,6 @@ package com.cerashealth.ceras.lifeplus
 import android.annotation.SuppressLint
 import android.bluetooth.BluetoothDevice
 import android.content.Context
-import android.nfc.Tag
 import android.text.TextUtils
 import android.util.Log
 import com.cerashealth.ceras.MainActivity
@@ -24,6 +23,8 @@ import io.reactivex.disposables.Disposable
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.*
@@ -233,7 +234,14 @@ class DataCallBack : SimpleDeviceCallback {
             val existingVersion = obj as String
             Log.d(WatchDevice.TAG, "version $existingVersion")
             this.currentVersion = existingVersion
-            HardSdk.getInstance().checkNewFirmware(existingVersion)
+            versionComplete = true
+            if(currentVersion!=WatchDevice.currentFirmwareVersion){
+                Log.d(WatchDevice.TAG, "version update available")
+                versionUpdate = true
+            }
+            //Check and send response as version is updated
+            checkAndSendStatusResponse()
+            //HardSdk.getInstance().checkNewFirmware(existingVersion)
         } else if (flag == GlobalValue.Hardware_Version) {
         } else if (flag == GlobalValue.DISCOVERY_DEVICE_SHAKE) {
         } else if (flag == GlobalValue.Firmware_DownFile) {
@@ -242,19 +250,20 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.Firmware_Info_Error) {
             Log.i(WatchDevice.TAG, "Firmware info error")
         } else if (flag == GlobalValue.Firmware_Server_Status) {
-            Log.i(WatchDevice.TAG, "Server status: $obj \n")
-            this.versionComplete = true
-            if (obj != null) {
-                val serverVersion = obj as Version
-                Log.i(WatchDevice.TAG, "Version：" + Gson().toJson(serverVersion))
-                Log.d(WatchDevice.TAG, "Currenr version ${currentVersion}.bin compared to ${serverVersion.firmwareName}")
-                //If the version is updated check and update
-                if(serverVersion.firmwareName != "${currentVersion}.bin") {
-                    Log.d(WatchDevice.TAG, "version updated")
-                    this.versionUpdate = true
-                }
-                checkAndSendStatusResponse()
-            }
+            //This is deprectaed. We will not use this any more
+//            Log.i(WatchDevice.TAG, "Server status: $obj \n")
+//            this.versionComplete = true
+//            if (obj != null) {
+//                val serverVersion = obj as Version
+//                Log.i(WatchDevice.TAG, "Version：" + Gson().toJson(serverVersion))
+//                Log.d(WatchDevice.TAG, "Current version ${currentVersion}.bin compared to ${serverVersion.firmwareName}")
+//                //If the version is updated check and update
+//                if(serverVersion.firmwareName != "${currentVersion}.bin") {
+//                    Log.d(WatchDevice.TAG, "version updated")
+//                    this.versionUpdate = true
+//                }
+//                checkAndSendStatusResponse()
+//            }
         } else if (flag == GlobalValue.Firmware_Upgrade_Progress) {
             Log.i(WatchDevice.TAG, "Firmware update progress ${obj}")
             //If the progress is complete
@@ -516,6 +525,7 @@ class WatchDevice:BaseDevice()     {
         var eventSink:EventChannel.EventSink? = null
         var isTestingTemp = false
         var tempUpdates:Disposable? = null
+        const val currentFirmwareVersion = "SW07s_2.56.00_210423"
 
         fun syncProfile(){
             val userInfo = DataSync.getUserInfo()
@@ -723,7 +733,21 @@ class WatchDevice:BaseDevice()     {
         Log.i(TAG, "Getting device information $connectionStatus");
         if(connectionStatus){
             dataCallback?.updateVersionResult(result)
-            HardSdk.getInstance().startUpdateBLE()
+//            HardSdk.getInstance().startUpdateBLE()
+            MainActivity.currentActivity?.let {
+                val binPackage = it.resources.getIdentifier("sw07s_2_56_00_210423","raw",it.packageName)
+                val packageStream = it.resources.openRawResource(binPackage)
+                val tempFile = File.createTempFile("sw07s_2_56_00_210423", "bin")
+                val out = FileOutputStream(tempFile)
+
+                val buffer = ByteArray(1024)
+                var read: Int
+                while (packageStream.read(buffer).also { read = it } != -1) {
+                    out.write(buffer, 0, read)
+                }
+                Log.d(WatchDevice.TAG , "Got file size ${tempFile.length()}")
+                HardSdk.getInstance().startFirmWareUpgrade(tempFile)
+            }
         }
     }
 

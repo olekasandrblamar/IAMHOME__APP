@@ -101,15 +101,15 @@ class MainActivity: FlutterFragmentActivity()  {
                 sycnDevice?.let {
                     it.connectDevice(this,result,deviceId)
                     //Update the device type
-                    applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).edit().putString("flutter.deviceType",deviceType).commit()
+                    applicationContext.getSharedPreferences(SharedPrefernces, MODE_PRIVATE).edit().putString("flutter.deviceType",deviceType).commit()
                 }
             } else if(call.method =="syncData"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 updateLastConnected()
-                Log.i(TAG,"last Updated ${getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).all}")
+                Log.i(TAG,"last Updated ${getSharedPreferences(SharedPrefernces, MODE_PRIVATE).all}")
                 Log.i(TAG,"got sync data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
-                val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
+                val deviceType = getSharedPreferences(SharedPrefernces, MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 Log.i(TAG,"Device type ${deviceData.deviceType} with ${Gson().toJson(deviceData)}")
                 BaseDevice.getDeviceImpl(deviceData.deviceType).syncData(result,deviceData,this)
@@ -117,14 +117,14 @@ class MainActivity: FlutterFragmentActivity()  {
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got device status data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
-                val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
+                val deviceType = getSharedPreferences(SharedPrefernces, MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceData.deviceType).getDeviceInfo(result,deviceData,this)
             }else if(call.method =="connectionStatus"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got device status data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
-                val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
+                val deviceType = getSharedPreferences(SharedPrefernces, MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceData.deviceType).getConnectionStatus(result,deviceData,this)
             }else if(call.method =="disconnect"){
@@ -272,7 +272,6 @@ class Application:FlutterApplication(){
 //                .build())
 
         //getWindow().addFlags(LayoutParams.FLAG_SECURE);
-        
         super.onCreate()
     }
 }
