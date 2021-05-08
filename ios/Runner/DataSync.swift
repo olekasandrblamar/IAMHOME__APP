@@ -465,6 +465,30 @@ struct UserProfile:Codable{
     var sex:String
     var heightInCm:Int
     var lastUpdate:String? = nil
+``
+    var offSets:[Offset]? = []
+    
+    func getOffsetValue(readingTypes : [String]) -> Int {
+        
+        if(offSets != nil){
+            let targetOffset = offSets?.first(where: { (Offset) -> Bool in
+                readingTypes.map { (type) -> String in
+                    type.lowercased()
+                }.contains(Offset.trackerName.lowercased())
+            })
+            if(targetOffset != nil){
+                return Int(targetOffset!.offset)
+            }
+        }
+        
+        return 0
+        
+    }
+}
+
+struct Offset:Codable{
+    var trackerName:String
+    var offset:Double
 }
 
 struct TemperatureUpload:Codable {

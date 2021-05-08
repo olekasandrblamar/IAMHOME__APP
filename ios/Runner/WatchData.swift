@@ -24,10 +24,12 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var readingTemperature = false
     var readingHr = false
     var readingBp = false
+    var diastolicOffset = 0
+    var systolicOffset = 0
     var readingo2 = false
     var upgradeInProcess = false
-    //var firmwareVersion = "SW07s_2.56.00_210423"
-    var firmwareVersion = "SW07s_2.56.00_210324"
+    var firmwareVersion = "SW07s_2.56.00_210423"
+//    var firmwareVersion = "SW07s_2.56.00_210324"
     
     var batteryComplete = false
     
@@ -199,8 +201,14 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                         }
                         let systolic = Int(tempData["systolicPressure"] as! String)!
                         if(systolic>0){
-                            let returnData = BpReading(systolic: systolic, diastolic: Int(tempData["diastolicPressure"] as! String)!)
+                            var returnData = BpReading(systolic: systolic, diastolic: Int(tempData["diastolicPressure"] as! String)!)
+                            let userInfo = DataSync.getUserInfo()
                             let bpUpload = BpUpload(measureTime: Date(), distolic: returnData.diastolic, systolic: returnData.systolic, deviceId: getMacId(), userProfile: DataSync.getUserInfo())
+                            if(userInfo != nil){
+                                returnData.diastolic+=userInfo!.getOffsetValue(readingTypes: ["distolic","diastolic"])
+                                returnData.systolic+=userInfo!.getOffsetValue(readingTypes: ["systolic"])
+                            }
+                            HardManagerSDK.shareBLEManager()?.setBloodPressurePassvielyMeasurementWithHeartRate(returnData.systolic, sp: returnData.diastolic, dp: 0)
                             let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
                             NSLog("Returning BP data \(returnDataValue)")
                             self.eventSink?(returnDataValue)
@@ -245,12 +253,19 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 var dp = bpData!["dp"]!
                 var sp = bpData!["sp"]!
                 
+                var userInfo = DataSync.getUserInfo()
+                if(userInfo != nil){
+                    diastolicOffset = userInfo!.getOffsetValue(readingTypes: ["diastolic","distolic"])
+                    systolicOffset = userInfo!.getOffsetValue(readingTypes: ["systolic"])
+                }
+                
                 if(dp>0){
-                    dp = dp-10
+                    dp = dp+diastolicOffset
                 }
                 if(sp>0){
-                    sp = sp-20
+                    sp = sp+systolicOffset
                 }
+                
                 
                 HardManagerSDK.shareBLEManager()?.setBloodPressurePassvielyMeasurementWithHeartRate(sp, sp: dp, dp: hr)
             }
@@ -262,6 +277,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         NSLog("Step \(step.rawValue)")
         NSLog("Result \(result.rawValue)")
         if(step == HardFirmwareUpgradeStep.finished){
+            UserDefaults.standard.removeObject(forKey: DataSync.USER_PROFILE_DATA)
             upgradeInProcess = false
         }
         
@@ -271,6 +287,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         if(step == HardFirmwareUpgradeStep.finished){
             statusResult?("Success")
             upgradeInProcess = false
+            UserDefaults.standard.removeObject(forKey: DataSync.USER_PROFILE_DATA)
         }
     }
     
