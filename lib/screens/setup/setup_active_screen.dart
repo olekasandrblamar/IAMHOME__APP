@@ -325,22 +325,39 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       bottomNavigationBar: SafeArea(
         bottom: true,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            // Container(
+            //   // width: 200,
+            //   // height: 90,
+            //   padding: EdgeInsets.all(20),
+            //   child: Ink(
+            //     decoration: const ShapeDecoration(
+            //       color: Colors.red,
+            //       shape: CircleBorder(),
+            //     ),
+            //     child: IconButton(
+            //       icon: Icon(Icons.delete),
+            //       color: Colors.white,
+            //       onPressed: () => _showDialog(),
+            //     ),
+            //   ),
+            // ),
+
             Container(
-              // width: 200,
-              // height: 90,
+              width: 200,
+              height: 90,
               padding: EdgeInsets.all(20),
-              child: Ink(
-                decoration: const ShapeDecoration(
-                  color: Colors.red,
-                  shape: CircleBorder(),
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.5),
                 ),
-                child: IconButton(
-                  icon: Icon(Icons.delete),
-                  color: Colors.white,
-                  onPressed: () => _showDialog(),
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+                child: Text(
+                  'Reset',
                 ),
+                onPressed: () => _showDialog(),
               ),
             ),
           ],
