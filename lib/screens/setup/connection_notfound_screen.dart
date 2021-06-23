@@ -1,4 +1,4 @@
-import 'package:connectivity/connectivity.dart';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/theme.dart';
 
@@ -70,21 +70,21 @@ class ConnectionNotfoundScreen extends StatelessWidget {
                       ),
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
-                      child: Text(
-                        'Check Again',
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
                       onPressed: () async {
                         var connectivityResult =
-                            await(Connectivity().checkConnectivity());
+                            await (Connectivity().checkConnectivity());
                         if (connectivityResult != ConnectivityResult.none) {
                           return Navigator.of(context).pushReplacementNamed(
                             routes.SetupHomeRoute,
                           );
                         }
                       },
+                      child: Text(
+                        'Check Again',
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
                     ),
                   ),
                 ],

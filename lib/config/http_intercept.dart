@@ -11,7 +11,10 @@ import 'package:ceras/config/navigation_service.dart';
 
 class MobileDataInterceptor extends Interceptor {
   @override
-  Future<dynamic> onRequest(RequestOptions options) async {
+  void onRequest(
+    RequestOptions options,
+    RequestInterceptorHandler handler,
+  ) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     //reload with latest data
     await prefs.reload();
@@ -21,12 +24,13 @@ class MobileDataInterceptor extends Interceptor {
           json.decode(prefs.getString('userData')) as Map<String, Object>;
 
       options.headers.addAll({"Authorization": extractedUserData['authToken']});
+      return super.onRequest(options, handler);
     }
     print("Calling ${options.path} with headers ${options.headers.toString()}");
   }
 
   @override
-  Future<dynamic> onError(DioError dioError) async {
+  Future onError(DioError dioError, ErrorInterceptorHandler handler) async {
     if (dioError.response.statusCode >= 400) {
       // this will push a new route and remove all the routes that were present
 
@@ -50,7 +54,8 @@ class MobileDataInterceptor extends Interceptor {
       //   NavigationService.goToSwitchStore();
       // }
 
-      return dioError?.response?.data['message'] ?? dioError;
+      return super
+          .onError(dioError?.response?.data['message'] ?? dioError, handler);
     }
 
     // print(dioError.type);
@@ -59,7 +64,8 @@ class MobileDataInterceptor extends Interceptor {
 
     // print(dioError.response.statusCode);
 
-    return dioError?.response?.data['message'] ?? dioError;
+    return super
+        .onError(dioError?.response?.data['message'] ?? dioError, handler);
   }
 
   // @override

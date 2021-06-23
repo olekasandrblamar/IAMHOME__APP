@@ -13,7 +13,7 @@ import 'package:ceras/widgets/languageselection_widget.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/theme.dart';
-import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
