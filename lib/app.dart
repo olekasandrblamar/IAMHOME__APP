@@ -6,7 +6,6 @@ import 'package:ceras/providers/applanguage_provider.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/intro_screen.dart';
-import 'package:ceras/screens/setup/connection_wifi.dart';
 import 'package:ceras/screens/splash_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -172,7 +171,7 @@ class _MyAppState extends State<MyApp> {
             if (authResultSnapshot.data[0]) {
               return IntroScreen();
             } else {
-              return ConnectionWifiScreen();
+              return SetupHomeScreen();
             }
           } else {
             return SplashScreen();
