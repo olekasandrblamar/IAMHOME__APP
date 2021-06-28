@@ -27,6 +27,7 @@ class MainActivity: FlutterFragmentActivity()  {
 
     private val CHANNEL = "ceras.iamhome.mobile/device"
     private val DEVICE_EVENTS = "ceras.iamhome.mobile/device_events"
+    private val DEVICE_UPGRADE_EVENTS = "ceras.iamhome.mobile/device_upgrade"
     private var sycnDevice: BaseDevice? = null
 
     companion object{
@@ -116,7 +117,7 @@ class MainActivity: FlutterFragmentActivity()  {
             }else if(call.method =="deviceStatus"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got device status data with arguments $deviceDataString")
-                val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
+                val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
                 val deviceType = getSharedPreferences(SharedPrefernces, MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceData.deviceType).getDeviceInfo(result,deviceData,this)
@@ -130,13 +131,15 @@ class MainActivity: FlutterFragmentActivity()  {
             }else if(call.method =="disconnect"){
                 val deviceType = call.argument<String>("deviceType")
                 BaseDevice.getDeviceImpl(deviceType).disconnectDevice(result)
-            }else if(call.method == "upgradeDevice"){
-                val deviceDataString = call.argument<String>("connectionInfo")
-                Log.i(TAG,"got upgrade device data with arguments $deviceDataString")
-                val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
-                deviceId = deviceData.deviceId?:""
-                BaseDevice.getDeviceImpl(deviceData.deviceType).upgradeDevice(result,deviceData,this)
-            }else if(call.method == "readLineData"){
+            }
+//            else if(call.method == "upgradeDevice"){
+//                val deviceDataString = call.argument<String>("connectionInfo")
+//                Log.i(TAG,"got upgrade device data with arguments $deviceDataString")
+//                val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
+//                deviceId = deviceData.deviceId?:""
+//                BaseDevice.getDeviceImpl(deviceData.deviceType).upgradeDevice(result,deviceData,this)
+//            }
+            else if(call.method == "readLineData"){
                 val deviceDataString = call.argument<String>("connectionInfo")
 
             }
@@ -183,13 +186,34 @@ class MainActivity: FlutterFragmentActivity()  {
                 })
     }
 
+    private fun connectUpgradeChannel(flutterEngine: FlutterEngine){
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, DEVICE_UPGRADE_EVENTS)
+            .setStreamHandler(object: StreamHandler{
+                var eventSink:EventChannel.EventSink? = null
+                override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                    eventSink = events
+                    val args = arguments as Map<String, String>
+                    val deviceDataString = args["connectionInfo"]
+                    Log.i(TAG,"got upgrade device data with arguments $deviceDataString")
+                    val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
+                    deviceId = deviceData.deviceId?:""
+                    BaseDevice.getDeviceImpl(deviceData.deviceType).upgradeDevice(eventSink,deviceData,MainActivity.currentContext!!)
+                }
+
+                override fun onCancel(arguments: Any?) {
+                    eventSink?.let {
+                        it.endOfStream()
+                    }
+                }
+            })
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        //GeneratedPluginRegistrant.registerWith(flutterEngine);
-        // requestPermission()
         scheduleBackgroundTasks()
         connectEventChannel(flutterEngine)
         connectDeviceChannel(flutterEngine)
+        connectUpgradeChannel(flutterEngine)
     }
 
 }
