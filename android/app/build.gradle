@@ -103,7 +103,7 @@ dependencies {
 
     implementation files('libs/vpprotocol_2.1.27.15.jar')//Extension for bFIT
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
-    implementation(name: 'hardsdk_1.28', ext: 'aar')// For bWell
+    implementation(name: 'hardsdk_1.30', ext: 'aar')// For bWell
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.1.6'
     implementation 'com.squareup.okhttp3:okhttp:4.7.2'

@@ -91,7 +91,10 @@ class DataCallBack : SimpleDeviceCallback {
     private var versionComplete = false
     private var batteryPercentage = ""
     private var versionUpdate = false
-    private var currentVersion:String? = null
+
+    companion object{
+        var currentVersion:String? = null
+    }
 
     override fun equals(other: Any?): Boolean {
         other?.let {
@@ -233,12 +236,18 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.Firmware_Version) {
             val existingVersion = obj as String
             Log.d(WatchDevice.TAG, "version $existingVersion")
-            this.currentVersion = existingVersion
+            currentVersion = existingVersion
             versionComplete = true
-            if(currentVersion!=WatchDevice.currentFirmwareVersion){
-                Log.d(WatchDevice.TAG, "version update available")
-                versionUpdate = true
+            currentVersion?.let {
+                if(it.toLowerCase().startsWith("sw07s_") && it!=WatchDevice.currentFirmwareVersion){
+                    Log.d(WatchDevice.TAG, "version update available")
+                    versionUpdate = true
+                }else if(it.toLowerCase().startsWith("sw07_") && it!=WatchDevice.sw07FirmwareVersion){
+                    Log.d(WatchDevice.TAG, "version update available")
+                    versionUpdate = true
+                }
             }
+
             //Check and send response as version is updated
             checkAndSendStatusResponse()
             //HardSdk.getInstance().checkNewFirmware(existingVersion)
@@ -526,6 +535,7 @@ class WatchDevice:BaseDevice()     {
         var isTestingTemp = false
         var tempUpdates:Disposable? = null
         const val currentFirmwareVersion = "SW07s_2.56.00_210423"
+        const val sw07FirmwareVersion = "SW07s_2.45.00_200925"
 
         fun syncProfile(){
             val userInfo = DataSync.getUserInfo()
@@ -735,9 +745,12 @@ class WatchDevice:BaseDevice()     {
             dataCallback?.updateVersionResult(result)
 //            HardSdk.getInstance().startUpdateBLE()
             MainActivity.currentActivity?.let {
-                val binPackage = it.resources.getIdentifier("sw07s_2_56_00_210423","raw",it.packageName)
+                Log.i(TAG,"current version ${DataCallBack.currentVersion}")
+                val fileName = if(DataCallBack.currentVersion!!.toLowerCase().startsWith("sw07s_")) "sw07s_2_56_00_210423" else "sw07s_2_45_00_200925"
+                Log.i(TAG,"Updating with file name $fileName")
+                val binPackage = it.resources.getIdentifier(fileName,"raw",it.packageName)
                 val packageStream = it.resources.openRawResource(binPackage)
-                val tempFile = File.createTempFile("sw07s_2_56_00_210423", "bin")
+                val tempFile = File.createTempFile(fileName, "bin")
                 val out = FileOutputStream(tempFile)
 
                 val buffer = ByteArray(1024)
