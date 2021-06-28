@@ -243,7 +243,7 @@ class DataCallBack : SimpleDeviceCallback {
             currentVersion = existingVersion
             versionComplete = true
             currentVersion?.let {
-                if(it.toLowerCase().startsWith("sw07s_" && it!=WatchDevice.currentFirmwareVersion) ){
+                if(it.toLowerCase().startsWith("sw07s_") && it!=WatchDevice.currentFirmwareVersion ){
                     Log.d(WatchDevice.TAG, "version update available")
                     versionUpdate = true
                 }else if(it.toLowerCase().startsWith("sw07_") && it!=WatchDevice.sw07FirmwareVersion){
