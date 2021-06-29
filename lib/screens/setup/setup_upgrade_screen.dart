@@ -24,7 +24,7 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> with SingleTick
   AnimationController _controller;
   String upgradeMessage = '';
   bool upgradeSuccess = false;
-  final eventChannel = EventChannel("ceras.iamhome.mobile/device_upgrade");
+  final eventChannel = EventChannel('ceras.iamhome.mobile/device_upgrade');
 
 
   @override
