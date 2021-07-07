@@ -51,7 +51,7 @@ dependencies:
   firebase_in_app_messaging: ^0.4.0+1
   email_validator: "^2.0.1"
   local_auth: ^1.1.6
-  connectivity_plus: ^1.0.4
+  connectivity: ^3.0.3
   pin_code_fields: ^7.2.0
   cached_network_image: ^3.0.0
   network_info_plus: ^1.0.2

@@ -155,48 +155,34 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.15.0"
-  connectivity_plus:
+  connectivity:
     dependency: "direct main"
     description:
-      name: connectivity_plus
+      name: connectivity
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.4"
-  connectivity_plus_linux:
+    version: "3.0.6"
+  connectivity_for_web:
     dependency: transitive
     description:
-      name: connectivity_plus_linux
+      name: connectivity_for_web
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.3"
-  connectivity_plus_macos:
+    version: "0.4.0"
+  connectivity_macos:
     dependency: transitive
     description:
-      name: connectivity_plus_macos
+      name: connectivity_macos
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.2"
-  connectivity_plus_platform_interface:
+    version: "0.2.0"
+  connectivity_platform_interface:
     dependency: transitive
     description:
-      name: connectivity_plus_platform_interface
+      name: connectivity_platform_interface
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.2"
-  connectivity_plus_web:
-    dependency: transitive
-    description:
-      name: connectivity_plus_web
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.2"
-  connectivity_plus_windows:
-    dependency: transitive
-    description:
-      name: connectivity_plus_windows
-      url: "https://pub.dartlang.org"
-    source: hosted
-    version: "1.0.2"
+    version: "2.0.1"
   convert:
     dependency: transitive
     description:
@@ -792,7 +778,7 @@ packages:
     source: hosted
     version: "3.0.0"
   plugin_platform_interface:
-    dependency: "direct overridden"
+    dependency: transitive
     description:
       name: plugin_platform_interface
       url: "https://pub.dartlang.org"

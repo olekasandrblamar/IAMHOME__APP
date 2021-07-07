@@ -10,7 +10,7 @@ import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
-import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info_plus/package_info_plus.dart';

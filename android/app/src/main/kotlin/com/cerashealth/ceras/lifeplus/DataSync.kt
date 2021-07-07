@@ -166,8 +166,8 @@ class DataSync {
                     val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
                     heartBeat.apply {
-                        latitude = location.latitude
-                        longitude = location.longitude
+                        latitude = location?.latitude
+                        longitude = location?.longitude
                     }
                 }
             }
@@ -220,7 +220,7 @@ class DataSync {
                                 && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                             val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
 
-                            val weatherUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?lat=${location.latitude}&lon=${location.longitude}&appid=4e33f6fdb2e35eeb5277b08ee0ff98bf&units=metric"
+                            val weatherUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?lat=${location?.latitude}&lon=${location?.longitude}&appid=4e33f6fdb2e35eeb5277b08ee0ff98bf&units=metric"
                             var getReq = Request.Builder().url(weatherUrl)
                                     .get()
                                     .build()

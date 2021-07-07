@@ -85,6 +85,6 @@ Future<void> updateDeviceInfo() async {
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString("userDeviceInfo", json.encode(deviceData));
 
-  final prefs = await SharedPreferences.getInstance();
-  await prefs.setString("userDeviceInfo", json.encode(deviceData));
+  // final prefs = await SharedPreferences.getInstance();
+  // await prefs.setString("userDeviceInfo", json.encode(deviceData));
 }
