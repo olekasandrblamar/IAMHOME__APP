@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		0332C9AC24B40CC700AAE8D1 /* ExternalAccessory.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0332C9AB24B40CC700AAE8D1 /* ExternalAccessory.framework */; };
+		033A411D2681017A00923B35 /* NetworkExtension.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 033A411C2681017A00923B35 /* NetworkExtension.framework */; };
 		036EF94224D904120002892D /* libHardManagerSDK.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 036EF94124D903F00002892D /* libHardManagerSDK.a */; };
 		03D13CAA24EC80D2001D13F3 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 03D13CA924EC80D2001D13F3 /* GoogleService-Info.plist */; };
 		1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */ = {isa = PBXBuildFile; fileRef = 1498D2331E8E89220040F4C2 /* GeneratedPluginRegistrant.m */; };
@@ -31,6 +32,7 @@
 		0332C9AA24B40CBE00AAE8D1 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
 		0332C9AB24B40CC700AAE8D1 /* ExternalAccessory.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ExternalAccessory.framework; path = System/Library/Frameworks/ExternalAccessory.framework; sourceTree = SDKROOT; };
 		0332C9AD24B40CD100AAE8D1 /* HealthKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HealthKit.framework; path = System/Library/Frameworks/HealthKit.framework; sourceTree = SDKROOT; };
+		033A411C2681017A00923B35 /* NetworkExtension.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = NetworkExtension.framework; path = System/Library/Frameworks/NetworkExtension.framework; sourceTree = SDKROOT; };
 		036EF94124D903F00002892D /* libHardManagerSDK.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libHardManagerSDK.a; sourceTree = "<group>"; };
 		03D13CA924EC80D2001D13F3 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		1498D2321E8E86230040F4C2 /* GeneratedPluginRegistrant.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = GeneratedPluginRegistrant.h; sourceTree = "<group>"; };
@@ -74,6 +76,7 @@
 				036EF94224D904120002892D /* libHardManagerSDK.a in Frameworks */,
 				5205C8D624F828BD00801D9F /* BackgroundTasks.framework in Frameworks */,
 				E64AB34EC27E73B31B97BB80 /* Pods_Runner.framework in Frameworks */,
+				033A411D2681017A00923B35 /* NetworkExtension.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -83,6 +86,7 @@
 		8034CB520AAA3844753050C0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				033A411C2681017A00923B35 /* NetworkExtension.framework */,
 				5205C8D524F828BD00801D9F /* BackgroundTasks.framework */,
 				036EF94124D903F00002892D /* libHardManagerSDK.a */,
 				5257E6C924D2693100C2B1BA /* libc++.tbd */,

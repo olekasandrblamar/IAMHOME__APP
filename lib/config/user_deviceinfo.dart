@@ -1,15 +1,15 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:package_info/package_info.dart';
-import 'package:device_info/device_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
+import 'package:device_info_plus/device_info_plus.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> updateDeviceInfo() async {
   final DeviceInfoPlugin deviceInfo = DeviceInfoPlugin();
   final PackageInfo packageInfo = await PackageInfo.fromPlatform();
 
-  Map<String,dynamic> deviceData = {};
+  Map<String, dynamic> deviceData = {};
 
   if (Platform.isIOS) {
     try {
@@ -36,7 +36,7 @@ Future<void> updateDeviceInfo() async {
           'buildNumber': packageInfo.buildNumber,
         }
       };
-    } on Exception catch(e){
+    } on Exception catch (e) {
       deviceData = {};
     }
   }
@@ -81,8 +81,10 @@ Future<void> updateDeviceInfo() async {
       }
     };
   }
-  
+
   final prefs = await SharedPreferences.getInstance();
   await prefs.setString("userDeviceInfo", json.encode(deviceData));
 
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString("userDeviceInfo", json.encode(deviceData));
 }
