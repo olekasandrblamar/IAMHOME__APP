@@ -37,6 +37,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     checkInternetConnection();
     loadData();
     updateVersionCheck();
+    WidgetsBinding.instance.addObserver(this);
     super.initState();
   }
 
@@ -45,6 +46,45 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     connectivitySubscription.cancel();
 
     super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    switch (state) {
+      case AppLifecycleState.resumed:
+        onResumed();
+        break;
+      case AppLifecycleState.inactive:
+        onPaused();
+        break;
+      case AppLifecycleState.paused:
+        onInactive();
+        break;
+      case AppLifecycleState.detached:
+        onDetached();
+        break;
+    }
+  }
+
+  void onResumed() {
+    print('resumed');
+    var index = 0;
+    if (!mounted) return;
+    _deviceData.forEach((device) {
+      _processSyncData(index);
+    });
+  }
+
+  void onPaused() {
+    print('paused');
+  }
+
+  void onInactive() {
+    print('inactive');
+  }
+
+  void onDetached() {
+    print('detach');
   }
 
   void checkInternetConnection() {
@@ -239,33 +279,20 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
                       child: Text('Access Health Data'),
-                      onPressed: () => _authenticate(),
+                      onPressed: ()
+                      {
+                        _authenticate();
+                        for(var i=0;i<_deviceData.length;i++){
+                          _processSyncData(i);
+                        }
+
+                      },
                     ),
                   ),
                 ],
               ),
             )
-          : SafeArea(
-              bottom: true,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    height: 90,
-                    padding: EdgeInsets.all(20),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.5),
-                      ),
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      child: Text('Access Health Data'),
-                      onPressed: () => _authenticate(),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          : SizedBox(height: 25,)
     );
   }
 
@@ -292,8 +319,25 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
         lastUpdate ?? DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
   }
 
+  void _processSyncData(index) async{
+
+    final connectionInfo = json.encode(_deviceData[index].watchInfo);
+
+    final syncResponse = BackgroundFetchData.platform.invokeMethod(
+      'syncData',
+      //'connectDevice',
+      <String, dynamic>{'connectionInfo': connectionInfo},
+    );
+
+    //Don't wait for the response
+    syncResponse.then((value) {
+      print('Syncing value $value');
+    });
+  }
+
   void _getDeviceStatus(int index) async {
-    String connectionInfo = json.encode(_deviceData[index].watchInfo);
+
+    final connectionInfo = json.encode(_deviceData[index].watchInfo);
     final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
       'connectionStatus',
       <String, dynamic>{'connectionInfo': connectionInfo},

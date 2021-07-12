@@ -174,9 +174,20 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
                       children: [
                         _buildLoginTopHeader(),
                         Container(
-                          margin: EdgeInsets.symmetric(
-                            horizontal: 10,
+                          alignment: Alignment.centerLeft,
+                          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildText('Your password must be 8-10 characters long with:'),
+                              _buildText('At least 1 Uppercase character'),
+                              _buildText('At least 1 Lowercase character'),
+                              _buildText('At least 1 Number'),
+                              _buildText('At least 1 Special charecter'),
+                            ],
                           ),
+                        ),
+                        Container(
                           child: Column(
                             children: [
                               // const SizedBox(height: 20),
@@ -279,14 +290,43 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
           return 'Please enter password.';
         }
 
-        if (value.length < 3) {
-          return 'password must be more than 2 charater';
+        if(!RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%^&*(){}|?]).{8,}').hasMatch(value)){
+          return "Password doesn't match criteria" ;
         }
 
         return null;
       },
       onSaved: (password) => _password = password,
       // onChanged: onChangePhoneNumberInput,
+    );
+  }
+
+  Widget _buildText(text){
+    return Text(
+      text,
+      style: TextStyle(
+        fontWeight: FontWeight.bold,
+        fontSize: 15.0,
+      ),
+    );
+  }
+
+  Widget _bulletText(text){
+    return ListTile(
+      leading: _bullet(),
+      title: _buildText(text),
+    );
+  }
+
+  Widget _bullet(){
+    return Container(
+        margin: EdgeInsets.all(0.0),
+        height: 10.0,
+        width: 10.0,
+        decoration: BoxDecoration(
+        color: Colors.black,
+        shape: BoxShape.circle,
+    ),
     );
   }
 
@@ -356,6 +396,7 @@ class _PasswordExpiredScreenState extends State<PasswordExpiredScreen> {
       labelText: labelText,
       hintText: hintText,
       border: OutlineInputBorder(),
+      errorStyle: TextStyle(color: Colors.red),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.all(Radius.circular(10.0)),
         borderSide: BorderSide(color: Colors.grey),

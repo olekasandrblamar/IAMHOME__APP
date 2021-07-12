@@ -102,7 +102,7 @@ class AppTheme {
       900: Color(0xff320301)
     }),
     brightness: Brightness.light,
-    primaryColor: Color(0xffc10b03),
+    primaryColor: Color(0xffee1010),
     primaryColorBrightness: Brightness.dark,
     primaryColorLight: Color(0xfffecfcd),
     primaryColorDark: Color(0xff970902),

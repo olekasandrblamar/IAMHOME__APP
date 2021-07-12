@@ -16,13 +16,17 @@ import com.transistorsoft.tsbackgroundfetch.BackgroundFetchConfig
 import io.flutter.app.FlutterApplication
 import io.flutter.embedding.android.*
 import io.flutter.embedding.engine.FlutterEngine
+import io.flutter.plugin.common.EventChannel
+import io.flutter.plugin.common.EventChannel.StreamHandler
 import io.flutter.plugin.common.MethodChannel
+import io.flutter.plugins.GeneratedPluginRegistrant
 import java.text.SimpleDateFormat
 import java.util.*
 
 class MainActivity: FlutterFragmentActivity()  {
 
     private val CHANNEL = "ceras.iamhome.mobile/device"
+    private val DEVICE_EVENTS = "ceras.iamhome.mobile/device_events"
     private var sycnDevice: BaseDevice? = null
 
     companion object{
@@ -97,15 +101,15 @@ class MainActivity: FlutterFragmentActivity()  {
                 sycnDevice?.let {
                     it.connectDevice(this,result,deviceId)
                     //Update the device type
-                    applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).edit().putString("flutter.deviceType",deviceType).commit()
+                    applicationContext.getSharedPreferences(SharedPrefernces, MODE_PRIVATE).edit().putString("flutter.deviceType",deviceType).commit()
                 }
             } else if(call.method =="syncData"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 updateLastConnected()
-                Log.i(TAG,"last Updated ${getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).all}")
+                Log.i(TAG,"last Updated ${getSharedPreferences(SharedPrefernces, MODE_PRIVATE).all}")
                 Log.i(TAG,"got sync data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
-                val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
+                val deviceType = getSharedPreferences(SharedPrefernces, MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 Log.i(TAG,"Device type ${deviceData.deviceType} with ${Gson().toJson(deviceData)}")
                 BaseDevice.getDeviceImpl(deviceData.deviceType).syncData(result,deviceData,this)
@@ -113,14 +117,14 @@ class MainActivity: FlutterFragmentActivity()  {
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got device status data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson<ConnectionInfo>(deviceDataString,ConnectionInfo::class.java)
-                val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
+                val deviceType = getSharedPreferences(SharedPrefernces, MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceData.deviceType).getDeviceInfo(result,deviceData,this)
             }else if(call.method =="connectionStatus"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got device status data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
-                val deviceType = getSharedPreferences(SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.deviceType",null)
+                val deviceType = getSharedPreferences(SharedPrefernces, MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceData.deviceType).getConnectionStatus(result,deviceData,this)
             }else if(call.method =="disconnect"){
@@ -132,6 +136,9 @@ class MainActivity: FlutterFragmentActivity()  {
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceData.deviceType).upgradeDevice(result,deviceData,this)
+            }else if(call.method == "readLineData"){
+                val deviceDataString = call.argument<String>("connectionInfo")
+
             }
             else {
                 result.notImplemented()
@@ -139,11 +146,49 @@ class MainActivity: FlutterFragmentActivity()  {
         }
     }
 
+    private fun readDataFromDevice(eventSink:EventChannel.EventSink,readingRequest: ReadingRequest){
+        currentContext = this
+        currentActivity = this
+        BaseDevice.isBackground = false
+
+        //fire the reading on the device
+        BaseDevice.getDeviceImpl(readingRequest.deviceType).readDataFromDevice(eventSink,readingRequest.readingType)
+
+    }
+
+    private fun connectEventChannel(flutterEngine: FlutterEngine){
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger, DEVICE_EVENTS)
+                .setStreamHandler(object: StreamHandler{
+                    var eventSink:EventChannel.EventSink? = null
+                    override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                        eventSink = events
+                        val args = arguments as Map<String, String>
+                        Log.d(TAG,"arguments $args ")
+//                        val deviceDataString = arguments.toString()
+//                        Log.d(TAG,"Got device data string $deviceDataString")
+//                        val readingRequest = Gson().fromJson<Map<String,String>>(deviceDataString,Map::class.java)
+                        val deviceType = args["deviceType"]
+                        val readingType = args["readingType"]
+                        readDataFromDevice(eventSink!!,ReadingRequest().apply {
+                            this.deviceType = deviceType!!
+                            this.readingType = readingType!!
+                        })
+                    }
+
+                    override fun onCancel(arguments: Any?) {
+                        eventSink?.let {
+                            it.endOfStream()
+                        }
+                    }
+                })
+    }
+
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         //GeneratedPluginRegistrant.registerWith(flutterEngine);
         // requestPermission()
         scheduleBackgroundTasks()
+        connectEventChannel(flutterEngine)
         connectDeviceChannel(flutterEngine)
     }
 
@@ -167,6 +212,10 @@ class MainActivity: FlutterFragmentActivity()  {
 //
 //
 //}
+class ReadingRequest{
+    lateinit var deviceType: String
+    lateinit var readingType: String
+}
 
 class CerasBluetoothSync{
 
@@ -223,7 +272,6 @@ class Application:FlutterApplication(){
 //                .build())
 
         //getWindow().addFlags(LayoutParams.FLAG_SECURE);
-        
         super.onCreate()
     }
 }

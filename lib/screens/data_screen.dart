@@ -3,14 +3,17 @@ import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/models/tracker_model.dart';
 import 'package:ceras/providers/devices_provider.dart';
+import 'package:circular_countdown/circular_countdown.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:intl/intl.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
 
 import 'dart:io';
+import 'dart:convert';
 
 import '../theme.dart';
 
@@ -20,19 +23,34 @@ class DataScreen extends StatefulWidget {
 }
 
 class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
+  var currentPageValue = 0.0;
+  int _currentPage = 0;
+  var trackers = [1, 2, 3, 4, 5, 6];
+
+  bool canScroll = true;
+
+  final PageController _pageController = PageController(
+    initialPage: 0,
+    // viewportFraction: 0.8,
+  );
+
   final LocalAuthentication auth = LocalAuthentication();
 
   List<dynamic> trackerTypes = [];
   List<Tracker> trackerTypeData = [];
+
+  Map<String, bool> processingMap = {};
+
+  final eventChannel = EventChannel("ceras.iamhome.mobile/device_events");
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     print('Got state ${state}');
     switch (state) {
       case AppLifecycleState.resumed:
-        if (!Platform.isIOS) {
-          _goToLogin();
-        }
+        // if (!Platform.isIOS) {
+        //   _goToLogin();
+        // }
         break;
       case AppLifecycleState.inactive:
         break;
@@ -48,15 +66,28 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     _initData();
     WidgetsBinding.instance.addObserver(this);
 
+    _pageController.addListener(() {
+      setState(() {
+        currentPageValue = _pageController.page;
+      });
+    });
+
     // TODO: implement initState
     super.initState();
   }
 
   @override
   void dispose() {
+    _pageController.dispose();
     WidgetsBinding.instance.removeObserver(this);
 
     super.dispose();
+  }
+
+  void _onPageChanged(int index) {
+    setState(() {
+      _currentPage = index;
+    });
   }
 
   Future<void> _initData() async {
@@ -80,6 +111,139 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     await Navigator.of(context).pushReplacementNamed(
       routes.SetupHomeRoute,
     );
+  }
+
+  void _readDataFromDevice(String dataType) async {
+    setState(() {
+      canScroll = false;
+    });
+    print('Loading data type $dataType');
+    var _processingMap = processingMap;
+    _processingMap[dataType] = true;
+    setState(() {
+      processingMap = _processingMap;
+    });
+    var deviceList = await Provider.of<DevicesProvider>(context, listen: false)
+        .getDevicesData();
+    var device = deviceList[0];
+    final requestData = {
+      'deviceType': device.watchInfo.deviceType,
+      'readingType': dataType
+    };
+    var request = json.encode(requestData);
+    //var currentTemp = _lastTemperature;
+    print('Sending request $request');
+    switch (dataType) {
+      case 'TEMPERATURE':
+        {
+          setState(() {
+            _lastTemperature = null;
+          });
+        }
+        break;
+      case 'HR':
+        {
+          setState(() {
+            _lastHr = null;
+          });
+        }
+        break;
+      case 'O2':
+        {
+          setState(() {
+            _oxygenLevel = null;
+          });
+        }
+        break;
+      case 'BP':
+        {
+          setState(() {
+            _bloodPressure = null;
+          });
+        }
+        break;
+      default:
+        {}
+        break;
+    }
+
+    var subscription =
+    eventChannel.receiveBroadcastStream(requestData).listen((event) {
+      final returnData = json.decode(event);
+      switch (dataType) {
+        case 'TEMPERATURE':
+          {
+            if (returnData['countDown'] == 0) {
+              var updatedTemp = Temperature();
+              updatedTemp.celsius = returnData['celsius'];
+              updatedTemp.fahrenheit = returnData['fahrenheit'];
+              updatedTemp.measureTime = DateTime.now();
+              setState(() {
+                _lastTemperature = updatedTemp;
+              });
+            }
+          }
+          break;
+        case 'HR':
+          {
+            if (returnData['rate'] != 0) {
+              var updatedHr = HeartRate();
+              updatedHr.heartRate = returnData['heartRate'];
+              updatedHr.measureTime = DateTime.now();
+              setState(() {
+                _lastHr = updatedHr;
+              });
+            }
+          }
+          break;
+        case 'BP':
+          {
+            if (returnData['systolic'] != 0) {
+              var updatedBp = BloodPressure();
+              updatedBp.systolic = returnData['systolic'];
+              updatedBp.distolic = returnData['diastolic'];
+              updatedBp.measureTime = DateTime.now();
+              setState(() {
+                _bloodPressure = updatedBp;
+              });
+            }
+          }
+          break;
+        case 'O2':
+          {
+            if (returnData['oxygenLevel'] != 0) {
+              var updateo2 = OxygenLevel();
+              updateo2.oxygenLevel = returnData['oxygenLevel'];
+              updateo2.measureTime = DateTime.now();
+              setState(() {
+                _oxygenLevel = updateo2;
+              });
+            }
+          }
+          break;
+        default:
+          {}
+          break;
+      }
+    }, onError: (dynamic error) {
+      var _processingMap = processingMap;
+      _processingMap[dataType] = false;
+      setState(() {
+        processingMap = _processingMap;
+        canScroll = true;
+      });
+      _currentCountDown = null;
+      print('Got error $error for data type $dataType');
+    }, onDone: () {
+      print('completed for $dataType');
+      var _processingMap = processingMap;
+      _processingMap[dataType] = false;
+      setState(() {
+        canScroll = true;
+        _currentCountDown = null;
+        processingMap = _processingMap;
+      });
+    }, cancelOnError: true);
   }
 
   void _goToLogin() async {

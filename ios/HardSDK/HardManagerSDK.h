@@ -73,7 +73,7 @@ typedef void(^temperatureDanger)(BOOL Danger);
 #pragma mark - bool value
 
 /// 蓝牙是否已打开
-@property (nonatomic, assign) BOOL isPowerOn;
+@property (nonatomic, assign, readonly) BOOL isPowerOn;
 /// 设备是否已连接
 @property (nonatomic, assign) BOOL isConnected;
 /// 数据是否同步中
@@ -84,7 +84,6 @@ typedef void(^temperatureDanger)(BOOL Danger);
 #pragma mark - ble action
 
 +(instancetype)shareBLEManager;
-
 
 /**
 搜索设备，返回带温度的广播内容。需要传入广播手环系列数组，例如ABC、XYZ手环，则数组为@[@"ABC",@"XYZ"]，如不需要，可穿nil
@@ -158,7 +157,7 @@ typedef void(^temperatureDanger)(BOOL Danger);
 */
 -(void)getHardHistoryBodyTemperature:(NSDate *)date deadline:(NSDate *)deadline;;
 /**
-从这里查询手环缺失的UI文件
+从这里查询手环缺失文件
 */
 -(void)getHardBandImageFileNeeded;
 /*
@@ -288,6 +287,14 @@ typedef void(^temperatureDanger)(BOOL Danger);
 血压数据一键测量，注意：一定需要传入用户数据后才有值。否则只有心率数据
 */
 -(void)setStartBloodPressureMeasurement;
+
+/**
+ 回传手环血压测量结果  （手环主动发起）
+ @param heartRate 心率
+ @param sp 收缩压 (Systolic Pressure)
+ @param dp 舒张压 (Diastolic Pressure)
+ */
+-(void)setBloodPressurePassvielyMeasurementWithHeartRate:(NSInteger)heartRate sp:(NSInteger)sp dp:(NSInteger)dp;
 /**
 血氧数据一键测量，注意：一定需要传入用户数据后才有值。否则只有心率数据
 */
@@ -316,7 +323,7 @@ typedef void(^temperatureDanger)(BOOL Danger);
 -(void)setHardEvenItems:(NSArray <HardItemModel *>*)items;
 /**
 测量血糖、胆固醇结束后返回到手环的数据
-  @param type 1->心率 2->血压 3->血氧 4->血糖 5->胆固醇 (此接口目前只接受血糖，胆固醇的结果返回)
+  @param type HardMeasureType (此接口目前只接受血糖，胆固醇的结果返回)
   @param result 返回到手环的数据 如需要显示值为5.13，则传入的值为513;
 */
 -(void)hardSetMeasurementResultWithType:(HardMeasureType)type result:(NSInteger)result;

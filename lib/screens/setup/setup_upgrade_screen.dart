@@ -15,13 +15,28 @@ class SetupUpgradeScreen extends StatefulWidget {
   _SetupUpgradeScreenState createState() => _SetupUpgradeScreenState();
 }
 
-class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> {
+class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> with SingleTickerProviderStateMixin  {
   bool isUpgrading = false;
+  AnimationController _controller;
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {
     _upgradeDevice();
+    _controller = AnimationController(
+      duration: const Duration(seconds: 5),
+      vsync: this,
+    );
 
+    Future.delayed(Duration(seconds: 1), () {
+      _controller.repeat(min: 0,max: 1);
+      //Add a timeout error
+    });
     super.initState();
   }
 
@@ -164,8 +179,11 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> {
                         maxHeight: 300.0,
                       ),
                       padding: const EdgeInsets.all(10.0),
-                      child: Image.asset(
-                        'assets/images/upgrading.png',
+                      child: RotationTransition(
+                        turns: Tween(begin: 1.0, end: 0.0).animate(_controller),
+                        child: Image.asset(
+                          'assets/images/upgrading.png',
+                        ),
                       ),
                     ),
                     SizedBox(

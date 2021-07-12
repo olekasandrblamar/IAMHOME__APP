@@ -168,6 +168,29 @@ import BackgroundTasks
         }
         
     })
+    
+    let eventChannel = FlutterEventChannel(name: "ceras.iamhome.mobile/device_events", binaryMessenger: controller.binaryMessenger)
+    
+    class StreamHandler: NSObject, FlutterStreamHandler {
+            
+        weak var appDelegate:AppDelegate? = nil
+        
+        func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+            NSLog("Arguments \(arguments)")
+            let readingType:String = (arguments as? [String: Any])?["readingType"] as! String
+            appDelegate?.readDataFromDevice(eventSink: events, readingType: readingType)
+            return nil
+        }
+    
+        func onCancel(withArguments arguments: Any?) -> FlutterError? {
+            return nil
+        }
+            
+    }
+    let handler = StreamHandler()
+    handler.appDelegate = self
+    eventChannel.setStreamHandler(handler)
+
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
@@ -182,6 +205,10 @@ import BackgroundTasks
         }catch{
             NSLog("Error while reading da \(error)")
         }
+    }
+    
+    private func takeReadingFromDevice(deviceType:String,readingType:String){
+        
     }
     
     private func scheduleBackgroundSync(){
@@ -320,6 +347,16 @@ import BackgroundTasks
 //        }
     }
     
+    private func readDataFromDevice(eventSink events: @escaping FlutterEventSink,readingType:String){
+        let deviceType = getDeviceType()
+        if(deviceType==AppDelegate.WATCH_TYPE){
+            NSLog("Connecting Watch")
+            self.getWatchDevice()?.readDataFromDevice(eventSink: events, readingType: readingType)
+        }else{
+           events(FlutterEndOfEventStream)
+        }
+    }
+    
     private func getDeviceInfo(result:@escaping FlutterResult,connectionInfo:String) throws {
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         NSLog("Getting device info ")
@@ -380,4 +417,23 @@ struct ConnectionInfo:Codable {
     var additionalInformation: [String:String] = [:]
     var batteryStatus:String? = nil
     var upgradeAvailable:Bool = false
+}
+
+struct TemperatureReading:Codable {
+    var countDown:Int = 0
+    var celsius:Double = 0
+    var fahrenheit:Double = 0
+}
+
+struct BpReading:Codable{
+    var systolic:Int = 0
+    var diastolic:Int = 0
+}
+
+struct OxygenLevel:Codable{
+    var oxygenLevel:Int = 0
+}
+
+struct HeartRateReading:Codable {
+    var heartRate:Int = 0
 }
