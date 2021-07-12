@@ -8,6 +8,7 @@ import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
+import 'package:ceras/screens/setup/setup_upgrade_screen.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:connectivity/connectivity.dart';
@@ -124,6 +125,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   void _loadDeviceState(List<DevicesModel> deviceList) {
     var index = 0;
     deviceList.forEach((device) {
+      _getConnectionStatus(index++);
       _getDeviceStatus(index++);
     });
   }
@@ -243,57 +245,56 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: SetupAppBar(name: 'My Devices'),
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        bottom: true,
-        child: SingleChildScrollView(
-          child: _deviceData.isNotEmpty
-              ? Container(
-                  padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      for (int index = 0; index < _deviceData.length; index++)
-                        _buildDevicesList(index),
-                      // _buildNewDevice()
-                    ],
-                  ),
-                )
-              : _buildNewDevice(),
-        ),
-      ),
-      bottomNavigationBar: _deviceData.isNotEmpty
-          ? SafeArea(
-              bottom: true,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    height: 90,
-                    padding: EdgeInsets.all(20),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.5),
-                      ),
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      child: Text('Access Health Data'),
-                      onPressed: ()
-                      {
-                        _authenticate();
-                        for(var i=0;i<_deviceData.length;i++){
-                          _processSyncData(i);
-                        }
-
-                      },
+        appBar: SetupAppBar(name: 'My Devices'),
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          bottom: true,
+          child: SingleChildScrollView(
+            child: _deviceData.isNotEmpty
+                ? Container(
+                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        for (int index = 0; index < _deviceData.length; index++)
+                          _buildDevicesList(index),
+                        // _buildNewDevice()
+                      ],
                     ),
-                  ),
-                ],
-              ),
-            )
-          : SizedBox(height: 25,)
-    );
+                  )
+                : _buildNewDevice(),
+          ),
+        ),
+        bottomNavigationBar: _deviceData.isNotEmpty
+            ? SafeArea(
+                bottom: true,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      height: 90,
+                      padding: EdgeInsets.all(20),
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.5),
+                        ),
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        child: Text('Access Health Data'),
+                        onPressed: () {
+                          _authenticate();
+                          for (var i = 0; i < _deviceData.length; i++) {
+                            _processSyncData(i);
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : SizedBox(
+                height: 25,
+              ));
   }
 
   String _buildDeviceCode(WatchModel watchModel) {
@@ -319,8 +320,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
         lastUpdate ?? DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
   }
 
-  void _processSyncData(index) async{
-
+  void _processSyncData(index) async {
     final connectionInfo = json.encode(_deviceData[index].watchInfo);
 
     final syncResponse = BackgroundFetchData.platform.invokeMethod(
@@ -335,8 +335,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     });
   }
 
-  void _getDeviceStatus(int index) async {
-
+  void _getConnectionStatus(int index) async {
     final connectionInfo = json.encode(_deviceData[index].watchInfo);
     final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
       'connectionStatus',
@@ -363,6 +362,79 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     //   //       DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
     //   // });
     // }
+  }
+
+  void _getDeviceStatus(int index) async {
+    final connectionInfo = json.encode(_deviceData[index].watchInfo);
+    final deviceStatus = await BackgroundFetchData.platform.invokeMethod(
+      'deviceStatus',
+      <String, dynamic>{'connectionInfo': connectionInfo},
+    ) as String;
+
+    if (deviceStatus != 'Error') {
+      print('Got connection info response $deviceStatus');
+      final connectionStatusData = WatchModel.fromJson(
+          json.decode(deviceStatus) as Map<String, dynamic>);
+
+      if (!mounted) return;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('connected', 'true');
+
+      // setState(() {
+      //   _connected = connectionStatusData.connected;
+      //   _deviceId = connectionStatusData.deviceId;
+      //   _batteryLevel = connectionStatusData.batteryStatus;
+      // });
+      if (connectionStatusData.upgradeAvailable) {
+        _showUpgrade();
+      }
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('connected', 'false');
+    }
+  }
+
+  void _showUpgrade() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Upgrade available',
+          ),
+          content: Text(
+            'An upgrade to the device is aviailable. Do you want to Upgrade',
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+              ),
+            ),
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // _upgradeDevice();
+
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => SetupUpgradeScreen(),
+                      settings:
+                          const RouteSettings(name: routes.SetupUpgradeRoute),
+                    ),
+                    (Route<dynamic> route) => false);
+              },
+              child: Text(
+                'Ok',
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildDevicesList(int index) {
