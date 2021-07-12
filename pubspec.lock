@@ -538,14 +538,14 @@ packages:
       name: json_annotation
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.1.1"
+    version: "4.0.0"
   json_serializable:
     dependency: "direct dev"
     description:
       name: json_serializable
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.5.1"
+    version: "4.0.2"
   launch_review:
     dependency: "direct main"
     description:
@@ -778,7 +778,7 @@ packages:
     source: hosted
     version: "3.0.0"
   plugin_platform_interface:
-    dependency: transitive
+    dependency: "direct overridden"
     description:
       name: plugin_platform_interface
       url: "https://pub.dartlang.org"

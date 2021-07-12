@@ -56,6 +56,9 @@ dependencies:
   cached_network_image: ^3.0.0
   network_info_plus: ^1.0.2
 
+dependency_overrides:
+  plugin_platform_interface: ">=2.0.0"
+
 dev_dependencies:
   pedantic: ^1.11.0
   flutter_launcher_icons: ^0.9.0
