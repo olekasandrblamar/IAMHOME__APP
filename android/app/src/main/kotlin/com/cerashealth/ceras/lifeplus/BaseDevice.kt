@@ -58,7 +58,7 @@ open class BaseDevice{
 
         const val WATCH_DEVICE:String = "WATCH"
         const val BAND_DEVICE:String = "BAND"
-        const val B369_DEVICE:String = "B369"
+        const val B369_DEVICE:String = "SCALE"
         var isBackground = false
         val TAG = WatchDevice::class.java.simpleName
 

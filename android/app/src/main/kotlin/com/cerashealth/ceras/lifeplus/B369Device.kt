@@ -3,10 +3,17 @@ package com.cerashealth.ceras.lifeplus
 import android.content.Context
 import android.util.Log
 import cn.icomon.icdevicemanager.ICDeviceManager
+import cn.icomon.icdevicemanager.ICDeviceManagerDelegate
 import cn.icomon.icdevicemanager.callback.ICScanDeviceDelegate
+import cn.icomon.icdevicemanager.model.data.*
 import cn.icomon.icdevicemanager.model.device.ICDevice
+import cn.icomon.icdevicemanager.model.device.ICDeviceInfo
 import cn.icomon.icdevicemanager.model.device.ICScanDeviceInfo
+import cn.icomon.icdevicemanager.model.device.ICUserInfo
 import cn.icomon.icdevicemanager.model.other.ICConstant
+import cn.icomon.icdevicemanager.model.other.ICConstant.ICMeasureStep
+import cn.icomon.icdevicemanager.model.other.ICConstant.ICWeightUnit
+import cn.icomon.icdevicemanager.model.other.ICDeviceManagerConfig
 import com.cerashealth.ceras.MainActivity
 import com.cerashealth.ceras.lifeplus.data.ConnectionInfo
 import io.flutter.plugin.common.MethodChannel
@@ -33,10 +40,10 @@ class B369InitialConnection: ICScanDeviceDelegate{
     }
 
     override fun onScanResult(deviceInfo: ICScanDeviceInfo?) {
-        Log.d(B369Device.TAG,"Found device ${deviceInfo?.macAddr}")
+        Log.i(B369Device.TAG, "Found device ${deviceInfo?.macAddr}")
         deviceInfo?.let {
             val lastFour = it.macAddr.substring(it.macAddr.length - 5).replace(":", "")
-            if(lastFour.toLowerCase()== deviceId?.toLowerCase()){
+            if(lastFour.equals(deviceId, ignoreCase = true)){
                 Log.d(B369Device.TAG, "values matched matched")
                 deviceFound = true
                 result?.let {
@@ -49,8 +56,10 @@ class B369InitialConnection: ICScanDeviceDelegate{
                             ICDeviceManager.shared().stopScan()
                             deviceConnected = true
                             B369Device.device = device
+
                             result.success(ConnectionInfo.createResponse(message = "Connected", connected = true, deviceId = deviceInfo.macAddr, deviceName = deviceInfo.name,
                                     deviceType = BaseDevice.B369_DEVICE, deviceFound = deviceFound))
+
                         } catch (ex: Exception) {
                             Log.e(B369Device.TAG, "Error while sending response ", ex)
                         }
@@ -62,6 +71,141 @@ class B369InitialConnection: ICScanDeviceDelegate{
 
 }
 
+class DataProcessor: ICDeviceManagerDelegate{
+    override fun onInitFinish(finished: Boolean) {
+        Log.d(B369Device.TAG, "Initialization finished")
+    }
+
+    override fun onBleState(p0: ICConstant.ICBleState?) {
+        Log.d(B369Device.TAG, "BLE state changed ")
+    }
+
+    override fun onDeviceConnectionChanged(device: ICDevice?, p1: ICConstant.ICDeviceConnectState?) {
+        Log.d(B369Device.TAG, "Connection changed ")
+    }
+
+    override fun onReceiveWeightData(device: ICDevice?, weightData: ICWeightData?) {
+        Log.d(B369Device.TAG, "received Weight data ")
+        weightData?.let {
+            Log.d(B369Device.TAG, "Got weight data at ${weightData.time} weight ${weightData.weight_lb} BMI ${weightData.bmi} " +
+                    "bodyfat ${weightData.bodyFatPercent} " +
+                    "Musc Percent ${weightData.musclePercent} " +
+                    "Viscural Fat ${weightData.visceralFat} " +
+                    "Bone Bass ${weightData.boneMass} " +
+                    "Body Age ${weightData.physicalAge}" +
+                    "Protien ${weightData.proteinPercent}")
+        }
+    }
+
+    override fun onReceiveKitchenScaleData(device: ICDevice?, p1: ICKitchenScaleData?) {
+        Log.d(B369Device.TAG, "Scale data updated ")
+    }
+
+    override fun onReceiveKitchenScaleUnitChanged(device: ICDevice?, p1: ICConstant.ICKitchenScaleUnit?) {
+        Log.d(B369Device.TAG, "Scale unit changed ")
+    }
+
+    override fun onReceiveCoordData(device: ICDevice?, p1: ICCoordData?) {
+        Log.d(B369Device.TAG, "Got Cord Data ")
+    }
+
+    override fun onReceiveRulerData(device: ICDevice?, p1: ICRulerData?) {
+        Log.d(B369Device.TAG, "Got ruler data ")
+    }
+
+    override fun onReceiveRulerHistoryData(device: ICDevice?, p1: ICRulerData?) {
+        Log.d(B369Device.TAG, "Got ruler history ")
+    }
+
+    override fun onReceiveWeightCenterData(device: ICDevice?, p1: ICWeightCenterData?) {
+        Log.d(B369Device.TAG, "GOt weigh center data")
+    }
+
+    override fun onReceiveWeightUnitChanged(device: ICDevice?, p1: ICWeightUnit?) {
+        Log.d(B369Device.TAG, "Weight unit changed ")
+    }
+
+    override fun onReceiveRulerUnitChanged(device: ICDevice?, p1: ICConstant.ICRulerUnit?) {
+        Log.d(B369Device.TAG, "Ruler unit changed ")
+    }
+
+    override fun onReceiveRulerMeasureModeChanged(device: ICDevice?, p1: ICConstant.ICRulerMeasureMode?) {
+        Log.d(B369Device.TAG, "Ruler mode changed ")
+    }
+
+    override fun onReceiveMeasureStepData(device: ICDevice?, step: ICMeasureStep?, data2: Any?) {
+        when (step) {
+            ICMeasureStep.ICMeasureStepMeasureWeightData -> {
+                val data = data2 as ICWeightData
+//                onReceiveWeightData(device, data)
+            }
+            ICMeasureStep.ICMeasureStepMeasureCenterData -> {
+                val data = data2 as ICWeightCenterData
+                onReceiveWeightCenterData(device, data)
+            }
+            ICMeasureStep.ICMeasureStepAdcStart -> {
+                Log.d(B369Device.TAG, device!!.getMacAddr() + ": start imp... ")
+            }
+            ICMeasureStep.ICMeasureStepAdcResult -> {
+                Log.d(B369Device.TAG, device!!.getMacAddr() + ": imp over")
+            }
+            ICMeasureStep.ICMeasureStepHrStart -> {
+                Log.d(B369Device.TAG, device!!.getMacAddr() + ": start hr")
+            }
+            ICMeasureStep.ICMeasureStepHrResult -> {
+                val hrData = data2 as ICWeightData
+                Log.d(B369Device.TAG, device!!.getMacAddr() + ": over hr: " + hrData.hr)
+            }
+            ICMeasureStep.ICMeasureStepMeasureOver -> {
+                val data = data2 as ICWeightData
+                Log.d(B369Device.TAG, device!!.getMacAddr() + ": over measure")
+                onReceiveWeightData(device, data)
+            }
+            else -> {
+            }
+        }
+
+    }
+
+    override fun onReceiveWeightHistoryData(device: ICDevice?, historyData: ICWeightHistoryData?) {
+        historyData?.let {
+            Log.d(B369Device.TAG, "Got history data ${it.time} ${it.weight_lb} ")
+        }
+        Log.d(B369Device.TAG, "Weight history data ")
+    }
+
+    override fun onReceiveSkipData(device: ICDevice?, p1: ICSkipData?) {
+        Log.d(B369Device.TAG, "Skip device ")
+    }
+
+    override fun onReceiveHistorySkipData(device: ICDevice?, p1: ICSkipData?) {
+        Log.d(B369Device.TAG, "History skip data ")
+    }
+
+    override fun onReceiveSkipBattery(device: ICDevice?, p1: Int) {
+        Log.d(B369Device.TAG, "Skip dattery ")
+    }
+
+    override fun onReceiveUpgradePercent(device: ICDevice?, p1: ICConstant.ICUpgradeStatus?, p2: Int) {
+        Log.d(B369Device.TAG, "Device upgrade percent ")
+    }
+
+    override fun onReceiveDeviceInfo(device: ICDevice?, deviceInfo: ICDeviceInfo?) {
+        Log.d(B369Device.TAG, "Got device info")
+    }
+
+    override fun onReceiveDebugData(device: ICDevice?, p1: Int, p2: Any?) {
+        Log.d(B369Device.TAG, "Got debug data ")
+    }
+
+    override fun onReceiveConfigWifiResult(device: ICDevice?, p1: ICConstant.ICConfigWifiState?) {
+        Log.d(B369Device.TAG, "Config wifi result ")
+    }
+
+}
+
+
+
 class B369Device :BaseDevice(){
 
     companion object{
@@ -70,19 +214,48 @@ class B369Device :BaseDevice(){
     }
 
     override fun connectDevice(context: Context, result: MethodChannel.Result, deviceId: String?) {
+        Log.i(TAG, "Connecting to $deviceId")
+        val config = ICDeviceManagerConfig()
+        config.context = context
+        ICDeviceManager.shared().updateUserInfo(ICUserInfo().apply {
+            kitchenUnit = ICConstant.ICKitchenScaleUnit.ICKitchenScaleUnitLb
+            rulerUnit = ICConstant.ICRulerUnit.ICRulerUnitInch
+            age = 37
+            weight = 175.0
+            sex = ICConstant.ICSexType.ICSexTypeMale
+            height = 72
+            peopleType = ICConstant.ICPeopleType.ICPeopleTypeNormal
+        })
+        ICDeviceManager.shared().setDelegate(DataProcessor())
+        ICDeviceManager.shared().initMgrWithConfig(config)
         if(ICDeviceManager.shared().isBLEEnable){
             val callBack = B369InitialConnection(context, result, deviceId)
-            ICDeviceManager.shared().scanDevice(B369InitialConnection(context, result, deviceId))
+            ICDeviceManager.shared().scanDevice(callBack)
             GlobalScope.launch {
                 delay(25000)
-                Log.d(B369Device.TAG, "Unable to find device ")
                 ICDeviceManager.shared().stopScan()
-                if(!callBack.deviceConnected)
+                Log.d(TAG, "Device connected ${callBack.deviceConnected}")
+                if(!callBack.deviceConnected) {
+                    Log.d(TAG, "Unable to find device ")
                     MainActivity.currentActivity?.runOnUiThread {
                         result.success(ConnectionInfo.createResponse(message = "Failed", connected = false, deviceFound = callBack.deviceFound))
                     }
+                }else{
+                    device?.let {device->
+                        ICDeviceManager.shared().settingManager.setScaleUnit(device, ICWeightUnit.ICWeightUnitKg
+                        ) { code ->
+                            Log.d(TAG, String.format("%s %s", device.getMacAddr(),
+                                    "setting callback code :$code"))
+                        }
+                    }
+
+                }
             }
         }
+    }
+
+    override fun syncData(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
+
     }
 
 }
