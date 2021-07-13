@@ -41,6 +41,10 @@ open class BaseDevice{
         Log.i(TAG,"Calling default disconnect device")
     }
 
+    open fun connectWifi(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context,network:String?,password:String?){
+        Log.i(TAG,"Calling default wifi connection")
+    }
+
     open fun syncWeather(weatherList:List<WeatherInfo>){
         Log.i(TAG,"Calling default sync weather device")
     }

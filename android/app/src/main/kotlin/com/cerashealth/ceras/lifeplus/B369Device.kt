@@ -43,6 +43,7 @@ class B369InitialConnection: ICScanDeviceDelegate{
         Log.i(B369Device.TAG, "Found device ${deviceInfo?.macAddr}")
         deviceInfo?.let {
             val lastFour = it.macAddr.substring(it.macAddr.length - 5).replace(":", "")
+            Log.d(B369Device.TAG,"matching $lastFour to $deviceId")
             if(lastFour.equals(deviceId, ignoreCase = true)){
                 Log.d(B369Device.TAG, "values matched matched")
                 deviceFound = true
@@ -72,6 +73,9 @@ class B369InitialConnection: ICScanDeviceDelegate{
 }
 
 class DataProcessor: ICDeviceManagerDelegate{
+
+    var result:MethodChannel.Result? = null
+
     override fun onInitFinish(finished: Boolean) {
         Log.d(B369Device.TAG, "Initialization finished")
     }
@@ -81,7 +85,7 @@ class DataProcessor: ICDeviceManagerDelegate{
     }
 
     override fun onDeviceConnectionChanged(device: ICDevice?, p1: ICConstant.ICDeviceConnectState?) {
-        Log.d(B369Device.TAG, "Connection changed ")
+        Log.d(B369Device.TAG, "Connection changed $p1")
     }
 
     override fun onReceiveWeightData(device: ICDevice?, weightData: ICWeightData?) {
@@ -198,8 +202,25 @@ class DataProcessor: ICDeviceManagerDelegate{
         Log.d(B369Device.TAG, "Got debug data ")
     }
 
-    override fun onReceiveConfigWifiResult(device: ICDevice?, p1: ICConstant.ICConfigWifiState?) {
-        Log.d(B369Device.TAG, "Config wifi result ")
+    override fun onReceiveConfigWifiResult(device: ICDevice?, wifiStatus: ICConstant.ICConfigWifiState?) {
+        Log.i(B369Device.TAG,"Got wifi result for ${device?.macAddr} is ${wifiStatus}")
+        result?.let {
+            when(wifiStatus){
+                ICConstant.ICConfigWifiState.ICConfigWifiStateSuccess ->{
+                    result?.success(ConnectionInfo.createResponse(message = "Wifi Connected",connected = true))
+                }
+                ICConstant.ICConfigWifiState.ICConfigWifiStateFail -> {
+                    result?.success(ConnectionInfo.createResponse(message = "Config failed",connected = true))
+                }
+                ICConstant.ICConfigWifiState.ICConfigWifiStatePasswordFail -> {
+                    result?.success(ConnectionInfo.createResponse(message = "Invalid Password",connected = true))
+                }
+                ICConstant.ICConfigWifiState.ICConfigWifiStateWifiConnecting -> {
+                    Log.d(B369Device.TAG,"Connecting ${device?.macAddr}")
+                }
+            }
+            result = null
+        }
     }
 
 }
@@ -211,6 +232,7 @@ class B369Device :BaseDevice(){
     companion object{
         val TAG = B369Device::class.java.simpleName
         var device:ICDevice? = null
+        var dataProcessor:DataProcessor? = null
     }
 
     override fun connectDevice(context: Context, result: MethodChannel.Result, deviceId: String?) {
@@ -226,9 +248,14 @@ class B369Device :BaseDevice(){
             height = 72
             peopleType = ICConstant.ICPeopleType.ICPeopleTypeNormal
         })
-        ICDeviceManager.shared().setDelegate(DataProcessor())
+        if(dataProcessor == null)
+            dataProcessor = DataProcessor()
+        ICDeviceManager.shared().delegate = dataProcessor
         ICDeviceManager.shared().initMgrWithConfig(config)
+        Log.d(TAG,"Bluetooth enabled ${ICDeviceManager.shared().isBLEEnable}")
         if(ICDeviceManager.shared().isBLEEnable){
+            Log.d(TAG,"Bluetooth enabled")
+            Log.d(TAG,"Setting call back")
             val callBack = B369InitialConnection(context, result, deviceId)
             ICDeviceManager.shared().scanDevice(callBack)
             GlobalScope.launch {
@@ -251,6 +278,35 @@ class B369Device :BaseDevice(){
 
                 }
             }
+        }
+    }
+
+    override fun connectWifi(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context, network: String?, password: String?) {
+//        ICDeviceManagerConfig().apply {
+//            this.context = context
+//        }
+//        val device = ICDevice().apply {
+//            macAddr = connectionInfo.deviceId
+//        }
+        Log.d(TAG,"Connecting to $network with $password with device id ${connectionInfo.deviceId}")
+//        if(ICDeviceManager.shared().delegate == null)
+//            ICDeviceManager.shared().delegate = dataProcessor
+//        dataProcessor?.result = result
+        ICDeviceManager.shared().settingManager.configWifi(device,network!!,password!!) {
+            Log.d(TAG,"Got status $it")
+            when(it){
+                ICConstant.ICSettingCallBackCode.ICSettingCallBackCodeSuccess ->{
+                    Log.d(TAG,"Connection success")
+                    //result?.success(ConnectionInfo.createResponse(message = "Success",connected = true))
+                }
+                else -> {
+                    Log.d(TAG,"Connection failure")
+                    result?.success(ConnectionInfo.createResponse(message = "Failure ${it}",connected = true))
+                }
+            }
+        }
+        ICDeviceManager.shared().settingManager.setServerUrl(device,"https://device.alpha.myceras.com"){
+            Log.d(TAG,"Got server url status $it")
         }
     }
 

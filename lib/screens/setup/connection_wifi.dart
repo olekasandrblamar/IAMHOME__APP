@@ -1,13 +1,16 @@
 import 'dart:async';
 
+import 'package:ceras/models/devices_model.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/theme.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
+import 'package:ceras/config/background_fetch.dart';
 import 'package:flutter/services.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ConnectionWifiScreen extends StatefulWidget {
   final Map<dynamic, dynamic> routeArgs;
@@ -21,6 +24,8 @@ class ConnectionWifiScreen extends StatefulWidget {
 class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
+
+  DevicesModel _devicesModel = null;
 
   String _connectionStatus = 'Unknown';
   String _wifiName, _password = '';
@@ -45,7 +50,15 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
       _wifiController.text = null;
       _passwordController.text = null;
     }
-    setState(() {});
+
+    DevicesModel deviceModel;
+
+    if (widget.routeArgs != null) {
+      deviceModel = widget.routeArgs['deviceData'];
+    }
+    setState(() {
+      _devicesModel = deviceModel;
+    });
 
     initConnectivity();
     loadData();
@@ -148,6 +161,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
 
   Future<void> _saveForm() async {
     try {
+      final prefs = await SharedPreferences.getInstance();
       final isValid = _formKey.currentState.validate();
       if (!isValid) {
         return;
@@ -156,6 +170,14 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
 
       print(_wifiName);
       print(_password);
+
+      final connectionInfo = prefs.getString('watchInfo');
+
+
+      final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
+        'connectWifi',
+        <String, dynamic>{'connectionInfo': connectionInfo,'network':'shyamalapati','password':_password},
+      ) as String;
 
       setState(() {
         _isLoading = true;

@@ -136,7 +136,14 @@ class MainActivity: FlutterFragmentActivity()  {
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceData.deviceType).upgradeDevice(result,deviceData,this)
-            }else if(call.method == "readLineData"){
+            }else if(call.method == "connectWifi"){
+                val deviceDataString = call.argument<String>("connectionInfo")
+                val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
+                val network = call.argument<String>("network")
+                val password = call.argument<String>("password")
+                BaseDevice.getDeviceImpl(deviceData.deviceType).connectWifi(result,deviceData,this,network,password)
+            }
+            else if(call.method == "readLineData"){
                 val deviceDataString = call.argument<String>("connectionInfo")
 
             }

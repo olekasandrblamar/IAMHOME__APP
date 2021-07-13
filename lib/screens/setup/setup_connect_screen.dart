@@ -4,6 +4,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ceras/config/app_localizations.dart';
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/providers/devices_provider.dart';
+import 'package:ceras/screens/setup/connection_wifi.dart';
 import 'package:ceras/screens/setup/setup_connected_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -271,17 +272,32 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
 
   void _redirectTo() {
     Navigator.of(context).pop();
-
-    Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(
-          builder: (BuildContext context) => SetupConnectedScreen(
-            routeArgs: {
-              'displayImage': _displayImage,
-            },
+    print('Has wifi ${_deviceData.deviceMaster['wifi']}');
+    if(_deviceData.deviceMaster['wifi'] = false) {
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+                SetupConnectedScreen(
+                  routeArgs: {
+                    'deviceData': _deviceData,
+                  },
+                ),
+            settings: const RouteSettings(name: routes.SetupConnectedRoute),
           ),
-          settings: const RouteSettings(name: routes.SetupConnectedRoute),
-        ),
-        (Route<dynamic> route) => false);
+              (Route<dynamic> route) => false);
+    }else{
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+                ConnectionWifiScreen(
+                  routeArgs: {
+                    'displayImage': _displayImage,
+                  },
+                ),
+            settings: const RouteSettings(name: routes.ConnectionWifiRoute),
+          ),
+              (Route<dynamic> route) => false);
+    }
 
     // Navigator.of(context).pushNamed(
     //   routes.SetupConnectedRoute,
