@@ -113,138 +113,138 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     );
   }
 
-  void _readDataFromDevice(String dataType) async {
-    setState(() {
-      canScroll = false;
-    });
-    print('Loading data type $dataType');
-    var _processingMap = processingMap;
-    _processingMap[dataType] = true;
-    setState(() {
-      processingMap = _processingMap;
-    });
-    var deviceList = await Provider.of<DevicesProvider>(context, listen: false)
-        .getDevicesData();
-    var device = deviceList[0];
-    final requestData = {
-      'deviceType': device.watchInfo.deviceType,
-      'readingType': dataType
-    };
-    var request = json.encode(requestData);
-    //var currentTemp = _lastTemperature;
-    print('Sending request $request');
-    switch (dataType) {
-      case 'TEMPERATURE':
-        {
-          setState(() {
-            _lastTemperature = null;
-          });
-        }
-        break;
-      case 'HR':
-        {
-          setState(() {
-            _lastHr = null;
-          });
-        }
-        break;
-      case 'O2':
-        {
-          setState(() {
-            _oxygenLevel = null;
-          });
-        }
-        break;
-      case 'BP':
-        {
-          setState(() {
-            _bloodPressure = null;
-          });
-        }
-        break;
-      default:
-        {}
-        break;
-    }
-
-    var subscription =
-    eventChannel.receiveBroadcastStream(requestData).listen((event) {
-      final returnData = json.decode(event);
-      switch (dataType) {
-        case 'TEMPERATURE':
-          {
-            if (returnData['countDown'] == 0) {
-              var updatedTemp = Temperature();
-              updatedTemp.celsius = returnData['celsius'];
-              updatedTemp.fahrenheit = returnData['fahrenheit'];
-              updatedTemp.measureTime = DateTime.now();
-              setState(() {
-                _lastTemperature = updatedTemp;
-              });
-            }
-          }
-          break;
-        case 'HR':
-          {
-            if (returnData['rate'] != 0) {
-              var updatedHr = HeartRate();
-              updatedHr.heartRate = returnData['heartRate'];
-              updatedHr.measureTime = DateTime.now();
-              setState(() {
-                _lastHr = updatedHr;
-              });
-            }
-          }
-          break;
-        case 'BP':
-          {
-            if (returnData['systolic'] != 0) {
-              var updatedBp = BloodPressure();
-              updatedBp.systolic = returnData['systolic'];
-              updatedBp.distolic = returnData['diastolic'];
-              updatedBp.measureTime = DateTime.now();
-              setState(() {
-                _bloodPressure = updatedBp;
-              });
-            }
-          }
-          break;
-        case 'O2':
-          {
-            if (returnData['oxygenLevel'] != 0) {
-              var updateo2 = OxygenLevel();
-              updateo2.oxygenLevel = returnData['oxygenLevel'];
-              updateo2.measureTime = DateTime.now();
-              setState(() {
-                _oxygenLevel = updateo2;
-              });
-            }
-          }
-          break;
-        default:
-          {}
-          break;
-      }
-    }, onError: (dynamic error) {
-      var _processingMap = processingMap;
-      _processingMap[dataType] = false;
-      setState(() {
-        processingMap = _processingMap;
-        canScroll = true;
-      });
-      _currentCountDown = null;
-      print('Got error $error for data type $dataType');
-    }, onDone: () {
-      print('completed for $dataType');
-      var _processingMap = processingMap;
-      _processingMap[dataType] = false;
-      setState(() {
-        canScroll = true;
-        _currentCountDown = null;
-        processingMap = _processingMap;
-      });
-    }, cancelOnError: true);
-  }
+  // void _readDataFromDevice(String dataType) async {
+  //   setState(() {
+  //     canScroll = false;
+  //   });
+  //   print('Loading data type $dataType');
+  //   var _processingMap = processingMap;
+  //   _processingMap[dataType] = true;
+  //   setState(() {
+  //     processingMap = _processingMap;
+  //   });
+  //   var deviceList = await Provider.of<DevicesProvider>(context, listen: false)
+  //       .getDevicesData();
+  //   var device = deviceList[0];
+  //   final requestData = {
+  //     'deviceType': device.watchInfo.deviceType,
+  //     'readingType': dataType
+  //   };
+  //   var request = json.encode(requestData);
+  //   //var currentTemp = _lastTemperature;
+  //   print('Sending request $request');
+  //   switch (dataType) {
+  //     case 'TEMPERATURE':
+  //       {
+  //         setState(() {
+  //           _lastTemperature = null;
+  //         });
+  //       }
+  //       break;
+  //     case 'HR':
+  //       {
+  //         setState(() {
+  //           _lastHr = null;
+  //         });
+  //       }
+  //       break;
+  //     case 'O2':
+  //       {
+  //         setState(() {
+  //           _oxygenLevel = null;
+  //         });
+  //       }
+  //       break;
+  //     case 'BP':
+  //       {
+  //         setState(() {
+  //           _bloodPressure = null;
+  //         });
+  //       }
+  //       break;
+  //     default:
+  //       {}
+  //       break;
+  //   }
+  //
+  //   var subscription =
+  //   eventChannel.receiveBroadcastStream(requestData).listen((event) {
+  //     final returnData = json.decode(event);
+  //     switch (dataType) {
+  //       case 'TEMPERATURE':
+  //         {
+  //           if (returnData['countDown'] == 0) {
+  //             var updatedTemp = Temperature();
+  //             updatedTemp.celsius = returnData['celsius'];
+  //             updatedTemp.fahrenheit = returnData['fahrenheit'];
+  //             updatedTemp.measureTime = DateTime.now();
+  //             setState(() {
+  //               _lastTemperature = updatedTemp;
+  //             });
+  //           }
+  //         }
+  //         break;
+  //       case 'HR':
+  //         {
+  //           if (returnData['rate'] != 0) {
+  //             var updatedHr = HeartRate();
+  //             updatedHr.heartRate = returnData['heartRate'];
+  //             updatedHr.measureTime = DateTime.now();
+  //             setState(() {
+  //               _lastHr = updatedHr;
+  //             });
+  //           }
+  //         }
+  //         break;
+  //       case 'BP':
+  //         {
+  //           if (returnData['systolic'] != 0) {
+  //             var updatedBp = BloodPressure();
+  //             updatedBp.systolic = returnData['systolic'];
+  //             updatedBp.distolic = returnData['diastolic'];
+  //             updatedBp.measureTime = DateTime.now();
+  //             setState(() {
+  //               _bloodPressure = updatedBp;
+  //             });
+  //           }
+  //         }
+  //         break;
+  //       case 'O2':
+  //         {
+  //           if (returnData['oxygenLevel'] != 0) {
+  //             var updateo2 = OxygenLevel();
+  //             updateo2.oxygenLevel = returnData['oxygenLevel'];
+  //             updateo2.measureTime = DateTime.now();
+  //             setState(() {
+  //               _oxygenLevel = updateo2;
+  //             });
+  //           }
+  //         }
+  //         break;
+  //       default:
+  //         {}
+  //         break;
+  //     }
+  //   }, onError: (dynamic error) {
+  //     var _processingMap = processingMap;
+  //     _processingMap[dataType] = false;
+  //     setState(() {
+  //       processingMap = _processingMap;
+  //       canScroll = true;
+  //     });
+  //     _currentCountDown = null;
+  //     print('Got error $error for data type $dataType');
+  //   }, onDone: () {
+  //     print('completed for $dataType');
+  //     var _processingMap = processingMap;
+  //     _processingMap[dataType] = false;
+  //     setState(() {
+  //       canScroll = true;
+  //       _currentCountDown = null;
+  //       processingMap = _processingMap;
+  //     });
+  //   }, cancelOnError: true);
+  // }
 
   void _goToLogin() async {
     await Navigator.of(context).pushReplacementNamed(
