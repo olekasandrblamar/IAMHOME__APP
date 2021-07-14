@@ -71,7 +71,7 @@ open class BaseDevice{
             return when(deviceName){
                 WATCH_DEVICE-> WatchDevice()
                 BAND_DEVICE->BandDevice()
-                B369_DEVICE->B369Device()
+                B369_DEVICE->B369Device.getInstance()
                 else -> BaseDevice()
             }
         }

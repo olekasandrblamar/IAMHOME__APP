@@ -176,7 +176,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
 
       final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
         'connectWifi',
-        <String, dynamic>{'connectionInfo': connectionInfo,'network':'shyamalapati','password':_password},
+        <String, dynamic>{'connectionInfo': connectionInfo,'network':_wifiName,'password':_password},
       ) as String;
 
       setState(() {

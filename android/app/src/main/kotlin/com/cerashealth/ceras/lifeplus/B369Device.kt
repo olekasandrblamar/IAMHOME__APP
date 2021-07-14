@@ -5,6 +5,7 @@ import android.util.Log
 import cn.icomon.icdevicemanager.ICDeviceManager
 import cn.icomon.icdevicemanager.ICDeviceManagerDelegate
 import cn.icomon.icdevicemanager.callback.ICScanDeviceDelegate
+import cn.icomon.icdevicemanager.common.ICConfigManager
 import cn.icomon.icdevicemanager.model.data.*
 import cn.icomon.icdevicemanager.model.device.ICDevice
 import cn.icomon.icdevicemanager.model.device.ICDeviceInfo
@@ -25,7 +26,7 @@ class B369InitialConnection: ICScanDeviceDelegate{
 
     private var context: Context? = null
 
-    private val result: MethodChannel.Result?
+    private var result: MethodChannel.Result?
 
     private var deviceId:String? = null
 
@@ -52,15 +53,24 @@ class B369InitialConnection: ICScanDeviceDelegate{
                         macAddr = deviceInfo.macAddr
 
                     }
+                    ICDeviceManager.shared().stopScan()
+
                     ICDeviceManager.shared().addDevice(device) { device, code ->
                         try {
-                            ICDeviceManager.shared().stopScan()
                             deviceConnected = true
                             B369Device.device = device
+                            Log.d(B369Device.TAG,"Setup the device")
+                            result?.let {
+                                result?.success(ConnectionInfo.createResponse(message = "Connected", connected = true, deviceId = deviceInfo.macAddr, deviceName = deviceInfo.name,
+                                        deviceType = BaseDevice.B369_DEVICE, deviceFound = deviceFound))
+                                result = null
+                            }
 
-                            result.success(ConnectionInfo.createResponse(message = "Connected", connected = true, deviceId = deviceInfo.macAddr, deviceName = deviceInfo.name,
-                                    deviceType = BaseDevice.B369_DEVICE, deviceFound = deviceFound))
+                            Log.d(B369Device.TAG,"Ble enabled ${ICDeviceManager.shared().isBLEEnable}")
 
+                            ICDeviceManager.shared().settingManager.configWifi(device,"alapatis","shyamkishore"){
+                                Log.i(B369Device.TAG,"Configured wifi $it")
+                            }
                         } catch (ex: Exception) {
                             Log.e(B369Device.TAG, "Error while sending response ", ex)
                         }
@@ -80,8 +90,10 @@ class DataProcessor: ICDeviceManagerDelegate{
         Log.d(B369Device.TAG, "Initialization finished")
     }
 
-    override fun onBleState(p0: ICConstant.ICBleState?) {
+    override fun onBleState(state: ICConstant.ICBleState?) {
         Log.d(B369Device.TAG, "BLE state changed ")
+        if (state == ICConstant.ICBleState.ICBleStatePoweredOn) {
+        }
     }
 
     override fun onDeviceConnectionChanged(device: ICDevice?, p1: ICConstant.ICDeviceConnectState?) {
@@ -233,35 +245,58 @@ class B369Device :BaseDevice(){
         val TAG = B369Device::class.java.simpleName
         var device:ICDevice? = null
         var dataProcessor:DataProcessor? = null
+        var b369Device:B369Device? = null
+
+        fun getInstance():B369Device{
+            if(b369Device==null){
+                b369Device = B369Device()
+            }
+            return b369Device!!
+        }
     }
+
+
 
     override fun connectDevice(context: Context, result: MethodChannel.Result, deviceId: String?) {
         Log.i(TAG, "Connecting to $deviceId")
         val config = ICDeviceManagerConfig()
+        config.is_fill_adc = true
         config.context = context
-        ICDeviceManager.shared().updateUserInfo(ICUserInfo().apply {
+        val user = ICUserInfo().apply {
             kitchenUnit = ICConstant.ICKitchenScaleUnit.ICKitchenScaleUnitLb
+            weightUnit = ICWeightUnit.ICWeightUnitLb
             rulerUnit = ICConstant.ICRulerUnit.ICRulerUnitInch
             age = 37
             weight = 175.0
             sex = ICConstant.ICSexType.ICSexTypeMale
             height = 72
+            userIndex = 1
+            weightDirection = 1
+            targetWeight = 200.0
             peopleType = ICConstant.ICPeopleType.ICPeopleTypeNormal
-        })
-        if(dataProcessor == null)
+        }
+        if(dataProcessor == null) {
             dataProcessor = DataProcessor()
-        ICDeviceManager.shared().delegate = dataProcessor
-        ICDeviceManager.shared().initMgrWithConfig(config)
+            ICDeviceManager.shared().delegate = dataProcessor
+            ICDeviceManager.shared().setUserList(listOf(user))
+            ICDeviceManager.shared().updateUserInfo(user)
+            ICDeviceManager.shared().initMgrWithConfig(config)
+        }
+
         Log.d(TAG,"Bluetooth enabled ${ICDeviceManager.shared().isBLEEnable}")
+
         if(ICDeviceManager.shared().isBLEEnable){
             Log.d(TAG,"Bluetooth enabled")
             Log.d(TAG,"Setting call back")
             val callBack = B369InitialConnection(context, result, deviceId)
             ICDeviceManager.shared().scanDevice(callBack)
+
+            //This is used to wait for 25 seconds and send error back
             GlobalScope.launch {
                 delay(25000)
                 ICDeviceManager.shared().stopScan()
                 Log.d(TAG, "Device connected ${callBack.deviceConnected}")
+                //If the device is not connected, then send an error back
                 if(!callBack.deviceConnected) {
                     Log.d(TAG, "Unable to find device ")
                     MainActivity.currentActivity?.runOnUiThread {
@@ -282,16 +317,10 @@ class B369Device :BaseDevice(){
     }
 
     override fun connectWifi(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context, network: String?, password: String?) {
-//        ICDeviceManagerConfig().apply {
-//            this.context = context
-//        }
-//        val device = ICDevice().apply {
-//            macAddr = connectionInfo.deviceId
-//        }
-        Log.d(TAG,"Connecting to $network with $password with device id ${connectionInfo.deviceId}")
-//        if(ICDeviceManager.shared().delegate == null)
-//            ICDeviceManager.shared().delegate = dataProcessor
-//        dataProcessor?.result = result
+        Log.d(TAG,"Connecting to $network with $password with device id ${device?.macAddr}")
+        Log.d(TAG,"Bluetooth enabled ${ICDeviceManager.shared().isBLEEnable}")
+        Log.i(TAG,"Context ${ICConfigManager.shared().context}")
+
         ICDeviceManager.shared().settingManager.configWifi(device,network!!,password!!) {
             Log.d(TAG,"Got status $it")
             when(it){
@@ -305,6 +334,7 @@ class B369Device :BaseDevice(){
                 }
             }
         }
+
         ICDeviceManager.shared().settingManager.setServerUrl(device,"https://device.alpha.myceras.com"){
             Log.d(TAG,"Got server url status $it")
         }
