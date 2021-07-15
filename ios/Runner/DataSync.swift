@@ -465,7 +465,6 @@ struct UserProfile:Codable{
     var sex:String
     var heightInCm:Int
     var lastUpdate:String? = nil
-``
     var offSets:[Offset]? = []
     
     func getOffsetValue(readingTypes : [String]) -> Int {

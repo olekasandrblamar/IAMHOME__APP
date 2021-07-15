@@ -99,7 +99,7 @@ class MainActivity: FlutterFragmentActivity()  {
                 //For now connect to watch
                 sycnDevice = BaseDevice.getDeviceImpl(deviceType)
                 sycnDevice?.let {
-                    it.connectDevice(this,result,deviceId)
+                    it.connectDevice(applicationContext,result,deviceId)
                     //Update the device type
                     applicationContext.getSharedPreferences(SharedPrefernces, MODE_PRIVATE).edit().putString("flutter.deviceType",deviceType).commit()
                 }
