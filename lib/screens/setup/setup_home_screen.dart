@@ -156,15 +156,17 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     if (versionCheckDateInMillis == null) {
       await prefs.setString('versionCheckDate', currentTimeInMillis.toString());
       checkAndValidate = true;
-    }else{
-      var milliSecondsSinceLastCheck = DateTime.now().millisecondsSinceEpoch - int.parse(versionCheckDateInMillis);
-      var dayInMillis = 1000*60*60*24;
+    } else {
+      var milliSecondsSinceLastCheck = DateTime.now().millisecondsSinceEpoch -
+          int.parse(versionCheckDateInMillis);
+      var dayInMillis = 1000 * 60 * 60 * 24;
       var daysSinceLastUpdate = milliSecondsSinceLastCheck / dayInMillis;
 
       //if the last validation is more than 3 days ago
-      if(daysSinceLastUpdate > 3.0){
+      if (daysSinceLastUpdate > 3.0) {
         checkAndValidate = true;
-        await prefs.setString('versionCheckDate', currentTimeInMillis.toString());
+        await prefs.setString(
+            'versionCheckDate', currentTimeInMillis.toString());
       }
     }
 
@@ -177,25 +179,31 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = packageInfo.version;
 
+// sample data to test
+    // var versionData = {'android': '1.3.2', 'ios': '1.3.2'};
     //Get the current version from the API
     var versionData = await Provider.of<AuthProvider>(context, listen: false)
         .checkAppVersion();
 
     //if the version data exists
     if (versionData.isNotEmpty) {
-      var _currentVersion =
-          currentVersion.toString().split('.').map((e) => int.parse(e)).toList();
+      var _currentVersion = currentVersion
+          .toString()
+          .split('.')
+          .map((e) => int.parse(e))
+          .toList();
 
       //default the version to android
-      var curStoreVersion = versionData.android.toString();
+      var curStoreVersion = versionData["android"].toString();
 
       //If the current platform is IOS get the is version
       if (Platform.isIOS) {
-        curStoreVersion = versionData.ios.toString();
+        curStoreVersion = versionData["ios"].toString();
       }
 
       //Split the version into major.minor.build
-      var _latestStoreVersion = curStoreVersion.split('.').map((e) => int.parse(e)).toList();
+      var _latestStoreVersion =
+          curStoreVersion.split('.').map((e) => int.parse(e)).toList();
 
       //Compare the versions and if the new version os greater than the current version update the app
       if (_latestStoreVersion[0] > _currentVersion[0] ||
@@ -252,57 +260,56 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: SetupAppBar(name: 'My Devices'),
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        bottom: true,
-        child: SingleChildScrollView(
-            // child: _deviceData.isNotEmpty
-            child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: <Widget>[
-              for (int index = 0; index < _deviceData.length; index++)
-                _buildDevicesList(index),
-              _buildNewDevice()
-            ],
-          ),
-        )
-            // : _buildNewDevice(),
+        appBar: SetupAppBar(name: 'My Devices'),
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          bottom: true,
+          child: SingleChildScrollView(
+              // child: _deviceData.isNotEmpty
+              child: Container(
+            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                for (int index = 0; index < _deviceData.length; index++)
+                  _buildDevicesList(index),
+                _buildNewDevice()
+              ],
             ),
-      ),
-      bottomNavigationBar: _deviceData.isNotEmpty
-          ? SafeArea(
-              bottom: true,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    height: 90,
-                    padding: EdgeInsets.all(20),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.5),
-                      ),
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      child: Text('Access Health Data'),
-                      onPressed: ()
-                      {
-                        _authenticate();
-                        for(var i=0;i<_deviceData.length;i++){
-                          _processSyncData(i);
-                        }
-
-                      },
-                    ),
-                  ),
-                ],
+          )
+              // : _buildNewDevice(),
               ),
-            )
-          : SizedBox(height: 25,)
-    );
+        ),
+        bottomNavigationBar: _deviceData.isNotEmpty
+            ? SafeArea(
+                bottom: true,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      height: 90,
+                      padding: EdgeInsets.all(20),
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.5),
+                        ),
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        child: Text('Access Health Data'),
+                        onPressed: () {
+                          _authenticate();
+                          for (var i = 0; i < _deviceData.length; i++) {
+                            _processSyncData(i);
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : SizedBox(
+                height: 25,
+              ));
   }
 
   String _buildDeviceCode(WatchModel watchModel) {
@@ -328,8 +335,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
         lastUpdate ?? DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
   }
 
-  void _processSyncData(index) async{
-
+  void _processSyncData(index) async {
     final connectionInfo = json.encode(_deviceData[index].watchInfo);
 
     final syncResponse = BackgroundFetchData.platform.invokeMethod(
@@ -345,7 +351,6 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   }
 
   void _getDeviceStatus(int index) async {
-
     final connectionInfo = json.encode(_deviceData[index].watchInfo);
     final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
       'connectionStatus',
