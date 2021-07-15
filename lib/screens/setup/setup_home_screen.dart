@@ -180,13 +180,13 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     final currentVersion = packageInfo.version;
 
 // sample data to test
-    // var versionData = {'android': '1.3.2', 'ios': '1.3.2'};
+    // var versionData = {'android': '1.1.2', 'ios': '1.2.3'};
     //Get the current version from the API
-    var versionData = await Provider.of<AuthProvider>(context, listen: false)
-        .checkAppVersion();
+    var versionData = await Provider.of<DevicesProvider>(context, listen: false)
+        .currentVersion();
 
     //if the version data exists
-    if (versionData.isNotEmpty) {
+    if (versionData != null) {
       var _currentVersion = currentVersion
           .toString()
           .split('.')
@@ -194,11 +194,11 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
           .toList();
 
       //default the version to android
-      var curStoreVersion = versionData["android"].toString();
+      var curStoreVersion = versionData.androidVersion.toString();
 
       //If the current platform is IOS get the is version
       if (Platform.isIOS) {
-        curStoreVersion = versionData["ios"].toString();
+        curStoreVersion = versionData.iosVersion.toString();
       }
 
       //Split the version into major.minor.build
