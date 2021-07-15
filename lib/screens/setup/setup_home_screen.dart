@@ -15,6 +15,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
+import 'package:package_info_plus/package_info_plus.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -150,52 +151,67 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
 
   void updateVersionCheck() async {
     final prefs = await SharedPreferences.getInstance();
-    var versionCheckDate = await prefs.getString('versionCheckDate');
+    var versionCheckDateInMillis = await prefs.getString('versionCheckDate');
 
-    // DateTime d = DateTime.now();
+    var currentTimeInMillis = DateTime.now().millisecondsSinceEpoch;
+    var checkAndValidate = true;
+    //if the prev version date doesn't exist set that value
+    if (versionCheckDateInMillis == null) {
+      await prefs.setString('versionCheckDate', currentTimeInMillis.toString());
+      checkAndValidate = true;
+    } else {
+      var milliSecondsSinceLastCheck = DateTime.now().millisecondsSinceEpoch -
+          int.parse(versionCheckDateInMillis);
+      var dayInMillis = 1000 * 60 * 60 * 24;
+      var daysSinceLastUpdate = milliSecondsSinceLastCheck / dayInMillis;
 
-    // var currentDate = d.setDate(d.getDate());
-    // if (versionCheckDate == null) {
-    //   await prefs.setString('versionCheckDate', currentDate.toString());
-    // }
+      //if the last validation is more than 3 days ago
+      if (daysSinceLastUpdate > 3.0) {
+        checkAndValidate = true;
+        await prefs.setString(
+            'versionCheckDate', currentTimeInMillis.toString());
+      }
+    }
 
-    // // var daysFromNow: any = d.setDate(d.getDate() - 3); // three days fromNow
-    // var millisec = currentDate - DateTime(int.parse(versionCheckDate));
-    // var seconds = double.parse((millisec / 1000).toFixed(0));
-
-    // /* Checking if current date is greater than 3 days
-    //             and if it is greater than 3 days check fior update
-    //     */
-    // if (seconds > 259200) {
-    //   await prefs.setString('versionCheckDate', currentDate.toString());
-    //   await appVersionCheck();
-    // }
+    if (checkAndValidate) {
+      appVersionCheck();
+    }
   }
 
-  Future<void> appVersionCheck() async {
+  void appVersionCheck() async {
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = packageInfo.version;
 
-    var versionData = await Provider.of<AuthProvider>(context, listen: false)
-        .checkAppVersion();
+    //Get the current version from the API
+    var versionData = await Provider.of<DevicesProvider>(context, listen: false)
+        .currentVersion();
 
-    if (versionData.isNotEmpty) {
-      // var _currentVersion =
-      //     JSON.stringify(currentVersion.toString().split('.'));
-      // var _latestVersioniOS =
-      //     JSON.stringify(versionData.ios.toString().split('.'));
-      // var _latestVersionAndroid =
-      //     JSON.stringify(versionData.android.toString().split('.'));
+    //if the version data exists
+    if (versionData != null) {
+      var _currentVersion = currentVersion
+          .toString()
+          .split('.')
+          .map((e) => int.parse(e))
+          .toList();
 
-      // if (Platform.isIOS) {
-      //   if (_latestVersioniOS > _currentVersion) {
-      //     updateApp();
-      //   }
-      // } else {
-      //   if (_latestVersionAndroid > _currentVersion) {
-      //     updateApp();
-      //   }
-      // }
+      //default the version to android
+      var curStoreVersion = versionData.androidVersion.toString();
+
+      //If the current platform is IOS get the is version
+      if (Platform.isIOS) {
+        curStoreVersion = versionData.iosVersion.toString();
+      }
+
+      //Split the version into major.minor.build
+      var _latestStoreVersion =
+          curStoreVersion.split('.').map((e) => int.parse(e)).toList();
+
+      //Compare the versions and if the new version os greater than the current version update the app
+      if (_latestStoreVersion[0] > _currentVersion[0] ||
+          _latestStoreVersion[1] > _currentVersion[1] ||
+          _latestStoreVersion[2] > _currentVersion[2]) {
+        updateApp();
+      }
     }
   }
 
