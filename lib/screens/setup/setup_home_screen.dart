@@ -171,16 +171,14 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     }
 
     if (checkAndValidate) {
-      await appVersionCheck();
+      appVersionCheck();
     }
   }
 
-  Future<void> appVersionCheck() async {
+  void appVersionCheck() async {
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = packageInfo.version;
 
-// sample data to test
-    // var versionData = {'android': '1.1.2', 'ios': '1.2.3'};
     //Get the current version from the API
     var versionData = await Provider.of<DevicesProvider>(context, listen: false)
         .currentVersion();
