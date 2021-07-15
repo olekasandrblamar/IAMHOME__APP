@@ -4,16 +4,14 @@ import android.content.Context
 import android.util.Log
 import cn.icomon.icdevicemanager.ICDeviceManager
 import cn.icomon.icdevicemanager.ICDeviceManagerDelegate
-import cn.icomon.icdevicemanager.callback.ICScanDeviceDelegate
-import cn.icomon.icdevicemanager.common.ICConfigManager
+import cn.icomon.icdevicemanager.ICDeviceManagerSettingManager
 import cn.icomon.icdevicemanager.model.data.*
 import cn.icomon.icdevicemanager.model.device.ICDevice
 import cn.icomon.icdevicemanager.model.device.ICDeviceInfo
 import cn.icomon.icdevicemanager.model.device.ICScanDeviceInfo
 import cn.icomon.icdevicemanager.model.device.ICUserInfo
 import cn.icomon.icdevicemanager.model.other.ICConstant
-import cn.icomon.icdevicemanager.model.other.ICConstant.ICMeasureStep
-import cn.icomon.icdevicemanager.model.other.ICConstant.ICWeightUnit
+import cn.icomon.icdevicemanager.model.other.ICConstant.*
 import cn.icomon.icdevicemanager.model.other.ICDeviceManagerConfig
 import com.cerashealth.ceras.MainActivity
 import com.cerashealth.ceras.lifeplus.data.ConnectionInfo
@@ -43,7 +41,7 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
         }
     }
 
-    private fun initSDK(context: Context)
+    private fun initSDK(context: Context?)
     {
         val config = ICDeviceManagerConfig()
         config.context = context
@@ -74,8 +72,8 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
 
         Log.i(TAG, "Connecting to $deviceId")
         if(!initComplete) {
-            if(ICDeviceManager.checkBlePermission(context)) {
-                initSDK(context)
+            if(ICDeviceManager.checkBlePermission(MainActivity.currentActivity?.baseContext)) {
+                initSDK(MainActivity.currentActivity?.applicationContext)
             }
         }
         Log.d(TAG,"Bluetooth enabled ${ICDeviceManager.shared().isBLEEnable}")
@@ -108,24 +106,26 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
     override fun connectWifi(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context, network: String?, password: String?) {
         Log.d(TAG,"Connecting to $network with $password with device id ${device?.macAddr}")
         Log.d(TAG,"Bluetooth enabled ${ICDeviceManager.shared().isBLEEnable}")
-        Log.i(TAG,"Context ${ICConfigManager.shared().context}")
+        if(ICDeviceManager.checkBlePermission(MainActivity.currentActivity?.baseContext)) {
 
-        ICDeviceManager.shared().settingManager.configWifi(device,network!!,password!!) {
-            Log.d(TAG,"Got status $it")
-            when(it){
-                ICConstant.ICSettingCallBackCode.ICSettingCallBackCodeSuccess ->{
-                    Log.d(TAG,"Connection success")
-                    //result?.success(ConnectionInfo.createResponse(message = "Success",connected = true))
-                }
-                else -> {
-                    Log.d(TAG,"Connection failure")
-                    result?.success(ConnectionInfo.createResponse(message = "Failure ${it}",connected = true))
+            ICDeviceManager.shared().settingManager.configWifi(device, network!!, password!!) {
+                Log.d(TAG, "Got status $it")
+                when (it) {
+                    ICSettingCallBackCode.ICSettingCallBackCodeSuccess -> {
+                        Log.d(TAG, "Connection success")
+                        result?.success(ConnectionInfo.createResponse(message = "Success",connected = true))
+                    }
+                    else -> {
+                        Log.d(TAG, "Connection failure")
+                        result?.success(
+                            ConnectionInfo.createResponse(
+                                message = "Failure ${it}",
+                                connected = true
+                            )
+                        )
+                    }
                 }
             }
-        }
-
-        ICDeviceManager.shared().settingManager.setServerUrl(device,"https://device.alpha.myceras.com"){
-            Log.d(TAG,"Got server url status $it")
         }
     }
 
