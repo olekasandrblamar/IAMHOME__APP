@@ -8,10 +8,12 @@ import BackgroundTasks
 @objc class AppDelegate: FlutterAppDelegate {
     
     static var watchData:WatchData? = nil
+    static var scaleData:B369Device? = nil
 //    static var bandDevice:BandDevice? = nil
     static let dateFormatter = DateFormatter()
     static var lastUpdated:Date? = nil
     static var WATCH_TYPE = "WATCH"
+    static var SCALE_TYPE = "SCALE"
     static var BAND_TYPE = "BAND"
     static var DEVICE_TYPE_KEY = "flutter.deviceType"
     static let BG_SYNC_TASK = "com.cerashealth.datasync"
@@ -158,6 +160,19 @@ import BackgroundTasks
             let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
             do{
                 try self?.upgradeDevice(result: result, connectionInfo: connectionInfo)
+            }catch{
+                result("Error")
+            }
+        }else if(call.method=="connectWifi"){
+            guard let args = call.arguments else {
+              result("iOS could not recognize flutter arguments in method: (sendParams)")
+              return
+            }
+            let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
+            let ssid = (args as? [String:Any])?["network"] as! String
+            let password = (args as? [String:Any])?["password"] as! String
+            do{
+                try self?.connectWifi(result: result, connectionInfo: connectionInfo, ssid: ssid, password: password)
             }catch{
                 result("Error")
             }
@@ -341,6 +356,9 @@ import BackgroundTasks
             NSLog("Connecting Watch")
             self.getWatchDevice()?.startScan(result: result,deviceId:deviceId)
             NSLog("completed Connecting Watch")
+        }else if(deviceType==AppDelegate.SCALE_TYPE){
+            NSLog("Connecting to Scale")
+            self.getScaleDevice()?.startScan(result: result, scanDeviceId: deviceId)
         }
 //        else if(deviceType==AppDelegate.BAND_TYPE){
 //            getBandDevice()?.connectDevice(result: result, deviceId: deviceId)
@@ -381,6 +399,11 @@ import BackgroundTasks
 //        }
     }
     
+    private func connectWifi(result:@escaping FlutterResult,connectionInfo:String,ssid:String,password:String) throws {
+        let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
+        self.getScaleDevice()?.connectWifi(result: result, ssid: ssid, password: password)
+    }
+    
     private func upgradeDevice(result:@escaping FlutterResult,connectionInfo:String) throws {
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         NSLog("Getting device info ")
@@ -405,6 +428,13 @@ import BackgroundTasks
             AppDelegate.watchData = WatchData()
         }
         return AppDelegate.watchData
+    }
+    
+    private func getScaleDevice() -> B369Device?{
+        if(AppDelegate.scaleData==nil){
+            AppDelegate.scaleData = B369Device()
+        }
+        return AppDelegate.scaleData
     }
 }
 

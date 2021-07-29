@@ -19,6 +19,8 @@
 		5257E6CA24D632CC00C2B1BA /* libc++.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 5257E6C924D2693100C2B1BA /* libc++.tbd */; };
 		5257E6CC24D841C800C2B1BA /* WatchData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5257E6CB24D841C800C2B1BA /* WatchData.swift */; };
 		5257E6CE24D8D28E00C2B1BA /* DataSync.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5257E6CD24D8D28E00C2B1BA /* DataSync.swift */; };
+		52B147C026A0EDA000F47C8C /* ICDeviceManager.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52B147BF26A0ED9F00F47C8C /* ICDeviceManager.framework */; };
+		52B147F926A0EFA400F47C8C /* B369Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B147F826A0EFA400F47C8C /* B369Device.swift */; };
 		52CF454E24EB107100AE177E /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52CF454D24EB107100AE177E /* Device.swift */; };
 		52CF455024EB170700AE177E /* BandDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52CF454F24EB170700AE177E /* BandDevice.swift */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
@@ -48,6 +50,8 @@
 		5257E6CB24D841C800C2B1BA /* WatchData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WatchData.swift; sourceTree = "<group>"; };
 		5257E6CD24D8D28E00C2B1BA /* DataSync.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataSync.swift; sourceTree = "<group>"; };
 		52A6DE472502C4FF0071E2B9 /* RunnerProfile.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = RunnerProfile.entitlements; sourceTree = "<group>"; };
+		52B147BF26A0ED9F00F47C8C /* ICDeviceManager.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ICDeviceManager.framework; sourceTree = "<group>"; };
+		52B147F826A0EFA400F47C8C /* B369Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = B369Device.swift; sourceTree = "<group>"; };
 		52CF454D24EB107100AE177E /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
 		52CF454F24EB170700AE177E /* BandDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandDevice.swift; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
@@ -74,6 +78,7 @@
 				0332C9AC24B40CC700AAE8D1 /* ExternalAccessory.framework in Frameworks */,
 				5257E6C624D25EB900C2B1BA /* CoreBluetooth.framework in Frameworks */,
 				036EF94224D904120002892D /* libHardManagerSDK.a in Frameworks */,
+				52B147C026A0EDA000F47C8C /* ICDeviceManager.framework in Frameworks */,
 				5205C8D624F828BD00801D9F /* BackgroundTasks.framework in Frameworks */,
 				E64AB34EC27E73B31B97BB80 /* Pods_Runner.framework in Frameworks */,
 				033A411D2681017A00923B35 /* NetworkExtension.framework in Frameworks */,
@@ -86,6 +91,7 @@
 		8034CB520AAA3844753050C0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				52B147BF26A0ED9F00F47C8C /* ICDeviceManager.framework */,
 				033A411C2681017A00923B35 /* NetworkExtension.framework */,
 				5205C8D524F828BD00801D9F /* BackgroundTasks.framework */,
 				036EF94124D903F00002892D /* libHardManagerSDK.a */,
@@ -147,6 +153,7 @@
 				74858FAE1ED2DC5600515810 /* AppDelegate.swift */,
 				74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */,
 				5257E6CB24D841C800C2B1BA /* WatchData.swift */,
+				52B147F826A0EFA400F47C8C /* B369Device.swift */,
 				5257E6CD24D8D28E00C2B1BA /* DataSync.swift */,
 				52CF454D24EB107100AE177E /* Device.swift */,
 				52CF454F24EB170700AE177E /* BandDevice.swift */,
@@ -180,6 +187,7 @@
 			buildPhases = (
 				008588234E061BC02BA4D88D /* [CP] Check Pods Manifest.lock */,
 				9740EEB61CF901F6004384FC /* Run Script */,
+				95A13B7CF1223A5389E730C5 /* [CP] Prepare Artifacts */,
 				97C146EA1CF9000F007C117D /* Sources */,
 				97C146EB1CF9000F007C117D /* Frameworks */,
 				97C146EC1CF9000F007C117D /* Resources */,
@@ -316,6 +324,23 @@
 			shellPath = /bin/sh;
 			shellScript = "/bin/sh \"$FLUTTER_ROOT/packages/flutter_tools/bin/xcode_backend.sh\" embed_and_thin\n";
 		};
+		95A13B7CF1223A5389E730C5 /* [CP] Prepare Artifacts */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-artifacts-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Prepare Artifacts";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-artifacts-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-Runner/Pods-Runner-artifacts.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
 		9740EEB61CF901F6004384FC /* Run Script */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -341,6 +366,7 @@
 				74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */,
 				52CF455024EB170700AE177E /* BandDevice.swift in Sources */,
 				5257E6CC24D841C800C2B1BA /* WatchData.swift in Sources */,
+				52B147F926A0EFA400F47C8C /* B369Device.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
 				52CF454E24EB107100AE177E /* Device.swift in Sources */,
 			);

@@ -25,6 +25,8 @@ data class BpUpload(val measureTime: Date, var distolic:Int, var systolic:Int, v
 
 data class HeartRateUpload(val measureTime: Date, var heartRate:Int, val deviceId:String)
 
+data class WeightData(val measureTime:Date, var lbs:Double, var kgs:Double, val deviceId:String)
+
 data class OxygenLevelUpload(val measureTime: Date, var oxygenLevel:Int, val deviceId:String, var userProfile:UserProfile? = null)
 
 data class HeartBeat(val deviceId:String?,val macAddress:String?){
@@ -49,7 +51,7 @@ class ConnectionInfo{
     companion object{
         fun createResponse(deviceId:String? = null,deviceName:String? = null,connected:Boolean = false,message:String? = null
                            ,additionalInfo: Map<String, String> = mapOf<String,String>(),deviceType:String? = null,deviceFound:Boolean = true,batteryStatus:String? = null,versionUpdate:Boolean = false):String{
-            Log.i("DataSync","performing data sync ")
+            Log.i("ConnectionInfo","Creating response")
             val connectionData =  Gson().toJson(ConnectionInfo().apply {
                 this.deviceId = deviceId
                 this.connected = connected
@@ -61,7 +63,7 @@ class ConnectionInfo{
                 this.batteryStatus = batteryStatus
                 this.upgradeAvailable = versionUpdate
             })
-            Log.i(MainActivity.TAG,"Sending connection data back $connectionData")
+            Log.i("ConnectionInfo","Sending connection data back $connectionData")
             return connectionData
         }
     }

@@ -19,7 +19,7 @@ void main() {
       environment: 'Development',
       flavor: BuildFlavor.development,
       environmentUrl: 'https://device.dev.myceras.com/api/v1/device',
-      baseUrl: 'https://device.dev.myceras.com/api/v1/device',
+      baseUrl: 'https://device.dev.myceras.com/api/v1/device/',
       baseUrl2: 'https://api',
       authUrl: 'https://auth.dev.myceras.com',
       accessKey: 'nya8zsihq17z1w6x',

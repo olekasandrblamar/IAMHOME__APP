@@ -70,6 +70,12 @@
 -keep class android.**.* {*;}
 -keep class com.android.**.* {*;}
 -keep class io.grpc.okhttp.**.* { *; }
+-keep class cn.icomon.icdevicemanager.**.* {*;}
+-keep class cn.icomon.icdevicemanager.* {*;}
+-keep class cn.icomon.icbleprotocol.** {*;}
+-keep class cn.icomon.**.* {*;}
+-keep class com.icomon.**.* {*;}
+-keep class com.icomon.icbodyfatalgorithms.* {*;}
 
 -keepclasseswithmembernames,includedescriptorclasses class * {
     native <methods>;

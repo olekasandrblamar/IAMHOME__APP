@@ -53,20 +53,37 @@ class MainActivity: FlutterFragmentActivity()  {
     }
 
     private fun requestPermission() {
-        if (ContextCompat.checkSelfPermission(this,
-                        Manifest.permission.ACCESS_COARSE_LOCATION)
-                != PackageManager.PERMISSION_GRANTED) {
+        if (checkSelfPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED ||
+            checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
+            || checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                ) {
             // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this@MainActivity,
-                            Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            if (shouldShowRequestPermissionRationale(Manifest.permission.ACCESS_FINE_LOCATION)) {
                 Log.i(TAG,"requestPermission,shouldShowRequestPermissionRationale")
             } else {
                 Log.i(TAG,"requestPermission,shouldShowRequestPermissionRationale else")
-                ActivityCompat.requestPermissions(this@MainActivity, arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION),
-                        MainActivity.MY_PERMISSIONS_REQUEST_BLUETOOTH)
+                requestPermissions(arrayOf(Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,Manifest.permission.WRITE_EXTERNAL_STORAGE),
+                        MY_PERMISSIONS_REQUEST_BLUETOOTH)
             }
         } else {
-            Log.i(TAG,"requestPermission,shouldShowRequestPermissionRationale ")
+            B369Device.getInstance().initSDK(this)
+        }
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when(requestCode){
+            MY_PERMISSIONS_REQUEST_BLUETOOTH->{
+                B369Device.getInstance().initSDK(this)
+            }else->{
+
+        }
         }
     }
     
@@ -90,8 +107,7 @@ class MainActivity: FlutterFragmentActivity()  {
 
     private fun connectDeviceChannel(flutterEngine: FlutterEngine){
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler { call, result ->
-            currentContext = this
-            currentActivity = this
+            updateCurrentActivity()
             BaseDevice.isBackground = false
             if(call.method=="connectDevice"){
                 val deviceType = call.argument<String>("deviceType")
@@ -153,9 +169,13 @@ class MainActivity: FlutterFragmentActivity()  {
         }
     }
 
+    private fun updateCurrentActivity(){
+        currentContext = currentContext?:this
+        currentActivity = currentActivity?:this
+    }
+
     private fun readDataFromDevice(eventSink:EventChannel.EventSink,readingRequest: ReadingRequest){
-        currentContext = this
-        currentActivity = this
+        updateCurrentActivity()
         BaseDevice.isBackground = false
 
         //fire the reading on the device
@@ -193,7 +213,7 @@ class MainActivity: FlutterFragmentActivity()  {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         //GeneratedPluginRegistrant.registerWith(flutterEngine);
-        // requestPermission()
+        requestPermission()
         scheduleBackgroundTasks()
         connectEventChannel(flutterEngine)
         connectDeviceChannel(flutterEngine)
@@ -231,7 +251,7 @@ class CerasBluetoothSync{
     }
 
     constructor(applicationContext: Context,taskId:String){
-        MainActivity.currentContext = applicationContext
+        MainActivity.currentContext = MainActivity.currentContext?:applicationContext
         Log.i(TAG,"constructor background")
         MainActivity
         onFetch(applicationContext,taskId)

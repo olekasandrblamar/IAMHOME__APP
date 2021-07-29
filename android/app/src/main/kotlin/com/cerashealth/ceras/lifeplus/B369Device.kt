@@ -15,10 +15,12 @@ import cn.icomon.icdevicemanager.model.other.ICConstant.*
 import cn.icomon.icdevicemanager.model.other.ICDeviceManagerConfig
 import com.cerashealth.ceras.MainActivity
 import com.cerashealth.ceras.lifeplus.data.ConnectionInfo
+import com.cerashealth.ceras.lifeplus.data.WeightData
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.util.*
 
 
 class B369Device :BaseDevice(), ICDeviceManagerDelegate{
@@ -41,14 +43,14 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
         }
     }
 
-    private fun initSDK(context: Context?)
+    fun initSDK(context: Context?)
     {
         val config = ICDeviceManagerConfig()
         config.context = context
         val userInfo = ICUserInfo()
-        userInfo.kitchenUnit = ICConstant.ICKitchenScaleUnit.ICKitchenScaleUnitOz
-        userInfo.rulerUnit = ICConstant.ICRulerUnit.ICRulerUnitInch
-        userInfo.weightUnit = ICConstant.ICWeightUnit.ICWeightUnitLb
+        userInfo.kitchenUnit = ICKitchenScaleUnit.ICKitchenScaleUnitOz
+        userInfo.rulerUnit = ICRulerUnit.ICRulerUnitInch
+        userInfo.weightUnit = ICWeightUnit.ICWeightUnitLb
         userInfo.age = 31
         userInfo.weight = 180.0
         userInfo.height = 170
@@ -57,35 +59,37 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
         userInfo.weightDirection = 1
         userInfo.targetWeight = 160.0
 
-
         config.is_fill_adc = true
         ICDeviceManager.shared().delegate = this
         ICDeviceManager.shared().setUserList(listOf(userInfo))
         ICDeviceManager.shared().updateUserInfo(userInfo)
         ICDeviceManager.shared().initMgrWithConfig(config)
-
     }
 
 
 
     override fun connectDevice(context: Context, result: MethodChannel.Result, deviceId: String?) {
-
         Log.i(TAG, "Connecting to $deviceId")
         if(!initComplete) {
-            if(ICDeviceManager.checkBlePermission(MainActivity.currentActivity?.baseContext)) {
-                initSDK(MainActivity.currentActivity?.applicationContext)
-            }
+            initSDK(MainActivity.currentActivity)
         }
-        Log.d(TAG,"Bluetooth enabled ${ICDeviceManager.shared().isBLEEnable}")
+//        Log.d(TAG,"Bluetooth enabled ${ICDeviceManager.shared().isBLEEnable}")
 
-        if(ICDeviceManager.shared().isBLEEnable){
+//        if(ICDeviceManager.shared().isBLEEnable){
             Log.d(TAG,"Bluetooth enabled")
             Log.d(TAG,"Setting call back")
 
-            //Scan the device and update
-            ICDeviceManager.shared().scanDevice{
-                onScanResult(it,result,deviceId)
-            }
+            GlobalScope.launch {
+                if(!initComplete) {
+                    //If the device is initialized then wait for 5 secs
+                    //Scan the device and update
+                    delay(5000)
+                }
+                ICDeviceManager.shared().scanDevice {
+                    onScanResult(it, result, deviceId)
+                }
+
+//            }
 
             //This is used to wait for 30 seconds and send error back
             GlobalScope.launch {
@@ -105,27 +109,33 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
 
     override fun connectWifi(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context, network: String?, password: String?) {
         Log.d(TAG,"Connecting to $network with $password with device id ${device?.macAddr}")
-        Log.d(TAG,"Bluetooth enabled ${ICDeviceManager.shared().isBLEEnable}")
-        if(ICDeviceManager.checkBlePermission(MainActivity.currentActivity?.baseContext)) {
+//        Log.d(TAG,"Bluetooth enabled ${ICDeviceManager.shared().isBLEEnable}")
 
-            ICDeviceManager.shared().settingManager.configWifi(device, network!!, password!!) {
-                Log.d(TAG, "Got status $it")
-                when (it) {
-                    ICSettingCallBackCode.ICSettingCallBackCodeSuccess -> {
-                        Log.d(TAG, "Connection success")
-                        result?.success(ConnectionInfo.createResponse(message = "Success",connected = true))
-                    }
-                    else -> {
-                        Log.d(TAG, "Connection failure")
-                        result?.success(
-                            ConnectionInfo.createResponse(
-                                message = "Failure ${it}",
-                                connected = true
-                            )
+        ICDeviceManager.shared().settingManager.configWifi(device, network!!, password!!) {
+            Log.d(TAG, "Got wifi result status $it")
+            when (it) {
+                ICSettingCallBackCode.ICSettingCallBackCodeSuccess -> {
+                    Log.d(TAG, "Connection success")
+                    updateServerUrl("https://device.dev.myceras.com")
+//                    result?.success(ConnectionInfo.createResponse(message = "Success",connected = true))
+                }
+                else -> {
+                    Log.d(TAG, "Connection failure")
+                    result?.success(
+                        ConnectionInfo.createResponse(
+                            message = "Failure ${it}",
+                            connected = true
                         )
-                    }
+                    )
                 }
             }
+        }
+
+    }
+
+    private fun updateServerUrl(serverUrl:String){
+        ICDeviceManager.shared().settingManager.setServerUrl(device,serverUrl){
+            Log.d(TAG, "server Url updates to $serverUrl")
         }
     }
 
@@ -138,9 +148,10 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
         initComplete = finished
     }
 
-    override fun onBleState(state: ICConstant.ICBleState?) {
+    override fun onBleState(state: ICBleState?) {
         Log.d(TAG, "BLE state changed $state")
-        if (state == ICConstant.ICBleState.ICBleStatePoweredOn) {
+        if (state == ICBleState.ICBleStatePoweredOn) {
+
         }
     }
 
@@ -151,6 +162,10 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
     override fun onReceiveWeightData(device: ICDevice?, weightData: ICWeightData?) {
         Log.d(TAG, "received Weight data ")
         weightData?.let {
+            val measureTime = Calendar.getInstance().apply {
+                timeInMillis = weightData.time*1000
+            }
+            DataSync.uploadWeightData(listOf(WeightData(measureTime.time,weightData.weight_lb,weightData.weight_kg,device!!.macAddr)))
             Log.d(TAG, "Got weight data at ${weightData.time} weight ${weightData.weight_lb} BMI ${weightData.bmi} " +
                     "bodyfat ${weightData.bodyFatPercent} " +
                     "Musc Percent ${weightData.musclePercent} " +
@@ -201,7 +216,6 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
         when (step) {
             ICMeasureStep.ICMeasureStepMeasureWeightData -> {
                 val data = data2 as ICWeightData
-//                onReceiveWeightData(device, data)
             }
             ICMeasureStep.ICMeasureStepMeasureCenterData -> {
                 val data = data2 as ICWeightCenterData
@@ -262,20 +276,20 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
         Log.d(TAG, "Got debug data ")
     }
 
-    override fun onReceiveConfigWifiResult(device: ICDevice?, wifiStatus: ICConstant.ICConfigWifiState?) {
-        Log.i(TAG,"Got wifi result for ${device?.macAddr} is ${wifiStatus}")
+    override fun onReceiveConfigWifiResult(device: ICDevice?, wifiStatus: ICConfigWifiState?) {
+        Log.i(TAG,"Got wifi result for ${device?.macAddr} is $wifiStatus")
         result?.let {
             when(wifiStatus){
-                ICConstant.ICConfigWifiState.ICConfigWifiStateSuccess ->{
+                ICConfigWifiState.ICConfigWifiStateSuccess ->{
                     result?.success(ConnectionInfo.createResponse(message = "Wifi Connected",connected = true))
                 }
-                ICConstant.ICConfigWifiState.ICConfigWifiStateFail -> {
+                ICConfigWifiState.ICConfigWifiStateFail -> {
                     result?.success(ConnectionInfo.createResponse(message = "Config failed",connected = true))
                 }
-                ICConstant.ICConfigWifiState.ICConfigWifiStatePasswordFail -> {
+                ICConfigWifiState.ICConfigWifiStatePasswordFail -> {
                     result?.success(ConnectionInfo.createResponse(message = "Invalid Password",connected = true))
                 }
-                ICConstant.ICConfigWifiState.ICConfigWifiStateWifiConnecting -> {
+                ICConfigWifiState.ICConfigWifiStateWifiConnecting -> {
                     Log.d(TAG,"Connecting ${device?.macAddr}")
                 }
             }
@@ -308,18 +322,20 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
                     ICDeviceManager.shared().addDevice(device) { device, code ->
                         try {
                             B369Device.device = device
-                            Log.d(TAG,"Setup the device with device connected $deviceConnected")
                             scanResult?.let {
                                 scanResult?.success(ConnectionInfo.createResponse(message = "Connected", connected = true, deviceId = deviceInfo.macAddr, deviceName = deviceInfo.name,
                                     deviceType = BaseDevice.B369_DEVICE, deviceFound = deviceFound))
                             }
 
                             deviceConnected = true
+                            Log.d(TAG,"Setup the device with device connected $deviceConnected")
 
                             //Set the scale to pounds, this has to be configurable based on the user preference
-                            ICDeviceManager.shared().settingManager.setScaleUnit(device, ICWeightUnit.ICWeightUnitLb) { code ->
-                                Log.d(TAG, String.format("%s %s", device.getMacAddr(),"setting callback code :$code"))
-                            }
+//                            ICDeviceManager.shared().settingManager.setScaleUnit(device, ICWeightUnit.ICWeightUnitLb) { code ->
+//                                Log.d(TAG, String.format("%s %s", device.getMacAddr(),"setting callback code :$code"))
+//                            }
+                            Log.d(TAG,"Log path ${ICDeviceManager.shared().logPath}")
+
                         } catch (ex: Exception) {
                             //If there is an exception, let the timeout catch this.
                             Log.e(TAG, "Error while sending response ", ex)

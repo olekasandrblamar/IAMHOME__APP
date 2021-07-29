@@ -8,7 +8,6 @@ import android.util.Log
 import androidx.core.content.ContextCompat
 import com.cerashealth.ceras.*
 import com.cerashealth.ceras.lifeplus.data.*
-import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import okhttp3.*
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
@@ -152,6 +151,14 @@ class DataSync {
             val lastMeasure = heartRates.maxBy { it.measureTime }
             lastMeasure?.let {
                 updateLastSync("heartrate",lastMeasure = lastMeasure?.measureTime)
+            }
+        }
+
+        fun uploadWeightData(weights:List<WeightData>){
+            makePostRequest(gson.toJson(weights.filter { it.lbs>0 }),"weight")
+            val lastMeasure = weights.maxByOrNull { it.measureTime }
+            lastMeasure?.let {
+                updateLastSync("weight",lastMeasure = lastMeasure?.measureTime)
             }
         }
 
