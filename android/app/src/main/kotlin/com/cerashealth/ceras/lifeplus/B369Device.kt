@@ -10,7 +10,6 @@ import cn.icomon.icdevicemanager.model.device.ICDevice
 import cn.icomon.icdevicemanager.model.device.ICDeviceInfo
 import cn.icomon.icdevicemanager.model.device.ICScanDeviceInfo
 import cn.icomon.icdevicemanager.model.device.ICUserInfo
-import cn.icomon.icdevicemanager.model.other.ICConstant
 import cn.icomon.icdevicemanager.model.other.ICConstant.*
 import cn.icomon.icdevicemanager.model.other.ICDeviceManagerConfig
 import com.cerashealth.ceras.MainActivity
@@ -55,7 +54,7 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
         userInfo.weight = 180.0
         userInfo.height = 170
         userInfo.userIndex = 1
-        userInfo.sex = ICConstant.ICSexType.ICSexTypeMale
+        userInfo.sex = ICSexType.ICSexTypeMale
         userInfo.weightDirection = 1
         userInfo.targetWeight = 160.0
 
@@ -109,15 +108,13 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
 
     override fun connectWifi(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context, network: String?, password: String?) {
         Log.d(TAG,"Connecting to $network with $password with device id ${device?.macAddr}")
-//        Log.d(TAG,"Bluetooth enabled ${ICDeviceManager.shared().isBLEEnable}")
-
+        B369Device.result = result
         ICDeviceManager.shared().settingManager.configWifi(device, network!!, password!!) {
             Log.d(TAG, "Got wifi result status $it")
             when (it) {
                 ICSettingCallBackCode.ICSettingCallBackCodeSuccess -> {
                     Log.d(TAG, "Connection success")
                     updateServerUrl("https://device.dev.myceras.com")
-//                    result?.success(ConnectionInfo.createResponse(message = "Success",connected = true))
                 }
                 else -> {
                     Log.d(TAG, "Connection failure")
@@ -135,7 +132,7 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
 
     private fun updateServerUrl(serverUrl:String){
         ICDeviceManager.shared().settingManager.setServerUrl(device,serverUrl){
-            Log.d(TAG, "server Url updates to $serverUrl")
+            Log.d(TAG, "server Url updated to $serverUrl")
         }
     }
 
@@ -150,12 +147,12 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
 
     override fun onBleState(state: ICBleState?) {
         Log.d(TAG, "BLE state changed $state")
-        if (state == ICBleState.ICBleStatePoweredOn) {
-
-        }
+//        if (state == ICBleState.ICBleStatePoweredOn) {
+//
+//        }
     }
 
-    override fun onDeviceConnectionChanged(device: ICDevice?, p1: ICConstant.ICDeviceConnectState?) {
+    override fun onDeviceConnectionChanged(device: ICDevice?, p1: ICDeviceConnectState?) {
         Log.d(TAG, "Connection changed $p1")
     }
 
@@ -180,7 +177,7 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
         Log.d(TAG, "Scale data updated ")
     }
 
-    override fun onReceiveKitchenScaleUnitChanged(device: ICDevice?, p1: ICConstant.ICKitchenScaleUnit?) {
+    override fun onReceiveKitchenScaleUnitChanged(device: ICDevice?, p1: ICKitchenScaleUnit?) {
         Log.d(TAG, "Scale unit changed ")
     }
 
@@ -204,11 +201,11 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
         Log.d(TAG, "Weight unit changed ")
     }
 
-    override fun onReceiveRulerUnitChanged(device: ICDevice?, p1: ICConstant.ICRulerUnit?) {
+    override fun onReceiveRulerUnitChanged(device: ICDevice?, p1: ICRulerUnit?) {
         Log.d(TAG, "Ruler unit changed ")
     }
 
-    override fun onReceiveRulerMeasureModeChanged(device: ICDevice?, p1: ICConstant.ICRulerMeasureMode?) {
+    override fun onReceiveRulerMeasureModeChanged(device: ICDevice?, p1: ICRulerMeasureMode?) {
         Log.d(TAG, "Ruler mode changed ")
     }
 
@@ -264,7 +261,7 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
         Log.d(TAG, "Skip dattery ")
     }
 
-    override fun onReceiveUpgradePercent(device: ICDevice?, p1: ICConstant.ICUpgradeStatus?, p2: Int) {
+    override fun onReceiveUpgradePercent(device: ICDevice?, p1: ICUpgradeStatus?, p2: Int) {
         Log.d(TAG, "Device upgrade percent ")
     }
 
@@ -284,13 +281,16 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
                     result?.success(ConnectionInfo.createResponse(message = "Wifi Connected",connected = true))
                 }
                 ICConfigWifiState.ICConfigWifiStateFail -> {
-                    result?.success(ConnectionInfo.createResponse(message = "Config failed",connected = true))
+                    result?.success(ConnectionInfo.createResponse(message = "Config failed",connected = false))
                 }
                 ICConfigWifiState.ICConfigWifiStatePasswordFail -> {
-                    result?.success(ConnectionInfo.createResponse(message = "Invalid Password",connected = true))
+                    result?.success(ConnectionInfo.createResponse(message = "Invalid Password",connected = false))
                 }
                 ICConfigWifiState.ICConfigWifiStateWifiConnecting -> {
                     Log.d(TAG,"Connecting ${device?.macAddr}")
+                }
+                else->{
+                    Log.d(TAG,"Got state $wifiStatus")
                 }
             }
             result = null
@@ -319,12 +319,12 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
                     //Device is found, stop the scan
                     ICDeviceManager.shared().stopScan()
                     //Add the device to the devices
-                    ICDeviceManager.shared().addDevice(device) { device, code ->
+                    ICDeviceManager.shared().addDevice(device) { device, _ ->
                         try {
                             B369Device.device = device
-                            scanResult?.let {
-                                scanResult?.success(ConnectionInfo.createResponse(message = "Connected", connected = true, deviceId = deviceInfo.macAddr, deviceName = deviceInfo.name,
-                                    deviceType = BaseDevice.B369_DEVICE, deviceFound = deviceFound))
+                            scanResult.let {
+                                scanResult.success(ConnectionInfo.createResponse(message = "Connected", connected = true, deviceId = deviceInfo.macAddr, deviceName = deviceInfo.name,
+                                    deviceType = B369_DEVICE, deviceFound = deviceFound))
                             }
 
                             deviceConnected = true
