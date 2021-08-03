@@ -201,7 +201,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     }
 
     var subscription =
-    eventChannel.receiveBroadcastStream(requestData).listen((event) {
+        eventChannel.receiveBroadcastStream(requestData).listen((event) {
       final returnData = json.decode(event);
       switch (dataType) {
         case 'TEMPERATURE':
@@ -297,17 +297,16 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     var temperature = await Provider.of<DevicesProvider>(context, listen: false)
         .getLatestTemperature();
     // Future.delayed(Duration(seconds: 10),(){
-      setState(() {
-        _lastTemperature = temperature;
+    setState(() {
+      _lastTemperature = temperature;
       // });
     });
-
   }
 
   Future<void> _loadBloodPressure() async {
     var bloodPressure =
-    await Provider.of<DevicesProvider>(context, listen: false)
-        .getLatestBloodPressure();
+        await Provider.of<DevicesProvider>(context, listen: false)
+            .getLatestBloodPressure();
 
     setState(() {
       _bloodPressure = bloodPressure;
@@ -384,16 +383,16 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                   child: (i == 0)
                       ? _tracker1()
                       : (i == 1)
-                      ? _tracker2()
-                      : (i == 2)
-                      ? _tracker3()
-                      : (i == 3)
-                      ? _tracker4()
-                      : (i == 4)
-                      ? _tracker5()
-                      : (i == 5)
-                      ? _tracker6()
-                      : Container(),
+                          ? _tracker2()
+                          : (i == 2)
+                              ? _tracker3()
+                              : (i == 3)
+                                  ? _tracker4()
+                                  : (i == 4)
+                                      ? _tracker5()
+                                      : (i == 5)
+                                          ? _tracker6()
+                                          : Container(),
                 ),
                 physics: canScroll
                     ? ScrollPhysics()
@@ -413,12 +412,12 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     );
   }
 
-  EdgeInsets _trackerPadding(){
+  EdgeInsets _trackerPadding() {
     return EdgeInsets.symmetric(horizontal: 40, vertical: 5);
   }
 
-  Widget _populateDots(){
-    if(canScroll) {
+  Widget _populateDots() {
+    if (canScroll) {
       return Container(
         child: Row(
           mainAxisSize: MainAxisSize.min,
@@ -432,9 +431,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           ],
         ),
       );
-    }
-    else {
-      return SizedBox(height:25);
+    } else {
+      return SizedBox(height: 25);
     }
   }
 
@@ -444,14 +442,16 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       child: Container(
         decoration: _cardDecoration(),
         child: SingleChildScrollView(
-          child:Column(
-          children: [
-            if(_lastTemperature !=null)..._buildTrackerHeader('Temperature', 'temperature'),
-            if (_lastTemperature != null) ..._loadTemperatureData(),
-            if (_lastTemperature == null) _loadCountDownTimer(70, 'Temperature'),
-          ],
+          child: Column(
+            children: [
+              if (_lastTemperature != null)
+                ..._buildTrackerHeader('Temperature', 'temperature'),
+              if (_lastTemperature != null) ..._loadTemperatureData(),
+              if (_lastTemperature == null)
+                _loadCountDownTimer(70, 'Temperature'),
+            ],
+          ),
         ),
-      ),
       ),
     );
   }
@@ -505,7 +505,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-      _buildLatestDataButton('TEMPERATURE','TEMPERATURE'),
+      _buildLatestDataButton('TEMPERATURE', 'TEMPERATURE'),
       const SizedBox(height: 10),
       _buildLastUpdatedTime(_lastTemperature.measureTime),
       const SizedBox(height: 10),
@@ -518,92 +518,93 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       child: Container(
         decoration: _cardDecoration(),
         child: SingleChildScrollView(
-        child:Column(
-          children: [
-            if(_lastHr !=null) ..._buildTrackerHeader('Heart Rate', 'hr'),
-            if (_lastHr != null) ..._loadHrData(),
-            if (_lastHr == null) _loadCountDownTimer(45, 'Heart Rate'),
-          ],
-        ),
+          child: Column(
+            children: [
+              if (_lastHr != null) ..._buildTrackerHeader('Heart Rate', 'hr'),
+              if (_lastHr != null) ..._loadHrData(),
+              if (_lastHr == null) _loadCountDownTimer(45, 'Heart Rate'),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _loadCircularIndicator(String text){
+  Widget _loadCircularIndicator(String text) {
     return Column(
       children: [
         SizedBox(height: 10),
         CircularProgressIndicator(),
         SizedBox(height: 20),
-        Text('Reading '+text, style: TextStyle(fontSize: 20,color: Colors.black))
+        Text('Reading ' + text,
+            style: TextStyle(fontSize: 20, color: Colors.black))
       ],
     );
   }
 
-  Widget _loadCountDownTimer(int seconds, String type){
+  Widget _loadCountDownTimer(int seconds, String type) {
     _currentCountDown = TimeCircularCountdown(
-        unit: CountdownUnit.second,
-        countdownTotal: seconds,
-        onUpdated: (unit, remainingTime) => print('Updated'),
-        onFinished: (){
-          if(_currentCountDown!=null) {
-            setState(() {
-              canScroll = false;
-            });
-          }
-        },
-        onCanceled: (CountdownUnit unit,int remaining){
-
-        },
-        diameter: 200,
-        countdownTotalColor: Colors.white,
-        countdownCurrentColor: Colors.blue,
-        countdownRemainingColor: Colors.blue,
-        strokeWidth: 10,
-        gapFactor: 2,
+      unit: CountdownUnit.second,
+      countdownTotal: seconds,
+      onUpdated: (unit, remainingTime) => print('Updated'),
+      onFinished: () {
+        if (_currentCountDown != null) {
+          setState(() {
+            canScroll = false;
+          });
+        }
+      },
+      onCanceled: (CountdownUnit unit, int remaining) {},
+      diameter: 200,
+      countdownTotalColor: Colors.white,
+      countdownCurrentColor: Colors.blue,
+      countdownRemainingColor: Colors.blue,
+      strokeWidth: 10,
+      gapFactor: 2,
       textStyle: TextStyle(
         fontSize: 50,
         fontWeight: FontWeight.bold,
         color: Colors.redAccent,
       ),
     );
-    var buttonText = canScroll?'Loading $type ...':'Reading $type ...';
+    var buttonText = canScroll ? 'Loading $type ...' : 'Reading $type ...';
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-      SizedBox(height: 100),
-      canScroll?
-        // TimeCircularCountdown(
-        //   unit: CountdownUnit.second,
-        //   countdownTotal: 10,
-        //   diameter: 200,
-        //   countdownTotalColor: Colors.white,
-        //   countdownCurrentColor: Colors.blue,
-        //   countdownRemainingColor: Colors.blue,
-        //   strokeWidth: 20,
-        //   gapFactor: 5,
-        //   repeat: true,
-        //   onUpdated: (unit, remainingTime) => print('Updated'),
-        // // textStyle: TextStyle(
-        // // fontSize: 50,
-        // // fontWeight: FontWeight.bold,
-        // // color: Colors.redAccent,
-        // // ),
-        // )
-        Container()
-        :
-        _currentCountDown,
-      SizedBox(height: 20),
-      Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          FittedBox(
-            child: Text(buttonText, style: TextStyle(fontSize: 20,color: Colors.black)),
-          )
-        ],
-      ),],
+        SizedBox(height: 100),
+        canScroll
+            ?
+            // TimeCircularCountdown(
+            //   unit: CountdownUnit.second,
+            //   countdownTotal: 10,
+            //   diameter: 200,
+            //   countdownTotalColor: Colors.white,
+            //   countdownCurrentColor: Colors.blue,
+            //   countdownRemainingColor: Colors.blue,
+            //   strokeWidth: 20,
+            //   gapFactor: 5,
+            //   repeat: true,
+            //   onUpdated: (unit, remainingTime) => print('Updated'),
+            // // textStyle: TextStyle(
+            // // fontSize: 50,
+            // // fontWeight: FontWeight.bold,
+            // // color: Colors.redAccent,
+            // // ),
+            // )
+            Container()
+            : _currentCountDown,
+        SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FittedBox(
+              child: Text(buttonText,
+                  style: TextStyle(fontSize: 20, color: Colors.black)),
+            )
+          ],
+        ),
+      ],
     );
   }
 
@@ -649,7 +650,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-      _buildLatestDataButton('HR','Heart Rate'),
+      _buildLatestDataButton('HR', 'Heart Rate'),
       const SizedBox(height: 10),
       _buildLastUpdatedTime(_lastHr.measureTime),
       const SizedBox(height: 10),
@@ -662,13 +663,14 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       child: Container(
         decoration: _cardDecoration(),
         child: SingleChildScrollView(
-        child:Column(
-          children: [
-            ..._buildTrackerHeader('Blood Pressure', 'bp'),
-            if (_bloodPressure != null) ..._loadBpData(),
-            if (_bloodPressure == null) _loadCircularIndicator('Blood Pressure'),
-          ],
-        ),
+          child: Column(
+            children: [
+              ..._buildTrackerHeader('Blood Pressure', 'bp'),
+              if (_bloodPressure != null) ..._loadBpData(),
+              if (_bloodPressure == null)
+                _loadCircularIndicator('Blood Pressure'),
+            ],
+          ),
         ),
       ),
     );
@@ -690,8 +692,8 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                 TextSpan(
                   text: _bloodPressure != null
                       ? _bloodPressure.systolic.toString() +
-                      '/' +
-                      _bloodPressure.distolic.toString()
+                          '/' +
+                          _bloodPressure.distolic.toString()
                       : '0/0',
                   style: TextStyle(
                     fontSize: 50,
@@ -732,13 +734,15 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       child: Container(
         decoration: _cardDecoration(),
         child: SingleChildScrollView(
-        child:Column(
-          children: [
-            if (_oxygenLevel != null) ..._buildTrackerHeader('Oxygen Saturation', 'o2'),
-            if (_oxygenLevel != null) ..._loadOxygenData(),
-            if (_oxygenLevel == null) _loadCountDownTimer(45, 'Oxygen Saturation'),
-          ],
-        ),
+          child: Column(
+            children: [
+              if (_oxygenLevel != null)
+                ..._buildTrackerHeader('Oxygen Saturation', 'o2'),
+              if (_oxygenLevel != null) ..._loadOxygenData(),
+              if (_oxygenLevel == null)
+                _loadCountDownTimer(45, 'Oxygen Saturation'),
+            ],
+          ),
         ),
       ),
     );
@@ -788,10 +792,9 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           ],
         ),
       ),
-      _buildLatestDataButton('O2','Oxygen Saturation'),
+      _buildLatestDataButton('O2', 'Oxygen Saturation'),
       const SizedBox(height: 10),
       _buildLastUpdatedTime(_oxygenLevel.measureTime)
-
     ];
   }
 
@@ -801,14 +804,14 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       child: Container(
         decoration: _cardDecoration(),
         child: SingleChildScrollView(
-        child:Column(
-          children: [
-            ..._buildTrackerHeader('Calories', 'calories'),
-            if (_lastCalories != null) ..._buildCaloriesData(),
-            if (_lastCalories == null) CircularProgressIndicator(),
-            // _buildLatestDataButton('Calories')
-          ],
-        ),
+          child: Column(
+            children: [
+              ..._buildTrackerHeader('Calories', 'calories'),
+              if (_lastCalories != null) ..._buildCaloriesData(),
+              if (_lastCalories == null) CircularProgressIndicator(),
+              // _buildLatestDataButton('Calories')
+            ],
+          ),
         ),
       ),
     );
@@ -871,13 +874,13 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       child: Container(
         decoration: _cardDecoration(),
         child: SingleChildScrollView(
-        child:Column(
-          children: [
-            ..._buildTrackerHeader('Steps', 'steps'),
-            if (_lastSteps != null) ..._buildStepsData(),
-            if (_lastSteps == null) CircularProgressIndicator(),
-          ],
-        ),
+          child: Column(
+            children: [
+              ..._buildTrackerHeader('Steps', 'steps'),
+              if (_lastSteps != null) ..._buildStepsData(),
+              if (_lastSteps == null) CircularProgressIndicator(),
+            ],
+          ),
         ),
       ),
     );
@@ -898,7 +901,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
               text: TextSpan(children: [
                 TextSpan(
                   text:
-                  (_lastSteps != null ? _lastSteps.steps.toString() : '0'),
+                      (_lastSteps != null ? _lastSteps.steps.toString() : '0'),
                   style: TextStyle(
                     fontSize: 50,
                     fontWeight: FontWeight.bold,
@@ -947,13 +950,16 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           ),
         ),
       ),
-      SizedBox(height: MediaQuery.of(context).size.width * 0.1,),
+      SizedBox(
+        height: MediaQuery.of(context).size.width * 0.1,
+      ),
       Container(
         padding: EdgeInsets.all(16),
         child: SvgPicture.asset(
           'assets/trackers/' + image + '.svg',
-          height: MediaQuery.of(context).size.width * 0.2,),
+          height: MediaQuery.of(context).size.width * 0.2,
         ),
+      ),
       SizedBox(height: 20),
     ];
   }
@@ -965,41 +971,38 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           _lastSteps != null
               ? 'Last: ' + _formatDate(time) + ' ' + _formatTime(time)
               : '--',
-          style: TextStyle(
-            fontSize: 20
-          ),
+          style: TextStyle(fontSize: 20),
         ),
       ),
     );
   }
 
-  Widget _buildLatestDataButton(type,displayName) {
+  Widget _buildLatestDataButton(type, displayName) {
     return !canScroll
         ? _loadCircularIndicator(displayName)
         : Container(
-      width: 270,
-      height: 80,
-      padding: EdgeInsets.all(15),
-      child: FlatButton(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-          // side: BorderSide(color: Colors.grey),
-        ),
-        color: Color.fromRGBO(11,140,196, 1),
-        textColor: Colors.white,
-        onPressed: () {
-          return _readDataFromDevice(type);
-        },
-        child:FittedBox(
-          child: Text(
-          'Measure Now',
-            style: TextStyle(
-              fontSize: 20,
-            ),
-          ),
-        )
-      ),
-    );
+            width: 270,
+            height: 80,
+            padding: EdgeInsets.all(15),
+            child: FlatButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  // side: BorderSide(color: Colors.grey),
+                ),
+                color: Color.fromRGBO(11, 140, 196, 1),
+                textColor: Colors.white,
+                onPressed: () {
+                  return _readDataFromDevice(type);
+                },
+                child: FittedBox(
+                  child: Text(
+                    'Measure Now',
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                )),
+          );
   }
 
   Widget _buildSlideDots(BuildContext context, bool isActive, int index) {
@@ -1028,27 +1031,25 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
   BoxDecoration _cardDecoration() {
     return BoxDecoration(
-      borderRadius: BorderRadius.all(Radius.circular(20)),
-      image:  DecorationImage(
-          colorFilter:
-          ColorFilter.mode(Colors.white.withOpacity(0.70),
-              BlendMode.dstATop),
-          image: AssetImage('assets/trackers/tracker_background.png'),
-          fit: BoxFit.fill
-      )
-      // boxShadow: [
-      //   BoxShadow(
-      //     color: Colors.grey.withOpacity(0.5),
-      //     // spreadRadius: 5,
-      //     blurRadius: 5,
-      //     offset: Offset(0, 3), // changes position of shadow
-      //   ),
-      // ],
-      // gradient: LinearGradient(
-      //   begin: Alignment.topCenter,
-      //   end: Alignment.bottomCenter,
-      //   colors: [Color(0xFFFFFFFF), Color(0xFFDBFBFF)],
-      // ),
-    );
+        borderRadius: BorderRadius.all(Radius.circular(20)),
+        image: DecorationImage(
+            colorFilter: ColorFilter.mode(
+                Colors.white.withOpacity(0.70), BlendMode.dstATop),
+            image: AssetImage('assets/trackers/tracker_background.png'),
+            fit: BoxFit.fill)
+        // boxShadow: [
+        //   BoxShadow(
+        //     color: Colors.grey.withOpacity(0.5),
+        //     // spreadRadius: 5,
+        //     blurRadius: 5,
+        //     offset: Offset(0, 3), // changes position of shadow
+        //   ),
+        // ],
+        // gradient: LinearGradient(
+        //   begin: Alignment.topCenter,
+        //   end: Alignment.bottomCenter,
+        //   colors: [Color(0xFFFFFFFF), Color(0xFFDBFBFF)],
+        // ),
+        );
   }
 }
