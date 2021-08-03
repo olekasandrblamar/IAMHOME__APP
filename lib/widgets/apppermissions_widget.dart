@@ -34,7 +34,10 @@ class AppPermissions extends StatelessWidget {
               children: Permission.values
                   .where((Permission permission) {
                     return permission == Permission.location ||
-                        permission == Permission.notification;
+                        permission == Permission.notification ||
+                        permission == Permission.bluetooth ||
+                        (Platform.isAndroid &&
+                            permission == Permission.storage);
                   })
                   .map((Permission permission) =>
                       PermissionWidget(permission, _appLocalization))
@@ -168,6 +171,14 @@ class _PermissionState extends State<PermissionWidget> {
     if (_permission == Permission.notification) {
       return _appLocalization
           .translate('settings.permissions.permissionname.notifications');
+    }
+
+    if (_permission == Permission.bluetooth) {
+      return 'Bluetooth';
+    }
+
+    if (_permission == Permission.storage && Platform.isAndroid) {
+      return 'Storage';
     }
 
     return '';
