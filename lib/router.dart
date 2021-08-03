@@ -14,6 +14,7 @@ import 'package:flutter/material.dart';
 import 'package:ceras/screens/access/camera_screen.dart';
 import 'package:ceras/screens/access/locations_screen.dart';
 import 'package:ceras/screens/access/notifications_screen.dart';
+import 'package:ceras/screens/access/bluetooth_screen.dart';
 import 'package:ceras/screens/access/storage_screen.dart';
 import 'package:ceras/screens/help/help_widget.dart';
 import 'package:ceras/screens/intro_screen.dart';
@@ -67,6 +68,8 @@ Route<dynamic> generateRoute(
       return MaterialPageRoute(builder: (context) => CameraScreen());
     case StorageRoute:
       return MaterialPageRoute(builder: (context) => StorageScreen());
+    case BluetoothRoute:
+      return MaterialPageRoute(builder: (context) => BluetoothScreen());
     case IntroRoute:
       return MaterialPageRoute(builder: (context) => IntroScreen());
     case PrivacyRoute:

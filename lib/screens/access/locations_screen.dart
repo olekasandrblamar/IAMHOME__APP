@@ -146,18 +146,9 @@ class _LocationsScreenState extends State<LocationsScreen>
   }
 
   dynamic _goToCamera(context) async {
-    if (Platform.isAndroid) {
-      return Navigator.of(context).pushReplacementNamed(
-        routes.StorageRoute,
-      );
-    } else {
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setBool('walthrough', false);
-
-      return Navigator.of(context).pushReplacementNamed(
-        routes.SetupHomeRoute,
-      );
-    }
+    return Navigator.of(context).pushReplacementNamed(
+      routes.BluetoothRoute,
+    );
   }
 
   final AccessModel locationData = ACCESS_DATA[1];
