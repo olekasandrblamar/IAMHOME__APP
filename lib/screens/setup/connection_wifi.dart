@@ -1,6 +1,7 @@
 import 'dart:async';
-
+import 'dart:convert';
 import 'package:ceras/models/devices_model.dart';
+import 'package:ceras/screens/setup/setup_connected_screen.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/theme.dart';
@@ -8,6 +9,7 @@ import 'package:ceras/theme.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/config/background_fetch.dart';
 import 'package:flutter/services.dart';
+import 'package:ceras/models/watchdata_model.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -159,7 +161,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     }
   }
 
-  Future<void> _saveForm() async {
+  Future<void> _connectWifi() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final isValid = _formKey.currentState.validate();
@@ -168,8 +170,6 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
       }
       _formKey.currentState.save();
 
-      print(_wifiName);
-      print(_password);
 
       final connectionInfo = prefs.getString('watchInfo');
 
@@ -178,6 +178,27 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
         'connectWifi',
         <String, dynamic>{'connectionInfo': connectionInfo,'network':_wifiName,'password':_password},
       ) as String;
+      print('Wifi status $connectionStatus');
+
+      final wifiStatus = WatchModel.fromJson(
+        json.decode(connectionStatus) as Map<String, dynamic>,
+      );
+
+
+      if(wifiStatus.connected){
+        Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  SetupConnectedScreen(
+                    routeArgs: {
+                      'deviceData': _devicesModel,
+                    },
+                  ),
+              settings: const RouteSettings(name: routes.SetupConnectedRoute),
+            ),
+                (Route<dynamic> route) => false);
+      }
+
 
       setState(() {
         _isLoading = true;
@@ -319,7 +340,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                         ),
                         color: Theme.of(context).primaryColor,
                         textColor: Colors.white,
-                        onPressed: () => _saveForm(),
+                        onPressed: () => _connectWifi(),
                         child: Text(
                           'Submit',
                         ),

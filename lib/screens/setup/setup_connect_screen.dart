@@ -292,6 +292,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                 ConnectionWifiScreen(
                   routeArgs: {
                     'displayImage': _displayImage,
+                    'deviceData': _deviceData,
                   },
                 ),
             settings: const RouteSettings(name: routes.ConnectionWifiRoute),

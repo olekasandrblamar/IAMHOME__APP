@@ -276,15 +276,19 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
     override fun onReceiveConfigWifiResult(device: ICDevice?, wifiStatus: ICConfigWifiState?) {
         Log.i(TAG,"Got wifi result for ${device?.macAddr} is $wifiStatus")
         result?.let {
+            Log.i(TAG,"Result is not null sending the response back")
             when(wifiStatus){
                 ICConfigWifiState.ICConfigWifiStateSuccess ->{
                     result?.success(ConnectionInfo.createResponse(message = "Wifi Connected",connected = true))
+                    result = null
                 }
                 ICConfigWifiState.ICConfigWifiStateFail -> {
                     result?.success(ConnectionInfo.createResponse(message = "Config failed",connected = false))
+                    result = null
                 }
                 ICConfigWifiState.ICConfigWifiStatePasswordFail -> {
                     result?.success(ConnectionInfo.createResponse(message = "Invalid Password",connected = false))
+                    result = null
                 }
                 ICConfigWifiState.ICConfigWifiStateWifiConnecting -> {
                     Log.d(TAG,"Connecting ${device?.macAddr}")
@@ -293,7 +297,6 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
                     Log.d(TAG,"Got state $wifiStatus")
                 }
             }
-            result = null
         }
     }
 
