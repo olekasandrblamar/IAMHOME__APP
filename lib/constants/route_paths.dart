@@ -7,6 +7,7 @@ const String PrivacyRoute = '/privacy';
 const String NotificationsRoute = '/access/notifications';
 const String CameraRoute = '/access/camera';
 const String LocationsRoute = '/access/locations';
+const String StorageRoute = '/access/storage';
 
 const String SetupHomeRoute = '/setup/home';
 const String SetupDevicesRoute = '/setup/devices';

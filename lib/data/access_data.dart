@@ -18,5 +18,11 @@ List<AccessModel> ACCESS_DATA = <AccessModel>[
     description:
         'To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activities.',
     image: 'assets/images/camera.png',
+  ),
+  AccessModel(
+    title: 'Storage',
+    description:
+        'To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activities.',
+    image: 'assets/images/camera.png',
   )
 ];
