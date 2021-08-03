@@ -39,7 +39,7 @@ class BluetoothScreen extends StatelessWidget {
     }
   }
 
-  final AccessModel storageData = ACCESS_DATA[3];
+  final AccessModel storageData = ACCESS_DATA[4];
 
   @override
   Widget build(BuildContext context) {
