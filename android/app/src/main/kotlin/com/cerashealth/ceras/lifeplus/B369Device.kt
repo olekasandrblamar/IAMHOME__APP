@@ -15,6 +15,7 @@ import cn.icomon.icdevicemanager.model.other.ICDeviceManagerConfig
 import com.cerashealth.ceras.MainActivity
 import com.cerashealth.ceras.lifeplus.data.ConnectionInfo
 import com.cerashealth.ceras.lifeplus.data.WeightData
+import com.walnutin.hardsdk.ProductList.sdk.HardSdk
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
@@ -298,6 +299,10 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
                 }
             }
         }
+    }
+
+    override fun getConnectionStatus(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context){
+        result?.success(deviceConnected)
     }
 
     /**
