@@ -15,8 +15,8 @@ open class BaseDevice{
         Log.i(TAG,"Calling default sync data")
     }
 
-    open fun getDeviceInfo(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
-        Log.i(TAG,"Calling default device Info")
+    open fun getDeviceInfo(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context) {
+        Log.i(TAG, "Calling default device Info")
     }
 
     open fun getConnectionStatus(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){

@@ -207,12 +207,10 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       ) as String;
 
       if (disconnect != null) {
-        var removeDeviceData =
-            await Provider.of<DevicesProvider>(context, listen: false)
-                .removeDevice(_deviceIndex);
+        var removeDeviceData = await Provider.of<DevicesProvider>(context, listen: false).removeDevice(_deviceIndex);
 
         if (removeDeviceData) {
-          _loadCountDownTimer(45, 'Resetting Device');
+          _loadCountDownTimer(20, 'Resetting Device');
         }
       }
     }
@@ -222,27 +220,26 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          content: TimeCircularCountdown(
-            unit: CountdownUnit.second,
-            countdownTotal: seconds,
-            onUpdated: (unit, remainingTime) => print('Updated'),
-            onFinished: () {
-              NavigationService.goBackHome();
-            },
-            onCanceled: (CountdownUnit unit, int remaining) {},
-            diameter: 200,
-            countdownTotalColor: Colors.white,
-            countdownCurrentColor: Colors.blue,
-            countdownRemainingColor: Colors.blue,
-            strokeWidth: 10,
-            gapFactor: 2,
-            textStyle: TextStyle(
-              fontSize: 50,
-              fontWeight: FontWeight.bold,
-              color: Colors.redAccent,
+        return Container(
+            child:TimeCircularCountdown(
+              unit: CountdownUnit.second,
+              countdownTotal: seconds,
+              onFinished: () {
+                NavigationService.goBackHome();
+              },
+              onCanceled: (CountdownUnit unit, int remaining) {},
+              diameter: 200,
+              countdownTotalColor: Colors.white,
+              countdownCurrentColor: Colors.blue,
+              countdownRemainingColor: Colors.blue,
+              strokeWidth: 10,
+              gapFactor: 2,
+              textStyle: TextStyle(
+                fontSize: 50,
+                fontWeight: FontWeight.bold,
+                color: Colors.redAccent,
+              ),
             ),
-          ),
         );
       },
     );
