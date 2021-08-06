@@ -219,14 +219,21 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   }
 
   void _loadCountDownTimer(int seconds, String type) {
-    showDialog(
+    showGeneralDialog(
       context: context,
-      builder: (BuildContext context) {
+      barrierColor: Colors.black12.withOpacity(0.6), // Background color
+      barrierDismissible: false,
+      barrierLabel: 'Dialog',
+      transitionDuration: Duration(
+        milliseconds: 400,
+      ), // How long it takes to popup dialog after button click
+      pageBuilder: (_, __, ___) {
         return Container(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              SizedBox(height: 100),
               TimeCircularCountdown(
                 unit: CountdownUnit.second,
                 countdownTotal: seconds,
@@ -261,6 +268,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
                   )
                 ],
               ),
+              SizedBox(height: 100),
             ],
           ),
         );
