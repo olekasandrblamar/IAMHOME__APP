@@ -16,6 +16,10 @@
 			"description": "To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activities.",
 			"title": "Camera"
 		},
+		"storage": {
+			"description": "We use your local storage to store the vital information from your device.",
+			"title": "Storage"
+		},
 		"locations": {
 			"description": "Granting location permissions allows the app to communicate your location to your doctor or care team in the case of emergency.",
 			"title": "Location Permissions"

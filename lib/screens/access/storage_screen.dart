@@ -39,7 +39,7 @@ class StorageScreen extends StatelessWidget {
       appBar: translateHeader(context),
       backgroundColor: AppTheme.white,
       body: AccessWidget(
-        type: 'camera',
+        type: 'storage',
         accessData: storageData,
         onNothingSelected: () => _goToHome(context),
         onPermissionSelected: () => _checkPermission(context),

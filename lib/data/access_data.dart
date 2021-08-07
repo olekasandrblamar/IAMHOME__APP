@@ -22,8 +22,8 @@ List<AccessModel> ACCESS_DATA = <AccessModel>[
   AccessModel(
     title: 'Storage',
     description:
-        'To better connect with you, the care plan you select require us to send you the notifications. Join the wellness tracker program so Ceras can continue to update your activities.',
-    image: 'assets/images/camera.png',
+        'We use your local storage to store the vital information from your device',
+    image: 'assets/images/storage.png',
   ),
   AccessModel(
     title: 'Bluetooth',

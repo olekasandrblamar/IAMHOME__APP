@@ -107,6 +107,7 @@ flutter:
     - assets/images/Bluechecked.png
     - assets/images/AddNewDeviceDefault.png
     - assets/images/upgrading.png
+    - assets/images/storage.png
 
   fonts:
     - family: Roboto
