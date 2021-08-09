@@ -17,11 +17,13 @@ class BluetoothScreen extends StatelessWidget {
   void _checkPermission(context) async {
     final status = await Permission.bluetooth.request();
 
-    if (PermissionStatus.granted == status) {
-      _goToHome(context);
-    } else {
-      showAccessAlertDialog(context);
-    }
+    // if (PermissionStatus.granted == status) {
+    //   _goToHome(context);
+    // } else {
+    //   showAccessAlertDialog(context);
+    // }
+
+    _goToHome(context);
   }
 
   dynamic _goToHome(context) async {

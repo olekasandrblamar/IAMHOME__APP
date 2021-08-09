@@ -138,11 +138,13 @@ class _LocationsScreenState extends State<LocationsScreen>
         ? await Permission.location.request()
         : await Permission.locationAlways.request();
 
-    if (PermissionStatus.granted == status) {
-      _goToCamera(context);
-    } else {
-      showAccessAlertDialog(context);
-    }
+    // if (PermissionStatus.granted == status) {
+    //   _goToCamera(context);
+    // } else {
+    //   showAccessAlertDialog(context);
+    // }
+
+    _goToCamera(context);
   }
 
   dynamic _goToCamera(context) async {

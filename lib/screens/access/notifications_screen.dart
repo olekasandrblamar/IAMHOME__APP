@@ -14,11 +14,13 @@ class NotificationsScreen extends StatelessWidget {
   void _checkPermission(context) async {
     final status = await Permission.notification.request();
 
-    if (PermissionStatus.granted == status) {
-      _goToLocations(context);
-    } else {
-      showAccessAlertDialog(context);
-    }
+    // if (PermissionStatus.granted == status) {
+    //   _goToLocations(context);
+    // } else {
+    //   showAccessAlertDialog(context);
+    // }
+
+    _goToLocations(context);
   }
 
   void _showDialog(context) {
