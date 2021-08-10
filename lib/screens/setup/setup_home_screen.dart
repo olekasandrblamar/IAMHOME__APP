@@ -19,6 +19,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 class SetupHomeScreen extends StatefulWidget {
   @override
@@ -109,6 +110,12 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
 
     if (await Permission.notification.status == PermissionStatus.denied) {
       return _goToPermissions(context);
+    }
+
+    if (!await FlutterBlue.instance.isOn) {
+      await Navigator.of(context).pushNamed(
+        routes.BluetoothNotfoundRoute,
+      );
     }
   }
 
