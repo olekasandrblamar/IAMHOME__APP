@@ -136,6 +136,16 @@ class _PermissionState extends State<PermissionWidget> {
           }
         }
       }
+
+      if(_permission == Permission.storage){
+        var status = await Permission.storage.request();
+
+        if (PermissionStatus.granted == status) {
+          setState(() {
+            _permissionStatus = PermissionStatus.granted;
+          });
+        }
+      }
     } else {
       await openAppSettings();
     }

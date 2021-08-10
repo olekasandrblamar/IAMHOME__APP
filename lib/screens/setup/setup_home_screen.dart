@@ -10,6 +10,7 @@ import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/setup/setup_upgrade_screen.dart';
+import 'package:ceras/screens/setup/widgets/bluetooth_notfound_widget.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:connectivity/connectivity.dart';
@@ -35,6 +36,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   List<WatchModel> _deviceStatus = [];
   var _lastUpdated = '---';
   var _connectionStatus = false;
+  var _blueToothEnabled = true;
 
   @override
   void initState() {
@@ -94,9 +96,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   }
 
   void checkPermissionStatus() async {
-    if (Platform.isIOS
-        ? await Permission.location.status == PermissionStatus.denied
-        : await Permission.locationAlways.status == PermissionStatus.denied) {
+    if (await Permission.location.status == PermissionStatus.denied) {
       return _goToPermissions(context);
     }
 
@@ -123,13 +123,24 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
 
   void checkBlue() {
     FlutterBlue.instance.state.listen((BluetoothState event) async {
-      if (event != BluetoothState.on) {
+      if (event == BluetoothState.unauthorized || event == BluetoothState.off) {
+        _blueToothEnabled = false;
         await Navigator.of(context).pushNamed(
           routes.BluetoothNotfoundRoute,
         );
+      }else if(event == BluetoothState.on && !_blueToothEnabled){
+        _blueToothEnabled = true;
+        await Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (BuildContext context) =>
+                  SetupHomeScreen(),
+              settings: const RouteSettings(
+                  name: routes.SetupHomeRoute),
+            ), (Route<dynamic> route) => false);
       }
     });
   }
+
 
   dynamic _goToPermissions(context) async {
     return Navigator.of(context).pushNamed(

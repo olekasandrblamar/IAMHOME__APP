@@ -69,34 +69,34 @@ class BluetoothNotfoundScreen extends StatelessWidget {
                   SizedBox(
                     height: 25,
                   ),
-                  Container(
-                    width: 200,
-                    height: 75,
-                    padding: EdgeInsets.all(10),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.5),
-                      ),
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      onPressed: () {
-                        Navigator.of(context).pushAndRemoveUntil(
-                            MaterialPageRoute(
-                              builder: (BuildContext context) =>
-                                  SetupHomeScreen(),
-                              settings: const RouteSettings(
-                                  name: routes.SetupHomeRoute),
-                            ),
-                            (Route<dynamic> route) => false);
-                      },
-                      child: Text(
-                        'Enable Bluetooth',
-                        style: TextStyle(
-                          fontSize: 14,
-                        ),
-                      ),
-                    ),
-                  ),
+                  // Container(
+                  //   width: 200,
+                  //   height: 75,
+                  //   padding: EdgeInsets.all(10),
+                  //   child: RaisedButton(
+                  //     shape: RoundedRectangleBorder(
+                  //       borderRadius: BorderRadius.circular(4.5),
+                  //     ),
+                  //     color: Theme.of(context).primaryColor,
+                  //     textColor: Colors.white,
+                  //     onPressed: () {
+                  //       Navigator.of(context).pushAndRemoveUntil(
+                  //           MaterialPageRoute(
+                  //             builder: (BuildContext context) =>
+                  //                 SetupHomeScreen(),
+                  //             settings: const RouteSettings(
+                  //                 name: routes.SetupHomeRoute),
+                  //           ),
+                  //           (Route<dynamic> route) => false);
+                  //     },
+                  //     child: Text(
+                  //       'Enable Bluetooth',
+                  //       style: TextStyle(
+                  //         fontSize: 14,
+                  //       ),
+                  //     ),
+                  //   ),
+                  // ),
                 ],
               ),
             ),
