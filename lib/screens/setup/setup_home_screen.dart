@@ -15,6 +15,7 @@ import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -36,6 +37,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   @override
   void initState() {
     checkInternetConnection();
+    checkPermissionStatus();
     loadData();
     updateVersionCheck();
     WidgetsBinding.instance.addObserver(this);
@@ -86,6 +88,34 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
 
   void onDetached() {
     print('detach');
+  }
+
+  void checkPermissionStatus() async {
+    if (Platform.isIOS
+        ? await Permission.location.status == PermissionStatus.denied
+        : await Permission.locationAlways.status == PermissionStatus.denied) {
+      return _goToPermissions(context);
+    }
+
+    if (Platform.isAndroid) {
+      if (await Permission.storage.status == PermissionStatus.denied) {
+        return _goToPermissions(context);
+      }
+    }
+
+    // if (await Permission.bluetooth.status == PermissionStatus.denied) {
+    //   return _goToPermissions(context);
+    // }
+
+    if (await Permission.notification.status == PermissionStatus.denied) {
+      return _goToPermissions(context);
+    }
+  }
+
+  dynamic _goToPermissions(context) async {
+    return Navigator.of(context).pushNamed(
+      routes.AppPermissionsRoute,
+    );
   }
 
   void checkInternetConnection() {

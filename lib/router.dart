@@ -9,6 +9,7 @@ import 'package:ceras/screens/setup/setup_connected_screen.dart';
 import 'package:ceras/screens/setup/setup_devices_screen.dart';
 import 'package:ceras/screens/setup/setup_upgrade_screen.dart';
 import 'package:ceras/screens/setup/unabletoconnect_screen.dart';
+import 'package:ceras/widgets/apppermissions_widget.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/screens/access/camera_screen.dart';
@@ -116,6 +117,8 @@ Route<dynamic> generateRoute(
       return MaterialPageRoute(builder: (context) => SettingsScreen());
     case DataRoute:
       return MaterialPageRoute(builder: (context) => DataScreen());
+    case AppPermissionsRoute:
+      return MaterialPageRoute(builder: (context) => AppPermissions());
     default:
       return MaterialPageRoute(
         builder: (context) => Scaffold(
