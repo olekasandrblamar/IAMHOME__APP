@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -38,6 +39,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   @override
   void initState() {
     checkInternetConnection();
+    checkBlue();
     checkPermissionStatus();
     loadData();
     updateVersionCheck();
@@ -77,6 +79,8 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     _deviceData.forEach((device) {
       _processSyncData(index);
     });
+
+    checkPermissionStatus();
   }
 
   void onPaused() {
@@ -112,11 +116,21 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
       return _goToPermissions(context);
     }
 
-    if (!await FlutterBlue.instance.isOn) {
-      await Navigator.of(context).pushNamed(
-        routes.BluetoothNotfoundRoute,
-      );
-    }
+    // if (!await FlutterBlue.instance.isOn) {
+    //   await Navigator.of(context).pushNamed(
+    //     routes.BluetoothNotfoundRoute,
+    //   );
+    // }
+  }
+
+  void checkBlue() {
+    FlutterBlue.instance.state.listen((BluetoothState event) async {
+      if (event != BluetoothState.on) {
+        await Navigator.of(context).pushNamed(
+          routes.BluetoothNotfoundRoute,
+        );
+      }
+    });
   }
 
   dynamic _goToPermissions(context) async {
