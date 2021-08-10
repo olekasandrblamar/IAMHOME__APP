@@ -1,3 +1,4 @@
+import 'package:ceras/screens/setup/setup_home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/theme.dart';
 
@@ -78,17 +79,22 @@ class BluetoothNotfoundScreen extends StatelessWidget {
                       ),
                       color: Theme.of(context).primaryColor,
                       textColor: Colors.white,
+                      onPressed: () {
+                        Navigator.of(context).pushAndRemoveUntil(
+                            MaterialPageRoute(
+                              builder: (BuildContext context) =>
+                                  SetupHomeScreen(),
+                              settings: const RouteSettings(
+                                  name: routes.SetupHomeRoute),
+                            ),
+                            (Route<dynamic> route) => false);
+                      },
                       child: Text(
                         'Enable Bluetooth',
                         style: TextStyle(
                           fontSize: 14,
                         ),
                       ),
-                      onPressed: () {
-                        return Navigator.of(context).pushReplacementNamed(
-                          routes.SetupHomeRoute,
-                        );
-                      },
                     ),
                   ),
                 ],
