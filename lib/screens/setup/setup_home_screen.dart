@@ -79,8 +79,6 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     _deviceData.forEach((device) {
       _processSyncData(index);
     });
-
-    checkPermissionStatus();
   }
 
   void onPaused() {
