@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Meldingen kunnen belangrijke gezondheidswaarschuwingen en herinneringen bevatten wanneer iets er niet uitziet. Het is eenvoudig om ze op elk moment in de instellingen te wijzigen.",
 			"title": "Push notificatie"
+		},
+		"storage": {
+			"description": "De Ceras-app slaat alleen uw Ceras-apparaatgegevens op. Ceras zorgt ervoor dat uw opslag niet voor andere doeleinden wordt gebruikt",
+			"title": "opslagruimte"
 		}
 	},
 	"appLanguage": {

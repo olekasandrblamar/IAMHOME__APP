@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Bildirimler, önemli sağlık uyarıları ve bir şey ters gittiğinde hatırlatıcılar içerebilir. Bunları istediğiniz zaman ayarlardan değiştirmek kolaydır.",
 			"title": "Bildirim almak"
+		},
+		"storage": {
+			"description": "Ceras uygulaması yalnızca Ceras cihaz verilerinizi saklar. Ceras, depolama alanınıza başka bir amaçla erişilmemesini sağlar",
+			"title": "Depolama"
 		}
 	},
 	"appLanguage": {

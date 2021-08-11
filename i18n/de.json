@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Benachrichtigungen können wichtige Gesundheitswarnungen und Erinnerungen enthalten, wenn etwas nicht stimmt. Es ist einfach, sie jederzeit in den Einstellungen zu ändern.",
 			"title": "Push-Benachrichtigung"
+		},
+		"storage": {
+			"description": "Die Ceras App speichert nur Ihre Ceras Gerätedaten. Ceras stellt sicher, dass Ihr Speicher nicht für andere Zwecke verwendet wird",
+			"title": "Lager"
 		}
 	},
 	"appLanguage": {
