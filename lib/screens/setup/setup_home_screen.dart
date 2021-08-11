@@ -128,19 +128,17 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
         await Navigator.of(context).pushNamed(
           routes.BluetoothNotfoundRoute,
         );
-      }else if(event == BluetoothState.on && !_blueToothEnabled){
+      } else if (event == BluetoothState.on && !_blueToothEnabled) {
         _blueToothEnabled = true;
         await Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  SetupHomeScreen(),
-              settings: const RouteSettings(
-                  name: routes.SetupHomeRoute),
-            ), (Route<dynamic> route) => false);
+              builder: (BuildContext context) => SetupHomeScreen(),
+              settings: const RouteSettings(name: routes.SetupHomeRoute),
+            ),
+            (Route<dynamic> route) => false);
       }
     });
   }
-
 
   dynamic _goToPermissions(context) async {
     return Navigator.of(context).pushNamed(

@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Thông báo có thể bao gồm các cảnh báo và lời nhắc quan trọng về sức khỏe khi có điều gì đó không ổn. Thật đơn giản để thay đổi chúng bất kỳ lúc nào trong cài đặt.",
 			"title": "Thông báo đẩy"
+		},
+		"storage": {
+			"description": "Ứng dụng Ceras sẽ chỉ lưu trữ dữ liệu thiết bị Ceras của bạn. Ceras đảm bảo bộ nhớ của bạn sẽ không bị truy cập cho bất kỳ mục đích nào khác",
+			"title": "Lưu trữ"
 		}
 	},
 	"appLanguage": {

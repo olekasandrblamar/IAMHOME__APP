@@ -1,4 +1,5 @@
-<babeledit_project be_version="2.7.1" version="1.2">
+<?xml version="1.0" encoding="UTF-8"?>
+<babeledit_project be_version="2.8.0" version="1.2">
     <!--
 
     BabelEdit project file
@@ -11,9 +12,9 @@
     <preset_collections/>
     <framework>generic-json</framework>
     <filename>ceras_device_app.babel</filename>
-    <source_root_dir></source_root_dir>
+    <source_root_dir/>
     <folder_node>
-        <name></name>
+        <name/>
         <children>
             <folder_node>
                 <name>access</name>
@@ -27,9 +28,9 @@
                                     <concept_node>
                                         <name>close</name>
                                         <definition_loaded>false</definition_loaded>
-                                        <description></description>
-                                        <comment></comment>
-                                        <default_text></default_text>
+                                        <description/>
+                                        <comment/>
+                                        <default_text/>
                                         <translations>
                                             <translation>
                                                 <language>ar-AE</language>
@@ -112,9 +113,9 @@
                                     <concept_node>
                                         <name>open</name>
                                         <definition_loaded>false</definition_loaded>
-                                        <description></description>
-                                        <comment></comment>
-                                        <default_text></default_text>
+                                        <description/>
+                                        <comment/>
+                                        <default_text/>
                                         <translations>
                                             <translation>
                                                 <language>ar-AE</language>
@@ -199,9 +200,9 @@
                             <concept_node>
                                 <name>description</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -284,9 +285,9 @@
                             <concept_node>
                                 <name>title</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -374,9 +375,9 @@
                             <concept_node>
                                 <name>imin</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -459,9 +460,9 @@
                             <concept_node>
                                 <name>nothanks</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -549,9 +550,9 @@
                             <concept_node>
                                 <name>description</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -634,9 +635,9 @@
                             <concept_node>
                                 <name>title</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -724,9 +725,9 @@
                             <concept_node>
                                 <name>description</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -809,9 +810,9 @@
                             <concept_node>
                                 <name>title</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -899,9 +900,9 @@
                             <concept_node>
                                 <name>description</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -984,9 +985,184 @@
                             <concept_node>
                                 <name>title</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
+                                <translations>
+                                    <translation>
+                                        <language>ar-AE</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>de-DE</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>el-GR</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>en-US</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>es-ES</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>fr-FR</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>hi-IN</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>it-IT</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>ja-JP</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>ko-KR</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>ms-MY</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>nl-NL</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>pt-PT</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>ru-RU</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>sv-SE</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>th-TH</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>tr-TR</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>vi-VN</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>zh-CN</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                </translations>
+                            </concept_node>
+                        </children>
+                    </folder_node>
+                    <folder_node>
+                        <name>storage</name>
+                        <children>
+                            <concept_node>
+                                <name>description</name>
+                                <definition_loaded>false</definition_loaded>
+                                <description/>
+                                <comment/>
+                                <default_text/>
+                                <translations>
+                                    <translation>
+                                        <language>ar-AE</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>de-DE</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>el-GR</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>en-US</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>es-ES</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>fr-FR</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>hi-IN</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>it-IT</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>ja-JP</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>ko-KR</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>ms-MY</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>nl-NL</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>pt-PT</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>ru-RU</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>sv-SE</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>th-TH</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>tr-TR</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>vi-VN</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                    <translation>
+                                        <language>zh-CN</language>
+                                        <approved>false</approved>
+                                    </translation>
+                                </translations>
+                            </concept_node>
+                            <concept_node>
+                                <name>title</name>
+                                <definition_loaded>false</definition_loaded>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -1079,9 +1255,9 @@
                             <concept_node>
                                 <name>next</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -1169,9 +1345,9 @@
                             <concept_node>
                                 <name>title</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -1256,9 +1432,9 @@
                     <concept_node>
                         <name>title</name>
                         <definition_loaded>false</definition_loaded>
-                        <description></description>
-                        <comment></comment>
-                        <default_text></default_text>
+                        <description/>
+                        <comment/>
+                        <default_text/>
                         <translations>
                             <translation>
                                 <language>ar-AE</language>
@@ -1349,9 +1525,9 @@
                             <concept_node>
                                 <name>callus</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -1436,9 +1612,9 @@
                     <concept_node>
                         <name>description</name>
                         <definition_loaded>false</definition_loaded>
-                        <description></description>
-                        <comment></comment>
-                        <default_text></default_text>
+                        <description/>
+                        <comment/>
+                        <default_text/>
                         <translations>
                             <translation>
                                 <language>ar-AE</language>
@@ -1524,9 +1700,9 @@
                             <concept_node>
                                 <name>title</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -1611,9 +1787,9 @@
                     <concept_node>
                         <name>title</name>
                         <definition_loaded>false</definition_loaded>
-                        <description></description>
-                        <comment></comment>
-                        <default_text></default_text>
+                        <description/>
+                        <comment/>
+                        <default_text/>
                         <translations>
                             <translation>
                                 <language>ar-AE</language>
@@ -1704,9 +1880,9 @@
                             <concept_node>
                                 <name>description</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -1789,9 +1965,9 @@
                             <concept_node>
                                 <name>title</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -1879,9 +2055,9 @@
                             <concept_node>
                                 <name>letsgo</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -1969,9 +2145,9 @@
                             <concept_node>
                                 <name>description</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -2054,9 +2230,9 @@
                             <concept_node>
                                 <name>title</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -2144,9 +2320,9 @@
                             <concept_node>
                                 <name>description</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -2229,9 +2405,9 @@
                             <concept_node>
                                 <name>title</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -2324,9 +2500,9 @@
                             <concept_node>
                                 <name>agree</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -2409,9 +2585,9 @@
                             <concept_node>
                                 <name>view</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -2496,9 +2672,9 @@
                     <concept_node>
                         <name>description1</name>
                         <definition_loaded>false</definition_loaded>
-                        <description></description>
-                        <comment></comment>
-                        <default_text></default_text>
+                        <description/>
+                        <comment/>
+                        <default_text/>
                         <translations>
                             <translation>
                                 <language>ar-AE</language>
@@ -2581,9 +2757,9 @@
                     <concept_node>
                         <name>description2</name>
                         <definition_loaded>false</definition_loaded>
-                        <description></description>
-                        <comment></comment>
-                        <default_text></default_text>
+                        <description/>
+                        <comment/>
+                        <default_text/>
                         <translations>
                             <translation>
                                 <language>ar-AE</language>
@@ -2666,9 +2842,9 @@
                     <concept_node>
                         <name>title</name>
                         <definition_loaded>false</definition_loaded>
-                        <description></description>
-                        <comment></comment>
-                        <default_text></default_text>
+                        <description/>
+                        <comment/>
+                        <default_text/>
                         <translations>
                             <translation>
                                 <language>ar-AE</language>
@@ -2756,9 +2932,9 @@
                     <concept_node>
                         <name>appversion</name>
                         <definition_loaded>false</definition_loaded>
-                        <description></description>
-                        <comment></comment>
-                        <default_text></default_text>
+                        <description/>
+                        <comment/>
+                        <default_text/>
                         <translations>
                             <translation>
                                 <language>ar-AE</language>
@@ -2844,9 +3020,9 @@
                             <concept_node>
                                 <name>language</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -2929,9 +3105,9 @@
                             <concept_node>
                                 <name>permissions</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -3014,9 +3190,9 @@
                             <concept_node>
                                 <name>privacy</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -3099,9 +3275,9 @@
                             <concept_node>
                                 <name>review</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -3192,9 +3368,9 @@
                                     <concept_node>
                                         <name>camera</name>
                                         <definition_loaded>false</definition_loaded>
-                                        <description></description>
-                                        <comment></comment>
-                                        <default_text></default_text>
+                                        <description/>
+                                        <comment/>
+                                        <default_text/>
                                         <translations>
                                             <translation>
                                                 <language>ar-AE</language>
@@ -3277,9 +3453,9 @@
                                     <concept_node>
                                         <name>location</name>
                                         <definition_loaded>false</definition_loaded>
-                                        <description></description>
-                                        <comment></comment>
-                                        <default_text></default_text>
+                                        <description/>
+                                        <comment/>
+                                        <default_text/>
                                         <translations>
                                             <translation>
                                                 <language>ar-AE</language>
@@ -3362,9 +3538,9 @@
                                     <concept_node>
                                         <name>notifications</name>
                                         <definition_loaded>false</definition_loaded>
-                                        <description></description>
-                                        <comment></comment>
-                                        <default_text></default_text>
+                                        <description/>
+                                        <comment/>
+                                        <default_text/>
                                         <translations>
                                             <translation>
                                                 <language>ar-AE</language>
@@ -3452,9 +3628,9 @@
                                     <concept_node>
                                         <name>denied</name>
                                         <definition_loaded>false</definition_loaded>
-                                        <description></description>
-                                        <comment></comment>
-                                        <default_text></default_text>
+                                        <description/>
+                                        <comment/>
+                                        <default_text/>
                                         <translations>
                                             <translation>
                                                 <language>ar-AE</language>
@@ -3537,9 +3713,9 @@
                                     <concept_node>
                                         <name>granted</name>
                                         <definition_loaded>false</definition_loaded>
-                                        <description></description>
-                                        <comment></comment>
-                                        <default_text></default_text>
+                                        <description/>
+                                        <comment/>
+                                        <default_text/>
                                         <translations>
                                             <translation>
                                                 <language>ar-AE</language>
@@ -3622,9 +3798,9 @@
                                     <concept_node>
                                         <name>unknown</name>
                                         <definition_loaded>false</definition_loaded>
-                                        <description></description>
-                                        <comment></comment>
-                                        <default_text></default_text>
+                                        <description/>
+                                        <comment/>
+                                        <default_text/>
                                         <translations>
                                             <translation>
                                                 <language>ar-AE</language>
@@ -3709,9 +3885,9 @@
                             <concept_node>
                                 <name>title</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -3796,9 +3972,9 @@
                     <concept_node>
                         <name>title</name>
                         <definition_loaded>false</definition_loaded>
-                        <description></description>
-                        <comment></comment>
-                        <default_text></default_text>
+                        <description/>
+                        <comment/>
+                        <default_text/>
                         <translations>
                             <translation>
                                 <language>ar-AE</language>
@@ -3889,9 +4065,9 @@
                             <concept_node>
                                 <name>devicefound</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -3974,9 +4150,9 @@
                             <concept_node>
                                 <name>lastconnected</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -4059,9 +4235,9 @@
                             <concept_node>
                                 <name>syncdata</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -4149,9 +4325,9 @@
                             <concept_node>
                                 <name>last4</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -4239,9 +4415,9 @@
                             <concept_node>
                                 <name>title</name>
                                 <definition_loaded>false</definition_loaded>
-                                <description></description>
-                                <comment></comment>
-                                <default_text></default_text>
+                                <description/>
+                                <comment/>
+                                <default_text/>
                                 <translations>
                                     <translation>
                                         <language>ar-AE</language>
@@ -4331,97 +4507,97 @@
     <languages>
         <language>
             <code>ar-AE</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/ar.json</source_file>
         </language>
         <language>
             <code>de-DE</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/de.json</source_file>
         </language>
         <language>
             <code>el-GR</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/el.json</source_file>
         </language>
         <language>
             <code>en-US</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/en.json</source_file>
         </language>
         <language>
             <code>es-ES</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/es.json</source_file>
         </language>
         <language>
             <code>fr-FR</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/fr.json</source_file>
         </language>
         <language>
             <code>hi-IN</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/hi.json</source_file>
         </language>
         <language>
             <code>it-IT</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/it.json</source_file>
         </language>
         <language>
             <code>ja-JP</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/ja.json</source_file>
         </language>
         <language>
             <code>ko-KR</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/ko.json</source_file>
         </language>
         <language>
             <code>ms-MY</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/ms.json</source_file>
         </language>
         <language>
             <code>nl-NL</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/nl.json</source_file>
         </language>
         <language>
             <code>pt-PT</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/pt.json</source_file>
         </language>
         <language>
             <code>ru-RU</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/ru.json</source_file>
         </language>
         <language>
             <code>sv-SE</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/sv.json</source_file>
         </language>
         <language>
             <code>th-TH</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/th.json</source_file>
         </language>
         <language>
             <code>tr-TR</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/tr.json</source_file>
         </language>
         <language>
             <code>vi-VN</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/vi.json</source_file>
         </language>
         <language>
             <code>zh-CN</code>
-            <source_id></source_id>
+            <source_id/>
             <source_file>i18n/zh.json</source_file>
         </language>
     </languages>
@@ -4488,8 +4664,8 @@
         <save_empty_translations>true</save_empty_translations>
         <copy_templates>
             <copy_template>'%1'</copy_template>
-            <copy_template></copy_template>
-            <copy_template></copy_template>
+            <copy_template/>
+            <copy_template/>
         </copy_templates>
     </editor_configuration>
     <primary_language>en-US</primary_language>

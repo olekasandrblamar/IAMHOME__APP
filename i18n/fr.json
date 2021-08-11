@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Les notifications peuvent inclure des alertes de santé importantes et des rappels lorsque quelque chose ne va pas. Il est simple de les modifier à tout moment dans les paramètres.",
 			"title": "Notification push"
+		},
+		"storage": {
+			"description": "L'application Ceras ne stockera que les données de votre appareil Ceras. Ceras garantit que votre stockage ne sera pas accessible à d'autres fins",
+			"title": "Espace de rangement"
 		}
 	},
 	"appLanguage": {
