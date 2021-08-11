@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Meddelanden kan innehålla viktiga hälsovarningar och påminnelser när något ser ut. Det är enkelt att ändra dem när som helst i inställningar.",
 			"title": "Tryckmeddelande"
+		},
+		"storage": {
+			"description": "Vi använder din lokala lagring för att lagra viktig information från din enhet.",
+			"title": "Lagring"
 		}
 	},
 	"appLanguage": {

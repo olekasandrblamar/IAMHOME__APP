@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "通知可能包括重要的健康警报和出现故障时的提醒。随时更改设置很简单。",
 			"title": "推送通知"
+		},
+		"storage": {
+			"description": "我们使用您的本地存储来存储您设备中的重要信息。",
+			"title": "存储"
 		}
 	},
 	"appLanguage": {

@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Les notifications peuvent inclure des alertes de santé importantes et des rappels lorsque quelque chose ne va pas. Il est simple de les modifier à tout moment dans les paramètres.",
 			"title": "Notification push"
+		},
+		"storage": {
+			"description": "Nous utilisons votre stockage local pour stocker les informations vitales de votre appareil.",
+			"title": "Espace de rangement"
 		}
 	},
 	"appLanguage": {

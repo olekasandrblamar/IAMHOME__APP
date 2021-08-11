@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Pemberitahuan mungkin merangkumi amaran dan peringatan kesihatan yang penting apabila ada yang tidak kelihatan. Sangat mudah untuk mengubahnya setiap saat dalam tetapan.",
 			"title": "Pemberitahuan Tolak"
+		},
+		"storage": {
+			"description": "Kami menggunakan storan tempatan anda untuk menyimpan maklumat penting dari peranti anda.",
+			"title": "Penyimpanan"
 		}
 	},
 	"appLanguage": {

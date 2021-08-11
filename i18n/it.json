@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Le notifiche possono includere importanti avvisi di salute e promemoria quando qualcosa sembra fuori posto. È semplice modificarli in qualsiasi momento nelle impostazioni.",
 			"title": "Notifica push"
+		},
+		"storage": {
+			"description": "Usiamo la tua memoria locale per memorizzare le informazioni vitali dal tuo dispositivo.",
+			"title": "Conservazione"
 		}
 	},
 	"appLanguage": {

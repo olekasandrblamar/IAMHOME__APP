@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Benachrichtigungen können wichtige Gesundheitswarnungen und Erinnerungen enthalten, wenn etwas nicht stimmt. Es ist einfach, sie jederzeit in den Einstellungen zu ändern.",
 			"title": "Push-Benachrichtigung"
+		},
+		"storage": {
+			"description": "Wir verwenden Ihren lokalen Speicher, um die wichtigen Informationen von Ihrem Gerät zu speichern.",
+			"title": "Lager"
 		}
 	},
 	"appLanguage": {

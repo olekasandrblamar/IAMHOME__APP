@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Las notificaciones pueden incluir alertas de salud importantes y recordatorios cuando algo parece mal. Es simple cambiarlos en cualquier momento en la configuración.",
 			"title": "Notificación de inserción"
+		},
+		"storage": {
+			"description": "Usamos su almacenamiento local para almacenar la información vital de su dispositivo.",
+			"title": "Almacenamiento"
 		}
 	},
 	"appLanguage": {
