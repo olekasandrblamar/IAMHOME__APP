@@ -23,10 +23,6 @@
 		"notifications": {
 			"description": "Meldingen kunnen belangrijke gezondheidswaarschuwingen en herinneringen bevatten wanneer iets er niet uitziet. Het is eenvoudig om ze op elk moment in de instellingen te wijzigen.",
 			"title": "Push notificatie"
-		},
-		"storage": {
-			"description": "We gebruiken uw lokale opslag om de essentiële informatie van uw apparaat op te slaan.",
-			"title": "opslagruimte"
 		}
 	},
 	"appLanguage": {

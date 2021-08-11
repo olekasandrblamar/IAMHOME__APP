@@ -23,10 +23,6 @@
 		"notifications": {
 			"description": "Bildirimler, önemli sağlık uyarıları ve bir şey ters gittiğinde hatırlatıcılar içerebilir. Bunları istediğiniz zaman ayarlardan değiştirmek kolaydır.",
 			"title": "Bildirim almak"
-		},
-		"storage": {
-			"description": "Cihazınızdaki hayati bilgileri depolamak için yerel depolamanızı kullanırız.",
-			"title": "Depolama"
 		}
 	},
 	"appLanguage": {

@@ -23,10 +23,6 @@
 		"notifications": {
 			"description": "As notificações podem incluir alertas de saúde importantes e lembretes quando algo parece errado. É simples alterá-los a qualquer momento nas configurações.",
 			"title": "Notificação PUSH"
-		},
-		"storage": {
-			"description": "Usamos seu armazenamento local para armazenar as informações vitais de seu dispositivo.",
-			"title": "Armazenamento"
 		}
 	},
 	"appLanguage": {

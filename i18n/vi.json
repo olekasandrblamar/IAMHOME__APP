@@ -23,10 +23,6 @@
 		"notifications": {
 			"description": "Thông báo có thể bao gồm các cảnh báo và lời nhắc quan trọng về sức khỏe khi có điều gì đó không ổn. Thật đơn giản để thay đổi chúng bất kỳ lúc nào trong cài đặt.",
 			"title": "Thông báo đẩy"
-		},
-		"storage": {
-			"description": "Chúng tôi sử dụng bộ nhớ cục bộ của bạn để lưu trữ thông tin quan trọng từ thiết bị của bạn.",
-			"title": "Lưu trữ"
 		}
 	},
 	"appLanguage": {
