@@ -29,7 +29,7 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSBluetoothAlwaysUsageDescription</key>
-	<string>This app needs access to your bluetooth to scan the device</string>
+	<string>The app needs access to your Bluetooth to set up and transmit data from Ceras devices to your doctor for review and action plans.</string>
 	<key>NSBluetoothPeripheralUsageDescription</key>
 	<string>This app needs access to your bluetooth to scan the device</string>
 	<key>NSCameraUsageDescription</key>

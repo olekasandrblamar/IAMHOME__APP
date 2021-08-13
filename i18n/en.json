@@ -9,7 +9,7 @@
 			"title": "Permission Denied!"
 		},
 		"buttons": {
-			"imin": "I'm In",
+			"next": "Next",
 			"nothanks": "No, Thanks"
 		},
 		"camera": {
