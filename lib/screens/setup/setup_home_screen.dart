@@ -42,7 +42,9 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   void initState() {
     checkInternetConnection();
     checkBlue();
-    checkPermissionStatus();
+    if (Platform.isAndroid) {
+      checkPermissionStatus();
+    }
     loadData();
     updateVersionCheck();
     WidgetsBinding.instance.addObserver(this);
