@@ -172,7 +172,7 @@ class _LocationsScreenState extends State<LocationsScreen>
       body: AccessWidget(
         type: 'locations',
         accessData: locationData,
-        onNothingSelected: () => _showDialog(context, true),
+        onNothingSelected: () => _goToCamera(context),
         onPermissionSelected: () => _checkDevice(context),
       ),
     );
