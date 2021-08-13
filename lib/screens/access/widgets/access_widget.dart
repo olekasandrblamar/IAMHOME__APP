@@ -85,7 +85,7 @@ class AccessWidget extends StatelessWidget {
                   textColor: Colors.white,
                   onPressed: () => onPermissionSelected(),
                   child: Text(
-                    _appLocalization.translate('access.buttons.imin'),
+                    _appLocalization.translate('access.buttons.next'),
                     style: TextStyle(
                       fontSize: 14,
                     ),
