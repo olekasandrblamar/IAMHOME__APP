@@ -9,7 +9,7 @@
 			"title": "Kebenaran Ditolak!"
 		},
 		"buttons": {
-			"imin": "Saya ikut",
+			"next": "Seterusnya",
 			"nothanks": "Tidak, Terima kasih"
 		},
 		"camera": {
@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Pemberitahuan mungkin merangkumi amaran dan peringatan kesihatan yang penting apabila ada yang tidak kelihatan. Sangat mudah untuk mengubahnya setiap saat dalam tetapan.",
 			"title": "Pemberitahuan Tolak"
+		},
+		"storage": {
+			"description": "Aplikasi Ceras hanya akan menyimpan data peranti Ceras anda. Ceras memastikan simpanan anda tidak dapat diakses untuk tujuan lain",
+			"title": "Penyimpanan"
 		}
 	},
 	"appLanguage": {

@@ -9,7 +9,7 @@
 			"title": "Permesso negato!"
 		},
 		"buttons": {
-			"imin": "Sono dentro",
+			"next": "Il prossimo",
 			"nothanks": "No grazie"
 		},
 		"camera": {
@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Le notifiche possono includere importanti avvisi di salute e promemoria quando qualcosa sembra fuori posto. È semplice modificarli in qualsiasi momento nelle impostazioni.",
 			"title": "Notifica push"
+		},
+		"storage": {
+			"description": "L'app Ceras memorizzerà solo i dati del dispositivo Ceras. Ceras garantisce che il tuo spazio di archiviazione non sarà accessibile per nessun altro scopo",
+			"title": "Conservazione"
 		}
 	},
 	"appLanguage": {

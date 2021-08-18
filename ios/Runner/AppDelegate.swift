@@ -153,16 +153,16 @@ import BackgroundTasks
             let deviceType:String = (args as? [String: Any])?["deviceType"] as! String
             self?.disconectDevice(result: result, deviceType: deviceType)
         }else if(call.method=="upgradeDevice"){
-            guard let args = call.arguments else {
-              result("iOS could not recognize flutter arguments in method: (sendParams)")
-              return
-            }
-            let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
-            do{
-                try self?.upgradeDevice(result: result, connectionInfo: connectionInfo)
-            }catch{
-                result("Error")
-            }
+//             guard let args = call.arguments else {
+//               result("iOS could not recognize flutter arguments in method: (sendParams)")
+//               return
+//             }
+//             let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
+//             do{
+//                 try self?.upgradeDevice(result: result, connectionInfo: connectionInfo)
+//             }catch{
+//                 result("Error")
+//             }
         }else if(call.method=="connectWifi"){
             guard let args = call.arguments else {
               result("iOS could not recognize flutter arguments in method: (sendParams)")
@@ -184,6 +184,7 @@ import BackgroundTasks
         
     })
     
+    //setup event channel for readings
     let eventChannel = FlutterEventChannel(name: "ceras.iamhome.mobile/device_events", binaryMessenger: controller.binaryMessenger)
     
     class StreamHandler: NSObject, FlutterStreamHandler {
@@ -205,6 +206,33 @@ import BackgroundTasks
     let handler = StreamHandler()
     handler.appDelegate = self
     eventChannel.setStreamHandler(handler)
+
+    //Event channel for upgrade
+    let upgradeChannel = FlutterEventChannel(name: "ceras.iamhome.mobile/device_upgrade", binaryMessenger: controller.binaryMessenger)
+
+    class UpgradeHandler: NSObject, FlutterStreamHandler {
+
+        weak var appDelegate:AppDelegate? = nil
+
+        func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+            NSLog("Arguments \(arguments)")
+            let connectionInfo:String = (arguments as? [String: Any])?["connectionInfo"] as! String
+            do{
+                try appDelegate?.upgradeDevice(eventSink: events, connectionInfo: connectionInfo)
+            }catch{
+                events(FlutterEndOfEventStream)
+            }
+            return nil
+        }
+
+        func onCancel(withArguments arguments: Any?) -> FlutterError? {
+            return nil
+        }
+
+    }
+    let upgradeHandler = UpgradeHandler()
+    upgradeHandler.appDelegate = self
+    upgradeChannel.setStreamHandler(upgradeHandler)
 
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
@@ -403,13 +431,13 @@ import BackgroundTasks
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         self.getScaleDevice()?.connectWifi(result: result, ssid: ssid, password: password)
     }
-    
-    private func upgradeDevice(result:@escaping FlutterResult,connectionInfo:String) throws {
+
+    private func upgradeDevice(eventSink events: @escaping FlutterEventSink,connectionInfo:String) throws {
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         NSLog("Getting device info ")
         let deviceType = getDeviceType()
         if(deviceType! == AppDelegate.WATCH_TYPE){
-            self.getWatchDevice()?.upgradeDevice(connInfo: connectionData, result: result)
+            self.getWatchDevice()?.upgradeDevice(connectionInfo: connectionData, eventSink: events)
         }
 //        else if(deviceType! == AppDelegate.BAND_TYPE){
 //            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
@@ -429,7 +457,7 @@ import BackgroundTasks
         }
         return AppDelegate.watchData
     }
-    
+
     private func getScaleDevice() -> B369Device?{
         if(AppDelegate.scaleData==nil){
             AppDelegate.scaleData = B369Device()

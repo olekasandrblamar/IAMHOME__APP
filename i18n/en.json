@@ -9,7 +9,7 @@
 			"title": "Permission Denied!"
 		},
 		"buttons": {
-			"imin": "I'm In",
+			"next": "Next",
 			"nothanks": "No, Thanks"
 		},
 		"camera": {
@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Notifications may include important health alerts and reminders when something looks off.  It's simple to change them at any time in settings.",
 			"title": "Push Notifications"
+		},
+		"storage": {
+			"description": "The Ceras app will only store your Ceras device data. Ceras ensures your storage will not be accessed for any other purpose",
+			"title": "Storage"
 		}
 	},
 	"appLanguage": {

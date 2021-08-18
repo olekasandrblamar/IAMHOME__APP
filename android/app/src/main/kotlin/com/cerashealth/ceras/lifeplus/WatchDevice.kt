@@ -91,7 +91,10 @@ class DataCallBack : SimpleDeviceCallback {
     private var versionComplete = false
     private var batteryPercentage = ""
     private var versionUpdate = false
-    private var currentVersion:String? = null
+
+    companion object{
+        var currentVersion:String? = null
+    }
 
     override fun equals(other: Any?): Boolean {
         other?.let {
@@ -204,7 +207,11 @@ class DataCallBack : SimpleDeviceCallback {
             Log.d(WatchDevice.TAG, "onCallbackResult from sync: Connected ${HardSdk.getInstance().isDevConnected}")
             WatchDevice.initializeWatch()
             WatchDevice.syncData()
-            result?.success("Load complete")
+            try {
+                result?.success("Load complete")
+            }catch (ex:Exception){
+                Log.e(WatchDevice.TAG,"Error after connecting")
+            }
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Disconnected")
         } else if (flag == GlobalValue.CONNECT_TIME_OUT_MSG) {
@@ -233,12 +240,18 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.Firmware_Version) {
             val existingVersion = obj as String
             Log.d(WatchDevice.TAG, "version $existingVersion")
-            this.currentVersion = existingVersion
+            currentVersion = existingVersion
             versionComplete = true
-            if(currentVersion!=WatchDevice.currentFirmwareVersion){
-                Log.d(WatchDevice.TAG, "version update available")
-                versionUpdate = true
+            currentVersion?.let {
+                if(it.toLowerCase().startsWith("sw07s_") && it!=WatchDevice.currentFirmwareVersion ){
+                    Log.d(WatchDevice.TAG, "version update available")
+                    versionUpdate = true
+                }else if(it.toLowerCase().startsWith("sw07_") && it!=WatchDevice.sw07FirmwareVersion){
+                    Log.d(WatchDevice.TAG, "version update available")
+                    versionUpdate = true
+                }
             }
+
             //Check and send response as version is updated
             checkAndSendStatusResponse()
             //HardSdk.getInstance().checkNewFirmware(existingVersion)
@@ -250,32 +263,18 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.Firmware_Info_Error) {
             Log.i(WatchDevice.TAG, "Firmware info error")
         } else if (flag == GlobalValue.Firmware_Server_Status) {
-            //This is deprectaed. We will not use this any more
-//            Log.i(WatchDevice.TAG, "Server status: $obj \n")
-//            this.versionComplete = true
-//            if (obj != null) {
-//                val serverVersion = obj as Version
-//                Log.i(WatchDevice.TAG, "Version：" + Gson().toJson(serverVersion))
-//                Log.d(WatchDevice.TAG, "Current version ${currentVersion}.bin compared to ${serverVersion.firmwareName}")
-//                //If the version is updated check and update
-//                if(serverVersion.firmwareName != "${currentVersion}.bin") {
-//                    Log.d(WatchDevice.TAG, "version updated")
-//                    this.versionUpdate = true
-//                }
-//                checkAndSendStatusResponse()
-//            }
+
         } else if (flag == GlobalValue.Firmware_Upgrade_Progress) {
-            Log.i(WatchDevice.TAG, "Firmware update progress ${obj}")
+            Log.i(WatchDevice.TAG, "Firmware update progress $obj ")
             //If the progress is complete
             if((obj as Int) == 100){
-                try {
-                    batteryResult?.success("Success")
-                }catch (e: java.lang.Exception){
-                    Log.e(WatchDevice.TAG, "Error while sending upgrade response ${e.message}")
-                }
+                WatchDevice.returnUpgradeMessage(BaseDevice.SUCCESS_STATUS,"Upgrade Complete",true)
+            }else{
+                WatchDevice.returnUpgradeMessage(BaseDevice.SUCCESS_STATUS,"Upgrade progress $obj %")
             }
         } else if (flag == GlobalValue.Firmware_Server_Failed) {
             Log.i(WatchDevice.TAG, "Firmware update failed ${obj as String}")
+            WatchDevice.returnUpgradeMessage(BaseDevice.ERROR_STATUS,"Upgrade failed",true)
         } else if (flag == GlobalValue.READ_TEMP_FINISH_2) {
             val tempStatus = obj as TempStatus
             Log.i(WatchDevice.TAG, "temp ${Gson().toJson(tempStatus)}")
@@ -523,9 +522,11 @@ class WatchDevice:BaseDevice()     {
         val TAG = WatchDevice::class.java.simpleName
         var dataCallback: DataCallBack? = null
         var eventSink:EventChannel.EventSink? = null
+        var upgradeSink:EventChannel.EventSink? = null
         var isTestingTemp = false
         var tempUpdates:Disposable? = null
         const val currentFirmwareVersion = "SW07s_2.56.00_210423"
+        const val sw07FirmwareVersion = "SW07s_2.45.00_200925"
 
         fun syncProfile(){
             val userInfo = DataSync.getUserInfo()
@@ -563,6 +564,15 @@ class WatchDevice:BaseDevice()     {
                 Log.e(TAG, "Error while syncing data", ex)
             }
         }
+
+        fun returnUpgradeMessage(status:String,message:String,isComplete:Boolean = false){
+            upgradeSink?.let{
+                it.success(Gson().toJson(mapOf("status" to status,"message" to message)));
+                if(isComplete)
+                    it.endOfStream()
+            }
+        }
+
     }
 
     override fun readDataFromDevice(eventSink: EventChannel.EventSink, readingType: String) {
@@ -728,27 +738,37 @@ class WatchDevice:BaseDevice()     {
         result?.success(HardSdk.getInstance().isDevConnected)
     }
 
-    override fun upgradeDevice(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
+    override fun upgradeDevice(eventSink: EventChannel.EventSink?, connectionInfo: ConnectionInfo, context: Context) {
         val connectionStatus = HardSdk.getInstance().isDevConnected
-        Log.i(TAG, "Getting device information $connectionStatus");
-        if(connectionStatus){
-            dataCallback?.updateVersionResult(result)
-//            HardSdk.getInstance().startUpdateBLE()
-            MainActivity.currentActivity?.let {
-                val binPackage = it.resources.getIdentifier("sw07s_2_56_00_210423","raw",it.packageName)
-                val packageStream = it.resources.openRawResource(binPackage)
-                val tempFile = File.createTempFile("sw07s_2_56_00_210423", "bin")
-                val out = FileOutputStream(tempFile)
+        Log.i(TAG, "Getting device information $connectionStatus")
+        try {
+            if(connectionStatus){
+                upgradeSink = eventSink
+                MainActivity.currentActivity?.let {
+                    Log.i(TAG,"current version ${DataCallBack.currentVersion}")
+                    val fileName = if(DataCallBack.currentVersion!!.toLowerCase().startsWith("sw07s_")) "sw07s_2_56_00_210423" else "sw07s_2_45_00_200925"
+                    Log.i(TAG,"Updating with file name $fileName")
+                    val binPackage = it.resources.getIdentifier(fileName,"raw",it.packageName)
+                    val packageStream = it.resources.openRawResource(binPackage)
+                    val tempFile = File.createTempFile(fileName, "bin")
+                    val out = FileOutputStream(tempFile)
 
-                val buffer = ByteArray(1024)
-                var read: Int
-                while (packageStream.read(buffer).also { read = it } != -1) {
-                    out.write(buffer, 0, read)
+                    val buffer = ByteArray(1024)
+                    var read: Int
+                    while (packageStream.read(buffer).also { read = it } != -1) {
+                        out.write(buffer, 0, read)
+                    }
+                    Log.d(TAG , "Got file size ${tempFile.length()}")
+                    HardSdk.getInstance().startFirmWareUpgrade(tempFile)
                 }
-                Log.d(WatchDevice.TAG , "Got file size ${tempFile.length()}")
-                HardSdk.getInstance().startFirmWareUpgrade(tempFile)
+            }else{
+                returnUpgradeMessage("error","Error while upgrading. Device not connected")
             }
+        }catch(ex:Exception){
+            Log.e(TAG,"Error while upgrading device ",ex)
+            returnUpgradeMessage("error","Error while upgrading")
         }
+
     }
 
     override fun getDeviceInfo(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {

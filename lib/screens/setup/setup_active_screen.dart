@@ -6,6 +6,7 @@ import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/setup/setup_upgrade_screen.dart';
+import 'package:circular_countdown/circular_countdown.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/theme.dart';
@@ -13,6 +14,7 @@ import 'package:flutter/services.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:ceras/config/navigation_service.dart';
 
 import 'package:ceras/constants/route_paths.dart' as routes;
 
@@ -39,6 +41,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   String _batteryLevel = "---";
   bool _connected = true;
   bool isLoading = true;
+  TimeCircularCountdown _currentCountDown;
 
   @override
   void initState() {
@@ -204,10 +207,73 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       ) as String;
 
       if (disconnect != null) {
-        await Provider.of<DevicesProvider>(context, listen: false)
-            .removeDevice(_deviceIndex);
+        var removeDeviceData =
+            await Provider.of<DevicesProvider>(context, listen: false)
+                .removeDevice(_deviceIndex);
+
+        if (removeDeviceData) {
+          _loadCountDownTimer(20, 'Resetting Device');
+        }
       }
     }
+  }
+
+  void _loadCountDownTimer(int seconds, String type) {
+    showGeneralDialog(
+      context: context,
+      barrierColor: Colors.black12.withOpacity(0.6), // Background color
+      barrierDismissible: false,
+      barrierLabel: 'Dialog',
+      transitionDuration: Duration(
+        milliseconds: 400,
+      ), // How long it takes to popup dialog after button click
+      pageBuilder: (_, __, ___) {
+        return Container(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 100),
+              TimeCircularCountdown(
+                unit: CountdownUnit.second,
+                countdownTotal: seconds,
+                onFinished: () {
+                  NavigationService.goBackHome();
+                },
+                onCanceled: (CountdownUnit unit, int remaining) {},
+                diameter: 200,
+                countdownTotalColor: Colors.white,
+                countdownCurrentColor: Colors.blue,
+                countdownRemainingColor: Colors.blue,
+                strokeWidth: 10,
+                gapFactor: 2,
+                textStyle: TextStyle(
+                  fontSize: 50,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.redAccent,
+                ),
+              ),
+              SizedBox(height: 20),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  FittedBox(
+                    child: Text(
+                      type,
+                      style: TextStyle(
+                        fontSize: 20,
+                        color: Colors.black,
+                      ),
+                    ),
+                  )
+                ],
+              ),
+              SizedBox(height: 100),
+            ],
+          ),
+        );
+      },
+    );
   }
 
   void _showDialog() {
@@ -325,22 +391,39 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       bottomNavigationBar: SafeArea(
         bottom: true,
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
+            // Container(
+            //   // width: 200,
+            //   // height: 90,
+            //   padding: EdgeInsets.all(20),
+            //   child: Ink(
+            //     decoration: const ShapeDecoration(
+            //       color: Colors.red,
+            //       shape: CircleBorder(),
+            //     ),
+            //     child: IconButton(
+            //       icon: Icon(Icons.delete),
+            //       color: Colors.white,
+            //       onPressed: () => _showDialog(),
+            //     ),
+            //   ),
+            // ),
+
             Container(
-              // width: 200,
-              // height: 90,
+              width: 200,
+              height: 90,
               padding: EdgeInsets.all(20),
-              child: Ink(
-                decoration: const ShapeDecoration(
-                  color: Colors.red,
-                  shape: CircleBorder(),
+              child: RaisedButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(4.5),
                 ),
-                child: IconButton(
-                  icon: Icon(Icons.delete),
-                  color: Colors.white,
-                  onPressed: () => _showDialog(),
+                color: Theme.of(context).primaryColor,
+                textColor: Colors.white,
+                child: Text(
+                  'Reset',
                 ),
+                onPressed: () => _showDialog(),
               ),
             ),
           ],

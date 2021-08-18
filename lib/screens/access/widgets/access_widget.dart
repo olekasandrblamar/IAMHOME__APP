@@ -85,32 +85,32 @@ class AccessWidget extends StatelessWidget {
                   textColor: Colors.white,
                   onPressed: () => onPermissionSelected(),
                   child: Text(
-                    _appLocalization.translate('access.buttons.imin'),
+                    _appLocalization.translate('access.buttons.next'),
                     style: TextStyle(
                       fontSize: 14,
                     ),
                   ),
                 ),
               ),
-              Container(
-                width: 180,
-                height: 75,
-                padding: EdgeInsets.all(10),
-                child: RaisedButton(
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(4.5),
-                  ),
-                  color: Color(0XFFE6E6E6),
-                  textColor: Colors.black,
-                  onPressed: () => onNothingSelected(),
-                  child: Text(
-                    _appLocalization.translate('access.buttons.nothanks'),
-                    style: TextStyle(
-                      fontSize: 14,
-                    ),
-                  ),
-                ),
-              )
+              // Container(
+              //   width: 180,
+              //   height: 75,
+              //   padding: EdgeInsets.all(10),
+              //   child: RaisedButton(
+              //     shape: RoundedRectangleBorder(
+              //       borderRadius: BorderRadius.circular(4.5),
+              //     ),
+              //     color: Color(0XFFE6E6E6),
+              //     textColor: Colors.black,
+              //     onPressed: () => onNothingSelected(),
+              //     child: Text(
+              //       _appLocalization.translate('access.buttons.nothanks'),
+              //       style: TextStyle(
+              //         fontSize: 14,
+              //       ),
+              //     ),
+              //   ),
+              // )
             ],
           ),
         ),

@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -8,15 +9,19 @@ import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
+import 'package:ceras/screens/setup/setup_upgrade_screen.dart';
+import 'package:ceras/screens/setup/widgets/bluetooth_notfound_widget.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:package_info/package_info.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 class SetupHomeScreen extends StatefulWidget {
   @override
@@ -31,10 +36,15 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   List<WatchModel> _deviceStatus = [];
   var _lastUpdated = '---';
   var _connectionStatus = false;
+  var _blueToothEnabled = true;
 
   @override
   void initState() {
     checkInternetConnection();
+    checkBlue();
+    if (Platform.isAndroid) {
+      checkPermissionStatus();
+    }
     loadData();
     updateVersionCheck();
     WidgetsBinding.instance.addObserver(this);
@@ -87,6 +97,57 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     print('detach');
   }
 
+  void checkPermissionStatus() async {
+    if (await Permission.location.status == PermissionStatus.denied) {
+      return _goToPermissions(context);
+    }
+
+    if (Platform.isAndroid) {
+      if (await Permission.storage.status == PermissionStatus.denied) {
+        return _goToPermissions(context);
+      }
+    }
+
+    // if (await Permission.bluetooth.status == PermissionStatus.denied) {
+    //   return _goToPermissions(context);
+    // }
+
+    if (await Permission.notification.status == PermissionStatus.denied) {
+      return _goToPermissions(context);
+    }
+
+    // if (!await FlutterBlue.instance.isOn) {
+    //   await Navigator.of(context).pushNamed(
+    //     routes.BluetoothNotfoundRoute,
+    //   );
+    // }
+  }
+
+  void checkBlue() {
+    FlutterBlue.instance.state.listen((BluetoothState event) async {
+      if (event == BluetoothState.unauthorized || event == BluetoothState.off) {
+        _blueToothEnabled = false;
+        await Navigator.of(context).pushNamed(
+          routes.BluetoothNotfoundRoute,
+        );
+      } else if (event == BluetoothState.on && !_blueToothEnabled) {
+        _blueToothEnabled = true;
+        await Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (BuildContext context) => SetupHomeScreen(),
+              settings: const RouteSettings(name: routes.SetupHomeRoute),
+            ),
+            (Route<dynamic> route) => false);
+      }
+    });
+  }
+
+  dynamic _goToPermissions(context) async {
+    return Navigator.of(context).pushNamed(
+      routes.AppPermissionsRoute,
+    );
+  }
+
   void checkInternetConnection() {
     connectivitySubscription = Connectivity()
         .onConnectivityChanged
@@ -124,6 +185,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   void _loadDeviceState(List<DevicesModel> deviceList) {
     var index = 0;
     deviceList.forEach((device) {
+      _getConnectionStatus(index++);
       _getDeviceStatus(index++);
     });
   }
@@ -263,20 +325,20 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
         body: SafeArea(
           bottom: true,
           child: SingleChildScrollView(
-              // child: _deviceData.isNotEmpty
-              child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: <Widget>[
-                for (int index = 0; index < _deviceData.length; index++)
-                  _buildDevicesList(index),
-                _buildNewDevice()
-              ],
-            ),
-          )
-              // : _buildNewDevice(),
-              ),
+            child: _deviceData.isNotEmpty
+                ? Container(
+                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        for (int index = 0; index < _deviceData.length; index++)
+                          _buildDevicesList(index),
+                        // _buildNewDevice()
+                      ],
+                    ),
+                  )
+                : _buildNewDevice(),
+          ),
         ),
         bottomNavigationBar: _deviceData.isNotEmpty
             ? SafeArea(
@@ -348,7 +410,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     });
   }
 
-  void _getDeviceStatus(int index) async {
+  void _getConnectionStatus(int index) async {
     final connectionInfo = json.encode(_deviceData[index].watchInfo);
     final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
       'connectionStatus',
@@ -375,6 +437,79 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     //   //       DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
     //   // });
     // }
+  }
+
+  void _getDeviceStatus(int index) async {
+    final connectionInfo = json.encode(_deviceData[index].watchInfo);
+    final deviceStatus = await BackgroundFetchData.platform.invokeMethod(
+      'deviceStatus',
+      <String, dynamic>{'connectionInfo': connectionInfo},
+    ) as String;
+
+    if (deviceStatus != 'Error') {
+      print('Got connection info response $deviceStatus');
+      final connectionStatusData = WatchModel.fromJson(
+          json.decode(deviceStatus) as Map<String, dynamic>);
+
+      if (!mounted) return;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('connected', 'true');
+
+      // setState(() {
+      //   _connected = connectionStatusData.connected;
+      //   _deviceId = connectionStatusData.deviceId;
+      //   _batteryLevel = connectionStatusData.batteryStatus;
+      // });
+      if (connectionStatusData.upgradeAvailable) {
+        _showUpgrade();
+      }
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('connected', 'false');
+    }
+  }
+
+  void _showUpgrade() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Upgrade available',
+          ),
+          content: Text(
+            'An upgrade to the device is aviailable. Do you want to Upgrade',
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+              ),
+            ),
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // _upgradeDevice();
+
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => SetupUpgradeScreen(),
+                      settings:
+                          const RouteSettings(name: routes.SetupUpgradeRoute),
+                    ),
+                    (Route<dynamic> route) => false);
+              },
+              child: Text(
+                'Ok',
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildDevicesList(int index) {

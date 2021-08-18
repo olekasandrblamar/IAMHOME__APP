@@ -9,7 +9,7 @@
 			"title": "Åtkomst nekad!"
 		},
 		"buttons": {
-			"imin": "Jag är i",
+			"next": "Nästa",
 			"nothanks": "Nej tack"
 		},
 		"camera": {
@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Meddelanden kan innehålla viktiga hälsovarningar och påminnelser när något ser ut. Det är enkelt att ändra dem när som helst i inställningar.",
 			"title": "Tryckmeddelande"
+		},
+		"storage": {
+			"description": "Ceras -appen lagrar endast din Ceras -enhetsdata. Ceras säkerställer att din lagring inte kommer åt för något annat ändamål",
+			"title": "Lagring"
 		}
 	},
 	"appLanguage": {
