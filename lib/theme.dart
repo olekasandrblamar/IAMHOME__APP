@@ -54,6 +54,7 @@ class AppTheme {
     fontSize: 21,
     letterSpacing: 0.18,
     color: darkerText,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle subtitle = TextStyle(
@@ -62,6 +63,7 @@ class AppTheme {
     fontSize: 16,
     letterSpacing: -0.04,
     color: darkText,
+    decoration: TextDecoration.none,
   );
 
   static const TextStyle body2 = TextStyle(

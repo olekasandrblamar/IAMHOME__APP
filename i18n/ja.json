@@ -9,7 +9,7 @@
 			"title": "アクセス拒否！"
 		},
 		"buttons": {
-			"imin": "私は入る",
+			"next": "次",
 			"nothanks": "結構です"
 		},
 		"camera": {
@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "通知には、重要なヘルスアラートや、何かが見逃されたときのリマインダーが含まれる場合があります。設定でいつでも簡単に変更できます。",
 			"title": "プッシュ通知"
+		},
+		"storage": {
+			"description": "CerasアプリはCerasデバイスデータのみを保存します。 Cerasは、他の目的でストレージにアクセスしないようにします",
+			"title": "ストレージ"
 		}
 	},
 	"appLanguage": {

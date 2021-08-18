@@ -9,7 +9,7 @@
 			"title": "권한이 거부되었습니다!"
 		},
 		"buttons": {
-			"imin": "나는 ~ 안에있다",
+			"next": "다음 것",
 			"nothanks": "괜찮습니다"
 		},
 		"camera": {
@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "알림에는 중요한 건강 경고 및 무언가가 이상 해졌을 때 알림이 포함될 수 있습니다. 설정에서 언제든지 간단하게 변경할 수 있습니다.",
 			"title": "푸시 알림"
+		},
+		"storage": {
+			"description": "Ceras 앱은 Ceras 장치 데이터만 저장합니다. Ceras는 귀하의 스토리지가 다른 목적으로 액세스되지 않도록 합니다.",
+			"title": "저장"
 		}
 	},
 	"appLanguage": {

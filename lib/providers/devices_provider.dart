@@ -293,7 +293,7 @@ class DevicesProvider extends ChangeNotifier {
     return true;
   }
 
-  Future<void> removeDevice(int index) async {
+  Future<bool> removeDevice(int index) async {
     _watchInfo = null;
     _deviceData.removeAt(index);
 
@@ -303,7 +303,8 @@ class DevicesProvider extends ChangeNotifier {
     await prefs.remove('watchInfo');
     await prefs.setString('deviceData', json.encode(_deviceData));
 
-    NavigationService.goBackHome();
+    return true;
+    // NavigationService.goBackHome();
     // prefs.clear();
   }
 
