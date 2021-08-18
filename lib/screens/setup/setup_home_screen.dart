@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 
@@ -8,15 +9,19 @@ import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
+import 'package:ceras/screens/setup/setup_upgrade_screen.dart';
+import 'package:ceras/screens/setup/widgets/bluetooth_notfound_widget.dart';
 import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_blue/flutter_blue.dart';
 
 class SetupHomeScreen extends StatefulWidget {
   @override
@@ -31,10 +36,15 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   List<WatchModel> _deviceStatus = [];
   var _lastUpdated = '---';
   var _connectionStatus = false;
+  var _blueToothEnabled = true;
 
   @override
   void initState() {
     checkInternetConnection();
+    checkBlue();
+    if (Platform.isAndroid) {
+      checkPermissionStatus();
+    }
     loadData();
     updateVersionCheck();
     WidgetsBinding.instance.addObserver(this);
@@ -87,6 +97,57 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     print('detach');
   }
 
+  void checkPermissionStatus() async {
+    if (await Permission.location.status == PermissionStatus.denied) {
+      return _goToPermissions(context);
+    }
+
+    if (Platform.isAndroid) {
+      if (await Permission.storage.status == PermissionStatus.denied) {
+        return _goToPermissions(context);
+      }
+    }
+
+    // if (await Permission.bluetooth.status == PermissionStatus.denied) {
+    //   return _goToPermissions(context);
+    // }
+
+    if (await Permission.notification.status == PermissionStatus.denied) {
+      return _goToPermissions(context);
+    }
+
+    // if (!await FlutterBlue.instance.isOn) {
+    //   await Navigator.of(context).pushNamed(
+    //     routes.BluetoothNotfoundRoute,
+    //   );
+    // }
+  }
+
+  void checkBlue() {
+    FlutterBlue.instance.state.listen((BluetoothState event) async {
+      if (event == BluetoothState.unauthorized || event == BluetoothState.off) {
+        _blueToothEnabled = false;
+        await Navigator.of(context).pushNamed(
+          routes.BluetoothNotfoundRoute,
+        );
+      } else if (event == BluetoothState.on && !_blueToothEnabled) {
+        _blueToothEnabled = true;
+        await Navigator.of(context).pushAndRemoveUntil(
+            MaterialPageRoute(
+              builder: (BuildContext context) => SetupHomeScreen(),
+              settings: const RouteSettings(name: routes.SetupHomeRoute),
+            ),
+            (Route<dynamic> route) => false);
+      }
+    });
+  }
+
+  dynamic _goToPermissions(context) async {
+    return Navigator.of(context).pushNamed(
+      routes.AppPermissionsRoute,
+    );
+  }
+
   void checkInternetConnection() {
     connectivitySubscription = Connectivity()
         .onConnectivityChanged
@@ -124,6 +185,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   void _loadDeviceState(List<DevicesModel> deviceList) {
     var index = 0;
     deviceList.forEach((device) {
+      _getConnectionStatus(index++);
       _getDeviceStatus(index++);
     });
   }
@@ -148,52 +210,67 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
 
   void updateVersionCheck() async {
     final prefs = await SharedPreferences.getInstance();
-    var versionCheckDate = await prefs.getString('versionCheckDate');
+    var versionCheckDateInMillis = await prefs.getString('versionCheckDate');
 
-    // DateTime d = DateTime.now();
+    var currentTimeInMillis = DateTime.now().millisecondsSinceEpoch;
+    var checkAndValidate = true;
+    //if the prev version date doesn't exist set that value
+    if (versionCheckDateInMillis == null) {
+      await prefs.setString('versionCheckDate', currentTimeInMillis.toString());
+      checkAndValidate = true;
+    } else {
+      var milliSecondsSinceLastCheck = DateTime.now().millisecondsSinceEpoch -
+          int.parse(versionCheckDateInMillis);
+      var dayInMillis = 1000 * 60 * 60 * 24;
+      var daysSinceLastUpdate = milliSecondsSinceLastCheck / dayInMillis;
 
-    // var currentDate = d.setDate(d.getDate());
-    // if (versionCheckDate == null) {
-    //   await prefs.setString('versionCheckDate', currentDate.toString());
-    // }
+      //if the last validation is more than 3 days ago
+      if (daysSinceLastUpdate > 3.0) {
+        checkAndValidate = true;
+        await prefs.setString(
+            'versionCheckDate', currentTimeInMillis.toString());
+      }
+    }
 
-    // // var daysFromNow: any = d.setDate(d.getDate() - 3); // three days fromNow
-    // var millisec = currentDate - DateTime(int.parse(versionCheckDate));
-    // var seconds = double.parse((millisec / 1000).toFixed(0));
-
-    // /* Checking if current date is greater than 3 days
-    //             and if it is greater than 3 days check fior update
-    //     */
-    // if (seconds > 259200) {
-    //   await prefs.setString('versionCheckDate', currentDate.toString());
-    //   await appVersionCheck();
-    // }
+    if (checkAndValidate) {
+      appVersionCheck();
+    }
   }
 
-  Future<void> appVersionCheck() async {
+  void appVersionCheck() async {
     final PackageInfo packageInfo = await PackageInfo.fromPlatform();
     final currentVersion = packageInfo.version;
 
-    var versionData = await Provider.of<AuthProvider>(context, listen: false)
-        .checkAppVersion();
+    //Get the current version from the API
+    var versionData = await Provider.of<DevicesProvider>(context, listen: false)
+        .currentVersion();
 
-    if (versionData.isNotEmpty) {
-      // var _currentVersion =
-      //     JSON.stringify(currentVersion.toString().split('.'));
-      // var _latestVersioniOS =
-      //     JSON.stringify(versionData.ios.toString().split('.'));
-      // var _latestVersionAndroid =
-      //     JSON.stringify(versionData.android.toString().split('.'));
+    //if the version data exists
+    if (versionData != null) {
+      var _currentVersion = currentVersion
+          .toString()
+          .split('.')
+          .map((e) => int.parse(e))
+          .toList();
 
-      // if (Platform.isIOS) {
-      //   if (_latestVersioniOS > _currentVersion) {
-      //     updateApp();
-      //   }
-      // } else {
-      //   if (_latestVersionAndroid > _currentVersion) {
-      //     updateApp();
-      //   }
-      // }
+      //default the version to android
+      var curStoreVersion = versionData.androidVersion.toString();
+
+      //If the current platform is IOS get the is version
+      if (Platform.isIOS) {
+        curStoreVersion = versionData.iosVersion.toString();
+      }
+
+      //Split the version into major.minor.build
+      var _latestStoreVersion =
+          curStoreVersion.split('.').map((e) => int.parse(e)).toList();
+
+      //Compare the versions and if the new version os greater than the current version update the app
+      if (_latestStoreVersion[0] > _currentVersion[0] ||
+          _latestStoreVersion[1] > _currentVersion[1] ||
+          _latestStoreVersion[2] > _currentVersion[2]) {
+        updateApp();
+      }
     }
   }
 
@@ -243,57 +320,56 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: SetupAppBar(name: 'My Devices'),
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        bottom: true,
-        child: SingleChildScrollView(
-          child: _deviceData.isNotEmpty
-              ? Container(
-                  padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: <Widget>[
-                      for (int index = 0; index < _deviceData.length; index++)
-                        _buildDevicesList(index),
-                      // _buildNewDevice()
-                    ],
-                  ),
-                )
-              : _buildNewDevice(),
-        ),
-      ),
-      bottomNavigationBar: _deviceData.isNotEmpty
-          ? SafeArea(
-              bottom: true,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Container(
-                    height: 90,
-                    padding: EdgeInsets.all(20),
-                    child: RaisedButton(
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(4.5),
-                      ),
-                      color: Theme.of(context).primaryColor,
-                      textColor: Colors.white,
-                      child: Text('Access Health Data'),
-                      onPressed: ()
-                      {
-                        _authenticate();
-                        for(var i=0;i<_deviceData.length;i++){
-                          _processSyncData(i);
-                        }
-
-                      },
+        appBar: SetupAppBar(name: 'My Devices'),
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          bottom: true,
+          child: SingleChildScrollView(
+            child: _deviceData.isNotEmpty
+                ? Container(
+                    padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: <Widget>[
+                        for (int index = 0; index < _deviceData.length; index++)
+                          _buildDevicesList(index),
+                        // _buildNewDevice()
+                      ],
                     ),
-                  ),
-                ],
-              ),
-            )
-          : SizedBox(height: 25,)
-    );
+                  )
+                : _buildNewDevice(),
+          ),
+        ),
+        bottomNavigationBar: _deviceData.isNotEmpty
+            ? SafeArea(
+                bottom: true,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Container(
+                      height: 90,
+                      padding: EdgeInsets.all(20),
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.5),
+                        ),
+                        color: Theme.of(context).primaryColor,
+                        textColor: Colors.white,
+                        child: Text('Access Health Data'),
+                        onPressed: () {
+                          _authenticate();
+                          for (var i = 0; i < _deviceData.length; i++) {
+                            _processSyncData(i);
+                          }
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            : SizedBox(
+                height: 25,
+              ));
   }
 
   String _buildDeviceCode(WatchModel watchModel) {
@@ -319,8 +395,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
         lastUpdate ?? DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
   }
 
-  void _processSyncData(index) async{
-
+  void _processSyncData(index) async {
     final connectionInfo = json.encode(_deviceData[index].watchInfo);
 
     final syncResponse = BackgroundFetchData.platform.invokeMethod(
@@ -335,8 +410,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     });
   }
 
-  void _getDeviceStatus(int index) async {
-
+  void _getConnectionStatus(int index) async {
     final connectionInfo = json.encode(_deviceData[index].watchInfo);
     final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
       'connectionStatus',
@@ -363,6 +437,79 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     //   //       DateFormat('MM/dd/yyyy hh:mm a').format(DateTime.now());
     //   // });
     // }
+  }
+
+  void _getDeviceStatus(int index) async {
+    final connectionInfo = json.encode(_deviceData[index].watchInfo);
+    final deviceStatus = await BackgroundFetchData.platform.invokeMethod(
+      'deviceStatus',
+      <String, dynamic>{'connectionInfo': connectionInfo},
+    ) as String;
+
+    if (deviceStatus != 'Error') {
+      print('Got connection info response $deviceStatus');
+      final connectionStatusData = WatchModel.fromJson(
+          json.decode(deviceStatus) as Map<String, dynamic>);
+
+      if (!mounted) return;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('connected', 'true');
+
+      // setState(() {
+      //   _connected = connectionStatusData.connected;
+      //   _deviceId = connectionStatusData.deviceId;
+      //   _batteryLevel = connectionStatusData.batteryStatus;
+      // });
+      if (connectionStatusData.upgradeAvailable) {
+        _showUpgrade();
+      }
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('connected', 'false');
+    }
+  }
+
+  void _showUpgrade() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text(
+            'Upgrade available',
+          ),
+          content: Text(
+            'An upgrade to the device is aviailable. Do you want to Upgrade',
+          ),
+          actions: <Widget>[
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: Text(
+                'Cancel',
+              ),
+            ),
+            FlatButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                // _upgradeDevice();
+
+                Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => SetupUpgradeScreen(),
+                      settings:
+                          const RouteSettings(name: routes.SetupUpgradeRoute),
+                    ),
+                    (Route<dynamic> route) => false);
+              },
+              child: Text(
+                'Ok',
+              ),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Widget _buildDevicesList(int index) {

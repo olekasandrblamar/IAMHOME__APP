@@ -7,6 +7,8 @@ const String PrivacyRoute = '/privacy';
 const String NotificationsRoute = '/access/notifications';
 const String CameraRoute = '/access/camera';
 const String LocationsRoute = '/access/locations';
+const String StorageRoute = '/access/storage';
+const String BluetoothRoute = '/access/bluetooth';
 
 const String SetupHomeRoute = '/setup/home';
 const String SetupDevicesRoute = '/setup/devices';
@@ -22,6 +24,7 @@ const String UnabletoconnectRoute = '/setup/unabletoconnect';
 const String HelpRoute = '/help';
 const String SettingsRoute = '/settings';
 const String RedeemRoute = '/redeem';
+const String AppPermissionsRoute = '/appPermissions';
 
 const String DataRoute = '/data';
 

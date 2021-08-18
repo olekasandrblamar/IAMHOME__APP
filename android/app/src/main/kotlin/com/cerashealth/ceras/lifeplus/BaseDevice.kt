@@ -15,8 +15,8 @@ open class BaseDevice{
         Log.i(TAG,"Calling default sync data")
     }
 
-    open fun getDeviceInfo(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
-        Log.i(TAG,"Calling default device Info")
+    open fun getDeviceInfo(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context) {
+        Log.i(TAG, "Calling default device Info")
     }
 
     open fun getConnectionStatus(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
@@ -28,9 +28,10 @@ open class BaseDevice{
         result?.success("{status:'Success'}")
     }
 
-    open fun upgradeDevice(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
+    open fun upgradeDevice(eventSink: EventChannel.EventSink?, connectionInfo: ConnectionInfo, context: Context){
         Log.i(TAG,"Calling default upgrade")
-        result?.success("Success")
+        eventSink?.success("{status:'Success'}")
+        eventSink!!.endOfStream()
     }
 
     open fun readDataFromDevice(eventSink: EventChannel.EventSink,readingType:String){
@@ -60,6 +61,8 @@ open class BaseDevice{
         const val BAND_DEVICE:String = "BAND"
         var isBackground = false
         val TAG = WatchDevice::class.java.simpleName
+        const val SUCCESS_STATUS = "Success"
+        const val ERROR_STATUS = "Error"
 
         fun getDeviceImpl(deviceName:String?): BaseDevice {
             Log.i(TAG,"Getting implementation for $deviceName")

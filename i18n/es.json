@@ -9,7 +9,7 @@
 			"title": "¡Permiso denegado!"
 		},
 		"buttons": {
-			"imin": "estoy dentro",
+			"next": "Siguiente",
 			"nothanks": "No, gracias"
 		},
 		"camera": {
@@ -23,6 +23,10 @@
 		"notifications": {
 			"description": "Las notificaciones pueden incluir alertas de salud importantes y recordatorios cuando algo parece mal. Es simple cambiarlos en cualquier momento en la configuración.",
 			"title": "Notificación de inserción"
+		},
+		"storage": {
+			"description": "La aplicación Ceras solo almacenará los datos de su dispositivo Ceras. Ceras garantiza que no se accederá a su almacenamiento para ningún otro propósito",
+			"title": "Almacenamiento"
 		}
 	},
 	"appLanguage": {

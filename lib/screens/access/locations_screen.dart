@@ -93,12 +93,13 @@ class _LocationsScreenState extends State<LocationsScreen>
             child: Column(
               children: [
                 Text('By turning the location on, you understand:'),
-                SizedBox(height: 5,),
+                SizedBox(
+                  height: 5,
+                ),
                 Container(
                   margin: EdgeInsets.fromLTRB(20, 10, 10, 10),
                   child: Text(
-                    '\u25C9 As long as the Ceras app is in use, or in the background the Ceras app is able to continually receive the health data from your Ceras device ensuring that up to date information is transmitted to our platform for your doctor’s user 24x7.'
-                  ),
+                      '\u25C9 As long as the Ceras app is in use, or in the background the Ceras app is able to continually receive the health data from your Ceras device ensuring that up to date information is transmitted to our platform for your doctor’s user 24x7.'),
                 )
               ],
             ),
@@ -137,20 +138,28 @@ class _LocationsScreenState extends State<LocationsScreen>
         ? await Permission.location.request()
         : await Permission.locationAlways.request();
 
-    if (PermissionStatus.granted == status) {
-      _goToCamera(context);
-    } else {
-      showAccessAlertDialog(context);
-    }
+    // if (PermissionStatus.granted == status) {
+    //   _goToCamera(context);
+    // } else {
+    //   showAccessAlertDialog(context);
+    // }
+
+    _goToCamera(context);
   }
 
   dynamic _goToCamera(context) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setBool('walthrough', false);
+    if (Platform.isAndroid) {
+      return Navigator.of(context).pushReplacementNamed(
+        routes.StorageRoute,
+      );
+    } else {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setBool('walthrough', false);
 
-    return Navigator.of(context).pushReplacementNamed(
-      routes.SetupHomeRoute,
-    );
+      return Navigator.of(context).pushReplacementNamed(
+        routes.SetupHomeRoute,
+      );
+    }
   }
 
   final AccessModel locationData = ACCESS_DATA[1];
@@ -163,7 +172,7 @@ class _LocationsScreenState extends State<LocationsScreen>
       body: AccessWidget(
         type: 'locations',
         accessData: locationData,
-        onNothingSelected: () => _showDialog(context, true),
+        onNothingSelected: () => _goToCamera(context),
         onPermissionSelected: () => _checkDevice(context),
       ),
     );

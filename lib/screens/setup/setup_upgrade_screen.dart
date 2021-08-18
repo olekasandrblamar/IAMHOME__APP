@@ -1,8 +1,12 @@
+import 'dart:convert';
+
 import 'package:ceras/config/background_fetch.dart';
 import 'package:ceras/screens/setup/setup_home_screen.dart';
 import 'package:ceras/theme.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:developer' as developer;
 
 import 'package:ceras/constants/route_paths.dart' as routes;
 
@@ -18,6 +22,10 @@ class SetupUpgradeScreen extends StatefulWidget {
 class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> with SingleTickerProviderStateMixin  {
   bool isUpgrading = false;
   AnimationController _controller;
+  String upgradeMessage = '';
+  bool upgradeSuccess = false;
+  final eventChannel = EventChannel('ceras.iamhome.mobile/device_upgrade');
+
 
   @override
   void dispose() {
@@ -32,6 +40,9 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> with SingleTick
       duration: const Duration(seconds: 5),
       vsync: this,
     );
+    setState(() {
+      upgradeMessage = 'Upgrade in progress';
+    });
 
     Future.delayed(Duration(seconds: 1), () {
       _controller.repeat(min: 0,max: 1);
@@ -55,35 +66,59 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> with SingleTick
     final connectionInfo = prefs.getString('watchInfo');
     if (connectionInfo != null) {
       _setIsUpgrading(true);
-
-      final upgrade = BackgroundFetchData.platform.invokeMethod(
-        'upgradeDevice',
-        <String, dynamic>{'connectionInfo': connectionInfo},
-      );
-
-      await upgrade.then((value) {
-        if ((value as String) == 'Success') {
-          Future.delayed(Duration(seconds: 5),(){
-            _setIsUpgrading(false);
-            _showUpgradeSuccess();
+      eventChannel.receiveBroadcastStream({'connectionInfo': connectionInfo}).listen((event) {
+        final returnData = json.decode(event);
+        if(returnData['status']=='Success'){
+          upgradeSuccess = true;
+          developer.log('Upgrade at $upgradeSuccess ${returnData['message']}');
+          setState(() {
+            upgradeMessage = returnData['message'];
           });
-        } else {
-          _showUpgradeFail('Upgrade to device is unsuccessfull');
+        }else if(returnData['status']=='Error'){
+          _showUpgradeFail(returnData['message']);
+          upgradeSuccess = false;
+          developer.log('Upgrade error ${returnData['message']}');
         }
-      }, onError: (error) {
+      }, onError: (dynamic error) {
         _showUpgradeFail(error);
+        upgradeSuccess = true;
+      },onDone: () {
+        developer.log('Upgrade complete $upgradeSuccess');
+        _setIsUpgrading(false);
+        if(upgradeSuccess){
+          _showUpgradeSuccess();
+        }
       });
+
+      // final upgrade = BackgroundFetchData.platform.invokeMethod(
+      //   'upgradeDevice',
+      //   <String, dynamic>{'connectionInfo': connectionInfo},
+      // );
+      //
+      // await upgrade.then((value) {
+      //   if ((value as String) == 'Success') {
+      //     Future.delayed(Duration(seconds: 5),(){
+      //       _setIsUpgrading(false);
+      //       _showUpgradeSuccess();
+      //     });
+      //   } else {
+      //     _showUpgradeFail('Upgrade to device is unsuccessfull');
+      //   }
+      // }, onError: (error) {
+      //   _showUpgradeFail(error);
+      // });
 
       //If we don't get response in 30 seconds close the loading
-      Future.delayed(Duration(seconds: 240), () {
-        _setIsUpgrading(false);
-        _showUpgradeFail('Upgrade to device is unsuccessfull');
-        //Add a timeout error
-      });
+      // Future.delayed(Duration(seconds: 240), () {
+      //   _setIsUpgrading(false);
+      //   _showUpgradeFail('Upgrade to device is unsuccessfull');
+      //   //Add a timeout error
+      // });
     }
   }
 
   void _showUpgradeSuccess() {
+    developer.log('Displaying upgrade complete');
     showDialog(
       context: context,
       builder: (BuildContext context) {
@@ -192,7 +227,7 @@ class _SetupUpgradeScreenState extends State<SetupUpgradeScreen> with SingleTick
                     Container(
                       padding: const EdgeInsets.all(10.0),
                       child: Text(
-                        'Upgrade in progress',
+                        upgradeMessage,
                         overflow: TextOverflow.ellipsis,
                         textAlign: TextAlign.center,
                         style: AppTheme.title,

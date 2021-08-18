@@ -18,6 +18,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var deviceConected = false
     static var currentDeviceId:String? = nil
     var statusResult:FlutterResult? = nil
+    var upgradeEventSink: FlutterEventSink? = nil
     var statusConnectionInfo: ConnectionInfo? = nil
     var reconnect:Int = 0;
     var eventSink: FlutterEventSink? = nil
@@ -28,7 +29,9 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var systolicOffset = 0
     var readingo2 = false
     var upgradeInProcess = false
+    var currentFirmWare:String? = nil
     var firmwareVersion = "SW07s_2.56.00_210423"
+    var sw07Version = "SW07s_2.45.00_200925"
 //    var firmwareVersion = "SW07s_2.56.00_210324"
     
     var batteryComplete = false
@@ -269,6 +272,16 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 
                 HardManagerSDK.shareBLEManager()?.setBloodPressurePassvielyMeasurementWithHeartRate(sp, sp: dp, dp: hr)
             }
+        }else if(option == HardGettingOption.firmworkUpgradeProgress){
+            NSLog("Got upgrade status \(values)")
+            let upgradeStatus = values as? [String:Int]
+            let upgradePercentage = upgradeStatus!["upgradeProgress"]
+            if(upgradePercentage != nil){
+                NSLog("Got update percentage \(upgradePercentage!)")
+                let message = "Upgrade progress "+String(upgradePercentage!)+" %"
+                self.sendUpgradeMessage(status: "Success", message: message)
+                
+            }
         }
             
     }
@@ -279,16 +292,25 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         if(step == HardFirmwareUpgradeStep.finished){
             UserDefaults.standard.removeObject(forKey: DataSync.USER_PROFILE_DATA)
             upgradeInProcess = false
+            self.sendUpgradeMessage(status: "Success", message: "Upgrade complete ",complete: true)
+        }else if(result == HardFirmwareUpgradStepResult.internalError
+                    || result == HardFirmwareUpgradStepResult.commandFormatWrong
+                    || result == HardFirmwareUpgradStepResult.dataWrong
+                    || result == HardFirmwareUpgradStepResult.dataSizeWrong
+                    || result == HardFirmwareUpgradStepResult.commandStatusMismatch){
+            self.sendUpgradeMessage(status: "Error", message: "Error while upgrading ",complete: true)
+        }else if(result == HardFirmwareUpgradStepResult.batteryTooLow){
+            self.sendUpgradeMessage(status: "Error", message: "Battery too low ",complete: true)
         }
         
     }
     
     func hardManager(_ manager: HardManagerSDK!, firmwareUpgradeNextStep step: HardFirmwareUpgradeStep) {
-        if(step == HardFirmwareUpgradeStep.finished){
-            statusResult?("Success")
-            upgradeInProcess = false
-            UserDefaults.standard.removeObject(forKey: DataSync.USER_PROFILE_DATA)
-        }
+//        if(step == HardFirmwareUpgradeStep.finished){
+//            upgradeInProcess = false
+//            //self.sendUpgradeMessage(status: "Success", message: "Upgrade Sucessful", complete: true)
+//            //UserDefaults.standard.removeObject(forKey: DataSync.USER_PROFILE_DATA)
+//        }
     }
     
     func connectedDeviceMacDidUpdate(_ hardManager: HardManagerSDK!) {
@@ -307,30 +329,50 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     }
     
     
-    func upgradeDevice(connInfo: ConnectionInfo, result:@escaping FlutterResult){
+    func upgradeDevice(connectionInfo:ConnectionInfo, eventSink upgradeSink: @escaping FlutterEventSink){
         var connectionInfo = ConnectionInfo()
         connectionInfo.deviceId = getMacId()
         connectionInfo.connected = HardManagerSDK.shareBLEManager()?.isConnected
         NSLog("Got mac id \(connectionInfo.deviceId)")
+        self.upgradeEventSink = upgradeSink
         do{
             if(connectionInfo.connected != nil && connectionInfo.connected!){
                 NSLog("Trying to upgrade")
-                let upgradePath = Bundle.main.path(forResource: firmwareVersion, ofType: "bin", inDirectory: "HardSDK")
+                var updateFile = firmwareVersion
+                if(self.currentFirmWare != nil && self.currentFirmWare!.lowercased().starts(with: "sw07_")){
+                    updateFile = sw07Version;
+                }
+                let upgradePath = Bundle.main.path(forResource: updateFile, ofType: "bin", inDirectory: "HardSDK")
                 NSLog("Upgrade path \(upgradePath)")
 
                 let errorPtr: NSErrorPointer = nil
                 HardManagerSDK.shareBLEManager().setUpgradeDeviceFirmwareWithFilePath(upgradePath,error: errorPtr)
                 upgradeInProcess = true
+                NSLog("Fired the update ")
                 if(errorPtr != nil){
+                    NSLog("Error while upgrading")
                     let error:NSError? = errorPtr?.pointee
+                    self.sendUpgradeMessage(status: "Error", message: "Error while upgrading", complete: true)
                 }
-                statusResult = result
             }
         }
         catch{
             NSLog("Error upgrading watch\(error)")
-            result("Error")
             upgradeInProcess = false
+            self.sendUpgradeMessage(status: "Error", message: "Error while upgrading", complete: true)
+        }
+    }
+    
+    func sendUpgradeMessage(status: String,message:String,complete:Bool = false){
+        var returnValue = ["status":status,"message":message]
+        do{
+            let returnDataValue = String(data: try JSONEncoder().encode(returnValue), encoding: .utf8)!
+            self.upgradeEventSink?(returnDataValue)
+            if(complete){
+                self.upgradeEventSink?(FlutterEndOfEventStream)
+            }
+        }catch{
+            self.upgradeEventSink?(FlutterEndOfEventStream)
         }
     }
     
@@ -350,11 +392,14 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 
                 NSLog("got verison \(version)")
                 connectionInfo.upgradeAvailable = false
+                self.currentFirmWare = version
                 
                 //Check the version and if it is not the latest version, update the device
                 if(version != nil && version!.lowercased().starts(with: "sw07s") && version?.lowercased() != firmwareVersion.lowercased()){
                     connectionInfo.upgradeAvailable = true
                     
+                }else if(version != nil && version!.lowercased().starts(with: "sw07_") && version?.lowercased() != sw07Version.lowercased()){
+                    connectionInfo.upgradeAvailable = true
                 }
                 
                 //HardManagerSDK.shareBLEManager()?.getHardFirmwareVersionFormServe()
