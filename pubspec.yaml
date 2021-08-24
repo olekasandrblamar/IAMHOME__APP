@@ -53,7 +53,7 @@ dependencies:
   local_auth: ^1.1.6
   connectivity: ^3.0.3
   pin_code_fields: ^7.2.0
-  cached_network_image: ^3.0.0
+  cached_network_image: ^2.5.0
   network_info_plus: ^1.0.2
   flutter_svg: ^0.22.0
   circular_countdown: ^1.2.1

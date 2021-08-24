@@ -150,11 +150,11 @@ class MainActivity: FlutterFragmentActivity()  {
             }
             else if(call.method == "readLineData"){
             }else if(call.method == "upgradeDevice"){
-                val deviceDataString = call.argument<String>("connectionInfo")
-                Log.i(TAG,"got upgrade device data with arguments $deviceDataString")
-                val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
-                deviceId = deviceData.deviceId?:""
-                BaseDevice.getDeviceImpl(deviceData.deviceType).upgradeDevice(result,deviceData,this)
+//                val deviceDataString = call.argument<String>("connectionInfo")
+//                Log.i(TAG,"got upgrade device data with arguments $deviceDataString")
+//                val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
+//                deviceId = deviceData.deviceId?:""
+//                BaseDevice.getDeviceImpl(deviceData.deviceType).upgradeDevice(result,deviceData,this)
             }else if(call.method == "connectWifi"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)

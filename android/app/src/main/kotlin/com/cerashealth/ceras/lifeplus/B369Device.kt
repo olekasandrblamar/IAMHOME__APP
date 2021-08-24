@@ -115,7 +115,7 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
             when (it) {
                 ICSettingCallBackCode.ICSettingCallBackCodeSuccess -> {
                     Log.d(TAG, "Connection success")
-                    updateServerUrl("https://device.dev.myceras.com")
+                    updateServerUrl("https://device.alpha.myceras.com")
                 }
                 else -> {
                     Log.d(TAG, "Connection failure")
