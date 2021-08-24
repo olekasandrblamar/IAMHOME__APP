@@ -65,7 +65,7 @@ class _MyAppState extends State<MyApp> {
     await updateDeviceInfo();
 
     // await PushNotificationsManager(context).init();
-    await PushNotificationsManager().setupInteractedMessage(context);
+    await PushNotificationsManager().init(context);
 
     DynamicLinksSetup().initDynamicLinks();
     // initalizeBackgroundFetch();

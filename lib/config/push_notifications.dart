@@ -9,7 +9,7 @@ class PushNotificationsManager {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static FirebaseInAppMessaging fiam = FirebaseInAppMessaging();
 
-  Future<void> setupInteractedMessage(BuildContext context) async {
+  Future<void> init(BuildContext context) async {
     String token = await _firebaseMessaging.getToken();
 
     final prefs = await SharedPreferences.getInstance();
