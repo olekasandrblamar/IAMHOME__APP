@@ -35,7 +35,11 @@ class PushNotificationsManager {
       // );
 
       // For testing purposes print the Firebase Messaging token
-      // String token = await _firebaseMessaging.getToken();
+      String token = await _firebaseMessaging.getToken();
+
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('notificationToken', token);
+
       // print("FirebaseMessaging token: $token");
 
       FirebaseMessaging.onMessage.listen((RemoteMessage message) {
