@@ -50,7 +50,7 @@ class _MyAppState extends State<MyApp> {
     await _initializeFlutterFire();
 
     final prefs = await SharedPreferences.getInstance();
-    final redeemCode = await prefs.getString('redeemCode');
+    final redeemCode = prefs.getString('redeemCode');
 
     if (redeemCode != null) {
       // final authUrl = await prefs.getString('authUrl');
@@ -65,7 +65,7 @@ class _MyAppState extends State<MyApp> {
     await updateDeviceInfo();
 
     // await PushNotificationsManager(context).init();
-    await PushNotificationsManager().setupInteractedMessage();
+    await PushNotificationsManager().setupInteractedMessage(context);
 
     DynamicLinksSetup().initDynamicLinks();
     // initalizeBackgroundFetch();

@@ -9,13 +9,13 @@ class PushNotificationsManager {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static FirebaseInAppMessaging fiam = FirebaseInAppMessaging();
 
-  Future<void> setupInteractedMessage() async {
+  Future<void> setupInteractedMessage(BuildContext context) async {
     String token = await _firebaseMessaging.getToken();
 
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('notificationToken', token);
 
-    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
+    FirebaseMessaging.onMessageOpenedApp.listen(context, _handleMessage);
 
     // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     //   RemoteNotification notification = message.notification;
@@ -41,7 +41,7 @@ class PushNotificationsManager {
     // });
   }
 
-  void _handleMessage(RemoteMessage message) async {
+  void _handleMessage(BuildContext context, RemoteMessage message) async {
     if (message.data['type'] == 'chat') {
       var deviceIndex = Provider.of<DevicesProvider>(context, listen: false)
           .findDevice(message.data['deviceId']);
