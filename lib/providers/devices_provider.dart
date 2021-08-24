@@ -336,4 +336,16 @@ class DevicesProvider extends ChangeNotifier {
       return null;
     }
   }
+
+  findDevice(deviceId) {
+    int deviceIndex = _deviceData.indexWhere(
+      (element) => (element.watchInfo.deviceId == deviceId),
+    );
+
+    if (deviceIndex >= 0) {
+      return deviceIndex
+    } else{
+      return null
+    }
+  }
 }

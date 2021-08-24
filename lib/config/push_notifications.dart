@@ -1,8 +1,15 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
+import 'package:provider/provider.dart';
+import 'package:ceras/providers/devices_provider.dart';
+import 'package:ceras/config/navigation_service.dart';
+import 'package:ceras/constants/route_paths.dart' as routes;
 
 class PushNotificationsManager {
-  PushNotificationsManager._();
+  final context;
+  PushNotificationsManager(context);
+
+  PushNotificationsManager._(context);
 
   factory PushNotificationsManager() => _instance;
 
@@ -42,35 +49,32 @@ class PushNotificationsManager {
 
       // print("FirebaseMessaging token: $token");
 
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        RemoteNotification notification = message.notification;
-        AndroidNotification android = message.notification?.android;
-
-        if (notification != null && android != null) {}
-      });
-
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        print('A new onMessageOpenedApp event was published!');
-        print(message);
-      });
+      // FirebaseMessaging.onMessage.listen(_handleMessage);
+      FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
 
       _initialized = true;
     }
   }
 
-  Future<void> _handleNotification(
-    Map<dynamic, dynamic> message,
-  ) async {
-    var notificationData = message['data'] ?? message;
+  void _handleMessage(RemoteMessage message) async {
+    if (message.data['type'] == 'chat') {
+      var deviceIndex = Provider.of<DevicesProvider>(context, listen: false)
+          .findDevice(message.data['deviceId']);
 
-    var view = notificationData['view'];
-
-    if (view != null) {
-      // Navigate to the create post view
-      if (view == 'create_post') {
-        // _navigationService.navigateTo(CreatePostViewRoute);
+      if (deviceIndex != null) {
+        await Navigator.of(context).pushNamed(
+          routes.SetupActiveRoute,
+          arguments: {'deviceIndex': deviceIndex},
+        );
       }
-      // If there's no view it'll just open the app on the first view
     }
+
+    // if (message.data['type'] == 'chat') {
+    //   Navigator.pushNamed(
+    //     context,
+    //     '/chat',
+    //     arguments: ChatArguments(message),
+    //   );
+    // }
   }
 }
