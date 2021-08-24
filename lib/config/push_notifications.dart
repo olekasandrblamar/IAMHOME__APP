@@ -6,54 +6,39 @@ import 'package:ceras/config/navigation_service.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
 
 class PushNotificationsManager {
-  final context;
-  PushNotificationsManager(context);
-
-  PushNotificationsManager._(context);
-
-  factory PushNotificationsManager() => _instance;
-
-  static final PushNotificationsManager _instance =
-      PushNotificationsManager._();
-
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static FirebaseInAppMessaging fiam = FirebaseInAppMessaging();
 
-  bool _initialized = false;
+  Future<void> setupInteractedMessage() async {
+    String token = await _firebaseMessaging.getToken();
 
-  Future<void> init() async {
-    if (!_initialized) {
-      // For iOS request permission first.
-      // _firebaseMessaging.requestNotificationPermissions();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('notificationToken', token);
 
-      // _firebaseMessaging.configure(
-      //   onMessage: (Map<String, dynamic> message) async {
-      //     print("onMessage: $message");
-      //     // _handleNotification(message);
-      //   },
-      //   onLaunch: (Map<String, dynamic> message) async {
-      //     print("onLaunch: $message");
-      //     // _navigateToItemDetail(message);
-      //   },
-      //   onResume: (Map<String, dynamic> message) async {
-      //     print("onResume: $message");
-      //     // _navigateToItemDetail(message);
-      //   },
-      // );
+    FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
 
-      // For testing purposes print the Firebase Messaging token
-      String token = await _firebaseMessaging.getToken();
+    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    //   RemoteNotification notification = message.notification;
+    //   AndroidNotification android = message.notification?.android;
 
-      final prefs = await SharedPreferences.getInstance();
-      await prefs.setString('notificationToken', token);
-
-      // print("FirebaseMessaging token: $token");
-
-      // FirebaseMessaging.onMessage.listen(_handleMessage);
-      FirebaseMessaging.onMessageOpenedApp.listen(_handleMessage);
-
-      _initialized = true;
-    }
+    //   // If `onMessage` is triggered with a notification, construct our own
+    //   // local notification to show to users using the created channel.
+    //   if (notification != null && android != null) {
+    //     flutterLocalNotificationsPlugin.show(
+    //         notification.hashCode,
+    //         notification.title,
+    //         notification.body,
+    //         NotificationDetails(
+    //           android: AndroidNotificationDetails(
+    //             channel.id,
+    //             channel.name,
+    //             channel.description,
+    //             icon: android?.smallIcon,
+    //             // other properties...
+    //           ),
+    //         ));
+    //   }
+    // });
   }
 
   void _handleMessage(RemoteMessage message) async {
@@ -68,13 +53,5 @@ class PushNotificationsManager {
         );
       }
     }
-
-    // if (message.data['type'] == 'chat') {
-    //   Navigator.pushNamed(
-    //     context,
-    //     '/chat',
-    //     arguments: ChatArguments(message),
-    //   );
-    // }
   }
 }

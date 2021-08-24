@@ -39,6 +39,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
+    super.initState();
+
     _handleStartUpLogic();
 
     appLanguage.fetchLocale();
@@ -62,7 +64,8 @@ class _MyAppState extends State<MyApp> {
 
     await updateDeviceInfo();
 
-    await PushNotificationsManager(context).init();
+    // await PushNotificationsManager(context).init();
+    await PushNotificationsManager().setupInteractedMessage();
 
     DynamicLinksSetup().initDynamicLinks();
     // initalizeBackgroundFetch();
