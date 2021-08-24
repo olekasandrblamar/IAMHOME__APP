@@ -4,6 +4,10 @@ import 'package:provider/provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/config/navigation_service.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class PushNotificationsManager {
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
@@ -15,7 +19,13 @@ class PushNotificationsManager {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('notificationToken', token);
 
-    FirebaseMessaging.onMessageOpenedApp.listen(context, _handleMessage);
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      _handleMessage(context, message);
+    });
+
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      _handleMessage(context, message);
+    });
 
     // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
     //   RemoteNotification notification = message.notification;
@@ -42,9 +52,12 @@ class PushNotificationsManager {
   }
 
   void _handleMessage(BuildContext context, RemoteMessage message) async {
-    if (message.data['type'] == 'chat') {
-      var deviceIndex = Provider.of<DevicesProvider>(context, listen: false)
-          .findDevice(message.data['deviceId']);
+    if (message.data['action'] == 'device_sync') {
+      var payload = json.decode(message.data['payload']) as Map<String,dynamic>;
+      var devices = await DevicesProvider.loadDevices();
+      int deviceIndex = devices.indexWhere(
+            (element) => (element.watchInfo.deviceId == payload['deviceId'].toString()),
+      );
 
       if (deviceIndex != null) {
         await Navigator.of(context).pushNamed(
