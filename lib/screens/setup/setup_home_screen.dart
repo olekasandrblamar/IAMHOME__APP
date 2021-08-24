@@ -185,8 +185,9 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   void _loadDeviceState(List<DevicesModel> deviceList) {
     var index = 0;
     deviceList.forEach((device) {
-      _getConnectionStatus(index++);
-      _getDeviceStatus(index++);
+      _getConnectionStatus(index);
+      _getDeviceStatus(index);
+      index++;
     });
   }
 
