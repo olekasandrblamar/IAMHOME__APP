@@ -6,6 +6,7 @@ import 'package:ceras/providers/applanguage_provider.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/intro_screen.dart';
+import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/screens/splash_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -90,7 +91,7 @@ class _MyAppState extends State<MyApp> {
 
     //This is called when the app is open and the message is received
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-      _handleMessage(message);
+      //_handleMessage(message);
     });
 
   }
@@ -98,16 +99,14 @@ class _MyAppState extends State<MyApp> {
   void _handleMessage(RemoteMessage message) async {
     if (message.data['action'] == 'device_sync') {
       var payload = json.decode(message.data['payload']) as Map<String,dynamic>;
+      var deviceId = payload['deviceId'].toString();
       var devices = await DevicesProvider.loadDevices();
       var deviceIndex = devices.indexWhere(
-            (element) => (element.watchInfo.deviceId == payload['deviceId'].toString()),
+            (element) => (element.watchInfo.deviceId == deviceId),
       );
 
-      if (deviceIndex != null) {
-        await Navigator.of(context).pushNamed(
-          routes.SetupActiveRoute,
-          arguments: {'deviceIndex': deviceIndex},
-        );
+      if (deviceIndex >=0 ) {
+        NavigationService.navigateTo(routes.SetupActiveRoute,arguments: {'deviceIndex': deviceIndex});
       }
     }
   }

@@ -406,7 +406,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     );
 
     //Don't wait for the response
-    syncResponse.then((value) {
+    await syncResponse.then((value) {
       print('Syncing value $value');
     });
   }
@@ -419,6 +419,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     ) as bool;
 
     print('Connection Status $connectionStatus');
+    _processSyncData(index);
     setState(() {
       _connectionStatus = connectionStatus;
     });
