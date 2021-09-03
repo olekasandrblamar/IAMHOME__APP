@@ -11,6 +11,20 @@ class UserProfile{
     var heightInCm = 0
     var sex:String = ""
     var lastUpdated = Date()
+    var offSets = listOf<TrackerOffsetReturn>()
+
+    fun getOffset(trackerNames:List<String>):Double?{
+        return offSets.find { trackerNames.contains(it.trackerName?.toLowerCase()) }?.offset
+    }
+
+    fun getSystolicOffset():Int  = getOffset(listOf("systolic"))?.toInt()?:0
+
+    fun getDiastolicOffset():Int  = getOffset(listOf("diastolic","distolic"))?.toInt()?:0
+}
+
+class TrackerOffsetReturn{
+    var trackerName:String? = null
+    var offset:Double = 0.0
 }
 
 data class TemperatureUpload(val measureTime: Date, var celsius:Double, val fahrenheit:Double, val deviceId:String)

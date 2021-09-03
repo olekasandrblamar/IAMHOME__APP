@@ -328,8 +328,15 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.BLOODPRESUURE__STATUS){
             if(obj!=null){
                 val bpValues = obj.toString()
-                val systolic = Integer.parseInt(bpValues.substring(0,2),16) - 20
-                val diastolic = Integer.parseInt(bpValues.substring(2,4),16) - 5
+                var systolicOffset = 0
+                var diastolicOffset = 0
+                DataSync.getUserInfo()?.let {
+                    diastolicOffset = it.getDiastolicOffset()
+                    systolicOffset = it.getSystolicOffset()
+
+                }
+                val systolic = Integer.parseInt(bpValues.substring(0,2),16) + systolicOffset
+                val diastolic = Integer.parseInt(bpValues.substring(2,4),16) +diastolicOffset
                 Log.d(WatchDevice.TAG,"Got String $obj systolic  ${ Integer.parseInt(bpValues.substring(0,2),16)} to $systolic diastolic ${Integer.parseInt(bpValues.substring(2,4),16)} $diastolic")
                 
                 HardSdk.getInstance().setBloodPressureAndHeart(systolic,diastolic,0)
@@ -459,14 +466,7 @@ class DataCallBack : SimpleDeviceCallback {
 
             }
           else if (WatchDevice.isTestingBp) {
-            //val userInfo = DataSync.getUserInfo()
-            val userInfo = UserProfile().apply {
-                heightInCm = 180
-                weightInKgs = 80.0
-                sex = "male"
-                age = 37
-
-            }
+            val userInfo = DataSync.getUserInfo()
             if(userInfo != null) {
                 val heartRateAdditional = HeartRateAdditional(
                         System.currentTimeMillis() / 1000,
@@ -477,8 +477,9 @@ class DataCallBack : SimpleDeviceCallback {
                         userInfo.age
                 )
                 val bloodPressure = BloodPressure()
-                bloodPressure.systolicPressure = heartRateAdditional.get_systolic_blood_pressure() - 20
-                bloodPressure.diastolicPressure = heartRateAdditional.get_diastolic_blood_pressure() - 5
+
+                bloodPressure.systolicPressure = heartRateAdditional.get_systolic_blood_pressure() + userInfo.getSystolicOffset()
+                bloodPressure.diastolicPressure = heartRateAdditional.get_diastolic_blood_pressure() +userInfo.getSystolicOffset()
 
                 Log.i(WatchDevice.TAG,"writing blood pressure systolic ${bloodPressure.systolicPressure} diastolic ${bloodPressure.diastolicPressure}")
                 if (status == GlobalValue.RATE_TEST_FINISH || status == GlobalValue.RATE_TEST_INTERRUPT) {
