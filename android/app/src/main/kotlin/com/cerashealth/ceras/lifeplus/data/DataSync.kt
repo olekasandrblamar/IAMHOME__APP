@@ -32,6 +32,7 @@ data class OxygenLevelUpload(val measureTime: Date, var oxygenLevel:Int, val dev
 data class HeartBeat(val deviceId:String?,val macAddress:String?){
     var deviceInfo:String? = null
     var background = false
+    var notificationId:String? = null
     var latitude:Double? = null
     var longitude:Double? = null
 }

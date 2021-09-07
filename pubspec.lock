@@ -238,8 +238,8 @@ packages:
       name: device_info_plus_linux
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.0"
-  device_info_plus_macos:
+    version: "2.0.2"
+  device_info_platform_interface:
     dependency: transitive
     description:
       name: device_info_plus_macos
@@ -829,7 +829,7 @@ packages:
   progress_dialog:
     dependency: "direct main"
     description:
-      name: progress_dialog
+      name: protobuf
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.4"

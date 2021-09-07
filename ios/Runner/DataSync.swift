@@ -203,6 +203,7 @@ class DataSync {
             var updatedHBeat = heartBeat
             updatedHBeat.background = BACKGROUND
             updatedHBeat.deviceInfo = UserDefaults.standard.string(forKey: "flutter.userDeviceInfo")
+            updatedHBeat.notificationId = UserDefaults.standard.string(forKey: "flutter.notificationToken")
             
             let locationManager = CLLocationManager()
             if(CLLocationManager.authorizationStatus() == .authorizedWhenInUse ||
@@ -507,6 +508,7 @@ struct TemperatureUpload:Codable {
 struct HeartBeat:Codable{
     let deviceId:String?
     let macAddress:String?
+    let notificationId:String?
     var deviceInfo:String? = nil
     var background:Bool = false
     var longitude:Double? = nil

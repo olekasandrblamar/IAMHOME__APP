@@ -71,7 +71,7 @@ class DevicesProvider extends ChangeNotifier {
     }
   }
 
-  Future<List<DevicesModel>> getDevicesData() async {
+  static Future<List<DevicesModel>> loadDevices() async{
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
     var prefData = prefs.getString('deviceData');
@@ -84,34 +84,27 @@ class DevicesProvider extends ChangeNotifier {
 
     // print("Got prefs data ${prefData}");
 
-    //Check if it is an object or array. If it is an object we need to convert to array
-    if (prefData.startsWith("{")) {
-      var oldDeviceData = json.decode(prefData);
-      final migrateData = [oldDeviceData];
-      var encoded = json.encode(migrateData);
-      prefs.setString('deviceData', encoded);
-      prefData = encoded;
-    }
-
-    // print("Got prefs data ${prefData}");
-
     final List<DevicesModel> formattedData = [];
     final List existingDeviceData = json.decode(prefData);
 
     // print(existingDeviceData);
 
     existingDeviceData.forEach(
-      (data) {
+          (data) {
         formattedData.add(
           DevicesModel.fromJson(data),
         );
       },
     );
 
-    _deviceData = formattedData;
+    return formattedData;
+  }
+
+  Future<List<DevicesModel>> getDevicesData() async {
+    _deviceData = await loadDevices();
     notifyListeners();
 
-    return formattedData;
+    return _deviceData;
   }
 
   Future<DevicesModel> getDeviceData(int index) async {
@@ -326,5 +319,9 @@ class DevicesProvider extends ChangeNotifier {
       print("Error on promo" + error.toString());
       return null;
     }
+  }
+
+  findDevice(deviceId) {
+
   }
 }

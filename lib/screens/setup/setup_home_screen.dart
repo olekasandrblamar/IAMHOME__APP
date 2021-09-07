@@ -16,7 +16,7 @@ import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:package_info_plus/package_info_plus.dart';
+import 'package:package_info/package_info.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -185,8 +185,9 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   void _loadDeviceState(List<DevicesModel> deviceList) {
     var index = 0;
     deviceList.forEach((device) {
-      _getConnectionStatus(index++);
-      _getDeviceStatus(index++);
+      _getConnectionStatus(index);
+      _getDeviceStatus(index);
+      index++;
     });
   }
 
@@ -405,7 +406,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     );
 
     //Don't wait for the response
-    syncResponse.then((value) {
+    await syncResponse.then((value) {
       print('Syncing value $value');
     });
   }
@@ -418,6 +419,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     ) as bool;
 
     print('Connection Status $connectionStatus');
+    _processSyncData(index);
     setState(() {
       _connectionStatus = connectionStatus;
     });

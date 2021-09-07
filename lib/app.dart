@@ -1,11 +1,12 @@
 import 'dart:io';
-
+import 'dart:convert';
 import 'package:ceras/config/env.dart';
 import 'package:ceras/config/user_deviceinfo.dart';
 import 'package:ceras/providers/applanguage_provider.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/intro_screen.dart';
+import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/screens/splash_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -26,6 +27,8 @@ import 'data/language_data.dart';
 import 'router.dart' as router;
 import 'screens/setup/setup_home_screen.dart';
 import 'theme.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 // import 'config/locator.dart';
 
 class MyApp extends StatefulWidget {
@@ -39,6 +42,8 @@ class _MyAppState extends State<MyApp> {
 
   @override
   void initState() {
+    super.initState();
+
     _handleStartUpLogic();
 
     appLanguage.fetchLocale();
@@ -48,7 +53,7 @@ class _MyAppState extends State<MyApp> {
     await _initializeFlutterFire();
 
     final prefs = await SharedPreferences.getInstance();
-    final redeemCode = await prefs.getString('redeemCode');
+    final redeemCode = prefs.getString('redeemCode');
 
     if (redeemCode != null) {
       // final authUrl = await prefs.getString('authUrl');
@@ -62,12 +67,48 @@ class _MyAppState extends State<MyApp> {
 
     await updateDeviceInfo();
 
-    await PushNotificationsManager().init();
+    // await PushNotificationsManager(context).init();
+    await setupInteractedMessage();
 
     DynamicLinksSetup().initDynamicLinks();
     // initalizeBackgroundFetch();
 
     // await initPlatformState(false);
+  }
+
+  Future<void> setupInteractedMessage() async {
+    var _firebaseMessaging = FirebaseMessaging.instance;
+    var token = await _firebaseMessaging.getToken();
+
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('notificationToken', token);
+
+    //This is used when the notification is opened when the app is in the background
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      _handleMessage( message);
+    });
+
+    //This is called when the app is open and the message is received
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      //_handleMessage(message);
+    });
+
+  }
+
+  void _handleMessage(RemoteMessage message) async {
+    if (message.data['action'] == 'device_sync') {
+      var payload = json.decode(message.data['payload']) as Map<String,dynamic>;
+      var deviceId = payload['deviceId'].toString();
+      var devices = await DevicesProvider.loadDevices();
+      var deviceIndex = devices.indexWhere(
+            (element) => (element.watchInfo.deviceId == deviceId),
+      );
+
+      if (deviceIndex >=0 ) {
+        NavigationService.navigateTo(routes.SetupActiveRoute,arguments: {'deviceIndex': deviceIndex});
+      }
+    }
   }
 
   // Define an async function to initialize FlutterFire

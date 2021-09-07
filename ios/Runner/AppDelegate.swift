@@ -234,6 +234,33 @@ import BackgroundTasks
     upgradeHandler.appDelegate = self
     upgradeChannel.setStreamHandler(upgradeHandler)
 
+    //Event channel for upgrade
+    let upgradeChannel = FlutterEventChannel(name: "ceras.iamhome.mobile/device_upgrade", binaryMessenger: controller.binaryMessenger)
+
+    class UpgradeHandler: NSObject, FlutterStreamHandler {
+
+        weak var appDelegate:AppDelegate? = nil
+
+        func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
+            NSLog("Arguments \(arguments)")
+            let connectionInfo:String = (arguments as? [String: Any])?["connectionInfo"] as! String
+            do{
+                try appDelegate?.upgradeDevice(eventSink: events, connectionInfo: connectionInfo)
+            }catch{
+                events(FlutterEndOfEventStream)
+            }
+            return nil
+        }
+
+        func onCancel(withArguments arguments: Any?) -> FlutterError? {
+            return nil
+        }
+
+    }
+    let upgradeHandler = UpgradeHandler()
+    upgradeHandler.appDelegate = self
+    upgradeChannel.setStreamHandler(upgradeHandler)
+
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

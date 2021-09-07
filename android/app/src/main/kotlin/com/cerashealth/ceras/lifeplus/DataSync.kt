@@ -108,7 +108,7 @@ class DataSync {
                                     userProfile.lastUpdated = Date()
                                     currentContext.getSharedPreferences(MainActivity
                                             .SharedPrefernces, Context.MODE_PRIVATE).edit()
-                                            .putString(USER_PROFILE, gson.toJson(userProfile)).commit()
+                                            .putString(USER_PROFILE, gson.toJson(userProfile)).apply()
                                     response.body?.close()
                                     response.close()
                                 }catch (ex:Exception){
@@ -130,9 +130,8 @@ class DataSync {
             val userProfile = getUserInfo()
             oxygenLevels.forEach { it.userProfile =  userProfile}
             makePostRequest(gson.toJson(oxygenLevels.filter { it.oxygenLevel>0 }),type)
-            val lastMeasure = oxygenLevels.maxBy { it.measureTime }
-            lastMeasure?.let {
-                updateLastSync(type,lastMeasure = lastMeasure?.measureTime)
+            oxygenLevels.maxByOrNull { it.measureTime }?.let {
+                updateLastSync(type,lastMeasure = it.measureTime)
             }
         }
 
@@ -140,17 +139,15 @@ class DataSync {
             val userProfile = getUserInfo()
             bpLevels.forEach { it.userProfile =  userProfile}
             makePostRequest(gson.toJson(bpLevels.filter { it.distolic>0 }),"bloodpressure")
-            val lastMeasure = bpLevels.maxBy { it.measureTime }
-            lastMeasure?.let {
-                updateLastSync("bloodpressure",lastMeasure = lastMeasure?.measureTime)
+            bpLevels.maxByOrNull { it.measureTime }?.let {
+                updateLastSync("bloodpressure",lastMeasure = it.measureTime)
             }
         }
 
         fun uploadHeartRate(heartRates:List<HeartRateUpload>){
             makePostRequest(gson.toJson(heartRates.filter { it.heartRate>0 }),"heartrate")
-            val lastMeasure = heartRates.maxBy { it.measureTime }
-            lastMeasure?.let {
-                updateLastSync("heartrate",lastMeasure = lastMeasure?.measureTime)
+            heartRates.maxByOrNull { it.measureTime }?.let {
+                updateLastSync("heartrate",lastMeasure = it.measureTime)
             }
         }
 
@@ -167,14 +164,15 @@ class DataSync {
             MainActivity.currentContext?.let {context->
                 Log.i(TAG,"Updating last connected")
                 heartBeat.deviceInfo = context.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.userDeviceInfo", "")
+                heartBeat.notificationId = context.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.notificationToken", "")
                 val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
                 if(locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
                         && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION)==PackageManager.PERMISSION_GRANTED){
-                    val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-
-                    heartBeat.apply {
-                        latitude = location?.latitude
-                        longitude = location?.longitude
+                    locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)?.let {location->
+                        heartBeat.apply {
+                            latitude = location.latitude
+                            longitude = location.longitude
+                        }
                     }
                 }
             }
@@ -186,25 +184,22 @@ class DataSync {
 
         fun uploadStepInfo(stepInfo:List<StepUpload>){
             makePostRequest(gson.toJson(stepInfo),"steps")
-            val lastMeasure = stepInfo.maxBy { it.measureTime }
-            lastMeasure?.let {
-                updateLastSync("steps",lastMeasure = lastMeasure?.measureTime)
+            stepInfo.maxByOrNull { it.measureTime }?.let {
+                updateLastSync("steps",lastMeasure = it.measureTime)
             }
         }
 
         fun uploadDailySteps(dailySteps:List<DailyStepUpload>){
             makePostRequest(gson.toJson(dailySteps),"dailySteps")
-            val lastMeasure = dailySteps.maxBy { it.measureTime }
-            lastMeasure?.let {
-                updateLastSync("dailySteps",lastMeasure = lastMeasure?.measureTime)
+            dailySteps.maxByOrNull { it.measureTime }?.let {
+                updateLastSync("dailySteps",lastMeasure = it.measureTime)
             }
         }
 
         fun uploadCalories(calories:List<CaloriesUpload>){
             makePostRequest(gson.toJson(calories),"calories")
-            val lastMeasure = calories.maxBy { it.measureTime }
-            lastMeasure?.let {
-                updateLastSync("calories",lastMeasure = lastMeasure?.measureTime)
+            calories.maxByOrNull { it.measureTime }?.let {
+                updateLastSync("calories",lastMeasure = it.measureTime)
             }
         }
 
@@ -219,7 +214,7 @@ class DataSync {
 
                     val today = SimpleDateFormat("yyyy-MM-dd").format(Calendar.getInstance().time)
 
-                    Log.i(TAG,"Weather last update at ${lastUpdate} and today ${today}")
+                    Log.i(TAG,"Weather last update at $lastUpdate and today $today")
 
                     //If the last update is not today update the weather
                     if (lastUpdate != today) {
@@ -227,52 +222,53 @@ class DataSync {
                         val locationManager = context.getSystemService(Context.LOCATION_SERVICE) as LocationManager
                         if (locationManager.isProviderEnabled(LocationManager.NETWORK_PROVIDER)
                                 && ContextCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-                            val location = locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)
-
-                            val weatherUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?lat=${location?.latitude}&lon=${location?.longitude}&appid=4e33f6fdb2e35eeb5277b08ee0ff98bf&units=metric"
-                            var getReq = Request.Builder().url(weatherUrl)
+                            locationManager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER)?.let {location->
+                                Log.i(TAG," Calling weather at ${location.latitude} and ${location.longitude}")
+                                val weatherUrl = "https://pro.openweathermap.org/data/2.5/forecast/daily?lat=${location.latitude}&lon=${location.longitude}&appid=4e33f6fdb2e35eeb5277b08ee0ff98bf&units=metric"
+                                val getReq = Request.Builder().url(weatherUrl)
                                     .get()
                                     .build()
-                            okHttp.newCall(getReq).enqueue(object : Callback {
-                                override fun onFailure(call: Call, e: IOException) {
-                                    Log.e(TAG, "Failed calling ${call.request().url}", e)
-                                }
+                                okHttp.newCall(getReq).enqueue(object : Callback {
+                                    override fun onFailure(call: Call, e: IOException) {
+                                        Log.e(TAG, "Failed calling ${call.request().url}", e)
+                                    }
 
-                                override fun onResponse(call: Call, response: Response) {
-                                    Log.i(TAG, "Got response ${response.isSuccessful} for call ${call.request().url}")
-                                    try {
-                                        val weatherData = gson.fromJson<Map<String, Any>>(response.body?.string(), Map::class.java)
-                                        response.body?.close()
-                                        response.close()
-                                        val temps = (weatherData["list"] as List<Map<String, Any>>).map { weatherData ->
-                                            val utcMillis = weatherData["dt"] as Double
-                                            val tempData = weatherData["temp"] as Map<String, Any?>
-                                            val weatherDetails = weatherData["weather"] as List<Map<String, Any?>>
-                                            var weatherId = 0;
-                                            if (weatherDetails.isNotEmpty()) {
-                                                weatherId = (weatherDetails[0]["id"] as Double).toInt()
+                                    override fun onResponse(call: Call, response: Response) {
+                                        Log.i(TAG, "Got response ${response.isSuccessful} for call ${call.request().url}")
+                                        try {
+                                            val weatherData = gson.fromJson<Map<String, Any>>(response.body?.string(), Map::class.java)
+                                            response.body?.close()
+                                            response.close()
+                                            val temps = (weatherData["list"] as List<Map<String, Any>>).map {
+                                                val utcMillis = it["dt"] as Double
+                                                val tempData = it["temp"] as Map<String, Any?>
+                                                val weatherDetails = it["weather"] as List<Map<String, Any?>>
+                                                var weatherId = 0
+                                                if (weatherDetails.isNotEmpty()) {
+                                                    weatherId = (weatherDetails[0]["id"] as Double).toInt()
+                                                }
+                                                val weatherType = when (weatherId) {
+                                                    in 200..299 -> WeatherType.THUNDER
+                                                    in 300..599 -> WeatherType.RAIN
+                                                    in 600..699 -> WeatherType.SNOW
+                                                    800 -> WeatherType.SUNNY
+                                                    in 801..804 -> WeatherType.CLOUD
+                                                    else -> WeatherType.UNK
+                                                }
+                                                WeatherInfo(utcMillis = utcMillis.toLong(), minTemp = tempData["min"] as Double, maxTemp = tempData["max"] as Double, weatherType)
                                             }
-                                            val weatherType = when (weatherId) {
-                                                in 200..299 -> WeatherType.THUNDER
-                                                in 300..599 -> WeatherType.RAIN
-                                                in 600..699 -> WeatherType.SNOW
-                                                800 -> WeatherType.SUNNY
-                                                in 801..804 -> WeatherType.CLOUD
-                                                else -> WeatherType.UNK
-                                            }
-                                            WeatherInfo(utcMillis = utcMillis.toLong(), minTemp = tempData["min"] as Double, maxTemp = tempData["max"] as Double, weatherType)
-                                        }
 //                                        val deviceDataString = context.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.watchInfo", "")
 //                                        val deviceData = Gson().fromJson(deviceDataString, ConnectionInfo::class.java)
-                                        BaseDevice.getDeviceImpl(deviceType).syncWeather(temps)
-                                        //Update the last weather update
-                                        context.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).edit().putString("last_weather_update", today)
-                                    } catch (ex: Exception) {
-                                        Log.e(TAG, "Error while getting profile info ", ex)
+                                            BaseDevice.getDeviceImpl(deviceType).syncWeather(temps)
+                                            //Update the last weather update
+                                            context.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).edit().putString("last_weather_update", today).apply()
+                                        } catch (ex: Exception) {
+                                            Log.e(TAG, "Error while getting profile info ", ex)
+                                        }
                                     }
-                                }
 
-                            })
+                                })
+                            }
                         }
                     }
                 }

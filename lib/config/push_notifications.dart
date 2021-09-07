@@ -1,72 +1,70 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
+import 'package:provider/provider.dart';
+import 'package:ceras/providers/devices_provider.dart';
+import 'package:ceras/config/navigation_service.dart';
+import 'package:ceras/constants/route_paths.dart' as routes;
+import 'dart:convert';
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 
 class PushNotificationsManager {
-  PushNotificationsManager._();
-
-  factory PushNotificationsManager() => _instance;
-
-  static final PushNotificationsManager _instance =
-      PushNotificationsManager._();
-
   final FirebaseMessaging _firebaseMessaging = FirebaseMessaging.instance;
   static FirebaseInAppMessaging fiam = FirebaseInAppMessaging();
 
-  bool _initialized = false;
+  Future<void> initNotifications(BuildContext context) async {
+    String token = await _firebaseMessaging.getToken();
 
-  Future<void> init() async {
-    if (!_initialized) {
-      // For iOS request permission first.
-      // _firebaseMessaging.requestNotificationPermissions();
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString('notificationToken', token);
 
-      // _firebaseMessaging.configure(
-      //   onMessage: (Map<String, dynamic> message) async {
-      //     print("onMessage: $message");
-      //     // _handleNotification(message);
-      //   },
-      //   onLaunch: (Map<String, dynamic> message) async {
-      //     print("onLaunch: $message");
-      //     // _navigateToItemDetail(message);
-      //   },
-      //   onResume: (Map<String, dynamic> message) async {
-      //     print("onResume: $message");
-      //     // _navigateToItemDetail(message);
-      //   },
-      // );
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+      _handleMessage(context, message);
+    });
 
-      // For testing purposes print the Firebase Messaging token
-      // String token = await _firebaseMessaging.getToken();
-      // print("FirebaseMessaging token: $token");
+    FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+      _handleMessage(context, message);
+    });
 
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        RemoteNotification notification = message.notification;
-        AndroidNotification android = message.notification?.android;
+    // FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    //   RemoteNotification notification = message.notification;
+    //   AndroidNotification android = message.notification?.android;
 
-        if (notification != null && android != null) {}
-      });
-
-      FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-        print('A new onMessageOpenedApp event was published!');
-        print(message);
-      });
-
-      _initialized = true;
-    }
+    //   // If `onMessage` is triggered with a notification, construct our own
+    //   // local notification to show to users using the created channel.
+    //   if (notification != null && android != null) {
+    //     flutterLocalNotificationsPlugin.show(
+    //         notification.hashCode,
+    //         notification.title,
+    //         notification.body,
+    //         NotificationDetails(
+    //           android: AndroidNotificationDetails(
+    //             channel.id,
+    //             channel.name,
+    //             channel.description,
+    //             icon: android?.smallIcon,
+    //             // other properties...
+    //           ),
+    //         ));
+    //   }
+    // });
   }
 
-  Future<void> _handleNotification(
-    Map<dynamic, dynamic> message,
-  ) async {
-    var notificationData = message['data'] ?? message;
+  void _handleMessage(BuildContext context, RemoteMessage message) async {
+    if (message.data['action'] == 'device_sync') {
+      var payload = json.decode(message.data['payload']) as Map<String,dynamic>;
+      var devices = await DevicesProvider.loadDevices();
+      int deviceIndex = devices.indexWhere(
+            (element) => (element.watchInfo.deviceId == payload['deviceId'].toString()),
+      );
 
-    var view = notificationData['view'];
-
-    if (view != null) {
-      // Navigate to the create post view
-      if (view == 'create_post') {
-        // _navigationService.navigateTo(CreatePostViewRoute);
+      if (deviceIndex != null) {
+        await Navigator.of(context).pushNamed(
+          routes.SetupActiveRoute,
+          arguments: {'deviceIndex': deviceIndex},
+        );
       }
-      // If there's no view it'll just open the app on the first view
     }
   }
 }
