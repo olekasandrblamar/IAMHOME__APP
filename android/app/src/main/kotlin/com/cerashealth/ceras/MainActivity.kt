@@ -235,28 +235,6 @@ class MainActivity: FlutterFragmentActivity()  {
             })
     }
 
-    private fun connectUpgradeChannel(flutterEngine: FlutterEngine){
-        EventChannel(flutterEngine.dartExecutor.binaryMessenger, DEVICE_UPGRADE_EVENTS)
-            .setStreamHandler(object: StreamHandler{
-                var eventSink:EventChannel.EventSink? = null
-                override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
-                    eventSink = events
-                    val args = arguments as Map<String, String>
-                    val deviceDataString = args["connectionInfo"]
-                    Log.i(TAG,"got upgrade device data with arguments $deviceDataString")
-                    val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
-                    deviceId = deviceData.deviceId?:""
-                    BaseDevice.getDeviceImpl(deviceData.deviceType).upgradeDevice(eventSink,deviceData,MainActivity.currentContext!!)
-                }
-
-                override fun onCancel(arguments: Any?) {
-                    eventSink?.let {
-                        it.endOfStream()
-                    }
-                }
-            })
-    }
-
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
         //GeneratedPluginRegistrant.registerWith(flutterEngine);

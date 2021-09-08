@@ -234,33 +234,6 @@ import BackgroundTasks
     upgradeHandler.appDelegate = self
     upgradeChannel.setStreamHandler(upgradeHandler)
 
-    //Event channel for upgrade
-    let upgradeChannel = FlutterEventChannel(name: "ceras.iamhome.mobile/device_upgrade", binaryMessenger: controller.binaryMessenger)
-
-    class UpgradeHandler: NSObject, FlutterStreamHandler {
-
-        weak var appDelegate:AppDelegate? = nil
-
-        func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
-            NSLog("Arguments \(arguments)")
-            let connectionInfo:String = (arguments as? [String: Any])?["connectionInfo"] as! String
-            do{
-                try appDelegate?.upgradeDevice(eventSink: events, connectionInfo: connectionInfo)
-            }catch{
-                events(FlutterEndOfEventStream)
-            }
-            return nil
-        }
-
-        func onCancel(withArguments arguments: Any?) -> FlutterError? {
-            return nil
-        }
-
-    }
-    let upgradeHandler = UpgradeHandler()
-    upgradeHandler.appDelegate = self
-    upgradeChannel.setStreamHandler(upgradeHandler)
-
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
@@ -376,7 +349,7 @@ import BackgroundTasks
         let deviceType = getDeviceType()
         NSLog("Syncing data for device \(deviceType)")
         UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
-        if(deviceType! == AppDelegate.WATCH_TYPE){
+        if(connectionData.deviceType == AppDelegate.WATCH_TYPE){
             self.getWatchDevice()?.syncData(connectionInfo: connectionData)
         }
 //        else if(deviceType! == AppDelegate.BAND_TYPE){
@@ -434,7 +407,7 @@ import BackgroundTasks
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         NSLog("Getting device info ")
         let deviceType = getDeviceType()
-        if(deviceType! == AppDelegate.WATCH_TYPE){
+        if(deviceType == AppDelegate.WATCH_TYPE){
             self.getWatchDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
         }
 //        else if(deviceType! == AppDelegate.BAND_TYPE){
@@ -445,8 +418,7 @@ import BackgroundTasks
     private func getConnectionStatus(result:@escaping FlutterResult,connectionInfo:String) throws {
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         NSLog("Getting device info ")
-        let deviceType = getDeviceType()
-        if(deviceType! == AppDelegate.WATCH_TYPE){
+        if(connectionData.deviceType == AppDelegate.WATCH_TYPE){
             self.getWatchDevice()?.getConnectionStatus(result: result)
         }
 //        else if(deviceType! == AppDelegate.BAND_TYPE){
@@ -463,7 +435,7 @@ import BackgroundTasks
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         NSLog("Getting device info ")
         let deviceType = getDeviceType()
-        if(deviceType! == AppDelegate.WATCH_TYPE){
+        if(connectionData.deviceType == AppDelegate.WATCH_TYPE){
             self.getWatchDevice()?.upgradeDevice(connectionInfo: connectionData, eventSink: events)
         }
 //        else if(deviceType! == AppDelegate.BAND_TYPE){
@@ -499,6 +471,7 @@ struct ConnectionInfo:Codable {
     var connected:Bool? = false
     var deviceFound:Bool? = false
     var message:String?
+    var deviceType:String?
     var additionalInformation: [String:String] = [:]
     var batteryStatus:String? = nil
     var upgradeAvailable:Bool = false

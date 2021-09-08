@@ -197,6 +197,8 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
               settings: const RouteSettings(name: routes.SetupConnectedRoute),
             ),
                 (Route<dynamic> route) => false);
+      }else{
+        showErrorDialog(context, wifiStatus.message);
       }
 
 

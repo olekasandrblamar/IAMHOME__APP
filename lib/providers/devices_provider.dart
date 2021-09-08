@@ -141,19 +141,26 @@ class DevicesProvider extends ChangeNotifier {
     var macAddress = '';
     await prefs.reload();
 
-    if (Platform.isIOS) {
-      macAddress = prefs.getString('device_macid');
-    } else {
-      var watchInfo =
-          json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>;
-      macAddress = WatchModel.fromJson(watchInfo).deviceId;
+    var deviceData = await getDevicesData();
+
+    // if (Platform.isIOS) {
+    //   macAddress = prefs.getString('device_macid');
+    // } else {
+    //   var watchInfo =
+    //       json.decode(prefs.getString('watchInfo')) as Map<String, dynamic>;
+    //   macAddress = WatchModel.fromJson(watchInfo).deviceId;
+    // }
+
+    if(deviceData.isNotEmpty){
+      macAddress = deviceData[0].watchInfo.deviceId;
     }
 
     return macAddress.replaceAll(":", "");
   }
 
   Future<Map<String, dynamic>> _getDeviceRequest() async {
-    return {"devices": await _getMacId()};
+    var devices = await getDevicesData();
+    return {"devices": devices.map((e) => e.watchInfo.deviceId.replaceAll(":", "")).first};
   }
 
   Future<List<Tracker>> getDeviceTrackers() async {

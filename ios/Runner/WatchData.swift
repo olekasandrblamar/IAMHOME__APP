@@ -443,7 +443,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
 
             
             NSLog("Device connected \(deviceName ?? "No name ") - \(uuid)")
-            var connectionInfo = ConnectionInfo(deviceId: uuid, deviceName: deviceName, connected: true, deviceFound: self.deviceFound, message: "connected")
+            var connectionInfo = ConnectionInfo(deviceId: uuid, deviceName: deviceName, connected: true, deviceFound: self.deviceFound, message: "connected",deviceType: AppDelegate.WATCH_TYPE)
             connectionInfo.additionalInformation["factoryName"] = device!.description
             connectionInfo.additionalInformation["macId"] = macId
             if(uuid != nil){

@@ -92,9 +92,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
   Future<void> _initData() async {
     try {
-      final deviceTrackers =
-          await Provider.of<DevicesProvider>(context, listen: false)
-              .getDeviceTrackers();
+      final deviceTrackers = await Provider.of<DevicesProvider>(context, listen: false).getDeviceTrackers();
 
       print(deviceTrackers);
 

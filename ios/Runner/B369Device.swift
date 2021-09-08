@@ -13,6 +13,7 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
     var device:ICDevice? = nil
     var deviceId:String? = nil
     var connectionResult:FlutterResult? = nil
+    var wifiResult:FlutterResult? = nil
     var deviceFound = false
     var deviceConnected = false
     var initComplete = false
@@ -52,6 +53,7 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
     
     func connectWifi(result:@escaping FlutterResult,ssid:String,password:String){
         NSLog("Conecting to \(ssid) with password \(password)")
+        self.wifiResult = result
         ICDeviceManager.shared()?.getSettingManager()?.configWifi(self.device, ssid: "shyamalapati", password: password, callback: { (callBackCode) in
             NSLog("Got connection response \(callBackCode.rawValue)")
         })
@@ -59,7 +61,18 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
     
     func onReceiveConfigWifiResult(_ device: ICDevice!, state: ICConfigWifiState) {
         NSLog("Got Wifi config result \(state.rawValue) for device \(device.macAddr)")
+        switch state {
+        case ICConfigWifiState.wifiConnectFail:
+            self.wifiResult?(generateResponse(deviceId: device.macAddr, message:"Failed to connect",connected: false))
+        case ICConfigWifiState.passwordFail:
+            self.wifiResult?(generateResponse(deviceId: device.macAddr, message:"Invalid password",connected: false))
+        case ICConfigWifiState.success:
+            self.wifiResult?(generateResponse(deviceId: device.macAddr, message: "success",connected: true))
+        default:
+            NSLog("Got Wifi config result \(state.rawValue) for device \(device.macAddr)")
+        }
     }
+    
     
     func onBleState(_ state: ICBleState) {
         NSLog("Got Ble state \(state)")
@@ -73,6 +86,17 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
         NSLog("Init finish status \(bSuccess)")
         if(bSuccess){
             self.initComplete = true
+        }
+    }
+    
+    private func generateResponse(deviceId:String,message:String,connected: Bool) -> String{
+        let connectionInfo = ConnectionInfo(deviceId: deviceId, deviceName: "", connected: connected, deviceFound: self.deviceFound, message: message)
+        do{
+            let deviceJson = try JSONEncoder().encode(connectionInfo)
+            let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+            return connectionInfoData
+        }catch{
+            return "Error"
         }
     }
     
@@ -112,7 +136,7 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
                 NSLog("Got call back code \(callbackCode) for \(device?.macAddr)")
                 self.deviceConnected = true
                 self.device = device
-                let connectionInfo = ConnectionInfo(deviceId: device?.macAddr, deviceName: deviceInfo.name, connected: true, deviceFound: self.deviceFound, message: "connected")
+                let connectionInfo = ConnectionInfo(deviceId: device?.macAddr, deviceName: deviceInfo.name, connected: true, deviceFound: self.deviceFound, message: "connected",deviceType: AppDelegate.SCALE_TYPE)
                 do{
                     let deviceJson = try JSONEncoder().encode(connectionInfo)
                     let connectionInfoData = String(data: deviceJson, encoding: .utf8)!

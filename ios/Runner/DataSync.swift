@@ -10,18 +10,18 @@ import CoreLocation
 import Firebase
 
 class CustomEncoder: JSONEncoder{
-    
+
     override init() {
         super.init()
         var isoFormatter = DateFormatter()
         isoFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         self.dateEncodingStrategy = .formatted(isoFormatter)
     }
-    
+
 }
 
 class DataSync {
-    
+
     private static let baseUrl = "https://tracker.ceras.io/api/v1/device/"
     private static let encoder = CustomEncoder()
     private static let LAST_UPDATES = "flutter.last_sync_updates"
@@ -32,13 +32,13 @@ class DataSync {
     private static let weatherDataDelegate = WeatherDataDeletage()
     static let MAC_ADDRESS_NAME = "flutter.device_macid"
     static let BASE_URL =  "flutter.apiBaseUrl"
-    
+
     static let dayFormat:DateFormatter = {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyy-MM-dd"
         return formatter
     }()
-    
+
     //Custom firebase analatycs properties
     private static let HR_UPDATE = "user_last_hr_sent"
     private static let BP_UPDATE = "user_last_bp_sent"
@@ -47,19 +47,19 @@ class DataSync {
     private static let OXYGEN_UPDATE = "user_last_o2_sent"
     private static let TEMP_UPDATE = "user_last_temp_sent"
     private static let DATA_UPDATE = "user_last_data_sent"
-    
+
     static let LAST_WEATHER_UPDATE = "last_weather_update"
 
     static func getBaseUrl() -> String{
         NSLog("Getting base URL \(UserDefaults.standard.string(forKey: DataSync.BASE_URL))")
         return UserDefaults.standard.object(forKey: DataSync.BASE_URL) as! String
     }
-    
+
     static func updateFireBase(property:String){
         Analytics.setUserProperty(Date().timeIntervalSince1970.description, forName: property)
         Analytics.setUserProperty(Date().timeIntervalSince1970.description, forName: DATA_UPDATE)
     }
-    
+
     static func uploadHeartRateInfo(heartRates:[HeartRateUpload]){
         do{
             makePostApiCall(url: "heartrate", postData: try encoder.encode(heartRates))
@@ -72,23 +72,23 @@ class DataSync {
             if(latestValue != nil){
                 changeLastUpdated(type: "HEART_RATE",latestMeasureTime: latestValue!.measureTime)
             }
-            
+
         }catch{
             NSLog("Error while Uploading Data \(error)")
         }
     }
-    
+
     static func uploadDailySteps(dailySteps:StepUpload){
         do{
             makePostApiCall(url: "dailySteps", postData: try encoder.encode([dailySteps]))
             updateFireBase(property: STEP_UPDATE)
             changeLastUpdated(type: "DAILY_STEPS",latestMeasureTime: dailySteps.measureTime)
-            
+
         }catch{
             NSLog("Error while Uploading Data \(error)")
         }
     }
-    
+
     static func uploadTemparatures(temps:[TemperatureUpload]){
         do{
             makePostApiCall(url: "temperature", postData: try encoder.encode(temps))
@@ -105,7 +105,7 @@ class DataSync {
             NSLog("Error while Uploading Data \(error)")
         }
     }
-    
+
     static func uploadSteps(steps:[StepUpload]){
         do{
             makePostApiCall(url: "steps", postData: try encoder.encode(steps))
@@ -144,7 +144,7 @@ class DataSync {
             NSLog("Error while Uploading Data \(error)")
         }
     }
-    
+
     static func uploadBloodPressure(bpLevels: [BpUpload]){
         do{
             let userInfo = getUserInfo()
@@ -167,7 +167,7 @@ class DataSync {
             NSLog("Error while Uploading Data \(error)")
         }
     }
-    
+
     static func changeLastUpdated(type:String?,latestMeasureTime:Date){
         NSLog("Setting last updates for \(type)")
         var lastUpdates = UserDefaults.standard.string(forKey: DataSync.LAST_UPDATES)
@@ -191,20 +191,20 @@ class DataSync {
             NSLog("Error updating last sync for \(type) with \(error)")
         }
         NSLog("completed setting last updates for \(type)")
-        
+
     }
-    
+
     static func readUserInfo(){
-        
+
     }
-    
+
     static func sendHeartBeat(heartBeat:HeartBeat){
         do{
             var updatedHBeat = heartBeat
             updatedHBeat.background = BACKGROUND
             updatedHBeat.deviceInfo = UserDefaults.standard.string(forKey: "flutter.userDeviceInfo")
             updatedHBeat.notificationId = UserDefaults.standard.string(forKey: "flutter.notificationToken")
-            
+
             let locationManager = CLLocationManager()
             if(CLLocationManager.authorizationStatus() == .authorizedWhenInUse ||
             CLLocationManager.authorizationStatus() == .authorizedAlways) {
@@ -212,17 +212,17 @@ class DataSync {
                 updatedHBeat.latitude = location?.coordinate.latitude
                 updatedHBeat.longitude = location?.coordinate.longitude
             }
-            
+
             updateFireBase(property: DATA_UPDATE)
-            
-            
+
+
             makePostApiCall(url: "heartbeat", postData: try encoder.encode(updatedHBeat))
             checkAndLoadUserProfile()
         }catch{
             NSLog("Error while Uploading Data \(error)")
         }
     }
-    
+
     static func uploadCalories(calories:CaloriesUpload){
         do{
             makePostApiCall(url: "calories", postData: try encoder.encode([calories]))
@@ -230,12 +230,12 @@ class DataSync {
             NSLog("Error while Uploading Data \(error)")
         }
     }
-    
+
     static func loadWeatherData(){
-        
+
         let currentDay = dayFormat.string(from: Date())
         let lastWetherUpdate = UserDefaults.standard.object(forKey: DataSync.LAST_WEATHER_UPDATE) as! String?
-        
+
         //If the last weather update is null or it is not updated today update it
 //        if(lastWetherUpdate == nil || lastWetherUpdate! != currentDay){
             var lat:Double = 0
@@ -247,7 +247,7 @@ class DataSync {
                 lat = location?.coordinate.latitude ?? 0
                 lng = location?.coordinate.longitude ?? 0
             }
-            
+
             //if the lat and lnlg are not null use them
             if(lat != 0 && lng != 0){
                 let weatherUrl = URL(string: "https://pro.openweathermap.org/data/2.5/forecast/daily?lat=\(lat)&lon=\(lng)&appid=4e33f6fdb2e35eeb5277b08ee0ff98bf&units=metric")!
@@ -263,7 +263,7 @@ class DataSync {
             }
 //        }
     }
-    
+
     private static func checkAndLoadUserProfile(){
         UserDefaults.standard.synchronize()
         let userProfileData = UserDefaults.standard.object(forKey: DataSync.USER_PROFILE_DATA) as! String?
@@ -308,7 +308,7 @@ class DataSync {
             NSLog("Error loading profile \(error)")
         }
     }
-    
+
     static func getUserInfo() -> UserProfile?{
         let userProfileData = UserDefaults.standard.object(forKey: DataSync.USER_PROFILE_DATA) as! String?
         NSLog("Getting user info with \(userProfileData)")
@@ -321,7 +321,7 @@ class DataSync {
         }
         return nil
     }
-    
+
     private static func makePostApiCall(url:String,postData:Data){
         let completeUrl = URL(string: getBaseUrl()+url)!
         var request = URLRequest(url: completeUrl)
@@ -331,16 +331,16 @@ class DataSync {
         request.setValue("application/json", forHTTPHeaderField: "Content-Type")
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         request.setValue(BACKGROUND.description , forHTTPHeaderField: "BACKGROUND_STATUS")
-        
+
         //create a background task and execute it
         let config = URLSessionConfiguration.background(withIdentifier: url)
         let session = URLSession(configuration: config, delegate: urlDeletegate, delegateQueue: nil)
         let task = session.dataTask(with: request)
-        
+
         task.resume()
 
     }
-    
+
 }
 
 
@@ -375,7 +375,7 @@ class WeatherDataDeletage: NSObject,URLSessionTaskDelegate, URLSessionDataDelega
                             return WeatherData(time: date , minTemp: tempData["min"] as! Double, maxTemp: tempData["max"] as! Double,weatherType: weatherType)
                         }
                         AppDelegate.watchData?.loadWeather(tempDataList: temperatures)
-                        
+
                         //Update the local property for last wether update
                         UserDefaults.standard.set(DataSync.dayFormat.string(from: Date()), forKey: DataSync.LAST_WEATHER_UPDATE)
                     }
@@ -386,18 +386,18 @@ class WeatherDataDeletage: NSObject,URLSessionTaskDelegate, URLSessionDataDelega
             }
         }
     }
-    
+
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if(error != nil){
             let currentUrl = task.currentRequest?.url?.absoluteString
             print("Got error for \(currentUrl) with \(error)")
         }
     }
-            
+
 }
 
 class UserDataUrlDelegate: NSObject,URLSessionTaskDelegate,URLSessionDataDelegate{
-    
+
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         let httpReseponse = dataTask.response as! HTTPURLResponse
         if(httpReseponse.statusCode == 200){
@@ -417,36 +417,36 @@ class UserDataUrlDelegate: NSObject,URLSessionTaskDelegate,URLSessionDataDelegat
             }
         }
     }
-    
+
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if(error != nil){
             let currentUrl = task.currentRequest?.url?.absoluteString
             print("Got error for \(currentUrl) with \(error)")
         }
     }
-    
+
 }
 
 class CustomUrlDelegate: NSObject,URLSessionTaskDelegate,URLSessionDelegate,URLSessionDataDelegate{
-    
-   
+
+
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         let currentUrl = dataTask.currentRequest?.url?.absoluteString
         let httpResponse = dataTask.response as! HTTPURLResponse
         print("Got response for \(currentUrl) with status \(httpResponse.statusCode) \(String.init(data: data, encoding: .utf8))")
     }
-    
+
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if(error != nil){
             let currentUrl = task.currentRequest?.url?.absoluteString
             print("Got error for \(currentUrl) with \(error)")
         }
     }
-    
-    
-    
-    
-    
+
+
+
+
+
 }
 
 struct WeatherData{
@@ -467,9 +467,9 @@ struct UserProfile:Codable{
     var heightInCm:Int
     var lastUpdate:String? = nil
     var offSets:[Offset]? = []
-    
+
     func getOffsetValue(readingTypes : [String]) -> Int {
-        
+
         if(offSets != nil){
             let targetOffset = offSets?.first(where: { (Offset) -> Bool in
                 readingTypes.map { (type) -> String in
@@ -480,9 +480,9 @@ struct UserProfile:Codable{
                 return Int(targetOffset!.offset)
             }
         }
-        
+
         return 0
-        
+
     }
 }
 
@@ -496,7 +496,7 @@ struct TemperatureUpload:Codable {
     let celsius: Double
     let fahrenheit:Double
     let deviceId:String
-    
+
     init(measureTime:Date,celsius:Double,deviceId:String) {
         self.measureTime = measureTime
         self.celsius = celsius
@@ -508,7 +508,7 @@ struct TemperatureUpload:Codable {
 struct HeartBeat:Codable{
     let deviceId:String?
     let macAddress:String?
-    let notificationId:String?
+    var notificationId:String? = nil
     var deviceInfo:String? = nil
     var background:Bool = false
     var longitude:Double? = nil
