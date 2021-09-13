@@ -236,6 +236,32 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     );
   }
 
+  void _loadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => SimpleDialog(
+        title: Text(
+          'Title',
+          textAlign: TextAlign.center,
+        ),
+        // backgroundColor: Colors.blueAccent,
+        elevation: 4,
+        shape: StadiumBorder(
+          side: BorderSide(
+            style: BorderStyle.none,
+          ),
+        ),
+        children: <Widget>[
+          Text(
+            'Description',
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
