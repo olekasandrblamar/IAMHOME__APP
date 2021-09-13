@@ -167,6 +167,8 @@ PODS:
   - sqflite (0.0.1):
     - Flutter
     - FMDB (~> 2.7.2)
+  - system_setting (0.1.1):
+    - Flutter
   - url_launcher (0.0.1):
     - Flutter
 
@@ -190,6 +192,7 @@ DEPENDENCIES:
   - permission_handler (from `.symlinks/plugins/permission_handler/ios`)
   - shared_preferences (from `.symlinks/plugins/shared_preferences/ios`)
   - sqflite (from `.symlinks/plugins/sqflite/ios`)
+  - system_setting (from `.symlinks/plugins/system_setting/ios`)
   - url_launcher (from `.symlinks/plugins/url_launcher/ios`)
 
 SPEC REPOS:
@@ -254,6 +257,8 @@ EXTERNAL SOURCES:
     :path: ".symlinks/plugins/shared_preferences/ios"
   sqflite:
     :path: ".symlinks/plugins/sqflite/ios"
+  system_setting:
+    :path: ".symlinks/plugins/system_setting/ios"
   url_launcher:
     :path: ".symlinks/plugins/url_launcher/ios"
 
@@ -297,8 +302,9 @@ SPEC CHECKSUMS:
   Reachability: 33e18b67625424e47b6cde6d202dce689ad7af96
   shared_preferences: af6bfa751691cdc24be3045c43ec037377ada40d
   sqflite: 4001a31ff81d210346b500c55b17f4d6c7589dd0
+  system_setting: 92cc591ade5113a6fd57ed0702dc5eaa9f5337e5
   url_launcher: 6fef411d543ceb26efce54b05a0a40bfd74cbbef
 
 PODFILE CHECKSUM: e3229786c14a0924bda2f3dc6e228464e4f7adb9
 
-COCOAPODS: 1.10.2
+COCOAPODS: 1.10.1

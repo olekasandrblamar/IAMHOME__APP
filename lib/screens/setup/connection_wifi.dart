@@ -13,6 +13,7 @@ import 'package:ceras/models/watchdata_model.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:system_setting/system_setting.dart';
 
 class ConnectionWifiScreen extends StatefulWidget {
   final Map<dynamic, dynamic> routeArgs;
@@ -170,13 +171,15 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
       }
       _formKey.currentState.save();
 
-
       final connectionInfo = prefs.getString('watchInfo');
-
 
       final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
         'connectWifi',
-        <String, dynamic>{'connectionInfo': connectionInfo,'network':_wifiName,'password':_password},
+        <String, dynamic>{
+          'connectionInfo': connectionInfo,
+          'network': _wifiName,
+          'password': _password
+        },
       ) as String;
       print('Wifi status $connectionStatus');
 
@@ -184,23 +187,20 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
         json.decode(connectionStatus) as Map<String, dynamic>,
       );
 
-
-      if(wifiStatus.connected){
-        Navigator.of(context).pushAndRemoveUntil(
+      if (wifiStatus.connected) {
+        await Navigator.of(context).pushAndRemoveUntil(
             MaterialPageRoute(
-              builder: (BuildContext context) =>
-                  SetupConnectedScreen(
-                    routeArgs: {
-                      'deviceData': _devicesModel,
-                    },
-                  ),
+              builder: (BuildContext context) => SetupConnectedScreen(
+                routeArgs: {
+                  'deviceData': _devicesModel,
+                },
+              ),
               settings: const RouteSettings(name: routes.SetupConnectedRoute),
             ),
-                (Route<dynamic> route) => false);
-      }else{
+            (Route<dynamic> route) => false);
+      } else {
         showErrorDialog(context, wifiStatus.message);
       }
-
 
       setState(() {
         _isLoading = true;
@@ -289,10 +289,14 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
               autofocus: false,
               validator: (String value) {
                 if (value.isEmpty) {
-                  return 'Please enter email.';
+                  return 'Please Enter Wifi Name.';
                 }
 
                 return null;
+              },
+              onTap: () {
+                print("I'm here!!!");
+                SystemSetting.goto(SettingTarget.WIFI);
               },
               // onChanged: onChangePhoneNumberInput,
             ),
