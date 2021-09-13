@@ -562,15 +562,22 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      FittedBox(
-                        child: Text(
-                          (deviceData?.deviceMaster != null &&
-                                  deviceData?.deviceMaster['displayName'] !=
-                                      null)
-                              ? deviceData?.deviceMaster['displayName']
-                              : '',
-                          style: AppTheme.title,
-                        ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          FittedBox(
+                            child: Text(
+                              (deviceData?.deviceMaster != null &&
+                                      deviceData?.deviceMaster['displayName'] !=
+                                          null)
+                                  ? deviceData?.deviceMaster['displayName']
+                                  : '',
+                              style: AppTheme.title,
+                            ),
+                          ),
+                          Icon(Icons.wifi)
+                        ],
                       ),
                       SizedBox(height: 10),
                       FittedBox(
