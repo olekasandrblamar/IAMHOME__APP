@@ -64,18 +64,13 @@ class _PrivacyScreenState extends State<PrivacyScreen> {
   void _openBrowser() {
     final browser = InAppBrowser();
     browser.openFile(
-      // url: 'https://flutter.io',
       assetFilePath: "assets/privacy/index.html",
-      // options: InAppBrowserClassOptions(
-      // inAppWebViewGroupOptions: InAppWebViewGroupOptions(
-      // crossPlatform: InAppWebViewOptions(
-      // useShouldOverrideUrlLoading: true,
-      // useOnLoadResource: true,
-      // transparentBackground: true,
-      // applicationNameForUserAgent: 'Ceras',
-      // ),
-      // ),
-      // ),
+      options: InAppBrowserClassOptions(
+        crossPlatform: InAppBrowserOptions(
+          toolbarTopBackgroundColor: Colors.white,
+          hideUrlBar: true,
+        ),
+      ),
     );
   }
 

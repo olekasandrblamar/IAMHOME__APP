@@ -13,7 +13,6 @@ import 'package:ceras/models/watchdata_model.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:system_setting/system_setting.dart';
 
 class ConnectionWifiScreen extends StatefulWidget {
   final Map<dynamic, dynamic> routeArgs;
@@ -304,28 +303,24 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
               height: 25,
             ),
             TextFormField(
-              style: TextStyle(
-                fontSize: 24,
-              ),
-              decoration: _inputDecoration('Wifi Name', 'Wifi Name'),
-              controller: _wifiController,
-              enabled: false,
-              keyboardType: TextInputType.text,
-              textInputAction: TextInputAction.next,
-              autofocus: false,
-              validator: (String value) {
-                if (value.isEmpty) {
-                  return 'Please Enter Wifi Name.';
-                }
+                style: TextStyle(
+                  fontSize: 24,
+                ),
+                decoration: _inputDecoration('Wifi Name', 'Wifi Name'),
+                controller: _wifiController,
+                enabled: false,
+                keyboardType: TextInputType.text,
+                textInputAction: TextInputAction.next,
+                autofocus: false,
+                validator: (String value) {
+                  if (value.isEmpty) {
+                    return 'Please Enter Wifi Name.';
+                  }
 
-                return null;
-              },
-              onTap: () {
-                print("I'm here!!!");
-                SystemSetting.goto(SettingTarget.WIFI);
-              },
-              // onChanged: onChangePhoneNumberInput,
-            ),
+                  return null;
+                }
+                // onChanged: onChangePhoneNumberInput,
+                ),
             SizedBox(
               height: 25,
             ),
