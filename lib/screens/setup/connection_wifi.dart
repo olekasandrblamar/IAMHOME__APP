@@ -36,7 +36,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<ConnectivityResult> _connectivitySubscription;
 
-  final TextEditingController _wifiController = TextEditingController();
+  // final TextEditingController _wifiController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
   final FocusNode _wifiFocusNode = FocusNode();
@@ -49,7 +49,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
   void initState() {
     if (_isInit) {
       // _usernameController.text = null;
-      _wifiController.text = null;
+      // _wifiController = null;
       _passwordController.text = null;
     }
 
@@ -80,7 +80,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
 
     super.dispose();
 
-    _wifiController.dispose();
+    // _wifiController.dispose();
     _passwordController.dispose();
 
     // _usernameFocusNode.dispose();
@@ -115,7 +115,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     if (wifiName != null) {
       setState(() {
         _wifiName = wifiName;
-        _wifiController.text = wifiName;
+        // _wifiController = wifiName;
       });
     }
 
@@ -302,25 +302,37 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
             SizedBox(
               height: 25,
             ),
-            TextFormField(
-                style: TextStyle(
-                  fontSize: 24,
-                ),
-                decoration: _inputDecoration('Wifi Name', 'Wifi Name'),
-                controller: _wifiController,
-                enabled: false,
-                keyboardType: TextInputType.text,
-                textInputAction: TextInputAction.next,
-                autofocus: false,
-                validator: (String value) {
-                  if (value.isEmpty) {
-                    return 'Please Enter Wifi Name.';
-                  }
+            // TextFormField(
+            //     style: TextStyle(
+            //       fontSize: 24,
+            //     ),
+            //     decoration: _inputDecoration('Wifi Name', 'Wifi Name'),
+            //     controller: _wifiController,
+            //     enabled: false,
+            //     keyboardType: TextInputType.text,
+            //     textInputAction: TextInputAction.next,
+            //     autofocus: false,
+            //     validator: (String value) {
+            //       if (value.isEmpty) {
+            //         return 'Please Enter Wifi Name.';
+            //       }
 
-                  return null;
-                }
-                // onChanged: onChangePhoneNumberInput,
+            //       return null;
+            //     }
+            //     // onChanged: onChangePhoneNumberInput,
+            //     ),
+            Row(
+              children: [
+                Icon(Icons.wifi),
+                Text(_wifiName ?? 'WIFI Name'),
+                Flexible(
+                  child: IconButton(
+                    icon: Icon(Icons.chevron_right),
+                    onPressed: () {},
+                  ),
                 ),
+              ],
+            ),
             SizedBox(
               height: 25,
             ),

@@ -576,7 +576,11 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
                               style: AppTheme.title,
                             ),
                           ),
-                          Icon(Icons.wifi)
+                          // Icon(Icons.wifi) :
+                          // Icon(
+                          //   Icons.wifi_off,
+                          //   color: Colors.red,
+                          // )
                         ],
                       ),
                       SizedBox(height: 10),
