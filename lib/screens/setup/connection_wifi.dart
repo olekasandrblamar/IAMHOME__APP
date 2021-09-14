@@ -261,6 +261,32 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     );
   }
 
+  void showWrongPasswordDialog(BuildContext context, String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Wrong Password'),
+        content: Text(
+          'The network and password combinations entered are incorrect. Can you retry one more time again!',
+        ),
+        actions: <Widget>[
+          RaisedButton(
+            child: Text('Retry'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          ),
+          RaisedButton(
+            child: Text('Continue'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
