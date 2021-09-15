@@ -160,7 +160,7 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<Map<String, dynamic>> _getDeviceRequest() async {
     var devices = await getDevicesData();
-    return {"devices": devices.map((e) => e.watchInfo.deviceId.replaceAll(":", "")).first};
+    return {"deviceList": devices.map((e) => e.watchInfo.deviceId).join(",")};
   }
 
   Future<List<Tracker>> getDeviceTrackers() async {
