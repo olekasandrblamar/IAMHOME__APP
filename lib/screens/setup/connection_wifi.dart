@@ -34,6 +34,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
   String _connectionStatus = 'Unknown';
   String _wifiName, _password = '';
   bool _showPassword = true;
+  bool _initialSetup = false;
 
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<ConnectivityResult> _connectivitySubscription;
@@ -56,12 +57,17 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     }
 
     DevicesModel deviceModel;
+    bool initialSetup = true;
 
     if (widget.routeArgs != null) {
       deviceModel = widget.routeArgs['deviceData'];
+      if(widget.routeArgs['initialSetup'] != null) {
+        initialSetup = widget.routeArgs['initialSetup'];
+      }
     }
     setState(() {
       _devicesModel = deviceModel;
+      _initialSetup = initialSetup;
     });
 
     initConnectivity();
@@ -174,6 +180,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
 
       final connectionInfo = prefs.getString('watchInfo');
 
+      _loadingDialog();
       final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
         'connectWifi',
         <String, dynamic>{
@@ -182,23 +189,17 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
           'password': _password
         },
       ) as String;
+
       print('Wifi status $connectionStatus');
 
       final wifiStatus = WatchModel.fromJson(
         json.decode(connectionStatus) as Map<String, dynamic>,
       );
+      //Hide the loading screen
+      Navigator.of(context).pop();
 
       if (wifiStatus.connected) {
-        await Navigator.of(context).pushAndRemoveUntil(
-            MaterialPageRoute(
-              builder: (BuildContext context) => SetupConnectedScreen(
-                routeArgs: {
-                  'deviceData': _devicesModel,
-                },
-              ),
-              settings: const RouteSettings(name: routes.SetupConnectedRoute),
-            ),
-            (Route<dynamic> route) => false);
+        sendToSuccessScreen(true);
       } else {
         showErrorDialog(context, wifiStatus.message);
       }
@@ -217,24 +218,51 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     });
   }
 
+  void sendToSuccessScreen(bool connectivityStatus) async{
+    _devicesModel.wifiConnected = connectivityStatus;
+    if(_initialSetup) {
+      await Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (BuildContext context) =>
+                SetupConnectedScreen(
+                  routeArgs: {
+                    'deviceData': _devicesModel,
+                  },
+                ),
+            settings: const RouteSettings(name: routes.SetupConnectedRoute),
+          ),
+          (Route<dynamic> route) => false);
+    }else{
+      await Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(
+            builder: (BuildContext context) => SetupHomeScreen(),
+            settings: const RouteSettings(name: routes.SetupHomeRoute),
+          ),
+          (Route<dynamic> route) => false);
+    }
+  }
+
   void showErrorDialog(BuildContext context, String message) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('An Error Occurred!'),
-        content: Text(
-          message ?? 'Could not authenticate you. Please try again later.',
-        ),
-        actions: <Widget>[
-          FlatButton(
-            child: Text('Okay'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          )
-        ],
-      ),
-    );
+    if(message=='Invalid Password'){
+      showWrongPasswordDialog(context);
+    }
+    // showDialog(
+    //   context: context,
+    //   builder: (ctx) => AlertDialog(
+    //     title: Text('An Error Occurred!'),
+    //     content: Text(
+    //       message ?? 'Could not authenticate you. Please try again later.',
+    //     ),
+    //     actions: <Widget>[
+    //       FlatButton(
+    //         child: Text('Okay'),
+    //         onPressed: () {
+    //           Navigator.of(ctx).pop();
+    //         },
+    //       )
+    //     ],
+    //   ),
+    // );
   }
 
   void _loadingDialog() {
@@ -255,7 +283,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
         ),
         children: <Widget>[
           Text(
-            'Description',
+            'Getting wifi',
             textAlign: TextAlign.center,
           ),
         ],
@@ -263,7 +291,36 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     );
   }
 
-  void showWrongPasswordDialog(BuildContext context, String message) {
+  void showWifiFailure(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text("Can't find network"),
+        content: Text(
+          'Unable to find the wireless network to connect. Can you try again !',
+        ),
+        actions: <Widget>[
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+            child: Text('Retry'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              Navigator.of(ctx).pop();
+
+              //Send to Done screen
+              sendToSuccessScreen(false);
+            },
+            child: Text('Continue'),
+          )
+        ],
+      ),
+    );
+  }
+
+  void showWrongPasswordDialog(BuildContext context) {
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -283,12 +340,8 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
             onPressed: () {
               Navigator.of(ctx).pop();
 
-              Navigator.of(context).pushAndRemoveUntil(
-                  MaterialPageRoute(
-                    builder: (BuildContext context) => SetupHomeScreen(),
-                    settings: const RouteSettings(name: routes.SetupHomeRoute),
-                  ),
-                  (Route<dynamic> route) => false);
+              //Send to Done screen
+              sendToSuccessScreen(false);
             },
           )
         ],

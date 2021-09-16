@@ -8,10 +8,12 @@ part 'devices_model.g.dart';
 class DevicesModel {
   final Map<dynamic, dynamic> deviceMaster;
   WatchModel watchInfo;
+  bool wifiConnected = false;
 
   DevicesModel({
     this.deviceMaster,
     this.watchInfo,
+    this.wifiConnected,
   });
 
   factory DevicesModel.fromJson(Map<String, dynamic> json) =>

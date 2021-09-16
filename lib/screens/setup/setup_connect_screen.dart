@@ -273,7 +273,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   void _redirectTo() {
     Navigator.of(context).pop();
     print('Has wifi ${_deviceData.deviceMaster['wifi']}');
-    if(_deviceData.deviceMaster['wifi'] = false) {
+    if(_deviceData.deviceMaster['wifi']==false) {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (BuildContext context) =>
