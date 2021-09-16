@@ -6,7 +6,6 @@ import 'package:ceras/providers/applanguage_provider.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/intro_screen.dart';
-import 'package:ceras/screens/setup/connection_wifi.dart';
 import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/screens/splash_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -202,7 +201,7 @@ class _MyAppState extends State<MyApp> {
 
   Widget _buildHomeWidget(AuthProvider auth) {
     if (auth.isAuth) {
-      return ConnectionWifiScreen();
+      return SetupHomeScreen();
     } else {
       return FutureBuilder(
         future: Future.wait([
@@ -211,9 +210,9 @@ class _MyAppState extends State<MyApp> {
         builder: (ctx, authResultSnapshot) {
           if (authResultSnapshot.connectionState == ConnectionState.done) {
             if (authResultSnapshot.data[0]) {
-              return ConnectionWifiScreen();
+              return IntroScreen();
             } else {
-              return ConnectionWifiScreen();
+              return SetupHomeScreen();
             }
           } else {
             return SplashScreen();
