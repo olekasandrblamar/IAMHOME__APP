@@ -61,7 +61,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
 
     if (widget.routeArgs != null) {
       deviceModel = widget.routeArgs['deviceData'];
-      if(widget.routeArgs['initialSetup'] != null) {
+      if (widget.routeArgs['initialSetup'] != null) {
         initialSetup = widget.routeArgs['initialSetup'];
       }
     }
@@ -218,21 +218,20 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     });
   }
 
-  void sendToSuccessScreen(bool connectivityStatus) async{
+  void sendToSuccessScreen(bool connectivityStatus) async {
     _devicesModel.wifiConnected = connectivityStatus;
-    if(_initialSetup) {
+    if (_initialSetup) {
       await Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-            builder: (BuildContext context) =>
-                SetupConnectedScreen(
-                  routeArgs: {
-                    'deviceData': _devicesModel,
-                  },
-                ),
+            builder: (BuildContext context) => SetupConnectedScreen(
+              routeArgs: {
+                'deviceData': _devicesModel,
+              },
+            ),
             settings: const RouteSettings(name: routes.SetupConnectedRoute),
           ),
           (Route<dynamic> route) => false);
-    }else{
+    } else {
       await Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
             builder: (BuildContext context) => SetupHomeScreen(),
@@ -243,7 +242,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
   }
 
   void showErrorDialog(BuildContext context, String message) {
-    if(message=='Invalid Password'){
+    if (message == 'Invalid Password') {
       showWrongPasswordDialog(context);
     }
     // showDialog(
@@ -270,21 +269,26 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
       context: context,
       barrierDismissible: false,
       builder: (ctx) => SimpleDialog(
-        title: Text(
-          'Title',
-          textAlign: TextAlign.center,
-        ),
+        // title: Text(
+        //   'Title',
+        //   textAlign: TextAlign.center,
+        // ),
         // backgroundColor: Colors.blueAccent,
         elevation: 4,
-        shape: StadiumBorder(
-          side: BorderSide(
-            style: BorderStyle.none,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.all(
+            Radius.circular(8.0),
           ),
         ),
         children: <Widget>[
+          Center(child: CircularProgressIndicator()),
+          SizedBox(
+            height: 16,
+          ),
           Text(
             'Getting wifi',
             textAlign: TextAlign.center,
+            style: AppTheme.subtitle,
           ),
         ],
       ),
@@ -300,20 +304,40 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
           'Unable to find the wireless network to connect. Can you try again !',
         ),
         actions: <Widget>[
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-            child: Text('Retry'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.of(ctx).pop();
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Theme.of(context).primaryColor,
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  child: Text('Retry'),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Theme.of(context).primaryColor,
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  child: Text('Continue'),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
 
-              //Send to Done screen
-              sendToSuccessScreen(false);
-            },
-            child: Text('Continue'),
+                    //Send to Done screen
+                    sendToSuccessScreen(false);
+                  },
+                )
+              ],
+            ),
           )
         ],
       ),
@@ -329,20 +353,37 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
           'The network and password combinations entered are incorrect. Can you retry one more time again!',
         ),
         actions: <Widget>[
-          RaisedButton(
-            child: Text('Retry'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-            },
-          ),
-          RaisedButton(
-            child: Text('Continue'),
-            onPressed: () {
-              Navigator.of(ctx).pop();
-
-              //Send to Done screen
-              sendToSuccessScreen(false);
-            },
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Theme.of(context).primaryColor,
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  child: Text('Retry'),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: Theme.of(context).primaryColor,
+                    textStyle: TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                  child: Text('Continue'),
+                  onPressed: () {
+                    Navigator.of(ctx).pop();
+                  },
+                )
+              ],
+            ),
           )
         ],
       ),
