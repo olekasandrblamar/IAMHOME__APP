@@ -6,6 +6,7 @@ import 'package:ceras/providers/applanguage_provider.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/intro_screen.dart';
+import 'package:ceras/screens/setup/connection_wifi.dart';
 import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/screens/splash_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
@@ -80,33 +81,33 @@ class _MyAppState extends State<MyApp> {
     var _firebaseMessaging = FirebaseMessaging.instance;
     var token = await _firebaseMessaging.getToken();
 
-
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('notificationToken', token);
 
     //This is used when the notification is opened when the app is in the background
     FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-      _handleMessage( message);
+      _handleMessage(message);
     });
 
     //This is called when the app is open and the message is received
     FirebaseMessaging.onMessage.listen((RemoteMessage message) {
       //_handleMessage(message);
     });
-
   }
 
   void _handleMessage(RemoteMessage message) async {
     if (message.data['action'] == 'device_sync') {
-      var payload = json.decode(message.data['payload']) as Map<String,dynamic>;
+      var payload =
+          json.decode(message.data['payload']) as Map<String, dynamic>;
       var deviceId = payload['deviceId'].toString();
       var devices = await DevicesProvider.loadDevices();
       var deviceIndex = devices.indexWhere(
-            (element) => (element.watchInfo.deviceId == deviceId),
+        (element) => (element.watchInfo.deviceId == deviceId),
       );
 
-      if (deviceIndex >=0 ) {
-        NavigationService.navigateTo(routes.SetupActiveRoute,arguments: {'deviceIndex': deviceIndex});
+      if (deviceIndex >= 0) {
+        NavigationService.navigateTo(routes.SetupActiveRoute,
+            arguments: {'deviceIndex': deviceIndex});
       }
     }
   }
@@ -201,7 +202,7 @@ class _MyAppState extends State<MyApp> {
 
   Widget _buildHomeWidget(AuthProvider auth) {
     if (auth.isAuth) {
-      return SetupHomeScreen();
+      return ConnectionWifiScreen();
     } else {
       return FutureBuilder(
         future: Future.wait([
@@ -210,9 +211,9 @@ class _MyAppState extends State<MyApp> {
         builder: (ctx, authResultSnapshot) {
           if (authResultSnapshot.connectionState == ConnectionState.done) {
             if (authResultSnapshot.data[0]) {
-              return IntroScreen();
+              return ConnectionWifiScreen();
             } else {
-              return SetupHomeScreen();
+              return ConnectionWifiScreen();
             }
           } else {
             return SplashScreen();

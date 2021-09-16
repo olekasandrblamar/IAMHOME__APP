@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/screens/setup/setup_connected_screen.dart';
+import 'package:ceras/screens/setup/setup_home_screen.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
 import 'package:ceras/theme.dart';
@@ -13,6 +14,7 @@ import 'package:ceras/models/watchdata_model.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:system_settings/system_settings.dart';
 
 class ConnectionWifiScreen extends StatefulWidget {
   final Map<dynamic, dynamic> routeArgs;
@@ -280,6 +282,13 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
             child: Text('Continue'),
             onPressed: () {
               Navigator.of(ctx).pop();
+
+              Navigator.of(context).pushAndRemoveUntil(
+                  MaterialPageRoute(
+                    builder: (BuildContext context) => SetupHomeScreen(),
+                    settings: const RouteSettings(name: routes.SetupHomeRoute),
+                  ),
+                  (Route<dynamic> route) => false);
             },
           )
         ],
@@ -347,20 +356,34 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
             //     }
             //     // onChanged: onChangePhoneNumberInput,
             //     ),
-            Row(
-              children: [
-                Icon(Icons.wifi),
-                Text(_wifiName ?? 'WIFI Name'),
-                Flexible(
-                  child: IconButton(
-                    icon: Icon(Icons.chevron_right),
-                    onPressed: () {},
-                  ),
+            GestureDetector(
+              onTap: () {
+                SystemSettings.wifi();
+              },
+              child: Container(
+                padding: EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                    border: Border.all(color: Colors.black38),
+                    borderRadius: BorderRadius.all(Radius.circular(8.0))),
+                width: double.infinity,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    Icon(Icons.wifi),
+                    FittedBox(
+                      child: Text(
+                        _wifiName ?? 'WIFI Name',
+                        style: AppTheme.title,
+                      ),
+                    ),
+                    Icon(Icons.chevron_right),
+                  ],
                 ),
-              ],
+              ),
             ),
             SizedBox(
-              height: 25,
+              height: 30,
             ),
             TextFormField(
                 style: TextStyle(
