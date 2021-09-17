@@ -328,16 +328,17 @@ class DataCallBack : SimpleDeviceCallback {
         } else if (flag == GlobalValue.BLOODPRESUURE__STATUS){
             if(obj!=null){
                 val bpValues = obj.toString()
-                var systolic = Integer.parseInt(bpValues.substring(0,2),16)
-                var diastolic = Integer.parseInt(bpValues.substring(2,4),16)
+                var diastolic = Integer.parseInt(bpValues.substring(0,2),16)
+                var systolic = Integer.parseInt(bpValues.substring(2,4),16)
 
                 DataSync.getUserInfo()?.let {
+                    Log.d(WatchDevice.TAG,"Got profile ${it.offSets}")
                     systolic+=it.getOffsetValue(listOf("systolic"))
                     diastolic+=it.getOffsetValue(listOf("distolic","diastolic"))
                 }
 
-                Log.d(WatchDevice.TAG,"Got String $obj systolic  ${ Integer.parseInt(bpValues.substring(0,2),16)} to $systolic diastolic ${Integer.parseInt(bpValues.substring(2,4),16)} $diastolic")
-                HardSdk.getInstance().setBloodPressureAndHeart(diastolic,systolic,0)
+                Log.d(WatchDevice.TAG,"Got String $obj systolic  ${ Integer.parseInt(bpValues.substring(2,4),16)} to $systolic diastolic ${Integer.parseInt(bpValues.substring(0,2),16)} $diastolic")
+                HardSdk.getInstance().setBloodPressureAndHeart(systolic,diastolic,0)
 
             }
 

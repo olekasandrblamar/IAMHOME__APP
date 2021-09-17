@@ -20,6 +20,10 @@ class UserProfile{
 class Offset{
     var trackerName:String? = null
     var offset:Double = 0.0
+
+    override fun toString(): String {
+        return "$trackerName = $offset"
+    }
 }
 
 data class TemperatureUpload(val measureTime: Date, var celsius:Double, val fahrenheit:Double, val deviceId:String)
