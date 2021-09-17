@@ -11,6 +11,15 @@ class UserProfile{
     var heightInCm = 0
     var sex:String = ""
     var lastUpdated = Date()
+
+    var offSets = listOf<Offset>()
+
+    fun getOffsetValue(readingTypes:List<String>):Int = offSets.find { readingTypes.contains(it.trackerName) }?.offset?.toInt()?:0
+}
+
+class Offset{
+    var trackerName:String? = null
+    var offset:Double = 0.0
 }
 
 data class TemperatureUpload(val measureTime: Date, var celsius:Double, val fahrenheit:Double, val deviceId:String)
