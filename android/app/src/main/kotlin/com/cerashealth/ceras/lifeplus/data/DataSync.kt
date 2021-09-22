@@ -26,17 +26,17 @@ class Offset{
     }
 }
 
-data class TemperatureUpload(val measureTime: Date, var celsius:Double, val fahrenheit:Double, val deviceId:String)
+data class TemperatureUpload(val measureTime: Date, var celsius:Double, val fahrenheit:Double, val deviceId:String,var userProfile:UserProfile? = null)
 
-data class StepUpload(val measureTime: Date, var steps:Int, val deviceId:String,val calories:Int=0, val distance:Float=0.toFloat())
+data class StepUpload(val measureTime: Date, var steps:Int, val deviceId:String,val calories:Int=0, val distance:Float=0.toFloat(),var userProfile:UserProfile? = null)
 
-data class DailyStepUpload(val measureTime: Date, var steps:Int, val calories:Int, val distance:Float,val deviceId:String)
+data class DailyStepUpload(val measureTime: Date, var steps:Int, val calories:Int, val distance:Float,val deviceId:String,var userProfile:UserProfile? = null)
 
-data class CaloriesUpload(val measureTime: Date, var calories:Int, val deviceId:String)
+data class CaloriesUpload(val measureTime: Date, var calories:Int, val deviceId:String,var userProfile:UserProfile? = null)
 
 data class BpUpload(val measureTime: Date, var distolic:Int, var systolic:Int, val deviceId:String, var userProfile:UserProfile? = null)
 
-data class HeartRateUpload(val measureTime: Date, var heartRate:Int, val deviceId:String)
+data class HeartRateUpload(val measureTime: Date, var heartRate:Int, val deviceId:String,var userProfile:UserProfile? = null)
 
 data class WeightData(val measureTime:Date, var lbs:Double, var kgs:Double, val deviceId:String)
 

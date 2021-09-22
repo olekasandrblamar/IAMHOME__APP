@@ -459,7 +459,7 @@
 					"$(PROJECT_DIR)/HardSDK",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 1.2.4;
+				MARKETING_VERSION = 1.2.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",
@@ -619,7 +619,7 @@
 					"$(PROJECT_DIR)/HardSDK",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 1.2.4;
+				MARKETING_VERSION = 1.2.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",
@@ -668,7 +668,7 @@
 					"$(PROJECT_DIR)/HardSDK",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 1.2.4;
+				MARKETING_VERSION = 1.2.5;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",

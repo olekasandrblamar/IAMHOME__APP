@@ -177,7 +177,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                         if(heartRateVal != nil){
                             let heartRate = Int(heartRateVal!)!
                             let returnData = HeartRateReading(heartRate: heartRate)
-                            let heartRateUpload = HeartRateUpload(measureTime: Date(), heartRate: returnData.heartRate, deviceId: getMacId())
+                            let heartRateUpload = HeartRateUpload(measureTime: Date(), heartRate: returnData.heartRate, deviceId: getMacId(),userProfile: DataSync.getUserInfo())
                             DataSync.uploadHeartRateInfo(heartRates: [heartRateUpload])
                             let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
                             NSLog("Returning HR data \(returnDataValue)")
@@ -508,13 +508,13 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             
             //Only upload valid values and ignore 0 values
             if( distolic != nil && distolic != 0 && measureDate != nil && measureDate!.timeIntervalSince1970 > 10000){
-                bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic ?? 0, systolic: systolic ?? 0, deviceId: deviceId))
+                bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic ?? 0, systolic: systolic ?? 0, deviceId: deviceId, userProfile: DataSync.getUserInfo()))
             }
             if(oxygenLevel != nil && oxygenLevel != 0 && measureDate != nil && measureDate!.timeIntervalSince1970 > 10000){
-                oxygenUploads.append(OxygenLevelUpload(measureTime: measureDate!,oxygenLevel: oxygenLevel!,deviceId:deviceId))
+                oxygenUploads.append(OxygenLevelUpload(measureTime: measureDate!,oxygenLevel: oxygenLevel!,deviceId:deviceId, userProfile: DataSync.getUserInfo()))
             }
             if(heartRate != nil && heartRate != 0 && measureDate != nil && measureDate!.timeIntervalSince1970 > 10000){
-                heartRateUploads.append(HeartRateUpload(measureTime: measureDate!, heartRate: heartRate!, deviceId: deviceId))
+                heartRateUploads.append(HeartRateUpload(measureTime: measureDate!, heartRate: heartRate!, deviceId: deviceId, userProfile: DataSync.getUserInfo()))
             }
         }
         DataSync.uploadHeartRateInfo(heartRates: heartRateUploads)
@@ -538,13 +538,13 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             stepList = hourlySteps.map { (stepMap) -> StepUpload in
                 let (stepMinutes, stepsCount) = stepMap
                 let stepTime = Calendar.current.date(byAdding: .minute,value: Int(stepMinutes)!, to: stepDate!)
-                return StepUpload(measureTime: stepTime!, steps: Int(stepsCount)!, deviceId: deviceId, calories: 0, distance: 0)
+                return StepUpload(measureTime: stepTime!, steps: Int(stepsCount)!, deviceId: deviceId, calories: 0, distance: 0, userProfile: DataSync.getUserInfo())
                 
             }
         }
         let dailyStepsUpload = StepUpload(measureTime: stepDate!, steps: dailySteps!, deviceId: deviceId, calories: calories!
-                                          , distance: distance!)
-        let dailyCaloriesUpload = CaloriesUpload(measureTime: stepDate!, calories: calories!, deviceId: deviceId)
+                                          , distance: distance!, userProfile: DataSync.getUserInfo())
+        let dailyCaloriesUpload = CaloriesUpload(measureTime: stepDate!, calories: calories!, deviceId: deviceId, userProfile: DataSync.getUserInfo())
         DataSync.uploadCalories(calories: dailyCaloriesUpload)
         DataSync.uploadSteps(steps: stepList)
         DataSync.uploadDailySteps(dailySteps: dailyStepsUpload)
