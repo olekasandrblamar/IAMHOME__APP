@@ -496,23 +496,26 @@ struct TemperatureUpload:Codable {
     let celsius: Double
     let fahrenheit:Double
     let deviceId:String
+    var userProfile:UserProfile?
     
     init(measureTime:Date,celsius:Double,deviceId:String) {
         self.measureTime = measureTime
         self.celsius = celsius
         self.fahrenheit = (celsius*9/5)+32
         self.deviceId = deviceId
+        self.userProfile = DataSync.getUserInfo()
     }
 }
 
 struct HeartBeat:Codable{
     let deviceId:String?
     let macAddress:String?
-    let notificationId:String?
+    var notificationId:String?
     var deviceInfo:String? = nil
     var background:Bool = false
     var longitude:Double? = nil
     var latitude:Double? = nil
+    var userProfile:UserProfile?
 }
 
 struct BpUpload:Codable {
@@ -536,16 +539,19 @@ struct StepUpload:Codable {
     let deviceId:String
     var calories:Int
     var distance:Float
+    var userProfile:UserProfile?
 }
 
 struct CaloriesUpload:Codable{
    let measureTime:Date
    let calories:Int
    let deviceId:String
+   var userProfile:UserProfile?
 }
 
 struct HeartRateUpload:Codable{
     let measureTime:Date
     let heartRate:Int
     let deviceId:String
+    var userProfile:UserProfile?
 }

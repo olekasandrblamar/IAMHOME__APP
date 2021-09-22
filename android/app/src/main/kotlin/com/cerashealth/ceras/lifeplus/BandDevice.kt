@@ -131,7 +131,7 @@ class BandDevice :BaseDevice(){
                 }
 
                 override fun onFailed(ex: WriteBleException?) {
-                    Log.e(BandDevice.TAG, "Temp set failed ${ex}")
+                    Log.e(TAG, "Temp set failed ${ex}")
                     setStatus(next)
                 }
             })
@@ -351,7 +351,11 @@ class BandDevice :BaseDevice(){
                                 }.map {
                                     val celsius: Double = it!!.tmpHandler / 100.0
                                     val fahrenheit = (celsius * 9 / 5) + 32
-                                    TemperatureUpload(deviceId = currentDeviceId!!, measureTime = getDateFromTime(it.year, it.month, it.day, it.hour, it.minute), fahrenheit = fahrenheit, celsius = celsius)
+                                    TemperatureUpload(deviceId = currentDeviceId!!,
+                                        measureTime = getDateFromTime(it.year, it.month, it.day, it.hour, it.minute),
+                                        fahrenheit = fahrenheit,
+                                        celsius = celsius,
+                                        userProfile = DataSync.getUserInfo())
                                 }
                                 DataSync.uploadTemperature(tempUploads)
                             }

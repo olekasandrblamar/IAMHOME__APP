@@ -143,7 +143,9 @@ class DataCallBack : SimpleDeviceCallback {
             if(TimeZone.getDefault().inDaylightTime(tempCal.time))
                 tempCal.add(Calendar.HOUR, -1)
 //            Log.d(WatchDevice.TAG,"Time ${tempCal}")
-            TemperatureUpload(measureTime = tempCal.time, deviceId = MainActivity.deviceId, celsius = celsius.toDouble(), fahrenheit = fahrenheit.toDouble())
+            TemperatureUpload(measureTime = tempCal.time, deviceId = MainActivity.deviceId, celsius = celsius.toDouble(),
+                fahrenheit = fahrenheit.toDouble(),
+                userProfile = DataSync.getUserInfo())
         }
         DataSync.uploadTemperature(tempUploads.filter { it.celsius > 0 && it.measureTime.time > 10000 })
     }
@@ -155,7 +157,7 @@ class DataCallBack : SimpleDeviceCallback {
         val dateFormat = SimpleDateFormat("yyyy-MM-dd")
         //Last three days data
         (0..2).forEach {
-            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), it);
+            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), it)
             val stepInfos = HardSdk.getInstance().queryOneDayStep(beforeTime)
             Log.i(WatchDevice.TAG, "step info ${Gson().toJson(stepInfos)}")
             if(stepInfos.dates!=null) {
@@ -225,7 +227,7 @@ class DataCallBack : SimpleDeviceCallback {
             //heart rate sync is complete
         } else if (flag == GlobalValue.SLEEP_SYNC_OK) {
             Log.i(WatchDevice.TAG, "onCallbackResult: Sleep Sync")
-            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0);
+            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), 0)
             try {
                 val sleepModel = HardSdk.getInstance().queryOneDaySleepInfo(beforeTime)
                 Log.i(WatchDevice.TAG, "Got sleep info ${Gson().toJson(sleepModel)}")
@@ -282,7 +284,11 @@ class DataCallBack : SimpleDeviceCallback {
                 WatchDevice.isTestingTemp = false
                 val celsius = tempStatus.bodyTemperature
                 val fahrenheit = (celsius*9/5)+32
-                val upload = TemperatureUpload(measureTime = Calendar.getInstance().time, deviceId = MainActivity.deviceId, celsius = celsius.toDouble(), fahrenheit = fahrenheit.toDouble())
+                val upload = TemperatureUpload(measureTime = Calendar.getInstance().time,
+                    deviceId = MainActivity.deviceId,
+                    celsius = celsius.toDouble(),
+                    fahrenheit = fahrenheit.toDouble(),
+                    userProfile = DataSync.getUserInfo())
                 DataSync.uploadTemperature(listOf(upload))
                 WatchDevice.eventSink?.let {
                     it.success(Gson().toJson(mapOf("celsius" to celsius,"fahrenheit" to fahrenheit,"countDown" to 0)))
@@ -354,7 +360,7 @@ class DataCallBack : SimpleDeviceCallback {
         val userInfo = DataSync.getUserInfo()
         val gender = if(userInfo?.sex?.toLowerCase()=="male") 0 else 1
         (0..2).forEach {
-            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), it);
+            val beforeTime = TimeUtil.getBeforeDay(TimeUtil.getCurrentDate(), it)
             Log.i(WatchDevice.TAG, "Loading BP info")
             try {
                 HardSdk.getInstance().queryOneDayBP(beforeTime).forEach {
