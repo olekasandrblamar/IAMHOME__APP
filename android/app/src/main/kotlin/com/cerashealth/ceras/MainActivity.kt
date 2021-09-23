@@ -195,9 +195,6 @@ class MainActivity: FlutterFragmentActivity()  {
                         eventSink = events
                         val args = arguments as Map<String, String>
                         Log.d(TAG,"arguments $args ")
-//                        val deviceDataString = arguments.toString()
-//                        Log.d(TAG,"Got device data string $deviceDataString")
-//                        val readingRequest = Gson().fromJson<Map<String,String>>(deviceDataString,Map::class.java)
                         val deviceType = args["deviceType"]
                         val readingType = args["readingType"]
                         readDataFromDevice(eventSink!!,ReadingRequest().apply {

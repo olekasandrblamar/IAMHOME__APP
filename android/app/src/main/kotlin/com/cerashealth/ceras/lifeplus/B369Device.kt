@@ -131,6 +131,20 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
             }
         }
 
+        //Wait for 30 seconds and send an error response back if it is not connected
+        GlobalScope.launch {
+            delay(40000)
+            try {
+                B369Device.result?.let {
+                    MainActivity.currentActivity?.runOnUiThread {
+                        sendWifiResponse(message = "Config failed", connected = false)
+                    }
+                }
+            }catch (e:Exception){
+                Log.e(TAG,"Error while sending connect")
+            }
+        }
+
     }
 
     private fun updateServerUrl(serverUrl:String){
@@ -285,29 +299,34 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
         Log.d(TAG, "Got debug data ")
     }
 
+    private fun sendWifiResponse(message:String, connected:Boolean){
+        try {
+            result?.success(ConnectionInfo.createResponse(message = message, connected = connected))
+            result = null
+        }catch (e:Exception){
+            Log.e(TAG,"Error while sending response ",e)
+        }
+    }
+
     override fun onReceiveConfigWifiResult(device: ICDevice?, wifiStatus: ICConfigWifiState?) {
         Log.i(TAG,"Got wifi result for ${device?.macAddr} is $wifiStatus")
         result?.let {
             Log.i(TAG,"Result is not null sending the response back")
             when(wifiStatus){
                 ICConfigWifiState.ICConfigWifiStateSuccess ->{
-                    result?.success(ConnectionInfo.createResponse(message = "Wifi Connected",connected = true))
-                    result = null
+                    sendWifiResponse(message = "Wifi Connected",connected = true)
                 }
                 ICConfigWifiState.ICConfigWifiStateWifiConnectFail ->{
                     Log.i(TAG,"Sending wifi fail ")
-                    result?.success(ConnectionInfo.createResponse(message = "Config failed",connected = false))
-                    result = null
+                    sendWifiResponse(message = "Config failed",connected = false)
                 }
                 ICConfigWifiState.ICConfigWifiStateFail -> {
                     Log.i(TAG,"Sending wifi fail ")
-                    result?.success(ConnectionInfo.createResponse(message = "Config failed",connected = false))
-                    result = null
+                    sendWifiResponse(message = "Config failed",connected = false)
                 }
                 ICConfigWifiState.ICConfigWifiStatePasswordFail -> {
                     Log.i(TAG,"Sending wifi password fail ")
-                    result?.success(ConnectionInfo.createResponse(message = "Invalid Password",connected = false))
-                    result = null
+                    sendWifiResponse(message = "Invalid Password",connected = false)
                 }
                 ICConfigWifiState.ICConfigWifiStateWifiConnecting -> {
                     Log.d(TAG,"Connecting ${device?.macAddr}")

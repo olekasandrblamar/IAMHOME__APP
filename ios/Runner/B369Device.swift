@@ -45,6 +45,10 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
         self.connectionResult = result
         if(initComplete){
             ICDeviceManager.shared()?.scanDevice(self)
+            //Stop scanning after 20 seconds
+            DispatchQueue.main.asyncAfter(deadline: .now() + 20) {
+                self.sendResponse(result: result)
+            }
         }else{
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
                 ICDeviceManager.shared()?.scanDevice(self)
@@ -62,6 +66,9 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
         ICDeviceManager.shared()?.getSettingManager()?.setServerUrl(self.device, server: serverBaseUrl, callback: { (callBackCode) in
             NSLog("Got Server URL \(callBackCode.rawValue)")
         })
+        DispatchQueue.main.asyncAfter(deadline: .now() + 20) {
+            self.sendWifiResponse(device: self.device,message: "Config failed",connected: false)
+        }
     }
     
     func onReceiveDeviceInfo(_ device: ICDevice!, deviceInfo: ICDeviceInfo!) {
@@ -72,19 +79,26 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
         NSLog("Got Wifi config result \(state.rawValue) for device \(String(device.macAddr))")
         switch state {
         case ICConfigWifiState.wifiConnectFail:
-            self.wifiResult?(generateResponse(deviceId: device.macAddr, message:"Config failed",connected: false))
+            sendWifiResponse(device: device,message: "Config failed",connected: false)
         case ICConfigWifiState.passwordFail:
-            self.wifiResult?(generateResponse(deviceId: device.macAddr, message:"Invalid password",connected: false))
+            sendWifiResponse(device: device,message: "Invalid password",connected: false)
         case ICConfigWifiState.success:
-            self.wifiResult?(generateResponse(deviceId: device.macAddr, message: "success",connected: true))
+            sendWifiResponse(device: device,message: "success",connected: true)
         case ICConfigWifiState.fail:
-            self.wifiResult?(generateResponse(deviceId: device.macAddr, message:"Config failed",connected: false))
+            sendWifiResponse(device: device,message: "Config failed",connected: false)
         case ICConfigWifiState.wifiConnecting:
             NSLog("Connecting to wifi")
         case ICConfigWifiState.serverConnecting:
             NSLog("Connecting to device")
         default:
-            self.wifiResult?(generateResponse(deviceId: device.macAddr, message:"Config failed",connected: false))
+            sendWifiResponse(device: device,message: "Config failed",connected: false)
+        }
+    }
+    
+    func sendWifiResponse(device: ICDevice!,message: String,connected: Bool){
+        if(self.wifiResult != nil){
+            self.wifiResult?(generateResponse(deviceId: device.macAddr, message:message,connected: connected))
+            self.wifiResult = nil
         }
     }
     
@@ -157,6 +171,22 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
     
     func onReceiveMeasureStepData(_ device: ICDevice!, step: ICMeasureStep, data: NSObject!) {
         NSLog("Got measure data \(step) \(data)")
+    }
+    
+    func sendResponse(result:@escaping FlutterResult){
+        ICDeviceManager.shared().stopScan()
+        if(!self.deviceConnected){
+            var connectionInfo = ConnectionInfo(deviceId: "", deviceName: "", connected: false, deviceFound: self.deviceFound, message: "failed")
+            do{
+                let deviceJson = try JSONEncoder().encode(connectionInfo)
+                let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                NSLog("Sending Connection data back from device info \(connectionInfoData)")
+                result(connectionInfoData)
+            }catch{
+                NSLog("Error getting watch info from getDeviceInfo \(error)")
+                result("Error")
+            }
+        }
     }
 
     
