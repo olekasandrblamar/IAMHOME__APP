@@ -6,7 +6,7 @@ import 'dart:isolate';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ceras/config/background_fetch.dart';
+// import 'package:ceras/config/background_fetch.dart';
 
 import 'app.dart';
 import 'config/env.dart';
@@ -24,6 +24,7 @@ void main() {
       authUrl: 'https://auth.dev.myceras.com',
       accessKey: 'nya8zsihq17z1w6x',
       secret: 'k72eiwnca95u33er0ujb',
+      serverUrl: 'https://device.dev.myceras.com'
     );
 
     assert(env != null);

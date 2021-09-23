@@ -17,6 +17,7 @@ import BackgroundTasks
     static var BAND_TYPE = "BAND"
     static var DEVICE_TYPE_KEY = "flutter.deviceType"
     static let BG_SYNC_TASK = "com.cerashealth.datasync"
+    static let SERVER_BASE_URL =  "flutter.serverBaseUrl"
   
 //    override func application(_ application: UIApplication,
 //                              performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void){
@@ -28,15 +29,31 @@ import BackgroundTasks
     }
     
     private func processBackgroundData(){
-        let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
-        NSLog("Got connection info in background from \(connectionInfo)")
+//        let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
+//        NSLog("Got connection info in background from \(connectionInfo)")
+//        do{
+//            if(connectionInfo != nil){
+//                try self.syncData(connectionInfo: connectionInfo!)
+//            }
+//        }catch{
+//            NSLog("Error while syncing data")
+//        }
         do{
-            if(connectionInfo != nil){
-                try self.syncData(connectionInfo: connectionInfo!)
+            
+            let deviceListString = UserDefaults.standard.string(forKey: "flutter.deviceData")
+            if(deviceListString != nil){
+                NSLog("Got device list string in background \(deviceListString!)")
+                let deviceList = try JSONDecoder().decode([DevicesModel].self, from: deviceListString!.data(using: .utf8) as! Data)
+                for deviceInfo in deviceList{
+                    if(deviceInfo.watchInfo != nil){
+                        try self.syncDeviceFromConnectionInfo(connectionData: deviceInfo.watchInfo!)
+                    }
+                }
             }
         }catch{
-            NSLog("Error while syncing data")
+            NSLog("Error while decding in background \(error)")
         }
+        
     }
     
 
@@ -346,7 +363,20 @@ import BackgroundTasks
         //DataSync.loadWeatherData()
         
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
-        let deviceType = getDeviceType()
+        syncDeviceFromConnectionInfo(connectionData: connectionData)
+//        let deviceType = connectionData.deviceType
+//        NSLog("Syncing data for device \(deviceType)")
+//        UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
+//        if(connectionData.deviceType == AppDelegate.WATCH_TYPE){
+//            self.getWatchDevice()?.syncData(connectionInfo: connectionData)
+//        }
+//        else if(deviceType! == AppDelegate.BAND_TYPE){
+//            self.getBandDevice()?.syncData(connectionInfo: connectionData)
+//        }
+    }
+    
+    private func syncDeviceFromConnectionInfo(connectionData:ConnectionInfo){
+        let deviceType = connectionData.deviceType
         NSLog("Syncing data for device \(deviceType)")
         UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
         if(connectionData.deviceType == AppDelegate.WATCH_TYPE){
@@ -356,6 +386,7 @@ import BackgroundTasks
 //            self.getBandDevice()?.syncData(connectionInfo: connectionData)
 //        }
     }
+    
     private func getProfile(){
         let deviceType = getDeviceType()
         NSLog("Syncing data for device \(deviceType)")
@@ -405,10 +436,12 @@ import BackgroundTasks
     
     private func getDeviceInfo(result:@escaping FlutterResult,connectionInfo:String) throws {
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
-        NSLog("Getting device info ")
-        let deviceType = getDeviceType()
+        NSLog("Getting device info \(connectionInfo)")
+        let deviceType = connectionData.deviceType
         if(deviceType == AppDelegate.WATCH_TYPE){
             self.getWatchDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+        }else if(deviceType == AppDelegate.SCALE_TYPE){
+            self.getScaleDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
         }
 //        else if(deviceType! == AppDelegate.BAND_TYPE){
 //            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
@@ -420,6 +453,8 @@ import BackgroundTasks
         NSLog("Getting device info ")
         if(connectionData.deviceType == AppDelegate.WATCH_TYPE){
             self.getWatchDevice()?.getConnectionStatus(result: result)
+        }else if(connectionData.deviceType == AppDelegate.SCALE_TYPE){
+            self.getScaleDevice()?.getConnectionStatus(result: result)
         }
 //        else if(deviceType! == AppDelegate.BAND_TYPE){
 //            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
@@ -463,6 +498,10 @@ import BackgroundTasks
         }
         return AppDelegate.scaleData
     }
+}
+
+struct DevicesModel:Codable{
+    var watchInfo:ConnectionInfo?
 }
 
 struct ConnectionInfo:Codable {

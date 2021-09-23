@@ -16,6 +16,7 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
     var wifiResult:FlutterResult? = nil
     var deviceFound = false
     var deviceConnected = false
+    var isDeviceConnectionAvailable = false
     var initComplete = false
     
     //Initialize the B369
@@ -57,19 +58,33 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
         ICDeviceManager.shared()?.getSettingManager()?.configWifi(self.device, ssid: "shyamalapati", password: password, callback: { (callBackCode) in
             NSLog("Got connection response \(callBackCode.rawValue)")
         })
+        let serverBaseUrl = UserDefaults.standard.object(forKey: AppDelegate.SERVER_BASE_URL) as! String
+        ICDeviceManager.shared()?.getSettingManager()?.setServerUrl(self.device, server: serverBaseUrl, callback: { (callBackCode) in
+            NSLog("Got Server URL \(callBackCode.rawValue)")
+        })
+    }
+    
+    func onReceiveDeviceInfo(_ device: ICDevice!, deviceInfo: ICDeviceInfo!) {
+        NSLog("Got device info firmware :\(String(deviceInfo.firmwareVer)) serial #\(String(deviceInfo.sn))")
     }
     
     func onReceiveConfigWifiResult(_ device: ICDevice!, state: ICConfigWifiState) {
-        NSLog("Got Wifi config result \(state.rawValue) for device \(device.macAddr)")
+        NSLog("Got Wifi config result \(state.rawValue) for device \(String(device.macAddr))")
         switch state {
         case ICConfigWifiState.wifiConnectFail:
-            self.wifiResult?(generateResponse(deviceId: device.macAddr, message:"Failed to connect",connected: false))
+            self.wifiResult?(generateResponse(deviceId: device.macAddr, message:"Config failed",connected: false))
         case ICConfigWifiState.passwordFail:
             self.wifiResult?(generateResponse(deviceId: device.macAddr, message:"Invalid password",connected: false))
         case ICConfigWifiState.success:
             self.wifiResult?(generateResponse(deviceId: device.macAddr, message: "success",connected: true))
+        case ICConfigWifiState.fail:
+            self.wifiResult?(generateResponse(deviceId: device.macAddr, message:"Config failed",connected: false))
+        case ICConfigWifiState.wifiConnecting:
+            NSLog("Connecting to wifi")
+        case ICConfigWifiState.serverConnecting:
+            NSLog("Connecting to device")
         default:
-            NSLog("Got Wifi config result \(state.rawValue) for device \(device.macAddr)")
+            self.wifiResult?(generateResponse(deviceId: device.macAddr, message:"Config failed",connected: false))
         }
     }
     
@@ -79,6 +94,13 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
     }
     
     func onDeviceConnectionChanged(_ device: ICDevice!, state: ICDeviceConnectState) {
+        if(state == ICDeviceConnectState.connected){
+            NSLog("Got connected changed to true")
+            isDeviceConnectionAvailable = true
+        }else if(state == ICDeviceConnectState.disconnected){
+            NSLog("Got connected changed to false")
+            isDeviceConnectionAvailable = false
+        }
         NSLog("Got connection changed to \(state)")
     }
     
@@ -86,6 +108,23 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
         NSLog("Init finish status \(bSuccess)")
         if(bSuccess){
             self.initComplete = true
+        }
+    }
+    
+    func getConnectionStatus(result:@escaping FlutterResult){
+        return result(isDeviceConnectionAvailable)
+    }
+    
+    func getCurrentDeviceStatus(connInfo: ConnectionInfo, result:@escaping FlutterResult){
+        do{
+            let connectionInfo = ConnectionInfo(deviceId: connInfo.deviceId, deviceName: connInfo.deviceName, connected: isDeviceConnectionAvailable, deviceFound: connInfo.deviceFound, message: "",batteryStatus: "99")
+            let deviceJson = try JSONEncoder().encode(connectionInfo)
+            let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+            NSLog("Sending Connection data back from device info \(connectionInfoData)")
+            result(connectionInfoData)
+        }catch{
+            NSLog("Error reading data \(error)")
+            result("Error")
         }
     }
     

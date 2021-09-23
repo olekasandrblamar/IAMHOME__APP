@@ -115,7 +115,9 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
             when (it) {
                 ICSettingCallBackCode.ICSettingCallBackCodeSuccess -> {
                     Log.d(TAG, "Connection success")
-                    updateServerUrl("https://device.alpha.myceras.com")
+                    DataSync.getServerUrl()?.let {
+                        updateServerUrl(it)
+                    }
                 }
                 else -> {
                     Log.d(TAG, "Connection failure")
@@ -138,7 +140,7 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
     }
 
     override fun syncData(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
-
+        result?.success("Load complete")
     }
 
     override fun onInitFinish(finished: Boolean) {
@@ -153,8 +155,13 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
 //        }
     }
 
-    override fun onDeviceConnectionChanged(device: ICDevice?, p1: ICDeviceConnectState?) {
-        Log.d(TAG, "Connection changed $p1")
+    override fun onDeviceConnectionChanged(device: ICDevice?, connState: ICDeviceConnectState?) {
+        deviceConnected = when(connState){
+            ICDeviceConnectState.ICDeviceConnectStateConnected -> true
+            ICDeviceConnectState.ICDeviceConnectStateDisconnected -> false
+            else -> false
+        }
+        Log.d(TAG, "Connection changed $connState")
     }
 
     override fun onReceiveWeightData(device: ICDevice?, weightData: ICWeightData?) {
@@ -266,6 +273,10 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
         Log.d(TAG, "Device upgrade percent ")
     }
 
+    override fun getDeviceInfo(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
+        sendConnectionResponse(connectionInfo.deviceId, deviceConnected, result)
+    }
+
     override fun onReceiveDeviceInfo(device: ICDevice?, deviceInfo: ICDeviceInfo?) {
         Log.d(TAG, "Got device info")
     }
@@ -283,11 +294,18 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
                     result?.success(ConnectionInfo.createResponse(message = "Wifi Connected",connected = true))
                     result = null
                 }
+                ICConfigWifiState.ICConfigWifiStateWifiConnectFail ->{
+                    Log.i(TAG,"Sending wifi fail ")
+                    result?.success(ConnectionInfo.createResponse(message = "Config failed",connected = false))
+                    result = null
+                }
                 ICConfigWifiState.ICConfigWifiStateFail -> {
+                    Log.i(TAG,"Sending wifi fail ")
                     result?.success(ConnectionInfo.createResponse(message = "Config failed",connected = false))
                     result = null
                 }
                 ICConfigWifiState.ICConfigWifiStatePasswordFail -> {
+                    Log.i(TAG,"Sending wifi password fail ")
                     result?.success(ConnectionInfo.createResponse(message = "Invalid Password",connected = false))
                     result = null
                 }

@@ -11,6 +11,7 @@ class BuildEnvironment {
   /// The backend server.
   final String baseUrl;
   final String baseUrl2;
+  final String serverUrl;
   final String accessKey;
   final String secret;
   final String authUrl;
@@ -25,7 +26,8 @@ class BuildEnvironment {
       this.accessKey,
       this.secret,
       this.authUrl,
-      this.environmentUrl});
+      this.environmentUrl,
+      this.serverUrl});
 
   /// Sets up the top-level [env] getter on the first call only.
   static void init({
@@ -37,6 +39,7 @@ class BuildEnvironment {
     @required secret,
     @required authUrl,
     @required environmentUrl,
+    @required serverUrl
   }) =>
       _env ??= BuildEnvironment._init(
           environment: environment,
@@ -46,5 +49,6 @@ class BuildEnvironment {
           accessKey: accessKey,
           secret: secret,
           authUrl: authUrl,
-          environmentUrl: environmentUrl);
+          environmentUrl: environmentUrl,
+          serverUrl: serverUrl);
 }

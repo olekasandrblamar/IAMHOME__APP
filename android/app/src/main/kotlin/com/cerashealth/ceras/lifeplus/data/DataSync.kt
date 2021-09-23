@@ -50,6 +50,10 @@ data class HeartBeat(val deviceId:String?,val macAddress:String?){
     var longitude:Double? = null
 }
 
+class DevicesModel{
+    var watchInfo:ConnectionInfo? = null
+}
+
 
 class ConnectionInfo{
     var deviceId:String? = null

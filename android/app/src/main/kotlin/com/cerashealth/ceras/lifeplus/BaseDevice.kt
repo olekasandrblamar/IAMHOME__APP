@@ -4,6 +4,7 @@ import android.content.Context
 import android.util.Log
 import com.cerashealth.ceras.*
 import com.cerashealth.ceras.lifeplus.data.*
+import com.walnutin.hardsdk.ProductList.sdk.HardSdk
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 
@@ -17,10 +18,12 @@ open class BaseDevice{
 
     open fun getDeviceInfo(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context) {
         Log.i(TAG, "Calling default device Info")
+        sendConnectionResponse(connectionInfo.deviceId, true, result)
     }
 
     open fun getConnectionStatus(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
         Log.i(TAG,"Calling default device Info")
+        result?.success(false)
     }
 
     open fun checkForUpdate(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){

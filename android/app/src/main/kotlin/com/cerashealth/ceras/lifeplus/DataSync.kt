@@ -44,6 +44,15 @@ class DataSync {
             return null
         }
 
+        fun getServerUrl():String?{
+            MainActivity.currentContext?.let { currentContext ->
+                currentContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString(MainActivity.SERVER_BASE_URL, "")?.let { baseUrl ->
+                    return baseUrl
+                }
+            }
+            return null
+        }
+
         private fun updateLastSync(type:String, lastMeasure:Date){
             MainActivity.currentContext?.let { currentContext->
                 var lastUpdatedDate:MutableMap<String,String> = mutableMapOf()

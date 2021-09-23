@@ -237,7 +237,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         } else {
           _resetWithError();
           showConnectionErrorDialog(
-            'Authentication Failed​!',
+            'Authentication Failed!',
             'Unable to Connect device',
           );
         }
@@ -280,6 +280,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                 SetupConnectedScreen(
                   routeArgs: {
                     'deviceData': _deviceData,
+                    'displayImage': _displayImage,
                   },
                 ),
             settings: const RouteSettings(name: routes.SetupConnectedRoute),

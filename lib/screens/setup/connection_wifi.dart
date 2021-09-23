@@ -29,7 +29,8 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     with WidgetsBindingObserver {
   final _formKey = GlobalKey<FormState>();
 
-  DevicesModel _devicesModel = null;
+  DevicesModel _devicesModel;
+  var _displayImage = '';
 
   String _connectionStatus = 'Unknown';
   String _wifiName, _password = '';
@@ -57,10 +58,12 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     }
 
     DevicesModel deviceModel;
-    bool initialSetup = true;
+    String displayImage;
+    var initialSetup = true;
 
     if (widget.routeArgs != null) {
       deviceModel = widget.routeArgs['deviceData'];
+      displayImage = widget.routeArgs['displayImage'];
       if (widget.routeArgs['initialSetup'] != null) {
         initialSetup = widget.routeArgs['initialSetup'];
       }
@@ -68,6 +71,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     setState(() {
       _devicesModel = deviceModel;
       _initialSetup = initialSetup;
+      _displayImage = displayImage;
     });
 
     initConnectivity();
@@ -130,6 +134,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     setState(() {
       _isInit = false;
     });
+    // showWrongPasswordDialog(context);
   }
 
   // Platform messages are asynchronous, so we initialize in an async method.
@@ -176,6 +181,9 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
       if (!isValid) {
         return;
       }
+      // setState(() {
+      //   _isLoading = true;
+      // });
       _formKey.currentState.save();
 
       final connectionInfo = prefs.getString('watchInfo');
@@ -205,7 +213,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
       }
 
       setState(() {
-        _isLoading = true;
+        _isLoading = false;
       });
     } catch (error) {
       print(error);
@@ -226,6 +234,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
             builder: (BuildContext context) => SetupConnectedScreen(
               routeArgs: {
                 'deviceData': _devicesModel,
+                'displayImage': _displayImage,
               },
             ),
             settings: const RouteSettings(name: routes.SetupConnectedRoute),
@@ -244,6 +253,8 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
   void showErrorDialog(BuildContext context, String message) {
     if (message == 'Invalid Password') {
       showWrongPasswordDialog(context);
+    }else{
+      showWifiFailure(context);
     }
     // showDialog(
     //   context: context,
@@ -286,7 +297,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
             height: 16,
           ),
           Text(
-            'Getting wifi',
+            'Connecting to wifi',
             textAlign: TextAlign.center,
             style: AppTheme.subtitle,
           ),
@@ -305,7 +316,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
         ),
         actions: <Widget>[
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            padding: EdgeInsets.symmetric(horizontal: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -316,11 +327,12 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                       color: Colors.white,
                     ),
                   ),
-                  child: Text('Retry'),
                   onPressed: () {
                     Navigator.of(ctx).pop();
                   },
+                  child: Text('Retry'),
                 ),
+                SizedBox(width: 50),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: Theme.of(context).primaryColor,
@@ -328,13 +340,12 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                       color: Colors.white,
                     ),
                   ),
-                  child: Text('Continue'),
                   onPressed: () {
                     Navigator.of(ctx).pop();
-
                     //Send to Done screen
                     sendToSuccessScreen(false);
                   },
+                  child: Text('Continue'),
                 )
               ],
             ),
@@ -354,7 +365,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
         ),
         actions: <Widget>[
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 16),
+            // padding: EdgeInsets.symmetric(horizontal: 8),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -365,11 +376,12 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                       color: Colors.white,
                     ),
                   ),
-                  child: Text('Retry'),
                   onPressed: () {
                     Navigator.of(ctx).pop();
                   },
+                  child: Text('Retry'),
                 ),
+                SizedBox(width: 50),
                 ElevatedButton(
                   style: ElevatedButton.styleFrom(
                     primary: Theme.of(context).primaryColor,
@@ -377,10 +389,11 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                       color: Colors.white,
                     ),
                   ),
-                  child: Text('Continue'),
                   onPressed: () {
                     Navigator.of(ctx).pop();
+                    sendToSuccessScreen(false);
                   },
+                  child: Text('Continue'),
                 )
               ],
             ),

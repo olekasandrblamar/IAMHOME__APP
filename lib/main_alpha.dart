@@ -48,6 +48,7 @@ void main() {
       authUrl: 'https://auth.ceras.io',
       accessKey: 'QU5CZRR7XXBR',
       secret: 'NUSR82XMJ9GGH57YK03V',
+      serverUrl: 'https://device.alpha.myceras.com',
     );
 
     assert(env != null);

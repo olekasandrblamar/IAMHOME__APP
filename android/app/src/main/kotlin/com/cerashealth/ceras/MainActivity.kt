@@ -4,7 +4,7 @@ package com.cerashealth.ceras
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.view.WindowManager.LayoutParams;
+import android.view.WindowManager.LayoutParams
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -35,11 +35,12 @@ class MainActivity: FlutterFragmentActivity()  {
         var currentContext:Context? = null
         var currentActivity:MainActivity? = null
         val TAG = MainActivity::class.java.simpleName
+        const val SERVER_BASE_URL = "flutter.apiBaseUrl"
         private const val BACKGROUND_JOB = "background_bluetooth"
         var deviceId = ""
         const val SharedPrefernces = "FlutterSharedPreferences"
         private val displayDateFormat = SimpleDateFormat("MM/dd/yyyy hh:mm a")
-        private const val MY_PERMISSIONS_REQUEST_BLUETOOTH:Int = 0x55;
+        private const val MY_PERMISSIONS_REQUEST_BLUETOOTH:Int = 0x55
 
         fun updateLastConnected(){
             lastConnected = Calendar.getInstance()
@@ -289,13 +290,21 @@ class CerasBluetoothSync{
                             Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 BaseDevice.isBackground = true
                 Log.i(TAG, "Doing background work")
-                val deviceDataString = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.watchInfo", "")
-                val deviceData = Gson().fromJson(deviceDataString, ConnectionInfo::class.java)
-                deviceData?.deviceType?.let {
-                    val deviceType = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.deviceType", null)
-                    MainActivity.deviceId = deviceData?.deviceId ?: ""
-                    BaseDevice.getDeviceImpl(deviceData.deviceType)?.syncData(null, deviceData, applicationContext)
+                //val deviceDataString = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.watchInfo", "")
+                //val deviceData = Gson().fromJson(deviceDataString, ConnectionInfo::class.java)
+                val devicesListString = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.deviceData", "")
+                val devicesList = Gson().fromJson(devicesListString, List::class.java) as List<DevicesModel>
+                devicesList.forEach {
+                    it.watchInfo?.let {
+                        BaseDevice.getDeviceImpl(it.deviceType)?.syncData(null, it, applicationContext)
+                    }
+
                 }
+//                deviceData?.deviceType?.let {
+//                    val deviceType = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.deviceType", null)
+//                    MainActivity.deviceId = deviceData?.deviceId ?: ""
+//                    BaseDevice.getDeviceImpl(deviceData.deviceType)?.syncData(null, deviceData, applicationContext)
+//                }
             } else {
                 Log.e(TAG, "No location permission")
             }

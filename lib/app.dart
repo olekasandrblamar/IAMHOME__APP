@@ -6,7 +6,7 @@ import 'package:ceras/providers/applanguage_provider.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/intro_screen.dart';
-import 'package:ceras/screens/setup/setup_active_screen.dart';
+// import 'package:ceras/screens/setup/setup_active_screen.dart';
 import 'package:ceras/screens/splash_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -21,14 +21,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'config/app_localizations.dart';
 import 'config/dynamiclinks_setup.dart';
 import 'config/navigation_service.dart';
-import 'config/push_notifications.dart';
+// import 'config/push_notifications.dart';
 import 'constants/route_paths.dart' as routes;
 import 'data/language_data.dart';
 import 'router.dart' as router;
 import 'screens/setup/setup_home_screen.dart';
 import 'theme.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
+// import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 // import 'config/locator.dart';
 
 class MyApp extends StatefulWidget {
@@ -63,6 +63,7 @@ class _MyAppState extends State<MyApp> {
       // await prefs.setString('apiBaseUrl', baseUrl);
     } else {
       await prefs.setString('apiBaseUrl', env.baseUrl);
+      await prefs.setString("serverBaseUrl", env.serverUrl);
     }
 
     await updateDeviceInfo();
