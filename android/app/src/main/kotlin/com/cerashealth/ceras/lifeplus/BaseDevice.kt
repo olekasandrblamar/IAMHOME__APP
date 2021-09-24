@@ -41,7 +41,7 @@ open class BaseDevice{
         eventSink.endOfStream()
     }
 
-    open fun disconnectDevice(result: MethodChannel.Result?){
+    open fun disconnectDevice(result: MethodChannel.Result?,deviceId:String? = null){
         Log.i(TAG,"Calling default disconnect device")
     }
 

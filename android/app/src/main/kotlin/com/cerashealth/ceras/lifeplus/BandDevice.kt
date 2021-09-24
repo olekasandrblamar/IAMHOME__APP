@@ -447,7 +447,7 @@ class BandDevice :BaseDevice(){
 //        }
     }
 
-    override fun disconnectDevice(result: MethodChannel.Result?) {
+    override fun disconnectDevice(result: MethodChannel.Result?,deviceId:String?) {
         mBluetoothLe?.let {
             it.disconnect()
         }

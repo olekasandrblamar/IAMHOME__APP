@@ -639,7 +639,7 @@ class WatchDevice:BaseDevice()     {
         }
     }
 
-    override fun disconnectDevice(result: MethodChannel.Result?) {
+    override fun disconnectDevice(result: MethodChannel.Result?,deviceId:String?) {
         if(HardSdk.getInstance().isDevConnected) {
             Log.i(TAG, "Device is connected and disconnecting it")
             HardSdk.getInstance().restoreFactoryMode()

@@ -169,12 +169,19 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
 //        }
     }
 
-    override fun onDeviceConnectionChanged(device: ICDevice?, connState: ICDeviceConnectState?) {
-        deviceConnected = when(connState){
-            ICDeviceConnectState.ICDeviceConnectStateConnected -> true
-            ICDeviceConnectState.ICDeviceConnectStateDisconnected -> false
-            else -> false
+    override fun disconnectDevice(result: MethodChannel.Result?,deviceId:String?) {
+        ICDeviceManager.shared().removeDevice(ICDevice().apply {
+            macAddr = deviceId
+        }) { _, icAddDeviceCallBackCode ->
+            if (icAddDeviceCallBackCode == ICRemoveDeviceCallBackCode.ICRemoveDeviceCallBackCodeSuccess)
+                result?.success("Success")
+            else
+                result?.success("Error")
         }
+    }
+
+    override fun onDeviceConnectionChanged(device: ICDevice?, connState: ICDeviceConnectState?) {
+        deviceConnected = (ICDeviceConnectState.ICDeviceConnectStateConnected == connState)
         Log.d(TAG, "Connection changed $connState")
     }
 

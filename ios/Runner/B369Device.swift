@@ -75,6 +75,18 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
         NSLog("Got device info firmware :\(String(deviceInfo.firmwareVer)) serial #\(String(deviceInfo.sn))")
     }
     
+    func disconnect(result:@escaping FlutterResult,connectionInfo: ConnectionInfo){
+        let deviceForDeletion = ICDevice()
+        deviceForDeletion.macAddr = connectionInfo.deviceId
+        ICDeviceManager.shared()?.remove(deviceForDeletion, callback: { device, callBack in
+            if(callBack == ICRemoveDeviceCallBackCode.success){
+                result("Success")
+            }else{
+                result("Error")
+            }
+        })
+    }
+    
     func onReceiveConfigWifiResult(_ device: ICDevice!, state: ICConfigWifiState) {
         NSLog("Got Wifi config result \(state.rawValue) for device \(String(device.macAddr))")
         switch state {

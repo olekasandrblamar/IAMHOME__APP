@@ -38,7 +38,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   String _lastUpdated;
   DevicesModel _deviceData;
   String _deviceId = '---';
-  String _batteryLevel = "---";
+  String _batteryLevel = '---';
   bool _connected = true;
   bool isLoading = true;
   TimeCircularCountdown _currentCountDown;
@@ -143,7 +143,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
     _loadDeviceData();
 
-    final connectionInfo = prefs.getString('watchInfo');
+    final connectionInfo = await getDeviceInfoString();
     if (connectionInfo != null) {
       _setIsLoading(true);
 
@@ -169,8 +169,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
   void _syncDataFromDevice() async {
     _setIsLoading(true);
-
-    await syncDataFromDevice();
+    await readDataFromDevice(await getDeviceInfoString());
     _changeLastUpdated();
   }
 
@@ -195,27 +194,29 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   }
 
   void _removeDevice() async {
-    var deviceType = (_deviceData?.deviceMaster != null &&
-            _deviceData?.deviceMaster['deviceType']['displayName'] != null)
-        ? _deviceData?.deviceMaster['deviceType']['displayName']
-        : null;
+    var connectionInfo = await getDeviceInfoString();
 
-    if (deviceType != null) {
-      var disconnect = await platform.invokeMethod(
-        'disconnect',
-        <String, dynamic>{'deviceType': deviceType.toUpperCase()},
-      ) as String;
+    var disconnect = await platform.invokeMethod(
+      'disconnect',
+      <String, dynamic>{'connectionInfo': connectionInfo},
+    ) as String;
 
-      if (disconnect != null) {
-        var removeDeviceData =
-            await Provider.of<DevicesProvider>(context, listen: false)
-                .removeDevice(_deviceIndex);
+    if (disconnect != null) {
+      var removeDeviceData =
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .removeDevice(_deviceIndex);
 
-        if (removeDeviceData) {
-          _loadCountDownTimer(20, 'Resetting Device');
-        }
+      if (removeDeviceData) {
+        _loadCountDownTimer(20, 'Resetting Device');
       }
     }
+
+  }
+
+  Future<String> getDeviceInfoString() async{
+    var deviceData = await Provider.of<DevicesProvider>(context, listen: false)
+        .getDeviceData(_deviceIndex);
+    return JsonEncoder().convert(deviceData.watchInfo);
   }
 
   void _loadCountDownTimer(int seconds, String type) {

@@ -146,3 +146,20 @@ Future<void> syncDataFromDevice() async {
     print(ex);
   }
 }
+
+Future<void> readDataFromDevice(String deviceInfo) async{
+  try {
+    print('Sending connection info ${deviceInfo}');
+
+    final result = await BackgroundFetchData.platform.invokeMethod(
+      'syncData',
+      //'connectDevice',
+      <String, dynamic>{'connectionInfo': deviceInfo},
+    ) as String;
+
+    print('Got Sync Data ' + result);
+
+  } catch (ex) {
+    print(ex);
+  }
+}

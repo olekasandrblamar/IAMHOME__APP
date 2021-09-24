@@ -167,8 +167,13 @@ import BackgroundTasks
               return
             }
             NSLog("Disconnecting device")
-            let deviceType:String = (args as? [String: Any])?["deviceType"] as! String
-            self?.disconectDevice(result: result, deviceType: deviceType)
+            let connectionInfo:String = (args as? [String:Any])?["connectionInfo"] as! String
+            do{
+                try self?.disconectDevice(result: result, connectionInfo: connectionInfo)
+            }catch{
+                result("Error")
+            }
+            
         }else if(call.method=="upgradeDevice"){
 //             guard let args = call.arguments else {
 //               result("iOS could not recognize flutter arguments in method: (sendParams)")
@@ -397,12 +402,16 @@ import BackgroundTasks
         return UserDefaults.standard.string(forKey: AppDelegate.DEVICE_TYPE_KEY)
     }
     
-    private func disconectDevice(result:@escaping FlutterResult, deviceType:String){
+    private func disconectDevice(result:@escaping FlutterResult, connectionInfo:String) throws{
+        let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
+        let deviceType = connectionData.deviceType
         NSLog("disconnecting device \(deviceType)")
         if(deviceType==AppDelegate.WATCH_TYPE){
             NSLog("disonnecting Watch")
-            self.getWatchDevice()?.disconnect(result: result)
+            self.getWatchDevice()?.disconnect(result: result,connectionInfo: connectionData)
             NSLog("completed Connecting Watch")
+        }else if(deviceType == AppDelegate.SCALE_TYPE){
+            self.getWatchDevice()?.disconnect(result: result,connectionInfo: connectionData)
         }
 //        else if(deviceType==AppDelegate.BAND_TYPE){
 //            getBandDevice()?.disconnectDevice(result: result)
