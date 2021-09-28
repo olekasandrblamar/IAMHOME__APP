@@ -63,8 +63,10 @@ class _MyAppState extends State<MyApp> {
       // await prefs.setString('apiBaseUrl', baseUrl);
     } else {
       await prefs.setString('apiBaseUrl', env.baseUrl);
-      await prefs.setString("serverBaseUrl", env.serverUrl);
+      await prefs.setString('serverBaseUrl', env.serverUrl);
     }
+
+    await DevicesProvider.migrateDeviceModel();
 
     await updateDeviceInfo();
 

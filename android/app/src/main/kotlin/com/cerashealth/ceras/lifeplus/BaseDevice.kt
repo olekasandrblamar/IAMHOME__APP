@@ -64,9 +64,9 @@ open class BaseDevice{
 
     companion object{
 
-        const val WATCH_DEVICE:String = "WATCH"
-        const val BAND_DEVICE:String = "BAND"
-        const val B369_DEVICE:String = "SCALE"
+        const val WATCH_DEVICE:String = "bWELL"
+        const val BAND_DEVICE:String = "bACTIVE"
+        const val B369_DEVICE:String = "B500"
         var isBackground = false
         val TAG = WatchDevice::class.java.simpleName
         const val SUCCESS_STATUS = "Success"

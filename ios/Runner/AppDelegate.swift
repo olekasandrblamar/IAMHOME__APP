@@ -12,9 +12,9 @@ import BackgroundTasks
 //    static var bandDevice:BandDevice? = nil
     static let dateFormatter = DateFormatter()
     static var lastUpdated:Date? = nil
-    static var WATCH_TYPE = "WATCH"
-    static var SCALE_TYPE = "SCALE"
-    static var BAND_TYPE = "BAND"
+    static var WATCH_TYPE = "bWELL"
+    static var SCALE_TYPE = "B500"
+    static var BAND_TYPE = "bACTIVE"
     static var DEVICE_TYPE_KEY = "flutter.deviceType"
     static let BG_SYNC_TASK = "com.cerashealth.datasync"
     static let SERVER_BASE_URL =  "flutter.serverBaseUrl"

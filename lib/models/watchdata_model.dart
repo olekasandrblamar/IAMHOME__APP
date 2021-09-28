@@ -9,7 +9,7 @@ class WatchModel {
   final String deviceId;
   final String deviceName;
   final String message;
-  final String deviceType;
+  String deviceType;
   final bool deviceFound;
   String batteryStatus;
   final Map<String, String> additionalInformation;

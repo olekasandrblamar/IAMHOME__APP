@@ -162,9 +162,11 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
 
   void loadData() async {
     try {
+      await DevicesProvider.migrateDeviceModel();
       var deviceData =
           await Provider.of<DevicesProvider>(context, listen: false)
               .getDevicesData();
+
 
       if (deviceData.isNotEmpty) {
         if (!mounted) return;

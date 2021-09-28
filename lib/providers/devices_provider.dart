@@ -71,6 +71,19 @@ class DevicesProvider extends ChangeNotifier {
     }
   }
 
+  // This method migrates the saved device data from old model to new device model
+  static Future<void> migrateDeviceModel() async {
+    var devices = await DevicesProvider.loadDevices();
+    if(devices.isNotEmpty) {
+      devices.forEach((device) {
+        var deviceName = device.deviceMaster['name'] as String;
+        device.watchInfo.deviceType = deviceName;
+      });
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setString('deviceData', json.encode(devices));
+    }
+  }
+
   static Future<List<DevicesModel>> loadDevices() async{
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();

@@ -148,8 +148,7 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                             'tag': 'imageHero' + index.toString(),
                             'deviceData': hardwareDataSnapshot.data[index],
                             'deviceType': hardwareDataSnapshot.data[index]
-                                .deviceMaster['deviceType']['displayName']
-                                .toUpperCase(),
+                                .deviceMaster['name'].toUpperCase(),
                             'displayImage': imageData,
                           },
                         ),
