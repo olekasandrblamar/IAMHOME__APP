@@ -99,10 +99,9 @@ dependencies {
     def work_version = "2.4.0"
     implementation "androidx.work:work-runtime-ktx:$work_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation fileTree(dir: "libs", include: ["*.jar"])
-    implementation fileTree(dir: "libs", include: ["*.aar"])
+//    implementation fileTree(dir: "libs", include: ["*.jar"])
 
-    implementation files('libs/vpprotocol_2.1.27.15.jar')//Extension for bFIT
+//    implementation files('libs/vpprotocol_2.1.27.15.jar')//Extension for bFIT
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
     implementation(name: 'hardsdk_1.30', ext: 'aar')// For bWell
     implementation files('libs/vpbluetooth-release.aar') // For B360

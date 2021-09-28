@@ -29,6 +29,7 @@ class B360Device:BaseDevice(),SearchResponse {
 
     override fun connectDevice(context: Context, result: MethodChannel.Result, deviceId: String?) {
         B360Device.deviceId = deviceId
+        connectResult = result
         getManager(context).startScanDevice(this)
     }
 
@@ -44,7 +45,10 @@ class B360Device:BaseDevice(),SearchResponse {
 
                 } }, {
                     if(it== Code.REQUEST_SUCCESS){
+                        connectResult?.let {
 
+//                            it.success()
+                        }
                     }else{
 
                     }
