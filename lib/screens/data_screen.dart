@@ -25,7 +25,6 @@ class DataScreen extends StatefulWidget {
 class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   var currentPageValue = 0.0;
   int _currentPage = 0;
-  var trackers = [1, 2, 3, 4, 5, 6];
 
   bool canScroll = true;
 
@@ -92,7 +91,9 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
   Future<void> _initData() async {
     try {
-      final deviceTrackers = await Provider.of<DevicesProvider>(context, listen: false).getDeviceTrackers();
+      final deviceTrackers =
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .getDeviceTrackers();
 
       print(deviceTrackers);
 
@@ -309,19 +310,96 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
+          // child: Column(
+          //   children: [
+          //     const SizedBox(height: 16),
+          //     ...trackerTypeData?.map((trackerMasterData) {
+          //           return TrackerDataWidget(
+          //               trackerMasterData: trackerMasterData);
+          //         }) ??
+          //         [],
+          //     const SizedBox(height: 16),
+          //   ],
+          // ),
+
           child: Column(
             children: [
-              const SizedBox(height: 16),
-              ...trackerTypeData?.map((trackerMasterData) {
-                    return TrackerDataWidget(
-                        trackerMasterData: trackerMasterData);
-                  }) ??
-                  [],
-              const SizedBox(height: 16),
+              SizedBox(
+                height: 50,
+              ),
+              Expanded(
+                child: PageView.builder(
+                  scrollDirection: Axis.horizontal,
+                  controller: _pageController,
+                  onPageChanged: _onPageChanged,
+                  itemCount: trackerTypeData.length,
+                  itemBuilder: (ctx, i) => Transform(
+                    transform: Matrix4.identity()
+                      ..rotateX(currentPageValue - i),
+                    child: TrackerDataWidget(
+                      trackerMasterData: trackerTypeData[i],
+                    ),
+                  ),
+                  physics: canScroll
+                      ? ScrollPhysics()
+                      : NeverScrollableScrollPhysics(),
+                ),
+              ),
+              SizedBox(
+                height: 25,
+              ),
+              _populateDots(),
+              SizedBox(
+                height: MediaQuery.of(context).size.width * 0.2,
+              ),
             ],
           ),
         ),
       ),
+    );
+  }
+
+  Widget _populateDots() {
+    if (canScroll) {
+      return Container(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            for (int i = 0; i < trackerTypeData.length; i++)
+              if (i == _currentPage)
+                _buildSlideDots(context, true, i)
+              else
+                _buildSlideDots(context, false, i)
+          ],
+        ),
+      );
+    } else {
+      return SizedBox(height: 25);
+    }
+  }
+
+  Widget _buildSlideDots(BuildContext context, bool isActive, int index) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 150),
+      margin: const EdgeInsets.symmetric(horizontal: 6),
+      height: isActive ? 20 : 12,
+      width: isActive ? 20 : 12,
+      decoration: BoxDecoration(
+        color: isActive ? Theme.of(context).primaryColor : Colors.grey,
+        borderRadius: BorderRadius.all(Radius.circular(12)),
+      ),
+      // child: Center(
+      //   child: FittedBox(
+      //     child: Text(
+      //       (index + 1).toString(),
+      //       style: TextStyle(
+      //         color: Colors.white,
+      //         fontSize: isActive ? 15 : 13,
+      //       ),
+      //     ),
+      //   ),
+      // ),
     );
   }
 }
@@ -343,6 +421,16 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
 
   final Tracker trackerMasterData;
   dynamic _trackerData;
+
+  bool canScroll = true;
+
+  bool _paused = false;
+
+  Map<String, bool> processingMap = {};
+
+  final eventChannel = EventChannel("ceras.iamhome.mobile/device_events");
+
+  TimeCircularCountdown _currentCountDown;
 
   @override
   void initState() {
@@ -372,47 +460,199 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
     }
   }
 
+  void _readDataFromDevice(String dataType) async {
+    setState(() {
+      canScroll = false;
+    });
+    print('Loading data type $dataType');
+    var _processingMap = processingMap;
+    _processingMap[dataType] = true;
+    setState(() {
+      processingMap = _processingMap;
+    });
+    var deviceList = await Provider.of<DevicesProvider>(context, listen: false)
+        .getDevicesData();
+    var device = deviceList[0];
+    final requestData = {
+      'deviceType': device.watchInfo.deviceType,
+      'readingType': dataType
+    };
+    var request = json.encode(requestData);
+    //var currentTemp = _lastTemperature;
+    print('Sending request $request');
+  }
+
   @override
   Widget build(BuildContext context) {
+    // return Container(
+    //   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+    //   child: Card(
+    //     // color: Color(0xffdfeffd),
+    //     elevation: 5,
+    //     shape: RoundedRectangleBorder(
+    //       borderRadius: BorderRadius.circular(20.0),
+    //     ),
+    //     child: Column(
+    //       children: [
+    //         trackerDisplayName(trackerMasterData),
+    //         _trackerData != null
+    //             ? Container(
+    //                 padding: EdgeInsets.all(16),
+    //                 child: Row(
+    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    //                   children: <Widget>[
+    //                     if (trackerMasterData.trackerType == 'SINGLE_VALUE')
+    //                       singleDisplayText(trackerMasterData, _trackerData),
+    //                     if (trackerMasterData.trackerType == 'DOUBLE_VALUE')
+    //                       multipleDisplayText(trackerMasterData, _trackerData),
+    //                   ],
+    //                 ),
+    //               )
+    //             : Padding(
+    //                 padding: const EdgeInsets.all(16.0),
+    //                 child: CircularProgressIndicator(),
+    //               ),
+    //         _trackerData != null
+    //             ? lastUpdated(_trackerData)
+    //             : Container(
+    //                 height: 0,
+    //               ),
+    //         const SizedBox(height: 10),
+    //       ],
+    //     ),
+    //   ),
+    // );
+
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Card(
-        // color: Color(0xffdfeffd),
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Column(
-          children: [
-            trackerDisplayName(trackerMasterData),
-            _trackerData != null
-                ? Container(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        if (trackerMasterData.trackerType == 'SINGLE_VALUE')
-                          singleDisplayText(trackerMasterData, _trackerData),
-                        if (trackerMasterData.trackerType == 'DOUBLE_VALUE')
-                          multipleDisplayText(trackerMasterData, _trackerData),
-                      ],
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: CircularProgressIndicator(),
-                  ),
-            _trackerData != null
-                ? lastUpdated(_trackerData)
-                : Container(
-                    height: 0,
-                  ),
-            const SizedBox(height: 10),
-          ],
+      padding: _trackerPadding(),
+      child: Container(
+        decoration: _cardDecoration(),
+        child: SingleChildScrollView(
+          child: Column(
+            children: [
+              // if (_lastTemperature != null)
+              //   ..._buildTrackerHeader('Temperature', 'temperature'),
+              // if (_lastTemperature != null) ..._loadTemperatureData(),
+              // if (_lastTemperature == null)
+              //   _loadCountDownTimer(70, 'Temperature'),
+              // _buildLatestDataButton('O2', 'Oxygen Saturation'),
+              // const SizedBox(height: 10),
+              // _buildLastUpdatedTime(_oxygenLevel.measureTime)
+            ],
+          ),
         ),
       ),
     );
   }
+
+  Widget _buildLatestDataButton(type, displayName) {
+    return !canScroll
+        ? _loadCircularIndicator(displayName)
+        : Container(
+            width: 270,
+            height: 80,
+            padding: EdgeInsets.all(15),
+            child: FlatButton(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  // side: BorderSide(color: Colors.grey),
+                ),
+                color: Color.fromRGBO(11, 140, 196, 1),
+                textColor: Colors.white,
+                onPressed: () {
+                  return _readDataFromDevice(type);
+                },
+                child: FittedBox(
+                  child: Text(
+                    'Measure Now',
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
+                  ),
+                )),
+          );
+  }
+
+  Widget _buildLastUpdatedTime(time) {
+    return Container(
+      child: FittedBox(
+        child: Text(
+          'Last: ' + _formatDate(time) + ' ' + _formatTime(time),
+          style: TextStyle(fontSize: 20),
+        ),
+      ),
+    );
+  }
+
+  Widget _loadCountDownTimer(int seconds, String type) {
+    _currentCountDown = TimeCircularCountdown(
+      unit: CountdownUnit.second,
+      countdownTotal: seconds,
+      onUpdated: (unit, remainingTime) => print('Updated'),
+      onFinished: () {
+        if (_currentCountDown != null) {
+          setState(() {
+            canScroll = false;
+          });
+        }
+      },
+      onCanceled: (CountdownUnit unit, int remaining) {},
+      diameter: 200,
+      countdownTotalColor: Colors.white,
+      countdownCurrentColor: Colors.blue,
+      countdownRemainingColor: Colors.blue,
+      strokeWidth: 10,
+      gapFactor: 2,
+      textStyle: TextStyle(
+        fontSize: 50,
+        fontWeight: FontWeight.bold,
+        color: Colors.redAccent,
+      ),
+    );
+    var buttonText = canScroll ? 'Loading $type ...' : 'Reading $type ...';
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(height: 100),
+        canScroll
+            ?
+            // TimeCircularCountdown(
+            //   unit: CountdownUnit.second,
+            //   countdownTotal: 10,
+            //   diameter: 200,
+            //   countdownTotalColor: Colors.white,
+            //   countdownCurrentColor: Colors.blue,
+            //   countdownRemainingColor: Colors.blue,
+            //   strokeWidth: 20,
+            //   gapFactor: 5,
+            //   repeat: true,
+            //   onUpdated: (unit, remainingTime) => print('Updated'),
+            // // textStyle: TextStyle(
+            // // fontSize: 50,
+            // // fontWeight: FontWeight.bold,
+            // // color: Colors.redAccent,
+            // // ),
+            // )
+            Container()
+            : _currentCountDown,
+        SizedBox(height: 20),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            FittedBox(
+              child: Text(buttonText,
+                  style: TextStyle(fontSize: 20, color: Colors.black)),
+            )
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+EdgeInsets _trackerPadding() {
+  return EdgeInsets.symmetric(horizontal: 40, vertical: 5);
 }
 
 Container trackerDisplayName(trackerMasterData) {
@@ -610,4 +850,48 @@ Expanded singleDisplayText(trackerMasterData, _trackerData) {
       ),
     ),
   );
+}
+
+Widget _loadCircularIndicator(String text) {
+  return Column(
+    children: [
+      SizedBox(height: 10),
+      CircularProgressIndicator(),
+      SizedBox(height: 20),
+      Text('Reading ' + text,
+          style: TextStyle(fontSize: 20, color: Colors.black))
+    ],
+  );
+}
+
+BoxDecoration _cardDecoration() {
+  return BoxDecoration(
+      borderRadius: BorderRadius.all(Radius.circular(20)),
+      image: DecorationImage(
+          colorFilter: ColorFilter.mode(
+              Colors.white.withOpacity(0.70), BlendMode.dstATop),
+          image: AssetImage('assets/trackers/tracker_background.png'),
+          fit: BoxFit.fill)
+      // boxShadow: [
+      //   BoxShadow(
+      //     color: Colors.grey.withOpacity(0.5),
+      //     // spreadRadius: 5,
+      //     blurRadius: 5,
+      //     offset: Offset(0, 3), // changes position of shadow
+      //   ),
+      // ],
+      // gradient: LinearGradient(
+      //   begin: Alignment.topCenter,
+      //   end: Alignment.bottomCenter,
+      //   colors: [Color(0xFFFFFFFF), Color(0xFFDBFBFF)],
+      // ),
+      );
+}
+
+String _formatDate(DateTime date) {
+  return DateFormat.MMMMd().format(date.toLocal());
+}
+
+String _formatTime(DateTime date) {
+  return DateFormat.jm().format(date.toLocal());
 }
