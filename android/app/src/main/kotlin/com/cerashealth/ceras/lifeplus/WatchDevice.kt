@@ -533,7 +533,9 @@ class WatchDevice:BaseDevice()     {
         var dataCallback: DataCallBack? = null
         var eventSink:EventChannel.EventSink? = null
         var upgradeSink:EventChannel.EventSink? = null
+        var syncDeviceStream:EventChannel.EventSink? = null
         var isTestingTemp = false
+        var remainingActions = mutableListOf<String>()
         var tempUpdates:Disposable? = null
         const val currentFirmwareVersion = "SW07s_2.56.00_210423"
         const val sw07FirmwareVersion = "SW07s_2.45.00_200925"
@@ -582,6 +584,18 @@ class WatchDevice:BaseDevice()     {
                     it.endOfStream()
             }
         }
+
+    }
+
+    override fun syncDeviceInformation(
+        eventSink: EventChannel.EventSink?,
+        actions: List<String>,
+        connectionInfo: ConnectionInfo,
+        devieIndex:Int
+    ) {
+        //The sync that's used for sending the sync stream back
+        syncDeviceStream = eventSink
+        remainingActions = actions.toMutableList()
 
     }
 
@@ -715,7 +729,6 @@ class WatchDevice:BaseDevice()     {
         Log.i(TAG, "Is device connected ${HardSdk.getInstance().isDevConnected}")
         if(dataCallback==null) {
             dataCallback = DataCallBack(result)
-            //Load the data from device
         }
         var returnValue = true
         //If the device is not connected  try to connect

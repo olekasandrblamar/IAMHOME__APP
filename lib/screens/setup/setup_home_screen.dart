@@ -15,6 +15,7 @@ import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -37,6 +38,8 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   var _lastUpdated = '---';
   var _connectionStatus = false;
   var _blueToothEnabled = true;
+
+  final deviceStateChannel = EventChannel("ceras.iamhome.mobile/device_state");
 
   @override
   void initState() {
@@ -408,6 +411,18 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     //Don't wait for the response
     await syncResponse.then((value) {
       print('Syncing value $value');
+    });
+  }
+
+  //This method syncs the data on the event channel for connection status,sync status,upgrade status
+  void _loadDeviceData(int index) async{
+    final connectionInfo = json.encode(_deviceData[index].watchInfo);
+    deviceStateChannel.receiveBroadcastStream({'connectionInfo':connectionInfo}).listen((event) {
+
+    },onError: (dynamic error){
+
+    },onDone: (){
+
     });
   }
 

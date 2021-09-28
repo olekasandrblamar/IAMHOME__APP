@@ -27,6 +27,7 @@ class MainActivity: FlutterFragmentActivity()  {
 
     private val CHANNEL = "ceras.iamhome.mobile/device"
     private val DEVICE_EVENTS = "ceras.iamhome.mobile/device_events"
+    private val DEVICE_STATE_CHANNEL = "ceras.iamhome.mobile/device_state"
     private val DEVICE_UPGRADE_EVENTS = "ceras.iamhome.mobile/device_upgrade"
     private var sycnDevice: BaseDevice? = null
 
@@ -184,6 +185,28 @@ class MainActivity: FlutterFragmentActivity()  {
                         }
                     }
                 })
+
+        //Events for syncing data
+        EventChannel(flutterEngine.dartExecutor.binaryMessenger,DEVICE_STATE_CHANNEL).setStreamHandler(
+            object : StreamHandler {
+                var eventSink:EventChannel.EventSink? = null
+                override fun onListen(arguments: Any?, events: EventChannel.EventSink?) {
+                    //Add code to sync data and stream the results back
+                    eventSink = events
+                    val connectionArgs = arguments as Map<String,String>
+                    val deviceDataString = connectionArgs["connectionInfo"]
+                    val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
+                    val deviceIndex = connectionArgs["index"]?.toInt()
+                    var actions = mutableListOf<String>()
+                    actions = Gson().fromJson(connectionArgs["actions"], actions::class.java)
+                    BaseDevice.getDeviceImpl(deviceData.deviceType).syncDeviceInformation(eventSink,actions,deviceData)
+                }
+
+                override fun onCancel(arguments: Any?) {
+                    eventSink?.endOfStream()
+                }
+            }
+        )
     }
 
     private fun connectUpgradeChannel(flutterEngine: FlutterEngine){

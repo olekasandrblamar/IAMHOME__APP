@@ -19,6 +19,14 @@ open class BaseDevice{
         Log.i(TAG, "Calling default device Info")
     }
 
+    open fun syncDeviceInformation(eventSink: EventChannel.EventSink?,
+                                   actions:List<String>,
+                                   connectionInfo: ConnectionInfo,deviceIndex:Int){
+        Log.i(TAG,"Calling default sync device info")
+        eventSink?.success("{status:'Success'}")
+        eventSink!!.endOfStream()
+    }
+
     open fun getConnectionStatus(result: MethodChannel.Result?,connectionInfo: ConnectionInfo,context: Context){
         Log.i(TAG,"Calling default device Info")
     }

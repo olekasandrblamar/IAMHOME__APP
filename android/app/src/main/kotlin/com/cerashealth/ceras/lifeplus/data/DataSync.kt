@@ -48,6 +48,14 @@ data class HeartBeat(val deviceId:String?,val macAddress:String?){
     var longitude:Double? = null
 }
 
+data class DeviceStatusReturn(val index:Int,val action:String,val response:String){
+    companion object{
+        const val CONNECTION_STATUS = "CONNECTION_STATUS"
+        const val SYNC_STATUS = "SYNC_STATUS"
+        const val BATTERY_STATUS = "BATTERY_STATUS"
+    }
+}
+
 
 class ConnectionInfo{
     var deviceId:String? = null
