@@ -59,7 +59,7 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
     func connectWifi(result:@escaping FlutterResult,ssid:String,password:String){
         NSLog("Conecting to \(ssid) with password \(password)")
         self.wifiResult = result
-        ICDeviceManager.shared()?.getSettingManager()?.configWifi(self.device, ssid: "shyamalapati", password: password, callback: { (callBackCode) in
+        ICDeviceManager.shared()?.getSettingManager()?.configWifi(self.device, ssid: ssid, password: password, callback: { (callBackCode) in
             NSLog("Got connection response \(callBackCode.rawValue)")
         })
         let serverBaseUrl = UserDefaults.standard.object(forKey: AppDelegate.SERVER_BASE_URL) as! String
@@ -171,6 +171,7 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
     
     func onReceiveWeightData(_ device: ICDevice!, data: ICWeightData!) {
         NSLog("Got Weight data \(data)")
+        DataSync.uploadWeights(weights:[WeightUpload(measureTime: Date(), kgs: data.weight_kg, lbs: data.weight_lb, deviceId: device.macAddr)])
     }
     
     func onReceiveWeightHistoryData(_ device: ICDevice!, data: ICWeightHistoryData!) {

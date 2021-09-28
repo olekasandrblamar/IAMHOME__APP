@@ -88,6 +88,23 @@ class DataSync {
             NSLog("Error while Uploading Data \(error)")
         }
     }
+    
+    static func uploadWeights(weights:[WeightUpload]){
+        do{
+            makePostApiCall(url: "weight", postData: try encoder.encode(weights))
+            let latestValue = weights.max { (first, second) -> Bool in
+                first.measureTime < second.measureTime
+            }
+            if(!weights.isEmpty){
+                updateFireBase(property: TEMP_UPDATE)
+            }
+            if(latestValue != nil){
+                changeLastUpdated(type: "WEIGHT",latestMeasureTime: latestValue!.measureTime)
+            }
+        }catch{
+            NSLog("Error while Uploading Data \(error)")
+        }
+    }
 
     static func uploadTemparatures(temps:[TemperatureUpload]){
         do{
@@ -505,6 +522,24 @@ struct TemperatureUpload:Codable {
         self.deviceId = deviceId
         self.userProfile = DataSync.getUserInfo()
     }
+}
+
+struct WeightUpload:Codable{
+    let measureTime:Date
+    let lbs:Float
+    let kgs:Float
+    let deviceId:String
+    
+    var userProfile:UserProfile?
+
+    init(measureTime:Date,kgs:Float,lbs:Float,deviceId:String) {
+        self.measureTime = measureTime
+        self.kgs = kgs
+        self.lbs = lbs
+        self.deviceId = deviceId
+        self.userProfile = DataSync.getUserInfo()
+    }
+    
 }
 
 struct HeartBeat:Codable{
