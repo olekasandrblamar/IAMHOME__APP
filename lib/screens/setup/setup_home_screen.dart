@@ -39,8 +39,6 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   var _connectionStatus = false;
   var _blueToothEnabled = true;
 
-  final deviceStateChannel = EventChannel("ceras.iamhome.mobile/device_state");
-
   @override
   void initState() {
     checkInternetConnection();
@@ -408,21 +406,18 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
       <String, dynamic>{'connectionInfo': connectionInfo},
     );
 
+
     //Don't wait for the response
     await syncResponse.then((value) {
       print('Syncing value $value');
-    });
-  }
-
-  //This method syncs the data on the event channel for connection status,sync status,upgrade status
-  void _loadDeviceData(int index) async{
-    final connectionInfo = json.encode(_deviceData[index].watchInfo);
-    deviceStateChannel.receiveBroadcastStream({'connectionInfo':connectionInfo}).listen((event) {
-
-    },onError: (dynamic error){
-
-    },onDone: (){
-
+      var connectionInfo = WatchModel.fromJson(
+          json.decode(value) as Map<String, dynamic>);
+      var devices = _deviceData;
+      devices[index].watchInfo.connected = connectionInfo.connected;
+      setState(() {
+        _deviceData = devices;
+        _connectionStatus = connectionInfo.connected;
+      });
     });
   }
 
@@ -432,12 +427,15 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
       'connectionStatus',
       <String, dynamic>{'connectionInfo': connectionInfo},
     ) as bool;
-
+    var devices = _deviceData;
+    devices[index].watchInfo.connected = connectionStatus;
     print('Connection Status $connectionStatus');
-    _processSyncData(index);
     setState(() {
+      _deviceData = devices;
       _connectionStatus = connectionStatus;
     });
+    _processSyncData(index);
+
     // if (connectionStatus != "Error") {
     //   final WatchModel connectionStatusData = WatchModel.fromJson(
     //       json.decode(connectionStatus) as Map<String, dynamic>);

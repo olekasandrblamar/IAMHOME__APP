@@ -188,9 +188,13 @@ class DataCallBack : SimpleDeviceCallback {
     private fun checkAndSendStatusResponse(){
         if(this.batteryComplete && this.versionComplete) {
             try {
-                batteryResult?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
+                //If the battery result exists use that
+                batteryResult?.let {
+                    batteryResult?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
                         deviceName = "", additionalInfo = mapOf(), deviceType = "", batteryStatus = this.batteryPercentage, versionUpdate = this.versionUpdate))
-                this.batteryResult = null
+                    this.batteryResult = null
+                }
+
             } catch (ex: Exception) {
                 Log.e(WatchDevice.TAG, "Error while sending response ", ex)
             }
@@ -207,13 +211,15 @@ class DataCallBack : SimpleDeviceCallback {
         }
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult from sync: Connected ${HardSdk.getInstance().isDevConnected}")
-            WatchDevice.initializeWatch()
-            WatchDevice.syncData()
             try {
-                result?.success("Load complete")
+                result?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
+                    deviceName = "", additionalInfo = mapOf(), deviceType = ""))
             }catch (ex:Exception){
                 Log.e(WatchDevice.TAG,"Error after connecting")
             }
+            WatchDevice.initializeWatch()
+            WatchDevice.syncData()
+
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Disconnected")
         } else if (flag == GlobalValue.CONNECT_TIME_OUT_MSG) {
@@ -533,9 +539,7 @@ class WatchDevice:BaseDevice()     {
         var dataCallback: DataCallBack? = null
         var eventSink:EventChannel.EventSink? = null
         var upgradeSink:EventChannel.EventSink? = null
-        var syncDeviceStream:EventChannel.EventSink? = null
         var isTestingTemp = false
-        var remainingActions = mutableListOf<String>()
         var tempUpdates:Disposable? = null
         const val currentFirmwareVersion = "SW07s_2.56.00_210423"
         const val sw07FirmwareVersion = "SW07s_2.45.00_200925"
@@ -587,17 +591,6 @@ class WatchDevice:BaseDevice()     {
 
     }
 
-    override fun syncDeviceInformation(
-        eventSink: EventChannel.EventSink?,
-        actions: List<String>,
-        connectionInfo: ConnectionInfo,
-        devieIndex:Int
-    ) {
-        //The sync that's used for sending the sync stream back
-        syncDeviceStream = eventSink
-        remainingActions = actions.toMutableList()
-
-    }
 
     override fun readDataFromDevice(eventSink: EventChannel.EventSink, readingType: String) {
         when(readingType){
@@ -727,6 +720,7 @@ class WatchDevice:BaseDevice()     {
         DataSync.CURRENT_MAC_ADDRESS = connectionInfo.deviceId
         DataSync.sendHeartBeat(HeartBeat(macAddress = connectionInfo.deviceId, deviceId = connectionInfo.deviceName))
         Log.i(TAG, "Is device connected ${HardSdk.getInstance().isDevConnected}")
+        Log.i(TAG, "Is device conecting ${HardSdk.getInstance().isConnecting}")
         if(dataCallback==null) {
             dataCallback = DataCallBack(result)
         }
@@ -749,12 +743,15 @@ class WatchDevice:BaseDevice()     {
             HardSdk.getInstance().setHardSdkCallback(dataCallback)
             Log.i(TAG, "Data sync complete")
             returnValue = false
-            result?.success("Load complete")
+            connectionInfo.connected = true
+            result?.success(Gson().toJson(connectionInfo))
             syncProfile()
             syncData()
         }
-        if(returnValue)
-            result?.success("Load complete")
+        if(returnValue) {
+            connectionInfo.connected = false
+            result?.success(Gson().toJson(connectionInfo))
+        }
     }
 
     override fun getConnectionStatus(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {

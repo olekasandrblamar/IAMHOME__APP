@@ -20,6 +20,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var statusResult:FlutterResult? = nil
     var upgradeEventSink: FlutterEventSink? = nil
     var statusConnectionInfo: ConnectionInfo? = nil
+    var syncConectionInfo: ConnectionInfo? = nil
     var reconnect:Int = 0;
     var eventSink: FlutterEventSink? = nil
     var readingTemperature = false
@@ -462,7 +463,19 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         }else{
             if(result == nil){
                 loadData(deviceId: WatchData.currentDeviceId)
+            }else if(syncConectionInfo != nil){
+                syncConectionInfo?.connected = true
+                do{
+                    let deviceJson = try JSONEncoder().encode(syncConectionInfo)
+                    let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                    NSLog("Connection data after initial connection \(connectionInfoData)")
+                    //If it not the first time load the device Data
+                    result?(connectionInfoData)
+                    loadData(deviceId: syncConectionInfo?.deviceId)
+                    syncConectionInfo = nil
+                }catch{result?("Error")}
             }
+            
         }
     }
     
@@ -618,15 +631,24 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         
     }
 
-    func syncData(connectionInfo:ConnectionInfo){
+    func syncData(connectionInfo:ConnectionInfo,result: @escaping FlutterResult){
         NSLog("Device connected \(HardManagerSDK.shareBLEManager().isConnected)")
         if(!HardManagerSDK.shareBLEManager().isConnected){
-            result = nil
-            //WatchData.currentDeviceId = connectionInfo.additionalInformation["macId"]
+            self.result = result
             WatchData.currentDeviceId = connectionInfo.deviceId
+            self.syncConectionInfo = connectionInfo
             HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connectionInfo.deviceId)
         }else if(HardManagerSDK.shareBLEManager().isConnected && !HardManagerSDK.shareBLEManager().isSyncing){
             NSLog("Syncing data")
+            do{
+                let deviceJson = try JSONEncoder().encode(ConnectionInfo.init(deviceId: connectionInfo.deviceId, deviceName: connectionInfo.deviceName, connected: true, deviceFound: true, message: "", additionalInformation: connectionInfo.additionalInformation, batteryStatus: "", upgradeAvailable: false))
+                let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                NSLog("Connection data after initial connection \(connectionInfoData)")
+                //If it not the first time load the device Data
+                result(connectionInfoData)
+            }catch{
+                NSLog("Error while syncing data \(error)" )
+            }
             self.syncDeviceInfo();
             loadData(deviceId: connectionInfo.deviceId)
         }

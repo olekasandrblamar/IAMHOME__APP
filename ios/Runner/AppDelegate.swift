@@ -30,7 +30,9 @@ import BackgroundTasks
         NSLog("Got connection info in background from \(connectionInfo)")
         do{
             if(connectionInfo != nil){
-                try self.syncData(connectionInfo: connectionInfo!)
+                try self.syncData(connectionInfo: connectionInfo!,result: { data in
+                    
+                })
             }
         }catch{
             NSLog("Error while syncing data")
@@ -111,10 +113,10 @@ import BackgroundTasks
                 }
                 if(loadData){
                     NSLog("Syncing data ")
-                    try self?.syncData(connectionInfo: connectionInfo)
+                    try self?.syncData(connectionInfo: connectionInfo,result: result)
                     //self?.watchData.syncData(connectionInfo: connectionData)
                 }
-                result("Load complete")
+//                result("Load complete")
             }catch{
                 result("Error")
             }
@@ -223,18 +225,6 @@ import BackgroundTasks
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
     
-    private func loadDataFromDevice(){
-        do{
-            let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
-            //If the connection info exists
-            if(connectionInfo != nil){
-                try syncData(connectionInfo: connectionInfo!)
-            }
-        }catch{
-            NSLog("Error while reading da \(error)")
-        }
-    }
-    
     private func takeReadingFromDevice(deviceType:String,readingType:String){
         
     }
@@ -289,7 +279,9 @@ import BackgroundTasks
                 NSLog("Got connection info in background \(connectionInfo)")
                 do{
                     if(connectionInfo != nil){
-                        try self.syncData(connectionInfo: connectionInfo!)
+                        try self.syncData(connectionInfo: connectionInfo!,result: { data in
+                            
+                        })
                     }
                 }catch{
                     NSLog("Error while loading data for task \(task.identifier) \(error)")
@@ -323,24 +315,21 @@ import BackgroundTasks
     }
     
     
-    private func syncData(connectionInfo:String) throws {
+    private func syncData(connectionInfo:String,result: @escaping FlutterResult) throws {
         Messaging.messaging().subscribe(toTopic: "ios_updates") { error in
           NSLog("Subscribed to ios_updates with error \(error)")
         }
-        
-        //DataSync.loadWeatherData()
+    
         
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         let deviceType = getDeviceType()
         NSLog("Syncing data for device \(deviceType)")
         UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
         if(deviceType! == AppDelegate.WATCH_TYPE){
-            self.getWatchDevice()?.syncData(connectionInfo: connectionData)
+            self.getWatchDevice()?.syncData(connectionInfo: connectionData,result: result)
         }
-//        else if(deviceType! == AppDelegate.BAND_TYPE){
-//            self.getBandDevice()?.syncData(connectionInfo: connectionData)
-//        }
     }
+    
     private func getProfile(){
         let deviceType = getDeviceType()
         NSLog("Syncing data for device \(deviceType)")
