@@ -307,7 +307,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       //       ),
       //     ],
       //   ),
-      body: SingleChildScrollView(
+      body: Container(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           // child: Column(
@@ -322,37 +322,42 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
           //   ],
           // ),
 
-          child: Column(
-            children: [
-              SizedBox(
-                height: 50,
-              ),
-              Expanded(
-                child: PageView.builder(
-                  scrollDirection: Axis.horizontal,
-                  controller: _pageController,
-                  onPageChanged: _onPageChanged,
-                  itemCount: trackerTypeData.length,
-                  itemBuilder: (ctx, i) => Transform(
-                    transform: Matrix4.identity()
-                      ..rotateX(currentPageValue - i),
-                    child: TrackerDataWidget(
-                      trackerMasterData: trackerTypeData[i],
-                    ),
-                  ),
-                  physics: canScroll
-                      ? ScrollPhysics()
-                      : NeverScrollableScrollPhysics(),
+          child: Container(
+            // decoration: BoxDecoration(
+            //   color: Colors.white,
+            // ),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 50,
                 ),
-              ),
-              SizedBox(
-                height: 25,
-              ),
-              _populateDots(),
-              SizedBox(
-                height: MediaQuery.of(context).size.width * 0.2,
-              ),
-            ],
+                Expanded(
+                  child: PageView.builder(
+                    scrollDirection: Axis.horizontal,
+                    controller: _pageController,
+                    onPageChanged: _onPageChanged,
+                    itemCount: trackerTypeData.length,
+                    itemBuilder: (ctx, i) => Transform(
+                      transform: Matrix4.identity()
+                        ..rotateX(currentPageValue - i),
+                      child: TrackerDataWidget(
+                        trackerMasterData: trackerTypeData[i],
+                      ),
+                    ),
+                    physics: canScroll
+                        ? ScrollPhysics()
+                        : NeverScrollableScrollPhysics(),
+                  ),
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                _populateDots(),
+                SizedBox(
+                  height: MediaQuery.of(context).size.width * 0.2,
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -434,7 +439,7 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
 
   @override
   void initState() {
-    _loadData();
+    // _loadData();
 
     // TODO: implement initState
     super.initState();
@@ -530,8 +535,7 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              // if (_lastTemperature != null)
-              //   ..._buildTrackerHeader('Temperature', 'temperature'),
+              ..._buildTrackerHeader(trackerMasterData),
               // if (_lastTemperature != null) ..._loadTemperatureData(),
               // if (_lastTemperature == null)
               //   _loadCountDownTimer(70, 'Temperature'),
@@ -571,6 +575,55 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
                   ),
                 )),
           );
+  }
+
+  List<Widget> _buildTrackerHeader(trackerMasterData) {
+    return [
+      Container(
+        margin: EdgeInsets.only(
+          top: 30,
+          bottom: 10,
+        ),
+        child: Text(
+          trackerMasterData?.displayName,
+          style: TextStyle(
+            fontSize: 26,
+            // fontWeight: FontWeight.bold,
+          ),
+        ),
+      ),
+      SizedBox(
+        height: MediaQuery.of(context).size.width * 0.1,
+      ),
+
+      // Image.asset(
+      //   'assets/icons/icons_' +
+      //       trackerMasterData?.trackerName?.toLowerCase() +
+      //       '.png',
+      //   height: 25,
+      //   errorBuilder: (
+      //     BuildContext context,
+      //     Object exception,
+      //     StackTrace stackTrace,
+      //   ) {
+      //     return Image.asset(
+      //       'assets/images/placeholder.jpg',
+      //       height: 25,
+      //     );
+      //   },
+      // ),
+
+      Container(
+        padding: EdgeInsets.all(16),
+        child: SvgPicture.asset(
+          'assets/trackers/' +
+              trackerMasterData?.trackerName?.toLowerCase() +
+              '.svg',
+          height: MediaQuery.of(context).size.width * 0.2,
+        ),
+      ),
+      SizedBox(height: 20),
+    ];
   }
 
   Widget _buildLastUpdatedTime(time) {
@@ -653,58 +706,6 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
 
 EdgeInsets _trackerPadding() {
   return EdgeInsets.symmetric(horizontal: 40, vertical: 5);
-}
-
-Container trackerDisplayName(trackerMasterData) {
-  return Container(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(20),
-        topRight: Radius.circular(20),
-      ),
-      color: Colors.white,
-      boxShadow: [
-        BoxShadow(
-          color: Color.fromRGBO(0, 0, 0, 0.10),
-          blurRadius: 10.0,
-          // spreadRadius: 1.0,
-          offset: Offset(0, 10),
-        ),
-      ],
-    ),
-    child: Container(
-      padding: EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Image.asset(
-            'assets/icons/icons_' +
-                trackerMasterData?.trackerName?.toLowerCase() +
-                '.png',
-            height: 25,
-            errorBuilder: (
-              BuildContext context,
-              Object exception,
-              StackTrace stackTrace,
-            ) {
-              return Image.asset(
-                'assets/images/placeholder.jpg',
-                height: 25,
-              );
-            },
-          ),
-          const SizedBox(width: 16),
-          Text(
-            trackerMasterData?.displayName,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ],
-      ),
-    ),
-  );
 }
 
 Container lastUpdated(_trackerData) {
