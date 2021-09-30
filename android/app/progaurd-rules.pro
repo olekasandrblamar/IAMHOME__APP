@@ -76,6 +76,7 @@
 -keep class cn.icomon.**.* {*;}
 -keep class com.icomon.**.* {*;}
 -keep class com.icomon.icbodyfatalgorithms.* {*;}
+-keep class com.veepoo.protocol.model.datas.* {*;}
 
 -keepclasseswithmembernames,includedescriptorclasses class * {
     native <methods>;
