@@ -401,15 +401,18 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
                 ...singleDisplayText(trackerMasterData, _trackerData),
               if (trackerMasterData.trackerType == 'DOUBLE_VALUE')
                 ...multipleDisplayText(trackerMasterData, _trackerData),
-              // if (_lastTemperature != null) ..._loadTemperatureData(),
-              // if (_lastTemperature == null)
-              //   _loadCountDownTimer(70, 'Temperature'),
-              // _buildLatestDataButton(_trackerData, 'type'),
+              const SizedBox(height: 10),
+              _buildLatestDataButton(trackerMasterData),
+              const SizedBox(height: 10),
               _trackerData != null
-                  ? _buildLastUpdatedTime(trackerMasterData)
+                  ? _buildLastUpdatedTime(_trackerData)
                   : Container(
                       height: 0,
                     ),
+              const SizedBox(height: 10),
+              // if (_lastTemperature != null) ..._loadTemperatureData(),
+              // if (_lastTemperature == null)
+              //   _loadCountDownTimer(70, 'Temperature'),
             ],
           ),
         ),
@@ -417,7 +420,7 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
     );
   }
 
-  Widget _buildLatestDataButton(trackerMasterData, type) {
+  Widget _buildLatestDataButton(Tracker trackerMasterData) {
     return !canScroll
         ? _loadCircularIndicator(trackerMasterData?.displayName)
         : Container(
@@ -432,7 +435,7 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
               color: Color.fromRGBO(11, 140, 196, 1),
               textColor: Colors.white,
               onPressed: () {
-                return _readDataFromDevice(type);
+                return _readDataFromDevice(trackerMasterData?.trackerType);
               },
               child: FittedBox(
                 child: Text(
@@ -477,27 +480,7 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         SizedBox(height: 100),
-        canScroll
-            ?
-            // TimeCircularCountdown(
-            //   unit: CountdownUnit.second,
-            //   countdownTotal: 10,
-            //   diameter: 200,
-            //   countdownTotalColor: Colors.white,
-            //   countdownCurrentColor: Colors.blue,
-            //   countdownRemainingColor: Colors.blue,
-            //   strokeWidth: 20,
-            //   gapFactor: 5,
-            //   repeat: true,
-            //   onUpdated: (unit, remainingTime) => print('Updated'),
-            // // textStyle: TextStyle(
-            // // fontSize: 50,
-            // // fontWeight: FontWeight.bold,
-            // // color: Colors.redAccent,
-            // // ),
-            // )
-            Container()
-            : _currentCountDown,
+        canScroll ? Container() : _currentCountDown,
         SizedBox(height: 20),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -541,7 +524,7 @@ BoxDecoration _cardDecoration() {
   );
 }
 
-List<Widget> multipleDisplayText(trackerMasterData, _trackerData) {
+List<Widget> multipleDisplayText(Tracker trackerMasterData, _trackerData) {
   String trackerDataValue1;
   String trackerDataValue2;
 
@@ -618,7 +601,7 @@ List<Widget> multipleDisplayText(trackerMasterData, _trackerData) {
   ];
 }
 
-List<Widget> singleDisplayText(trackerMasterData, _trackerData) {
+List<Widget> singleDisplayText(Tracker trackerMasterData, _trackerData) {
   String trackerDataValue;
 
   if (_trackerData.data != null) {
@@ -675,7 +658,7 @@ List<Widget> singleDisplayText(trackerMasterData, _trackerData) {
   ];
 }
 
-List<Widget> _buildTrackerHeader(trackerMasterData, context) {
+List<Widget> _buildTrackerHeader(Tracker trackerMasterData, context) {
   return [
     Container(
       margin: EdgeInsets.only(
