@@ -604,7 +604,7 @@ List<Widget> multipleDisplayText(Tracker trackerMasterData, _trackerData) {
 List<Widget> singleDisplayText(Tracker trackerMasterData, _trackerData) {
   String trackerDataValue;
 
-  if (_trackerData.data != null) {
+  if (_trackerData?.data != null) {
     if (trackerMasterData?.trackerValues[0]?.valueDataType == 'INT') {
       trackerDataValue = _trackerData?.data?.toInt().toString();
     }
