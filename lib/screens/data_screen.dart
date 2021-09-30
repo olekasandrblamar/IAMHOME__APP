@@ -40,8 +40,6 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
   Map<String, bool> processingMap = {};
 
-  final eventChannel = EventChannel("ceras.iamhome.mobile/device_events");
-
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     print('Got state ${state}');
@@ -106,145 +104,6 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     }
   }
 
-  void _gotoListPage() async {
-    await Navigator.of(context).pushReplacementNamed(
-      routes.SetupHomeRoute,
-    );
-  }
-
-  // void _readDataFromDevice(String dataType) async {
-  //   setState(() {
-  //     canScroll = false;
-  //   });
-  //   print('Loading data type $dataType');
-  //   var _processingMap = processingMap;
-  //   _processingMap[dataType] = true;
-  //   setState(() {
-  //     processingMap = _processingMap;
-  //   });
-  //   var deviceList = await Provider.of<DevicesProvider>(context, listen: false)
-  //       .getDevicesData();
-  //   var device = deviceList[0];
-  //   final requestData = {
-  //     'deviceType': device.watchInfo.deviceType,
-  //     'readingType': dataType
-  //   };
-  //   var request = json.encode(requestData);
-  //   //var currentTemp = _lastTemperature;
-  //   print('Sending request $request');
-  //   switch (dataType) {
-  //     case 'TEMPERATURE':
-  //       {
-  //         setState(() {
-  //           _lastTemperature = null;
-  //         });
-  //       }
-  //       break;
-  //     case 'HR':
-  //       {
-  //         setState(() {
-  //           _lastHr = null;
-  //         });
-  //       }
-  //       break;
-  //     case 'O2':
-  //       {
-  //         setState(() {
-  //           _oxygenLevel = null;
-  //         });
-  //       }
-  //       break;
-  //     case 'BP':
-  //       {
-  //         setState(() {
-  //           _bloodPressure = null;
-  //         });
-  //       }
-  //       break;
-  //     default:
-  //       {}
-  //       break;
-  //   }
-  //
-  //   var subscription =
-  //   eventChannel.receiveBroadcastStream(requestData).listen((event) {
-  //     final returnData = json.decode(event);
-  //     switch (dataType) {
-  //       case 'TEMPERATURE':
-  //         {
-  //           if (returnData['countDown'] == 0) {
-  //             var updatedTemp = Temperature();
-  //             updatedTemp.celsius = returnData['celsius'];
-  //             updatedTemp.fahrenheit = returnData['fahrenheit'];
-  //             updatedTemp.measureTime = DateTime.now();
-  //             setState(() {
-  //               _lastTemperature = updatedTemp;
-  //             });
-  //           }
-  //         }
-  //         break;
-  //       case 'HR':
-  //         {
-  //           if (returnData['rate'] != 0) {
-  //             var updatedHr = HeartRate();
-  //             updatedHr.heartRate = returnData['heartRate'];
-  //             updatedHr.measureTime = DateTime.now();
-  //             setState(() {
-  //               _lastHr = updatedHr;
-  //             });
-  //           }
-  //         }
-  //         break;
-  //       case 'BP':
-  //         {
-  //           if (returnData['systolic'] != 0) {
-  //             var updatedBp = BloodPressure();
-  //             updatedBp.systolic = returnData['systolic'];
-  //             updatedBp.distolic = returnData['diastolic'];
-  //             updatedBp.measureTime = DateTime.now();
-  //             setState(() {
-  //               _bloodPressure = updatedBp;
-  //             });
-  //           }
-  //         }
-  //         break;
-  //       case 'O2':
-  //         {
-  //           if (returnData['oxygenLevel'] != 0) {
-  //             var updateo2 = OxygenLevel();
-  //             updateo2.oxygenLevel = returnData['oxygenLevel'];
-  //             updateo2.measureTime = DateTime.now();
-  //             setState(() {
-  //               _oxygenLevel = updateo2;
-  //             });
-  //           }
-  //         }
-  //         break;
-  //       default:
-  //         {}
-  //         break;
-  //     }
-  //   }, onError: (dynamic error) {
-  //     var _processingMap = processingMap;
-  //     _processingMap[dataType] = false;
-  //     setState(() {
-  //       processingMap = _processingMap;
-  //       canScroll = true;
-  //     });
-  //     _currentCountDown = null;
-  //     print('Got error $error for data type $dataType');
-  //   }, onDone: () {
-  //     print('completed for $dataType');
-  //     var _processingMap = processingMap;
-  //     _processingMap[dataType] = false;
-  //     setState(() {
-  //       canScroll = true;
-  //       _currentCountDown = null;
-  //       processingMap = _processingMap;
-  //     });
-  //   }, cancelOnError: true);
-  // }
-
   void _goToLogin() async {
     await Navigator.of(context).pushReplacementNamed(
       routes.LoginRoute,
@@ -261,71 +120,12 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         title: Text(
           'My Data',
         ),
-        // actions: <Widget>[
-        //   SwitchStoreIcon(),
-        // ],
       ),
       backgroundColor: Color(0xffecf3fb),
-      // body: Container(
-      //   decoration: BoxDecoration(
-      //     color: Color(0xffecf3fb),
-      //   ),
-      //   child: CustomScrollView(
-      //     physics: BouncingScrollPhysics(),
-      //     slivers: [
-      //       SliverAppBar(
-      //         // backgroundColor: Colors.transparent,
-      //         // elevation: 0.0,
-      //         pinned: true,
-      //         expandedHeight: 150.0,
-      //         stretch: true,
-      //         stretchTriggerOffset: 75,
-      //         flexibleSpace: FlexibleSpaceBar(
-      //           title: Text(
-      //             'My Data',
-      //             style: TextStyle(
-      //               fontSize: 25,
-      //               // fontWeight: FontWeight.bold,
-      //               // color: Colors.black,
-      //             ),
-      //           ),
-      //           stretchModes: [
-      //             StretchMode.zoomBackground,
-      //             // StretchMode.blurBackground,
-      //             // StretchMode.fadeTitle,
-      //           ],
-      //           background: Image.asset(
-      //             'assets/images/clouds.png',
-      //             fit: BoxFit.cover,
-      //           ),
-      //         ),
-      //       ),
-      //       SliverList(
-      //         delegate: SliverChildListDelegate(
-      //           []
-      //         ),
-      //       ),
-      //     ],
-      //   ),
       body: Container(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          // child: Column(
-          //   children: [
-          //     const SizedBox(height: 16),
-          //     ...trackerTypeData?.map((trackerMasterData) {
-          //           return TrackerDataWidget(
-          //               trackerMasterData: trackerMasterData);
-          //         }) ??
-          //         [],
-          //     const SizedBox(height: 16),
-          //   ],
-          // ),
-
           child: Container(
-            // decoration: BoxDecoration(
-            //   color: Colors.white,
-            // ),
             child: Column(
               children: [
                 SizedBox(
@@ -394,17 +194,6 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         color: isActive ? Theme.of(context).primaryColor : Colors.grey,
         borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
-      // child: Center(
-      //   child: FittedBox(
-      //     child: Text(
-      //       (index + 1).toString(),
-      //       style: TextStyle(
-      //         color: Colors.white,
-      //         fontSize: isActive ? 15 : 13,
-      //       ),
-      //     ),
-      //   ),
-      // ),
     );
   }
 }
@@ -485,49 +274,121 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
     var request = json.encode(requestData);
     //var currentTemp = _lastTemperature;
     print('Sending request $request');
+    // switch (dataType) {
+    //   case 'TEMPERATURE':
+    //     {
+    //       setState(() {
+    //         _lastTemperature = null;
+    //       });
+    //     }
+    //     break;
+    //   case 'HR':
+    //     {
+    //       setState(() {
+    //         _lastHr = null;
+    //       });
+    //     }
+    //     break;
+    //   case 'O2':
+    //     {
+    //       setState(() {
+    //         _oxygenLevel = null;
+    //       });
+    //     }
+    //     break;
+    //   case 'BP':
+    //     {
+    //       setState(() {
+    //         _bloodPressure = null;
+    //       });
+    //     }
+    //     break;
+    //   default:
+    //     {}
+    //     break;
+    // }
+
+    // var subscription =
+    //     eventChannel.receiveBroadcastStream(requestData).listen((event) {
+    //   final returnData = json.decode(event);
+    //   switch (dataType) {
+    //     case 'TEMPERATURE':
+    //       {
+    //         if (returnData['countDown'] == 0) {
+    //           var updatedTemp = Temperature();
+    //           updatedTemp.celsius = returnData['celsius'];
+    //           updatedTemp.fahrenheit = returnData['fahrenheit'];
+    //           updatedTemp.measureTime = DateTime.now();
+    //           setState(() {
+    //             _lastTemperature = updatedTemp;
+    //           });
+    //         }
+    //       }
+    //       break;
+    //     case 'HR':
+    //       {
+    //         if (returnData['rate'] != 0) {
+    //           var updatedHr = HeartRate();
+    //           updatedHr.heartRate = returnData['heartRate'];
+    //           updatedHr.measureTime = DateTime.now();
+    //           setState(() {
+    //             _lastHr = updatedHr;
+    //           });
+    //         }
+    //       }
+    //       break;
+    //     case 'BP':
+    //       {
+    //         if (returnData['systolic'] != 0) {
+    //           var updatedBp = BloodPressure();
+    //           updatedBp.systolic = returnData['systolic'];
+    //           updatedBp.distolic = returnData['diastolic'];
+    //           updatedBp.measureTime = DateTime.now();
+    //           setState(() {
+    //             _bloodPressure = updatedBp;
+    //           });
+    //         }
+    //       }
+    //       break;
+    //     case 'O2':
+    //       {
+    //         if (returnData['oxygenLevel'] != 0) {
+    //           var updateo2 = OxygenLevel();
+    //           updateo2.oxygenLevel = returnData['oxygenLevel'];
+    //           updateo2.measureTime = DateTime.now();
+    //           setState(() {
+    //             _oxygenLevel = updateo2;
+    //           });
+    //         }
+    //       }
+    //       break;
+    //     default:
+    //       {}
+    //       break;
+    //   }
+    // }, onError: (dynamic error) {
+    //   var _processingMap = processingMap;
+    //   _processingMap[dataType] = false;
+    //   setState(() {
+    //     processingMap = _processingMap;
+    //     canScroll = true;
+    //   });
+    //   _currentCountDown = null;
+    //   print('Got error $error for data type $dataType');
+    // }, onDone: () {
+    //   print('completed for $dataType');
+    //   var _processingMap = processingMap;
+    //   _processingMap[dataType] = false;
+    //   setState(() {
+    //     canScroll = true;
+    //     _currentCountDown = null;
+    //     processingMap = _processingMap;
+    //   });
+    // }, cancelOnError: true);
   }
 
   @override
   Widget build(BuildContext context) {
-    // return Container(
-    //   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-    //   child: Card(
-    //     // color: Color(0xffdfeffd),
-    //     elevation: 5,
-    //     shape: RoundedRectangleBorder(
-    //       borderRadius: BorderRadius.circular(20.0),
-    //     ),
-    //     child: Column(
-    //       children: [
-    //         trackerDisplayName(trackerMasterData),
-    //         _trackerData != null
-    //             ? Container(
-    //                 padding: EdgeInsets.all(16),
-    //                 child: Row(
-    //                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-    //                   children: <Widget>[
-    //                     if (trackerMasterData.trackerType == 'SINGLE_VALUE')
-    //                       singleDisplayText(trackerMasterData, _trackerData),
-    //                     if (trackerMasterData.trackerType == 'DOUBLE_VALUE')
-    //                       multipleDisplayText(trackerMasterData, _trackerData),
-    //                   ],
-    //                 ),
-    //               )
-    //             : Padding(
-    //                 padding: const EdgeInsets.all(16.0),
-    //                 child: CircularProgressIndicator(),
-    //               ),
-    //         _trackerData != null
-    //             ? lastUpdated(_trackerData)
-    //             : Container(
-    //                 height: 0,
-    //               ),
-    //         const SizedBox(height: 10),
-    //       ],
-    //     ),
-    //   ),
-    // );
-
     return Container(
       padding: _trackerPadding(),
       child: Container(
@@ -535,13 +396,20 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
         child: SingleChildScrollView(
           child: Column(
             children: [
-              ..._buildTrackerHeader(trackerMasterData),
+              ..._buildTrackerHeader(trackerMasterData, context),
+              if (trackerMasterData.trackerType == 'SINGLE_VALUE')
+                ...singleDisplayText(trackerMasterData, _trackerData),
+              if (trackerMasterData.trackerType == 'DOUBLE_VALUE')
+                ...multipleDisplayText(trackerMasterData, _trackerData),
               // if (_lastTemperature != null) ..._loadTemperatureData(),
               // if (_lastTemperature == null)
               //   _loadCountDownTimer(70, 'Temperature'),
-              // _buildLatestDataButton('O2', 'Oxygen Saturation'),
-              // const SizedBox(height: 10),
-              // _buildLastUpdatedTime(_oxygenLevel.measureTime)
+              // _buildLatestDataButton(_trackerData, 'type'),
+              _trackerData != null
+                  ? _buildLastUpdatedTime(trackerMasterData)
+                  : Container(
+                      height: 0,
+                    ),
             ],
           ),
         ),
@@ -549,92 +417,33 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
     );
   }
 
-  Widget _buildLatestDataButton(type, displayName) {
+  Widget _buildLatestDataButton(trackerMasterData, type) {
     return !canScroll
-        ? _loadCircularIndicator(displayName)
+        ? _loadCircularIndicator(trackerMasterData?.displayName)
         : Container(
             width: 270,
             height: 80,
             padding: EdgeInsets.all(15),
             child: FlatButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  // side: BorderSide(color: Colors.grey),
-                ),
-                color: Color.fromRGBO(11, 140, 196, 1),
-                textColor: Colors.white,
-                onPressed: () {
-                  return _readDataFromDevice(type);
-                },
-                child: FittedBox(
-                  child: Text(
-                    'Measure Now',
-                    style: TextStyle(
-                      fontSize: 20,
-                    ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+                // side: BorderSide(color: Colors.grey),
+              ),
+              color: Color.fromRGBO(11, 140, 196, 1),
+              textColor: Colors.white,
+              onPressed: () {
+                return _readDataFromDevice(type);
+              },
+              child: FittedBox(
+                child: Text(
+                  'Measure Now',
+                  style: TextStyle(
+                    fontSize: 20,
                   ),
-                )),
+                ),
+              ),
+            ),
           );
-  }
-
-  List<Widget> _buildTrackerHeader(trackerMasterData) {
-    return [
-      Container(
-        margin: EdgeInsets.only(
-          top: 30,
-          bottom: 10,
-        ),
-        child: Text(
-          trackerMasterData?.displayName,
-          style: TextStyle(
-            fontSize: 26,
-            // fontWeight: FontWeight.bold,
-          ),
-        ),
-      ),
-      SizedBox(
-        height: MediaQuery.of(context).size.width * 0.1,
-      ),
-
-      // Image.asset(
-      //   'assets/icons/icons_' +
-      //       trackerMasterData?.trackerName?.toLowerCase() +
-      //       '.png',
-      //   height: 25,
-      //   errorBuilder: (
-      //     BuildContext context,
-      //     Object exception,
-      //     StackTrace stackTrace,
-      //   ) {
-      //     return Image.asset(
-      //       'assets/images/placeholder.jpg',
-      //       height: 25,
-      //     );
-      //   },
-      // ),
-
-      Container(
-        padding: EdgeInsets.all(16),
-        child: SvgPicture.asset(
-          'assets/trackers/' +
-              trackerMasterData?.trackerName?.toLowerCase() +
-              '.svg',
-          height: MediaQuery.of(context).size.width * 0.2,
-        ),
-      ),
-      SizedBox(height: 20),
-    ];
-  }
-
-  Widget _buildLastUpdatedTime(time) {
-    return Container(
-      child: FittedBox(
-        child: Text(
-          'Last: ' + _formatDate(time) + ' ' + _formatTime(time),
-          style: TextStyle(fontSize: 20),
-        ),
-      ),
-    );
   }
 
   Widget _loadCountDownTimer(int seconds, String type) {
@@ -708,34 +517,31 @@ EdgeInsets _trackerPadding() {
   return EdgeInsets.symmetric(horizontal: 40, vertical: 5);
 }
 
-Container lastUpdated(_trackerData) {
-  String _formatDate(DateTime date) {
-    return DateFormat.yMMMMd().format(date.toLocal());
-  }
+Widget _loadCircularIndicator(String text) {
+  return Column(
+    children: [
+      SizedBox(height: 10),
+      CircularProgressIndicator(),
+      SizedBox(height: 20),
+      Text('Reading ' + text,
+          style: TextStyle(fontSize: 20, color: Colors.black))
+    ],
+  );
+}
 
-  String _formatTime(DateTime date) {
-    return DateFormat.jm().format(date.toLocal());
-  }
-
-  return Container(
-    child: FittedBox(
-      child: Text(
-        _trackerData != null
-            ? 'Last Updated: ' +
-                _formatDate(_trackerData.measureTime) +
-                ' ' +
-                _formatTime(_trackerData.measureTime)
-            : '--',
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
-        ),
-      ),
+BoxDecoration _cardDecoration() {
+  return BoxDecoration(
+    borderRadius: BorderRadius.all(Radius.circular(20)),
+    image: DecorationImage(
+      colorFilter:
+          ColorFilter.mode(Colors.white.withOpacity(0.70), BlendMode.dstATop),
+      image: AssetImage('assets/trackers/tracker_background.png'),
+      fit: BoxFit.fill,
     ),
   );
 }
 
-Expanded multipleDisplayText(trackerMasterData, _trackerData) {
+List<Widget> multipleDisplayText(trackerMasterData, _trackerData) {
   String trackerDataValue1;
   String trackerDataValue2;
 
@@ -768,40 +574,51 @@ Expanded multipleDisplayText(trackerMasterData, _trackerData) {
     trackerDataValue2 = '0';
   }
 
-  return Expanded(
-    flex: 6,
-    child: FittedBox(
-      child: RichText(
-        text: TextSpan(children: [
-          TextSpan(
-            text: trackerDataValue1 + '/' + trackerDataValue2,
-            style: TextStyle(
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          WidgetSpan(
-            child: Transform.translate(
-              offset: const Offset(2, 2),
-              child: Text(
-                trackerMasterData?.trackerValues[0].units,
-                //superscript is usually smaller in size
-                textScaleFactor: 2,
+  return [
+    Container(
+      padding: EdgeInsets.all(16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          // Expanded(
+          //   flex: 6,
+          //   child: FittedBox(
+          //     child:
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(
+                text: trackerDataValue1 + '/' + trackerDataValue2,
                 style: TextStyle(
-                  color: Colors.black,
+                  fontSize: 50,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
-            ),
+              WidgetSpan(
+                child: Transform.translate(
+                  offset: const Offset(2, 2),
+                  child: Text(
+                    trackerMasterData?.trackerValues[0].units,
+                    //superscript is usually smaller in size
+                    textScaleFactor: 2,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ]),
           ),
-        ]),
+          //   ),
+          // ),
+        ],
       ),
     ),
-  );
+  ];
 }
 
-Expanded singleDisplayText(trackerMasterData, _trackerData) {
+List<Widget> singleDisplayText(trackerMasterData, _trackerData) {
   String trackerDataValue;
 
   if (_trackerData.data != null) {
@@ -820,79 +637,98 @@ Expanded singleDisplayText(trackerMasterData, _trackerData) {
     trackerDataValue = '0';
   }
 
-  return Expanded(
-    flex: 6,
-    child: FittedBox(
-      child: RichText(
-        text: TextSpan(children: [
-          TextSpan(
-            text: trackerDataValue,
-            style: TextStyle(
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          WidgetSpan(
-            child: Transform.translate(
-              offset: const Offset(2, 2),
-              child: Text(
-                trackerMasterData?.trackerValues[0].units ?? '',
-                //superscript is usually smaller in size
-                textScaleFactor: 2,
+  return [
+    Container(
+      padding: EdgeInsets.all(16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(
+                text: trackerDataValue,
                 style: TextStyle(
-                  color: Colors.black,
+                  fontSize: 50,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
-            ),
+              WidgetSpan(
+                child: Transform.translate(
+                  offset: const Offset(2, 2),
+                  child: Text(
+                    trackerMasterData?.trackerValues[0].units ?? '',
+                    //superscript is usually smaller in size
+                    textScaleFactor: 2,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ]),
           ),
-        ]),
+        ],
+      ),
+    ),
+  ];
+}
+
+List<Widget> _buildTrackerHeader(trackerMasterData, context) {
+  return [
+    Container(
+      margin: EdgeInsets.only(
+        top: 30,
+        bottom: 10,
+      ),
+      child: Text(
+        trackerMasterData?.displayName,
+        style: TextStyle(
+          fontSize: 26,
+          // fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+    SizedBox(
+      height: MediaQuery.of(context).size.width * 0.1,
+    ),
+    Container(
+      padding: EdgeInsets.all(16),
+      child: SvgPicture.asset(
+        'assets/trackers/' +
+            trackerMasterData?.trackerName?.toLowerCase() +
+            '.svg',
+        height: MediaQuery.of(context).size.width * 0.2,
+      ),
+    ),
+    SizedBox(height: 20),
+  ];
+}
+
+Container _buildLastUpdatedTime(_trackerData) {
+  String _formatDate(DateTime date) {
+    return DateFormat.yMMMMd().format(date.toLocal());
+  }
+
+  String _formatTime(DateTime date) {
+    return DateFormat.jm().format(date.toLocal());
+  }
+
+  return Container(
+    child: FittedBox(
+      child: Text(
+        _trackerData != null
+            ? 'Last Updated: ' +
+                _formatDate(_trackerData.measureTime) +
+                ' ' +
+                _formatTime(_trackerData.measureTime)
+            : '--',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     ),
   );
-}
-
-Widget _loadCircularIndicator(String text) {
-  return Column(
-    children: [
-      SizedBox(height: 10),
-      CircularProgressIndicator(),
-      SizedBox(height: 20),
-      Text('Reading ' + text,
-          style: TextStyle(fontSize: 20, color: Colors.black))
-    ],
-  );
-}
-
-BoxDecoration _cardDecoration() {
-  return BoxDecoration(
-      borderRadius: BorderRadius.all(Radius.circular(20)),
-      image: DecorationImage(
-          colorFilter: ColorFilter.mode(
-              Colors.white.withOpacity(0.70), BlendMode.dstATop),
-          image: AssetImage('assets/trackers/tracker_background.png'),
-          fit: BoxFit.fill)
-      // boxShadow: [
-      //   BoxShadow(
-      //     color: Colors.grey.withOpacity(0.5),
-      //     // spreadRadius: 5,
-      //     blurRadius: 5,
-      //     offset: Offset(0, 3), // changes position of shadow
-      //   ),
-      // ],
-      // gradient: LinearGradient(
-      //   begin: Alignment.topCenter,
-      //   end: Alignment.bottomCenter,
-      //   colors: [Color(0xFFFFFFFF), Color(0xFFDBFBFF)],
-      // ),
-      );
-}
-
-String _formatDate(DateTime date) {
-  return DateFormat.MMMMd().format(date.toLocal());
-}
-
-String _formatTime(DateTime date) {
-  return DateFormat.jm().format(date.toLocal());
 }
