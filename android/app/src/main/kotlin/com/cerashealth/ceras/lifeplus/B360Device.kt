@@ -11,10 +11,7 @@ import com.veepoo.protocol.VPOperateManager
 import com.veepoo.protocol.listener.base.IBleWriteResponse
 import com.veepoo.protocol.listener.data.*
 import com.veepoo.protocol.model.datas.*
-import com.veepoo.protocol.model.enums.EOprateStauts
-import com.veepoo.protocol.model.enums.EPwdStatus
-import com.veepoo.protocol.model.enums.ESex
-import com.veepoo.protocol.model.enums.ETemperatureUnit
+import com.veepoo.protocol.model.enums.*
 import com.veepoo.protocol.model.settings.CustomSetting
 import io.flutter.plugin.common.MethodChannel
 import java.text.SimpleDateFormat
@@ -80,7 +77,13 @@ class B360Device:BaseDevice(),SearchResponse {
 
     override fun syncData(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
         this.connectionInfo = connectionInfo
-        if(vManager == null){
+        val isDeviceConnected = vManager != null
+        Log.i(B360DeviceTag,"Device connected $isDeviceConnected")
+        if(isDeviceConnected){
+            syncData()
+            result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
+                deviceId = connectionInfo.deviceId,connected = true,deviceType = connectionInfo.deviceType))
+        }else{
             getManager(context).connectDevice(connectionInfo.deviceId,connectionInfo.deviceName, { code, bleGattProfile, isOadModel ->
                 Log.i(B360DeviceTag,"Got code $code oadModel $isOadModel")
             }, {resp->
@@ -98,10 +101,6 @@ class B360Device:BaseDevice(),SearchResponse {
                         deviceId = connectionInfo.deviceId,connected = false,deviceType = connectionInfo.deviceType))
                 }
             })
-        }else{
-            syncData()
-            result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
-                deviceId = connectionInfo.deviceId,connected = true,deviceType = connectionInfo.deviceType))
         }
     }
 
@@ -370,6 +369,7 @@ class B360Device:BaseDevice(),SearchResponse {
             set(Calendar.HOUR_OF_DAY,time.hour)
             set(Calendar.MINUTE,time.minute)
             set(Calendar.SECOND,time.second)
+            set(Calendar.MILLISECOND,0)
         }.time
     }
 
