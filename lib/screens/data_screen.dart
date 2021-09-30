@@ -274,117 +274,36 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
     var request = json.encode(requestData);
     //var currentTemp = _lastTemperature;
     print('Sending request $request');
-    // switch (dataType) {
-    //   case 'TEMPERATURE':
-    //     {
-    //       setState(() {
-    //         _lastTemperature = null;
-    //       });
-    //     }
-    //     break;
-    //   case 'HR':
-    //     {
-    //       setState(() {
-    //         _lastHr = null;
-    //       });
-    //     }
-    //     break;
-    //   case 'O2':
-    //     {
-    //       setState(() {
-    //         _oxygenLevel = null;
-    //       });
-    //     }
-    //     break;
-    //   case 'BP':
-    //     {
-    //       setState(() {
-    //         _bloodPressure = null;
-    //       });
-    //     }
-    //     break;
-    //   default:
-    //     {}
-    //     break;
-    // }
 
-    // var subscription =
-    //     eventChannel.receiveBroadcastStream(requestData).listen((event) {
-    //   final returnData = json.decode(event);
-    //   switch (dataType) {
-    //     case 'TEMPERATURE':
-    //       {
-    //         if (returnData['countDown'] == 0) {
-    //           var updatedTemp = Temperature();
-    //           updatedTemp.celsius = returnData['celsius'];
-    //           updatedTemp.fahrenheit = returnData['fahrenheit'];
-    //           updatedTemp.measureTime = DateTime.now();
-    //           setState(() {
-    //             _lastTemperature = updatedTemp;
-    //           });
-    //         }
-    //       }
-    //       break;
-    //     case 'HR':
-    //       {
-    //         if (returnData['rate'] != 0) {
-    //           var updatedHr = HeartRate();
-    //           updatedHr.heartRate = returnData['heartRate'];
-    //           updatedHr.measureTime = DateTime.now();
-    //           setState(() {
-    //             _lastHr = updatedHr;
-    //           });
-    //         }
-    //       }
-    //       break;
-    //     case 'BP':
-    //       {
-    //         if (returnData['systolic'] != 0) {
-    //           var updatedBp = BloodPressure();
-    //           updatedBp.systolic = returnData['systolic'];
-    //           updatedBp.distolic = returnData['diastolic'];
-    //           updatedBp.measureTime = DateTime.now();
-    //           setState(() {
-    //             _bloodPressure = updatedBp;
-    //           });
-    //         }
-    //       }
-    //       break;
-    //     case 'O2':
-    //       {
-    //         if (returnData['oxygenLevel'] != 0) {
-    //           var updateo2 = OxygenLevel();
-    //           updateo2.oxygenLevel = returnData['oxygenLevel'];
-    //           updateo2.measureTime = DateTime.now();
-    //           setState(() {
-    //             _oxygenLevel = updateo2;
-    //           });
-    //         }
-    //       }
-    //       break;
-    //     default:
-    //       {}
-    //       break;
-    //   }
-    // }, onError: (dynamic error) {
-    //   var _processingMap = processingMap;
-    //   _processingMap[dataType] = false;
-    //   setState(() {
-    //     processingMap = _processingMap;
-    //     canScroll = true;
-    //   });
-    //   _currentCountDown = null;
-    //   print('Got error $error for data type $dataType');
-    // }, onDone: () {
-    //   print('completed for $dataType');
-    //   var _processingMap = processingMap;
-    //   _processingMap[dataType] = false;
-    //   setState(() {
-    //     canScroll = true;
-    //     _currentCountDown = null;
-    //     processingMap = _processingMap;
-    //   });
-    // }, cancelOnError: true);
+    setState(() {
+      _trackerData = null;
+    });
+
+    var subscription =
+        eventChannel.receiveBroadcastStream(requestData).listen((event) {
+      final returnData = json.decode(event);
+      setState(() {
+        _trackerData = returnData;
+      });
+    }, onError: (dynamic error) {
+      var _processingMap = processingMap;
+      _processingMap[dataType] = false;
+      setState(() {
+        processingMap = _processingMap;
+        canScroll = true;
+      });
+      _currentCountDown = null;
+      print('Got error $error for data type $dataType');
+    }, onDone: () {
+      print('completed for $dataType');
+      var _processingMap = processingMap;
+      _processingMap[dataType] = false;
+      setState(() {
+        canScroll = true;
+        _currentCountDown = null;
+        processingMap = _processingMap;
+      });
+    }, cancelOnError: true);
   }
 
   @override
@@ -397,9 +316,11 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
           child: Column(
             children: [
               ..._buildTrackerHeader(trackerMasterData, context),
-              if (trackerMasterData.trackerType == 'SINGLE_VALUE')
+              if (trackerMasterData.trackerType == 'SINGLE_VALUE' &&
+                  _trackerData != null)
                 ...singleDisplayText(trackerMasterData, _trackerData),
-              if (trackerMasterData.trackerType == 'DOUBLE_VALUE')
+              if (trackerMasterData.trackerType == 'DOUBLE_VALUE' &&
+                  _trackerData != null)
                 ...multipleDisplayText(trackerMasterData, _trackerData),
               const SizedBox(height: 10),
               _buildLatestDataButton(trackerMasterData),
@@ -410,9 +331,8 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
                       height: 0,
                     ),
               const SizedBox(height: 10),
-              // if (_lastTemperature != null) ..._loadTemperatureData(),
-              // if (_lastTemperature == null)
-              //   _loadCountDownTimer(70, 'Temperature'),
+              // if (_trackerData == null)
+              //   _loadCountDownTimer(70, trackerMasterData?.displayName),
             ],
           ),
         ),
@@ -563,38 +483,34 @@ List<Widget> multipleDisplayText(Tracker trackerMasterData, _trackerData) {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          // Expanded(
-          //   flex: 6,
-          //   child: FittedBox(
-          //     child:
           RichText(
-            text: TextSpan(children: [
-              TextSpan(
-                text: trackerDataValue1 + '/' + trackerDataValue2,
-                style: TextStyle(
-                  fontSize: 50,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black,
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: trackerDataValue1 + '/' + trackerDataValue2,
+                  style: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
-              ),
-              WidgetSpan(
-                child: Transform.translate(
-                  offset: const Offset(2, 2),
-                  child: Text(
-                    trackerMasterData?.trackerValues[0].units,
-                    //superscript is usually smaller in size
-                    textScaleFactor: 2,
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontWeight: FontWeight.bold,
+                WidgetSpan(
+                  child: Transform.translate(
+                    offset: const Offset(2, 2),
+                    child: Text(
+                      trackerMasterData?.trackerValues[0].units,
+                      //superscript is usually smaller in size
+                      textScaleFactor: 2,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ]),
+              ],
+            ),
           ),
-          //   ),
-          // ),
         ],
       ),
     ),
