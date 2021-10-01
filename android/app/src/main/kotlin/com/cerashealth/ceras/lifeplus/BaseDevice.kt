@@ -67,6 +67,7 @@ open class BaseDevice{
         const val WATCH_DEVICE:String = "bWELL"
         const val BAND_DEVICE:String = "bACTIVE"
         const val B369_DEVICE:String = "B500"
+        const val B360_DEVICE = "B360"
         var isBackground = false
         val TAG = WatchDevice::class.java.simpleName
         const val SUCCESS_STATUS = "Success"
@@ -78,6 +79,7 @@ open class BaseDevice{
                 WATCH_DEVICE-> WatchDevice()
                 BAND_DEVICE->BandDevice()
                 B369_DEVICE->B369Device.getInstance()
+                B360_DEVICE ->B360Device.getInstance()
                 else -> BaseDevice()
             }
         }
