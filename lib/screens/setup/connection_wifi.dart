@@ -253,7 +253,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
   void showErrorDialog(BuildContext context, String message) {
     if (message == 'Invalid Password') {
       showWrongPasswordDialog(context);
-    }else{
+    } else {
       showWifiFailure(context);
     }
     // showDialog(
@@ -416,7 +416,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
         width: double.infinity,
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             SizedBox(height: 5.0),
             !_isInit
@@ -437,136 +437,188 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
   Container EnterWifiInformation(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: <Widget>[
-            SizedBox(
-              height: 25,
+      child: Column(
+        children: [
+          _initialSetup
+              ? Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(
+                    bottom: 10.0,
+                  ),
+                  child: Text(
+                    'Step 2 of 2',
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      letterSpacing: 0.18,
+                      color: Colors.red,
+                    ),
+                  ),
+                )
+              : Container(height: 0),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(
+              bottom: 10.0,
             ),
-            // TextFormField(
-            //     style: TextStyle(
-            //       fontSize: 24,
-            //     ),
-            //     decoration: _inputDecoration('Wifi Name', 'Wifi Name'),
-            //     controller: _wifiController,
-            //     enabled: false,
-            //     keyboardType: TextInputType.text,
-            //     textInputAction: TextInputAction.next,
-            //     autofocus: false,
-            //     validator: (String value) {
-            //       if (value.isEmpty) {
-            //         return 'Please Enter Wifi Name.';
-            //       }
-
-            //       return null;
-            //     }
-            //     // onChanged: onChangePhoneNumberInput,
-            //     ),
-            GestureDetector(
-              onTap: () {
-                SystemSettings.wifi();
-              },
+            child: Text(
+              'Please Choose Your WIFI',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: AppTheme.title,
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            child: Text(
+              'Choose your local wifi network',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: AppTheme.subtitle,
+            ),
+          ),
+          SizedBox(
+            height: 25,
+          ),
+          Form(
+            key: _formKey,
+            child: Card(
+              elevation: 5.0,
               child: Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black38),
-                    borderRadius: BorderRadius.all(Radius.circular(8.0))),
-                width: double.infinity,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Icon(Icons.wifi),
-                    FittedBox(
-                      child: Text(
-                        _wifiName ?? 'WIFI Name',
-                        style: AppTheme.title,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 32.0),
+                child: Column(
+                  children: <Widget>[
+                    // TextFormField(
+                    //     style: TextStyle(
+                    //       fontSize: 24,
+                    //     ),
+                    //     decoration: _inputDecoration('Wifi Name', 'Wifi Name'),
+                    //     controller: _wifiController,
+                    //     enabled: false,
+                    //     keyboardType: TextInputType.text,
+                    //     textInputAction: TextInputAction.next,
+                    //     autofocus: false,
+                    //     validator: (String value) {
+                    //       if (value.isEmpty) {
+                    //         return 'Please Enter Wifi Name.';
+                    //       }
+
+                    //       return null;
+                    //     }
+                    //     // onChanged: onChangePhoneNumberInput,
+                    //     ),
+                    GestureDetector(
+                      onTap: () {
+                        SystemSettings.wifi();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black38),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0))),
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.wifi),
+                            FittedBox(
+                              child: Text(
+                                _wifiName ?? 'WIFI Name',
+                                style: AppTheme.title,
+                              ),
+                            ),
+                            Icon(Icons.chevron_right),
+                          ],
+                        ),
                       ),
                     ),
-                    Icon(Icons.chevron_right),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    TextFormField(
+                        style: TextStyle(
+                          fontSize: 24,
+                        ),
+                        // suffixIcon: Icon(Icons.remove_red_eye),
+                        decoration: _inputDecoration('Password', ''),
+                        controller: _passwordController,
+                        focusNode: _passwordFocusNode,
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.done,
+                        obscureText: _showPassword,
+                        autofocus: true,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter password.';
+                          }
+
+                          if (value.length < 3) {
+                            return 'password must be more than 2 charater';
+                          }
+
+                          return null;
+                        },
+                        onSaved: (password) => _password = password),
+                    SizedBox(
+                      height: 50,
+                    ),
+                    _isLoading
+                        ? Padding(
+                            padding: const EdgeInsets.all(0.0),
+                            child: CircularProgressIndicator(),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.all(0.0),
+                            child: Container(
+                              width: 180.0,
+                              height: 60.0,
+                              child: RaisedButton(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                color: Theme.of(context).primaryColor,
+                                textColor: Colors.white,
+                                onPressed: () => _connectWifi(),
+                                child: Text(
+                                  'Submit',
+                                ),
+                              ),
+                            ),
+                          )
+                    // Container(
+                    //   width: 200,
+                    //   height: 75,
+                    //   padding: EdgeInsets.all(10),
+                    //   child: RaisedButton(
+                    //     shape: RoundedRectangleBorder(
+                    //       borderRadius: BorderRadius.circular(4.5),
+                    //     ),
+                    //     // color: Theme.of(context).primaryColor,
+                    //     // textColor: Colors.white,
+                    //     onPressed: () async {
+                    //       return Navigator.of(context).pushReplacementNamed(
+                    //         routes.SetupHomeRoute,
+                    //       );
+                    //     },
+                    //     child: Text(
+                    //       'Skip',
+                    //       style: TextStyle(
+                    //         fontSize: 14,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
             ),
-            SizedBox(
-              height: 30,
-            ),
-            TextFormField(
-                style: TextStyle(
-                  fontSize: 24,
-                ),
-                // suffixIcon: Icon(Icons.remove_red_eye),
-                decoration: _inputDecoration('Password', ''),
-                controller: _passwordController,
-                focusNode: _passwordFocusNode,
-                keyboardType: TextInputType.text,
-                textInputAction: TextInputAction.done,
-                obscureText: _showPassword,
-                autofocus: true,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter password.';
-                  }
-
-                  if (value.length < 3) {
-                    return 'password must be more than 2 charater';
-                  }
-
-                  return null;
-                },
-                onSaved: (password) => _password = password),
-            SizedBox(
-              height: 50,
-            ),
-            _isLoading
-                ? Padding(
-                    padding: const EdgeInsets.all(0.0),
-                    child: CircularProgressIndicator(),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.all(0.0),
-                    child: Container(
-                      width: 180.0,
-                      height: 60.0,
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        color: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
-                        onPressed: () => _connectWifi(),
-                        child: Text(
-                          'Submit',
-                        ),
-                      ),
-                    ),
-                  )
-            // Container(
-            //   width: 200,
-            //   height: 75,
-            //   padding: EdgeInsets.all(10),
-            //   child: RaisedButton(
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(4.5),
-            //     ),
-            //     // color: Theme.of(context).primaryColor,
-            //     // textColor: Colors.white,
-            //     onPressed: () async {
-            //       return Navigator.of(context).pushReplacementNamed(
-            //         routes.SetupHomeRoute,
-            //       );
-            //     },
-            //     child: Text(
-            //       'Skip',
-            //       style: TextStyle(
-            //         fontSize: 14,
-            //       ),
-            //     ),
-            //   ),
-            // ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

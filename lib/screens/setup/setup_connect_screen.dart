@@ -273,32 +273,30 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   void _redirectTo() {
     Navigator.of(context).pop();
     print('Has wifi ${_deviceData.deviceMaster['wifi']}');
-    if(_deviceData.deviceMaster['wifi']==false) {
+    if (_deviceData.deviceMaster['wifi'] == false) {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-            builder: (BuildContext context) =>
-                SetupConnectedScreen(
-                  routeArgs: {
-                    'deviceData': _deviceData,
-                    'displayImage': _displayImage,
-                  },
-                ),
+            builder: (BuildContext context) => SetupConnectedScreen(
+              routeArgs: {
+                'deviceData': _deviceData,
+                'displayImage': _displayImage,
+              },
+            ),
             settings: const RouteSettings(name: routes.SetupConnectedRoute),
           ),
-              (Route<dynamic> route) => false);
-    }else{
+          (Route<dynamic> route) => false);
+    } else {
       Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(
-            builder: (BuildContext context) =>
-                ConnectionWifiScreen(
-                  routeArgs: {
-                    'displayImage': _displayImage,
-                    'deviceData': _deviceData,
-                  },
-                ),
+            builder: (BuildContext context) => ConnectionWifiScreen(
+              routeArgs: {
+                'displayImage': _displayImage,
+                'deviceData': _deviceData,
+              },
+            ),
             settings: const RouteSettings(name: routes.ConnectionWifiRoute),
           ),
-              (Route<dynamic> route) => false);
+          (Route<dynamic> route) => false);
     }
 
     // Navigator.of(context).pushNamed(
@@ -325,6 +323,22 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
         child: SingleChildScrollView(
           child: Column(
             children: <Widget>[
+              Container(
+                width: double.infinity,
+                child: Text(
+                  _deviceData.deviceMaster['wifi'] == false
+                      ? 'Step 1 of 1'
+                      : 'Step 1 of 2',
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    letterSpacing: 0.18,
+                    color: Colors.red,
+                  ),
+                ),
+              ),
               Container(
                 width: double.infinity,
                 padding: const EdgeInsets.only(
