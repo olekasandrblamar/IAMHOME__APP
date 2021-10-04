@@ -12,6 +12,7 @@ import 'package:ceras/constants/route_paths.dart' as routes;
 import 'package:ceras/helpers/errordialog_popup.dart';
 import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/theme.dart';
+import 'package:pin_code_fields/pin_code_fields.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
 
@@ -325,6 +326,9 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
             children: <Widget>[
               Container(
                 width: double.infinity,
+                padding: const EdgeInsets.only(
+                  bottom: 5.0,
+                ),
                 child: Text(
                   _deviceData.deviceMaster['wifi'] == false
                       ? 'Step 1 of 1'
@@ -341,131 +345,133 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
               ),
               Container(
                 width: double.infinity,
-                padding: const EdgeInsets.only(
-                  bottom: 10.0,
-                ),
-                child: Text(
-                  // _appLocalization.translate('setup.active.devicefound'),
-                  'Device ID located back on device',
-                  overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.left,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                    letterSpacing: 0.18,
-                    color: Colors.red,
-                  ),
-                ),
-              ),
-              Container(
-                width: double.infinity,
                 child: Text(
                   'Please Enter Device ID',
                   overflow: TextOverflow.ellipsis,
-                  textAlign: TextAlign.left,
+                  textAlign: TextAlign.center,
                   style: AppTheme.title,
                 ),
               ),
               SizedBox(
-                height: 20,
+                height: 25,
               ),
-              Container(
-                constraints: BoxConstraints(
-                  maxHeight: 250.0,
-                ),
-                padding: const EdgeInsets.all(10.0),
-                child: Hero(
-                  transitionOnUserGestures: true,
-                  tag: _deviceTag,
-                  child: CachedNetworkImage(
-                    imageUrl: _displayImage,
-                    fit: BoxFit.contain,
-                    alignment: Alignment.center,
-                    fadeInDuration: Duration(milliseconds: 200),
-                    fadeInCurve: Curves.easeIn,
-                    placeholder: (context, url) => CircularProgressIndicator(),
-                    errorWidget: (context, url, error) =>
-                        Image.asset('assets/images/placeholder.jpg'),
-                  ),
-                ),
-              ),
-              SizedBox(
-                height: 20,
-              ),
-              Container(
-                padding: const EdgeInsets.only(bottom: 20.0),
-                child: FittedBox(
-                  child: Text(
-                    (_deviceData?.deviceMaster != null &&
-                            _deviceData?.deviceMaster['displayName'] != null)
-                        ? _deviceData?.deviceMaster['displayName'] + ' Tracker'
-                        : '',
-                    textAlign: TextAlign.center,
-                    style: AppTheme.title,
-                  ),
-                ),
-              ),
-              Row(
-                children: <Widget>[
-                  Flexible(
-                    flex: 2,
-                    child: Container(),
-                  ),
-                  Flexible(
-                    flex: 4,
-                    child: Container(
-                      // margin: EdgeInsets.symmetric(horizontal: 40),
-                      child: TextField(
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 35,
+              Card(
+                elevation: 5.0,
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 16.0, vertical: 32.0),
+                  child: Column(
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.only(bottom: 10.0),
+                        child: FittedBox(
+                          child: Text(
+                            (_deviceData?.deviceMaster != null &&
+                                    _deviceData?.deviceMaster['displayName'] !=
+                                        null)
+                                ? _deviceData?.deviceMaster['displayName'] +
+                                    ' Tracker'
+                                : '',
+                            textAlign: TextAlign.center,
+                            style: AppTheme.title,
+                          ),
                         ),
-                        decoration: InputDecoration(
-                          // border: OutlineInputBorder(),
-                          // labelText: 'Phone',
-                          hintText: '-   -   -   -',
-                        ),
-                        controller: _deviceIdController,
-                        keyboardType: TextInputType.text,
-                        textInputAction: TextInputAction.done,
-                        autofocus: false,
-                        onChanged: _onChangeDeviceIdInput,
-                        enabled: !_isLoading ? true : false,
-                        maxLength: 4,
-                        inputFormatters: [
-                          UpperCaseTextFormatter(),
-                        ],
                       ),
-                    ),
+                      // SizedBox(
+                      //   height: 20,
+                      // ),
+                      Container(
+                        constraints: BoxConstraints(
+                          maxHeight: 250.0,
+                        ),
+                        padding: const EdgeInsets.all(10.0),
+                        child: Hero(
+                          transitionOnUserGestures: true,
+                          tag: _deviceTag,
+                          child: CachedNetworkImage(
+                            imageUrl: _displayImage,
+                            fit: BoxFit.contain,
+                            alignment: Alignment.center,
+                            fadeInDuration: Duration(milliseconds: 200),
+                            fadeInCurve: Curves.easeIn,
+                            placeholder: (context, url) =>
+                                CircularProgressIndicator(),
+                            errorWidget: (context, url, error) =>
+                                Image.asset('assets/images/placeholder.jpg'),
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        height: 20,
+                      ),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 32.0),
+                        child: PinCodeTextField(
+                          appContext: context,
+                          // pastedTextStyle: TextStyle(
+                          //   color: Colors.green.shade600,
+                          //   fontWeight: FontWeight.bold,
+                          // ),
+                          length: 4,
+                          obscureText: false,
+                          obscuringCharacter: '*',
+                          validator: (v) {
+                            if (v.length < 4) {
+                              return '';
+                            } else {
+                              return null;
+                            }
+                          },
+                          pinTheme: PinTheme(
+                            shape: PinCodeFieldShape.box,
+                            borderRadius: BorderRadius.circular(5),
+                            fieldHeight: 60,
+                            fieldWidth: 50,
+                            activeFillColor: Colors.white,
+                            inactiveFillColor: Colors.white,
+                            selectedFillColor: Colors.white,
+                          ),
+                          cursorColor: Colors.black,
+                          animationType: AnimationType.fade,
+                          animationDuration: Duration(milliseconds: 300),
+                          textStyle: TextStyle(fontSize: 20, height: 1.6),
+                          enableActiveFill: true,
+                          // errorAnimationController: errorController,
+                          controller: _deviceIdController,
+                          keyboardType: TextInputType.text,
+                          textInputAction: TextInputAction.done,
+                          boxShadows: [
+                            BoxShadow(
+                              offset: Offset(0, 1),
+                              color: Colors.black12,
+                              blurRadius: 10,
+                            )
+                          ],
+                          onCompleted: (v) {
+                            print('Completed');
+                            _onChangeDeviceIdInput(v);
+                          },
+                          // onTap: () {
+                          //   print("Pressed");
+                          // },
+                          onChanged: (value) {
+                            print(value);
+                            // if (value.length > 4) {
+                            //   _onChangeDeviceIdInput(value);
+                            // }
+                          },
+                          beforeTextPaste: (text) {
+                            print('Allowing to paste $text');
+                            //if you return true then it will show the paste confirmation dialog. Otherwise if false, then nothing will happen.
+                            //but you can show anything you want here, like your pop up saying wrong paste format or etc
+                            return true;
+                          },
+                        ),
+                      )
+                    ],
                   ),
-                  Flexible(
-                    flex: 2,
-                    child: Container(),
-                  ),
-                ],
-              ),
-              // SizedBox(
-              //   height: 25,
-              // ),
-              // Container(
-              //   width: 150,
-              //   height: 75,
-              //   padding: EdgeInsets.all(10),
-              //   child: RaisedButton(
-              //     shape: RoundedRectangleBorder(
-              //       borderRadius: BorderRadius.circular(4.5),
-              //     ),
-              //     color: Theme.of(context).primaryColor,
-              //     textColor: Colors.white,
-              //     child: Text(
-              //       'Connect',
-              //       style: TextStyle(
-              //         fontSize: 14,
-              //       ),
-              //     ),
-              //     onPressed: !_isLoading ? null : () => {},
-              //   ),
-              // ),
+                ),
+              )
             ],
           ),
         ),
