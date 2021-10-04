@@ -35,7 +35,7 @@ class B360Device:BaseDevice(),SearchResponse {
 
     private var vManager:VPOperateManager? = null
     private var connectionInfo:ConnectionInfo? = null
-    private var deviceFound = false;
+    private var deviceFound = false
 
     private fun getManager(context: Context):VPOperateManager{
        return  vManager?:VPOperateManager.getMangerInstance(context).apply {
@@ -80,7 +80,7 @@ class B360Device:BaseDevice(),SearchResponse {
         val isDeviceConnected = vManager != null
         Log.i(B360DeviceTag,"Device connected $isDeviceConnected")
         if(isDeviceConnected){
-            syncData()
+            checkPasswordAndSync()
             result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
                 deviceId = connectionInfo.deviceId,connected = true,deviceType = connectionInfo.deviceType))
         }else{
@@ -91,16 +91,21 @@ class B360Device:BaseDevice(),SearchResponse {
                 if(resp== Code.REQUEST_SUCCESS){
                     result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
                         deviceId = connectionInfo.deviceId,connected = true,deviceType = connectionInfo.deviceType))
-                    confirmPasswd{
-                        syncUserInfo{
-                            syncData()
-                        }
-                    }
+                    checkPasswordAndSync()
                 }else{
                     result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
                         deviceId = connectionInfo.deviceId,connected = false,deviceType = connectionInfo.deviceType))
                 }
             })
+        }
+    }
+
+    private fun checkPasswordAndSync(){
+        DataSync.sendHeartBeat(HeartBeat(macAddress = connectionInfo?.deviceId, deviceId = connectionInfo?.deviceName))
+        confirmPasswd{
+            syncUserInfo{
+                syncData()
+            }
         }
     }
 
@@ -269,7 +274,7 @@ class B360Device:BaseDevice(),SearchResponse {
         if(userInfo!=null){
             vManager?.syncPersonInfo({
                 Log.i(B360DeviceTag,"Status response $it")
-                Thread.sleep(2000)
+                Thread.sleep(1000)
                 callBack()
             },{
                 if(it == EOprateStauts.OPRATE_SUCCESS){
@@ -278,7 +283,7 @@ class B360Device:BaseDevice(),SearchResponse {
                     Log.i(B360DeviceTag,"Status $it")
                 }
             },PersonInfoData(
-                if(userInfo.sex?.toLowerCase()=="male") ESex.MAN else ESex.WOMEN,
+                if(userInfo.sex.toLowerCase(Locale.getDefault())=="male") ESex.MAN else ESex.WOMEN,
                 userInfo.heightInCm,
                 userInfo.weightInKgs.toInt(),
                 userInfo.age,
@@ -301,23 +306,17 @@ class B360Device:BaseDevice(),SearchResponse {
                 }, {resp->
                     Log.i(B360DeviceTag,"Got connect response $resp")
                     if(resp== Code.REQUEST_SUCCESS){
+                        DataSync.sendHeartBeat(HeartBeat(macAddress = searchResult.address, deviceId = searchResult.name))
                         configureDevice()
-                        connectResult?.let {result->
-                            result.success(ConnectionInfo.createResponse(deviceId = searchResult.address,deviceType = B360_DEVICE,
+                        connectResult?.success(ConnectionInfo.createResponse(deviceId = searchResult.address,deviceType = B360_DEVICE,
                             connected = true,deviceFound = true,additionalInfo = mapOf("deviceName" to searchResult.name),
                             deviceName = searchResult.name, versionUpdate = false))
-
-                        }
-                        DataSync.sendHeartBeat(HeartBeat(macAddress = searchResult.address, deviceId = searchResult.name))
 //                        syncData()
                         confirmPasswd()
                     }else{
-                        connectResult?.let {result->
-                            result.success(ConnectionInfo.createResponse(deviceId = searchResult.address,deviceType = B360_DEVICE,
-                                connected = false,deviceFound = true,additionalInfo = mapOf("deviceName" to searchResult.name),
-                                deviceName = searchResult.name, versionUpdate = false))
-
-                        }
+                        connectResult?.success(ConnectionInfo.createResponse(deviceId = searchResult.address,deviceType = B360_DEVICE,
+                            connected = false,deviceFound = true,additionalInfo = mapOf("deviceName" to searchResult.name),
+                            deviceName = searchResult.name, versionUpdate = false))
                     }
                 })
             }
@@ -331,7 +330,7 @@ class B360Device:BaseDevice(),SearchResponse {
         }, {
             Log.i(B360DeviceTag,"pwd data ${it.deviceNumber} - ${it.deviceVersion} - ${it.getmStatus()}")
             if(it.getmStatus() == EPwdStatus.CHECK_AND_TIME_SUCCESS){
-                Thread.sleep(2000)
+                Thread.sleep(1000)
                 callBack()
             }
         },

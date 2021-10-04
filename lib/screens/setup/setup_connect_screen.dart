@@ -78,7 +78,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
     try {
       setState(
         () {
-          _deviceIdNumber = _deviceIdController.text;
+          _deviceIdNumber = _deviceIdController.text.toUpperCase();
         },
       );
 
@@ -178,7 +178,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
       connectionInfo = await platform.invokeMethod(
         'connectDevice',
         <String, dynamic>{
-          'deviceId': _deviceIdNumber,
+          'deviceId': _deviceIdNumber.toUpperCase(),
           'deviceType': _deviceType
         },
       ) as String;
@@ -422,6 +422,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
                               return null;
                             }
                           },
+                          textCapitalization: TextCapitalization.characters,
                           pinTheme: PinTheme(
                             shape: PinCodeFieldShape.box,
                             borderRadius: BorderRadius.circular(5),
