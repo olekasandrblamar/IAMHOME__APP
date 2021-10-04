@@ -36,6 +36,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
   String _wifiName, _password = '';
   bool _showPassword = true;
   bool _initialSetup = false;
+  bool _cantfindNetwork = false;
 
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<ConnectivityResult> _connectivitySubscription;
@@ -254,7 +255,9 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     if (message == 'Invalid Password') {
       showWrongPasswordDialog(context);
     } else {
-      showWifiFailure(context);
+      setState(() {
+        _cantfindNetwork = true;
+      });
     }
     // showDialog(
     //   context: context,
@@ -301,55 +304,6 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
             textAlign: TextAlign.center,
             style: AppTheme.subtitle,
           ),
-        ],
-      ),
-    );
-  }
-
-  void showWifiFailure(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text("Can't find network"),
-        content: Text(
-          'Unable to find the wireless network to connect. Can you try again !',
-        ),
-        actions: <Widget>[
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).primaryColor,
-                    textStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                  },
-                  child: Text('Retry'),
-                ),
-                SizedBox(width: 50),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).primaryColor,
-                    textStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    //Send to Done screen
-                    sendToSuccessScreen(false);
-                  },
-                  child: Text('Continue'),
-                )
-              ],
-            ),
-          )
         ],
       ),
     );
@@ -423,7 +377,9 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                 ? _connectionStatus != 'wifi'
                     ? NoWifiConnectionWidget(context)
                     : _wifiName != null
-                        ? EnterWifiInformation(context)
+                        ? _cantfindNetwork
+                            ? CantFindNetworkWidget(context)
+                            : EnterWifiInformation(context)
                         : NoLocationEnabledWidget(context)
                 : Center(
                     child: CircularProgressIndicator(),
@@ -830,6 +786,115 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
               height: 0,
               width: 0,
             ),
+    );
+  }
+
+  Container CantFindNetworkWidget(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      child: Column(
+        children: <Widget>[
+          Text(
+            'Error',
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              letterSpacing: 0.18,
+              color: Colors.red,
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(
+              top: 10.0,
+              bottom: 10.0,
+            ),
+            child: Text(
+              'Can\'t Find Networks',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: AppTheme.title,
+            ),
+          ),
+          SizedBox(
+            height: 25,
+          ),
+          Card(
+            elevation: 5.0,
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.dangerous,
+                    size: 100,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  SizedBox(
+                    height: 25,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      // vertical: 5.0,
+                      horizontal: 35.0,
+                    ),
+                    child: Text(
+                      'Unable to find the wireless network to connect. Can you try again!',
+                      textAlign: TextAlign.center,
+                      style: AppTheme.subtitle,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 50,
+                  ),
+                  Container(
+                    width: 180.0,
+                    height: 60.0,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Theme.of(context).primaryColor,
+                        textStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _cantfindNetwork = false;
+                        });
+                      },
+                      child: Text('Retry'),
+                    ),
+                  ),
+                  SizedBox(height: 25),
+                  Container(
+                    width: 180.0,
+                    height: 60.0,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Theme.of(context).primaryColor,
+                        textStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _cantfindNetwork = false;
+                        });
+                        //Send to Done screen
+                        sendToSuccessScreen(false);
+                      },
+                      child: Text('Continue'),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
