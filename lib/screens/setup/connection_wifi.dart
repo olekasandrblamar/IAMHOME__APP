@@ -33,10 +33,10 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
   var _displayImage = '';
 
   String _connectionStatus = 'Unknown';
-  String _wifiName, _password = '';
+  String _wifiName, _password, _errorTitle, _errorDescription = '';
   bool _showPassword = true;
   bool _initialSetup = false;
-  bool _cantfindNetwork = false;
+  bool _connectError = false;
 
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<ConnectivityResult> _connectivitySubscription;
@@ -253,10 +253,18 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
 
   void showErrorDialog(BuildContext context, String message) {
     if (message == 'Invalid Password') {
-      showWrongPasswordDialog(context);
+      setState(() {
+        _connectError = true;
+        _errorTitle = 'Wrong Password';
+        _errorDescription =
+            'The network and password combinations entered are incorrect. Can you retry one more time again!';
+      });
     } else {
       setState(() {
-        _cantfindNetwork = true;
+        _connectError = true;
+        _errorTitle = 'Can\'t Find Networks';
+        _errorDescription =
+            'Unable to find the wireless network to connect. Can you try again!';
       });
     }
     // showDialog(
@@ -309,54 +317,6 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     );
   }
 
-  void showWrongPasswordDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Wrong Password'),
-        content: Text(
-          'The network and password combinations entered are incorrect. Can you retry one more time again!',
-        ),
-        actions: <Widget>[
-          Container(
-            // padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).primaryColor,
-                    textStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                  },
-                  child: Text('Retry'),
-                ),
-                SizedBox(width: 50),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).primaryColor,
-                    textStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    sendToSuccessScreen(false);
-                  },
-                  child: Text('Continue'),
-                )
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -377,8 +337,8 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                 ? _connectionStatus != 'wifi'
                     ? NoWifiConnectionWidget(context)
                     : _wifiName != null
-                        ? _cantfindNetwork
-                            ? CantFindNetworkWidget(context)
+                        ? _connectError
+                            ? ConnectErrorWidget(context)
                             : EnterWifiInformation(context)
                         : NoLocationEnabledWidget(context)
                 : Center(
@@ -789,7 +749,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     );
   }
 
-  Container CantFindNetworkWidget(BuildContext context) {
+  Container ConnectErrorWidget(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
       child: Column(
@@ -812,7 +772,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
               bottom: 10.0,
             ),
             child: Text(
-              'Can\'t Find Networks',
+              _errorTitle,
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: AppTheme.title,
@@ -842,7 +802,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                       horizontal: 35.0,
                     ),
                     child: Text(
-                      'Unable to find the wireless network to connect. Can you try again!',
+                      _errorDescription,
                       textAlign: TextAlign.center,
                       style: AppTheme.subtitle,
                     ),
@@ -862,7 +822,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                       ),
                       onPressed: () {
                         setState(() {
-                          _cantfindNetwork = false;
+                          _connectError = false;
                         });
                       },
                       child: Text('Retry'),
@@ -881,7 +841,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                       ),
                       onPressed: () {
                         setState(() {
-                          _cantfindNetwork = false;
+                          _connectError = false;
                         });
                         //Send to Done screen
                         sendToSuccessScreen(false);
