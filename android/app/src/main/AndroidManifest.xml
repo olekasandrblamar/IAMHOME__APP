@@ -11,7 +11,7 @@
         android:name=".Application"
         android:label="ceras"
         android:icon="@mipmap/launcher_icon"
-        android:roundIcon="@mipmap/launcher_icon">
+        android:roundIcon="@mipmap/launcher_icon_round">
         <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
