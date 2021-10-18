@@ -5,14 +5,16 @@ import android.util.Log
 import com.cerashealth.ceras.lifeplus.data.*
 import com.google.gson.Gson
 import com.inuker.bluetooth.library.Code
+import com.inuker.bluetooth.library.Constants.*
 import com.inuker.bluetooth.library.search.SearchResult
 import com.inuker.bluetooth.library.search.response.SearchResponse
 import com.veepoo.protocol.VPOperateManager
-import com.veepoo.protocol.listener.base.IBleWriteResponse
+import com.veepoo.protocol.listener.base.IABleConnectStatusListener
 import com.veepoo.protocol.listener.data.*
 import com.veepoo.protocol.model.datas.*
 import com.veepoo.protocol.model.enums.*
 import com.veepoo.protocol.model.settings.CustomSetting
+import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import java.text.SimpleDateFormat
 import java.util.*
@@ -24,6 +26,8 @@ class B360Device:BaseDevice(),SearchResponse {
         private var connectResult: MethodChannel.Result? = null
         private var deviceId:String? = ""
         private var device:B360Device? = null
+        private var connected = false
+        private var connectionListenerConfigured = false
 
         fun getInstance():B360Device{
             if(device ==null){
@@ -37,10 +41,32 @@ class B360Device:BaseDevice(),SearchResponse {
     private var connectionInfo:ConnectionInfo? = null
     private var deviceFound = false
 
+
     private fun getManager(context: Context):VPOperateManager{
-       return  vManager?:VPOperateManager.getMangerInstance(context).apply {
+       return vManager?:VPOperateManager.getMangerInstance(context).apply {
             vManager = this
         }
+    }
+
+    private fun checkAndConfigureConnectionListener(connectionInfo: ConnectionInfo,context: Context,callBack: () -> Unit){
+        if(!connectionListenerConfigured){
+            getManager(context).registerConnectStatusListener(connectionInfo.deviceId,object: IABleConnectStatusListener() {
+                    override fun onConnectStatusChanged(macAddress: String?, connectionStatus: Int) {
+                        when(connectionStatus){
+                            STATUS_CONNECTED -> {
+                                connected = true
+                            }
+                            STATUS_DISCONNECTED -> {
+                                connected = false
+                            }
+                        }
+                    }
+
+                }
+            )
+            connectionListenerConfigured = true
+        }
+        callBack()
     }
 
     override fun connectDevice(context: Context, result: MethodChannel.Result, deviceId: String?) {
@@ -55,11 +81,16 @@ class B360Device:BaseDevice(),SearchResponse {
     }
 
     override fun disconnectDevice(result: MethodChannel.Result?, deviceId: String?) {
-        vManager?.let {
-            it.disconnectWatch {
+        vManager?.let {manager->
+            manager.disconnectWatch {
                 Log.i(B360DeviceTag,"Disconnect response $it")
                 if(it == Code.REQUEST_SUCCESS){
-                    result?.success("Success")
+                    manager.clearDeviceData {
+                        if(it == Code.REQUEST_SUCCESS)
+                            result?.success("Success")
+                        else
+                            result?.success("Failure")
+                    }
                 }else{
                     result?.success("Failure")
                 }
@@ -72,32 +103,120 @@ class B360Device:BaseDevice(),SearchResponse {
         connectionInfo: ConnectionInfo,
         context: Context
     ) {
-        result?.success(vManager == null)
+        result?.success(getManager(context).isNetworkConnected(context))
+    }
+
+    override fun getDeviceInfo(
+        result: MethodChannel.Result?,
+        connectionInfo: ConnectionInfo,
+        context: Context
+    ) {
+        val manager = getManager(context)
+        checkAndConfigureConnectionListener(connectionInfo,context) {
+            Log.d(B360DeviceTag, "Getting device info")
+            if (!connected) {
+                Log.d(B360DeviceTag, "Device not connected, reconnecting")
+                reConnectDevice(connectionInfo.deviceId, connectionInfo.deviceName) {
+                    if (it == Code.REQUEST_SUCCESS) {
+                        Log.d(B360DeviceTag, "Device connection success")
+                        confirmPasswd {
+                            syncUserInfo {
+                                connectionInfo.connected = manager.isNetworkConnected(context)
+                                Log.d(B360DeviceTag, "Getting battery status")
+                                getBatteryInfo(connectionInfo) {
+                                    Log.d(
+                                        B360DeviceTag,
+                                        "Got battery status ${connectionInfo.batteryStatus}"
+                                    )
+                                    result?.success(
+                                        ConnectionInfo.createResponse(
+                                            deviceId = connectionInfo.deviceId,
+                                            connected = connectionInfo.connected,
+                                            deviceType = connectionInfo.deviceType,
+                                            deviceName = connectionInfo.deviceName,
+                                            batteryStatus = connectionInfo.batteryStatus,
+                                            additionalInfo = connectionInfo.additionalInformation
+                                        )
+                                    )
+                                }
+                            }
+                        }
+                    } else {
+                        Log.d(B360DeviceTag, "Device connection failure")
+                        result?.success(
+                            ConnectionInfo.createResponse(
+                                deviceId = connectionInfo.deviceId,
+                                connected = false,
+                                deviceType = connectionInfo.deviceType,
+                                deviceName = connectionInfo.deviceName,
+                                message = "Connection Failed"
+                            )
+                        )
+                    }
+                }
+
+            } else {
+                Log.d(B360DeviceTag, "Device already connected")
+                connectionInfo.connected = manager.isNetworkConnected(context)
+                getBatteryInfo(connectionInfo) {
+                    Log.d(B360DeviceTag, "Got battery status ${connectionInfo.batteryStatus}")
+                    result?.success(
+                        ConnectionInfo.createResponse(
+                            deviceId = connectionInfo.deviceId,
+                            connected = connectionInfo.connected,
+                            deviceType = connectionInfo.deviceType,
+                            deviceName = connectionInfo.deviceName,
+                            batteryStatus = connectionInfo.batteryStatus,
+                            additionalInfo = connectionInfo.additionalInformation
+                        )
+                    )
+                }
+
+            }
+        }
+    }
+
+    private fun getBatteryInfo(connectionInfo: ConnectionInfo,callBack: () -> Unit = {}){
+        vManager?.readBattery({
+            Log.d(B360DeviceTag,"Got batery Response $it")
+        }, {
+            Log.d(B360DeviceTag,"Got Battery data $it")
+            connectionInfo.batteryStatus = (it.batteryLevel*25).toString()
+            callBack()
+        })
+
     }
 
     override fun syncData(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {
         this.connectionInfo = connectionInfo
-        val isDeviceConnected = vManager != null
-        Log.i(B360DeviceTag,"Device connected $isDeviceConnected")
-        if(isDeviceConnected){
-            checkPasswordAndSync()
-            result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
-                deviceId = connectionInfo.deviceId,connected = true,deviceType = connectionInfo.deviceType))
-        }else{
-            getManager(context).connectDevice(connectionInfo.deviceId,connectionInfo.deviceName, { code, bleGattProfile, isOadModel ->
-                Log.i(B360DeviceTag,"Got code $code oadModel $isOadModel")
-            }, {resp->
-                Log.i(B360DeviceTag,"Got connect response $resp")
-                if(resp== Code.REQUEST_SUCCESS){
-                    result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
-                        deviceId = connectionInfo.deviceId,connected = true,deviceType = connectionInfo.deviceType))
-                    checkPasswordAndSync()
-                }else{
-                    result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
-                        deviceId = connectionInfo.deviceId,connected = false,deviceType = connectionInfo.deviceType))
+        checkAndConfigureConnectionListener(connectionInfo,context) {
+            if(connected){
+                Log.d(B360DeviceTag,"Device is connected. Syncing password")
+                checkPasswordAndSync()
+                result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
+                    deviceId = connectionInfo.deviceId,connected = true,deviceType = connectionInfo.deviceType))
+            }else{
+                reConnectDevice(connectionInfo.deviceId,connectionInfo.deviceName){resp->
+                    if(resp== Code.REQUEST_SUCCESS){
+                        result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
+                            deviceId = connectionInfo.deviceId,connected = true,deviceType = connectionInfo.deviceType))
+                        checkPasswordAndSync()
+                    }else{
+                        result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
+                            deviceId = connectionInfo.deviceId,connected = false,deviceType = connectionInfo.deviceType))
+                    }
                 }
-            })
+            }
         }
+    }
+
+    private fun reConnectDevice(deviceId:String?,deviceName:String?,callBack: (connectionStatus:Int) -> Unit = {}){
+        vManager?.connectDevice(deviceId,deviceName, { code, bleGattProfile, isOadModel ->
+            Log.i(B360DeviceTag,"Got code $code oadModel $isOadModel")
+        }, {resp->
+            Log.i(B360DeviceTag,"Got connect response $resp")
+            callBack(resp)
+        })
     }
 
     private fun checkPasswordAndSync(){
@@ -261,7 +380,6 @@ class B360Device:BaseDevice(),SearchResponse {
         vManager?.changeCustomSetting({
         },{
             Log.i(B360DeviceTag,"Custom setting Data ")
-            Thread.sleep(1000)
             DataSync.sendHeartBeat(HeartBeat(macAddress = connectionInfo?.deviceId, deviceId = connectionInfo?.deviceName))
             syncUserInfo(callBack)
         }, CustomSetting(false,false,false,true,true).apply {
@@ -274,7 +392,6 @@ class B360Device:BaseDevice(),SearchResponse {
         if(userInfo!=null){
             vManager?.syncPersonInfo({
                 Log.i(B360DeviceTag,"Status response $it")
-                Thread.sleep(1000)
                 callBack()
             },{
                 if(it == EOprateStauts.OPRATE_SUCCESS){
@@ -311,8 +428,9 @@ class B360Device:BaseDevice(),SearchResponse {
                         connectResult?.success(ConnectionInfo.createResponse(deviceId = searchResult.address,deviceType = B360_DEVICE,
                             connected = true,deviceFound = true,additionalInfo = mapOf("deviceName" to searchResult.name),
                             deviceName = searchResult.name, versionUpdate = false))
-//                        syncData()
-                        confirmPasswd()
+                        confirmPasswd{
+                            syncUserInfo()
+                        }
                     }else{
                         connectResult?.success(ConnectionInfo.createResponse(deviceId = searchResult.address,deviceType = B360_DEVICE,
                             connected = false,deviceFound = true,additionalInfo = mapOf("deviceName" to searchResult.name),
@@ -335,7 +453,7 @@ class B360Device:BaseDevice(),SearchResponse {
             }
         },
             {
-                Log.i(B360DeviceTag,"Function listener ${it.bp} = ${it.temptureType} - ${it.heartDetect} ${it.hrvFunction}")
+                Log.i(B360DeviceTag,"Function listener ${it.bp} = ${it.heartDetect} ${it.hrvFunction}")
             },object: ISocialMsgDataListener{
                 override fun onSocialMsgSupportDataChange(msgData: FunctionSocailMsgData?) {
                     Log.i(B360DeviceTag,"Message Data $msgData")

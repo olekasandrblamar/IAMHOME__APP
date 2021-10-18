@@ -46,7 +46,7 @@ class _SetupConnectScreenState extends State<SetupConnectScreen> {
   var _displayImage = '';
   var _isLoading = false;
   var _deviceIdNumber = '';
-  String connectionInfo = null;
+  String connectionInfo;
   String _deviceTag = '';
 
   var _statusTitle = '';
