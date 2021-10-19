@@ -138,28 +138,36 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
         NSLog("Init finish status \(bSuccess)")
         if(bSuccess){
             self.initComplete = true
+            if(self.deviceId != nil){
+                checkAndReAddDevice(macAddr: self.deviceId)
+            }
         }
     }
     
     func getConnectionStatus(result:@escaping FlutterResult,connectionInfo: ConnectionInfo){
-        if(deviceAdded == false){
-            reAddDevice(macAddr: connectionInfo.deviceId)
-        }
+        self.checkAndReAddDevice(macAddr: connectionInfo.deviceId)
         return result(isDeviceConnectionAvailable)
     }
     
-    private func reAddDevice(macAddr:String?){
-        let connectedDevice = ICDevice()
-        connectedDevice.macAddr = macAddr
-        NSLog("Device found and adding to devices")
-        ICDeviceManager.shared()?.add(connectedDevice, callback: { (device, callbackCode) in
-            NSLog("Got call back code \(callbackCode) for \(device?.macAddr ?? "")")
-            self.deviceAdded = true
-        })
+    private func checkAndReAddDevice(macAddr:String?){
+        if(initComplete == true && deviceAdded == false){
+            let connectedDevice = ICDevice()
+            connectedDevice.macAddr = macAddr
+            NSLog("Device found and adding to devices")
+            ICDeviceManager.shared()?.add(connectedDevice, callback: { (device, callbackCode) in
+                NSLog("Got call back code \(callbackCode.rawValue) for \(device?.macAddr ?? "")")
+                if(callbackCode == .success){
+                    self.deviceAdded = true
+                }
+            })
+        }else if(deviceId == nil){
+            self.deviceId = macAddr
+        }
     }
     
     func getCurrentDeviceStatus(connInfo: ConnectionInfo, result:@escaping FlutterResult){
         do{
+            self.checkAndReAddDevice(macAddr: connInfo.deviceId)
             let connectionInfo = ConnectionInfo(deviceId: connInfo.deviceId, deviceName: connInfo.deviceName, connected: isDeviceConnectionAvailable, deviceFound: connInfo.deviceFound, message: "",batteryStatus: "99")
             let deviceJson = try JSONEncoder().encode(connectionInfo)
             let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
