@@ -135,7 +135,6 @@ class MainActivity: FlutterFragmentActivity()  {
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got device status data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
-                val deviceType = getSharedPreferences(SharedPrefernces, MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceData.deviceType).getDeviceInfo(result,deviceData,this)
             }else if(call.method =="connectionStatus"){

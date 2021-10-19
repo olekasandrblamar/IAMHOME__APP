@@ -23,12 +23,31 @@
 		52B147F926A0EFA400F47C8C /* B369Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52B147F826A0EFA400F47C8C /* B369Device.swift */; };
 		52CF454E24EB107100AE177E /* Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52CF454D24EB107100AE177E /* Device.swift */; };
 		52CF455024EB170700AE177E /* BandDevice.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52CF454F24EB170700AE177E /* BandDevice.swift */; };
+		52F09C7F270BB35400AB164F /* B360Device.swift in Sources */ = {isa = PBXBuildFile; fileRef = 52F09C7E270BB35400AB164F /* B360Device.swift */; };
+		52F09CA6270E7E1200AB164F /* VeepooBleSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52F09CA5270E7E1100AB164F /* VeepooBleSDK.framework */; };
+		52F09CAA270E7E9600AB164F /* GRDFUSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52F09CA9270E7E9600AB164F /* GRDFUSDK.framework */; };
+		52F09CAB270E7E9600AB164F /* GRDFUSDK.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 52F09CA9270E7E9600AB164F /* GRDFUSDK.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		52F09CAD270F4EE100AB164F /* VeepooBleSDK.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 52F09CAC270F4EE000AB164F /* VeepooBleSDK.framework */; };
 		74858FAF1ED2DC5600515810 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 74858FAE1ED2DC5600515810 /* AppDelegate.swift */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
 		E64AB34EC27E73B31B97BB80 /* Pods_Runner.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 7DD724437A1934910443BCEE /* Pods_Runner.framework */; };
 /* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		52F09CA8270E7E1200AB164F /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				52F09CAB270E7E9600AB164F /* GRDFUSDK.framework in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		0332C9AA24B40CBE00AAE8D1 /* Runner.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Runner.entitlements; sourceTree = "<group>"; };
@@ -54,6 +73,10 @@
 		52B147F826A0EFA400F47C8C /* B369Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = B369Device.swift; sourceTree = "<group>"; };
 		52CF454D24EB107100AE177E /* Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Device.swift; sourceTree = "<group>"; };
 		52CF454F24EB170700AE177E /* BandDevice.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BandDevice.swift; sourceTree = "<group>"; };
+		52F09C7E270BB35400AB164F /* B360Device.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = B360Device.swift; sourceTree = "<group>"; };
+		52F09CA5270E7E1100AB164F /* VeepooBleSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = VeepooBleSDK.framework; sourceTree = "<group>"; };
+		52F09CA9270E7E9600AB164F /* GRDFUSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = GRDFUSDK.framework; sourceTree = "<group>"; };
+		52F09CAC270F4EE000AB164F /* VeepooBleSDK.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = VeepooBleSDK.framework; sourceTree = "<group>"; };
 		74858FAD1ED2DC5600515810 /* Runner-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "Runner-Bridging-Header.h"; sourceTree = "<group>"; };
 		74858FAE1ED2DC5600515810 /* AppDelegate.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
@@ -75,10 +98,13 @@
 			buildActionMask = 2147483647;
 			files = (
 				5257E6CA24D632CC00C2B1BA /* libc++.tbd in Frameworks */,
+				52F09CA6270E7E1200AB164F /* VeepooBleSDK.framework in Frameworks */,
 				0332C9AC24B40CC700AAE8D1 /* ExternalAccessory.framework in Frameworks */,
 				5257E6C624D25EB900C2B1BA /* CoreBluetooth.framework in Frameworks */,
+				52F09CAA270E7E9600AB164F /* GRDFUSDK.framework in Frameworks */,
 				036EF94224D904120002892D /* libHardManagerSDK.a in Frameworks */,
 				52B147C026A0EDA000F47C8C /* ICDeviceManager.framework in Frameworks */,
+				52F09CAD270F4EE100AB164F /* VeepooBleSDK.framework in Frameworks */,
 				5205C8D624F828BD00801D9F /* BackgroundTasks.framework in Frameworks */,
 				E64AB34EC27E73B31B97BB80 /* Pods_Runner.framework in Frameworks */,
 				033A411D2681017A00923B35 /* NetworkExtension.framework in Frameworks */,
@@ -91,6 +117,8 @@
 		8034CB520AAA3844753050C0 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				52F09CA9270E7E9600AB164F /* GRDFUSDK.framework */,
+				52F09CA5270E7E1100AB164F /* VeepooBleSDK.framework */,
 				52B147BF26A0ED9F00F47C8C /* ICDeviceManager.framework */,
 				033A411C2681017A00923B35 /* NetworkExtension.framework */,
 				5205C8D524F828BD00801D9F /* BackgroundTasks.framework */,
@@ -118,6 +146,7 @@
 		97C146E51CF9000F007C117D = {
 			isa = PBXGroup;
 			children = (
+				52F09CAC270F4EE000AB164F /* VeepooBleSDK.framework */,
 				52292B40252E7F5E00B2F4B2 /* TrusangBluetooth.framework */,
 				523BA1CC24F6DB9800EF58B9 /* TSBackgroundFetch.framework */,
 				5257E6C324D25E0900C2B1BA /* HardSDK */,
@@ -157,6 +186,7 @@
 				5257E6CD24D8D28E00C2B1BA /* DataSync.swift */,
 				52CF454D24EB107100AE177E /* Device.swift */,
 				52CF454F24EB170700AE177E /* BandDevice.swift */,
+				52F09C7E270BB35400AB164F /* B360Device.swift */,
 			);
 			path = Runner;
 			sourceTree = "<group>";
@@ -193,6 +223,7 @@
 				3B06AD1E1E4923F5004D2608 /* Thin Binary */,
 				037A3CB22535DCC600723011 /* ShellScript */,
 				08719A07CD3DC47838A86FB5 /* [CP] Embed Pods Frameworks */,
+				52F09CA8270E7E1200AB164F /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -350,6 +381,7 @@
 				5257E6CC24D841C800C2B1BA /* WatchData.swift in Sources */,
 				52B147F926A0EFA400F47C8C /* B369Device.swift in Sources */,
 				1498D2341E8E89220040F4C2 /* GeneratedPluginRegistrant.m in Sources */,
+				52F09C7F270BB35400AB164F /* B360Device.swift in Sources */,
 				52CF454E24EB107100AE177E /* Device.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -438,7 +470,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/RunnerProfile.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = AGKDWGW3EV;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -459,7 +491,7 @@
 					"$(PROJECT_DIR)/HardSDK",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 1.2.6;
+				MARKETING_VERSION = 1.2.8;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",
@@ -598,7 +630,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = AGKDWGW3EV;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -619,7 +651,7 @@
 					"$(PROJECT_DIR)/HardSDK",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 1.2.6;
+				MARKETING_VERSION = 1.2.8;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",
@@ -647,7 +679,7 @@
 				CODE_SIGN_ENTITLEMENTS = Runner/Runner.entitlements;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 5;
 				DEVELOPMENT_TEAM = AGKDWGW3EV;
 				ENABLE_BITCODE = NO;
 				FRAMEWORK_SEARCH_PATHS = (
@@ -668,7 +700,7 @@
 					"$(PROJECT_DIR)/HardSDK",
 					"$(PROJECT_DIR)",
 				);
-				MARKETING_VERSION = 1.2.6;
+				MARKETING_VERSION = 1.2.8;
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-framework",

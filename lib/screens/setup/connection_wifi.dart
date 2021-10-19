@@ -33,9 +33,10 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
   var _displayImage = '';
 
   String _connectionStatus = 'Unknown';
-  String _wifiName, _password = '';
+  String _wifiName, _password, _errorTitle, _errorDescription = '';
   bool _showPassword = true;
   bool _initialSetup = false;
+  bool _connectError = false;
 
   final Connectivity _connectivity = Connectivity();
   StreamSubscription<ConnectivityResult> _connectivitySubscription;
@@ -252,9 +253,19 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
 
   void showErrorDialog(BuildContext context, String message) {
     if (message == 'Invalid Password') {
-      showWrongPasswordDialog(context);
-    }else{
-      showWifiFailure(context);
+      setState(() {
+        _connectError = true;
+        _errorTitle = 'Wrong Password';
+        _errorDescription =
+            'The network and password combinations entered are incorrect. Can you retry one more time again!';
+      });
+    } else {
+      setState(() {
+        _connectError = true;
+        _errorTitle = 'Can\'t Find Networks';
+        _errorDescription =
+            'Unable to find the wireless network to connect. Can you try again!';
+      });
     }
     // showDialog(
     //   context: context,
@@ -306,103 +317,6 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
     );
   }
 
-  void showWifiFailure(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text("Can't find network"),
-        content: Text(
-          'Unable to find the wireless network to connect. Can you try again !',
-        ),
-        actions: <Widget>[
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).primaryColor,
-                    textStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                  },
-                  child: Text('Retry'),
-                ),
-                SizedBox(width: 50),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).primaryColor,
-                    textStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    //Send to Done screen
-                    sendToSuccessScreen(false);
-                  },
-                  child: Text('Continue'),
-                )
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
-  void showWrongPasswordDialog(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text('Wrong Password'),
-        content: Text(
-          'The network and password combinations entered are incorrect. Can you retry one more time again!',
-        ),
-        actions: <Widget>[
-          Container(
-            // padding: EdgeInsets.symmetric(horizontal: 8),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).primaryColor,
-                    textStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                  },
-                  child: Text('Retry'),
-                ),
-                SizedBox(width: 50),
-                ElevatedButton(
-                  style: ElevatedButton.styleFrom(
-                    primary: Theme.of(context).primaryColor,
-                    textStyle: TextStyle(
-                      color: Colors.white,
-                    ),
-                  ),
-                  onPressed: () {
-                    Navigator.of(ctx).pop();
-                    sendToSuccessScreen(false);
-                  },
-                  child: Text('Continue'),
-                )
-              ],
-            ),
-          )
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -416,14 +330,16 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
         width: double.infinity,
         padding: const EdgeInsets.all(16.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
             SizedBox(height: 5.0),
             !_isInit
                 ? _connectionStatus != 'wifi'
                     ? NoWifiConnectionWidget(context)
                     : _wifiName != null
-                        ? EnterWifiInformation(context)
+                        ? _connectError
+                            ? ConnectErrorWidget(context)
+                            : EnterWifiInformation(context)
                         : NoLocationEnabledWidget(context)
                 : Center(
                     child: CircularProgressIndicator(),
@@ -437,136 +353,188 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
   Container EnterWifiInformation(BuildContext context) {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10.0),
-      child: Form(
-        key: _formKey,
-        child: Column(
-          children: <Widget>[
-            SizedBox(
-              height: 25,
+      child: Column(
+        children: [
+          _initialSetup
+              ? Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.only(
+                    bottom: 10.0,
+                  ),
+                  child: Text(
+                    'Step 2 of 2',
+                    overflow: TextOverflow.ellipsis,
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                      letterSpacing: 0.18,
+                      color: Colors.red,
+                    ),
+                  ),
+                )
+              : Container(height: 0),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(
+              bottom: 10.0,
             ),
-            // TextFormField(
-            //     style: TextStyle(
-            //       fontSize: 24,
-            //     ),
-            //     decoration: _inputDecoration('Wifi Name', 'Wifi Name'),
-            //     controller: _wifiController,
-            //     enabled: false,
-            //     keyboardType: TextInputType.text,
-            //     textInputAction: TextInputAction.next,
-            //     autofocus: false,
-            //     validator: (String value) {
-            //       if (value.isEmpty) {
-            //         return 'Please Enter Wifi Name.';
-            //       }
-
-            //       return null;
-            //     }
-            //     // onChanged: onChangePhoneNumberInput,
-            //     ),
-            GestureDetector(
-              onTap: () {
-                SystemSettings.wifi();
-              },
+            child: Text(
+              'Please Choose Your WIFI',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: AppTheme.title,
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            child: Text(
+              'Choose your local wifi network',
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: AppTheme.subtitle,
+            ),
+          ),
+          SizedBox(
+            height: 25,
+          ),
+          Form(
+            key: _formKey,
+            child: Card(
+              elevation: 5.0,
               child: Container(
-                padding: EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                    border: Border.all(color: Colors.black38),
-                    borderRadius: BorderRadius.all(Radius.circular(8.0))),
-                width: double.infinity,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Icon(Icons.wifi),
-                    FittedBox(
-                      child: Text(
-                        _wifiName ?? 'WIFI Name',
-                        style: AppTheme.title,
+                padding: const EdgeInsets.symmetric(
+                    horizontal: 16.0, vertical: 32.0),
+                child: Column(
+                  children: <Widget>[
+                    // TextFormField(
+                    //     style: TextStyle(
+                    //       fontSize: 24,
+                    //     ),
+                    //     decoration: _inputDecoration('Wifi Name', 'Wifi Name'),
+                    //     controller: _wifiController,
+                    //     enabled: false,
+                    //     keyboardType: TextInputType.text,
+                    //     textInputAction: TextInputAction.next,
+                    //     autofocus: false,
+                    //     validator: (String value) {
+                    //       if (value.isEmpty) {
+                    //         return 'Please Enter Wifi Name.';
+                    //       }
+
+                    //       return null;
+                    //     }
+                    //     // onChanged: onChangePhoneNumberInput,
+                    //     ),
+                    GestureDetector(
+                      onTap: () {
+                        SystemSettings.wifi();
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                            border: Border.all(color: Colors.black38),
+                            borderRadius:
+                                BorderRadius.all(Radius.circular(8.0))),
+                        width: double.infinity,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Icon(Icons.wifi),
+                            FittedBox(
+                              child: Text(
+                                _wifiName ?? 'WIFI Name',
+                                style: AppTheme.title,
+                              ),
+                            ),
+                            Icon(Icons.chevron_right),
+                          ],
+                        ),
                       ),
                     ),
-                    Icon(Icons.chevron_right),
+                    SizedBox(
+                      height: 30,
+                    ),
+                    TextFormField(
+                        style: TextStyle(
+                          fontSize: 24,
+                        ),
+                        // suffixIcon: Icon(Icons.remove_red_eye),
+                        decoration: _inputDecoration('Password', ''),
+                        controller: _passwordController,
+                        focusNode: _passwordFocusNode,
+                        keyboardType: TextInputType.text,
+                        textInputAction: TextInputAction.done,
+                        obscureText: _showPassword,
+                        autofocus: true,
+                        validator: (value) {
+                          if (value.isEmpty) {
+                            return 'Please enter password.';
+                          }
+
+                          if (value.length < 3) {
+                            return 'password must be more than 2 charater';
+                          }
+
+                          return null;
+                        },
+                        onSaved: (password) => _password = password),
+                    SizedBox(
+                      height: 50,
+                    ),
+                    _isLoading
+                        ? Padding(
+                            padding: const EdgeInsets.all(0.0),
+                            child: CircularProgressIndicator(),
+                          )
+                        : Padding(
+                            padding: const EdgeInsets.all(0.0),
+                            child: Container(
+                              width: 180.0,
+                              height: 60.0,
+                              child: RaisedButton(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(5),
+                                ),
+                                color: Theme.of(context).primaryColor,
+                                textColor: Colors.white,
+                                onPressed: () => _connectWifi(),
+                                child: Text(
+                                  'Submit',
+                                ),
+                              ),
+                            ),
+                          )
+                    // Container(
+                    //   width: 200,
+                    //   height: 75,
+                    //   padding: EdgeInsets.all(10),
+                    //   child: RaisedButton(
+                    //     shape: RoundedRectangleBorder(
+                    //       borderRadius: BorderRadius.circular(4.5),
+                    //     ),
+                    //     // color: Theme.of(context).primaryColor,
+                    //     // textColor: Colors.white,
+                    //     onPressed: () async {
+                    //       return Navigator.of(context).pushReplacementNamed(
+                    //         routes.SetupHomeRoute,
+                    //       );
+                    //     },
+                    //     child: Text(
+                    //       'Skip',
+                    //       style: TextStyle(
+                    //         fontSize: 14,
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
                   ],
                 ),
               ),
             ),
-            SizedBox(
-              height: 30,
-            ),
-            TextFormField(
-                style: TextStyle(
-                  fontSize: 24,
-                ),
-                // suffixIcon: Icon(Icons.remove_red_eye),
-                decoration: _inputDecoration('Password', ''),
-                controller: _passwordController,
-                focusNode: _passwordFocusNode,
-                keyboardType: TextInputType.text,
-                textInputAction: TextInputAction.done,
-                obscureText: _showPassword,
-                autofocus: true,
-                validator: (value) {
-                  if (value.isEmpty) {
-                    return 'Please enter password.';
-                  }
-
-                  if (value.length < 3) {
-                    return 'password must be more than 2 charater';
-                  }
-
-                  return null;
-                },
-                onSaved: (password) => _password = password),
-            SizedBox(
-              height: 50,
-            ),
-            _isLoading
-                ? Padding(
-                    padding: const EdgeInsets.all(0.0),
-                    child: CircularProgressIndicator(),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.all(0.0),
-                    child: Container(
-                      width: 180.0,
-                      height: 60.0,
-                      child: RaisedButton(
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5),
-                        ),
-                        color: Theme.of(context).primaryColor,
-                        textColor: Colors.white,
-                        onPressed: () => _connectWifi(),
-                        child: Text(
-                          'Submit',
-                        ),
-                      ),
-                    ),
-                  )
-            // Container(
-            //   width: 200,
-            //   height: 75,
-            //   padding: EdgeInsets.all(10),
-            //   child: RaisedButton(
-            //     shape: RoundedRectangleBorder(
-            //       borderRadius: BorderRadius.circular(4.5),
-            //     ),
-            //     // color: Theme.of(context).primaryColor,
-            //     // textColor: Colors.white,
-            //     onPressed: () async {
-            //       return Navigator.of(context).pushReplacementNamed(
-            //         routes.SetupHomeRoute,
-            //       );
-            //     },
-            //     child: Text(
-            //       'Skip',
-            //       style: TextStyle(
-            //         fontSize: 14,
-            //       ),
-            //     ),
-            //   ),
-            // ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
@@ -778,6 +746,115 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
               height: 0,
               width: 0,
             ),
+    );
+  }
+
+  Container ConnectErrorWidget(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10.0),
+      child: Column(
+        children: <Widget>[
+          Text(
+            'Error',
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 22,
+              letterSpacing: 0.18,
+              color: Colors.red,
+            ),
+          ),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.only(
+              top: 10.0,
+              bottom: 10.0,
+            ),
+            child: Text(
+              _errorTitle,
+              overflow: TextOverflow.ellipsis,
+              textAlign: TextAlign.center,
+              style: AppTheme.title,
+            ),
+          ),
+          SizedBox(
+            height: 25,
+          ),
+          Card(
+            elevation: 5.0,
+            child: Container(
+              padding:
+                  const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.dangerous,
+                    size: 100,
+                    color: Theme.of(context).primaryColor,
+                  ),
+                  SizedBox(
+                    height: 25,
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      // vertical: 5.0,
+                      horizontal: 35.0,
+                    ),
+                    child: Text(
+                      _errorDescription,
+                      textAlign: TextAlign.center,
+                      style: AppTheme.subtitle,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 50,
+                  ),
+                  Container(
+                    width: 180.0,
+                    height: 60.0,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Theme.of(context).primaryColor,
+                        textStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _connectError = false;
+                        });
+                      },
+                      child: Text('Retry'),
+                    ),
+                  ),
+                  SizedBox(height: 25),
+                  Container(
+                    width: 180.0,
+                    height: 60.0,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: Theme.of(context).primaryColor,
+                        textStyle: TextStyle(
+                          color: Colors.white,
+                        ),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _connectError = false;
+                        });
+                        //Send to Done screen
+                        sendToSuccessScreen(false);
+                      },
+                      child: Text('Continue'),
+                    ),
+                  )
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

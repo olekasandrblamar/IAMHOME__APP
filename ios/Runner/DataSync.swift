@@ -231,9 +231,8 @@ class DataSync {
             }
 
             updateFireBase(property: DATA_UPDATE)
-
-
             makePostApiCall(url: "heartbeat", postData: try encoder.encode(updatedHBeat))
+            UserDefaults.standard.set(heartBeat.macAddress,forKey: DataSync.MAC_ADDRESS_NAME)
             checkAndLoadUserProfile()
         }catch{
             NSLog("Error while Uploading Data \(error)")
@@ -297,7 +296,7 @@ class DataSync {
                     NSLog("Last Update is not empty with lst updated \(lastUpdated)")
                     let timeDiff = Calendar.current.dateComponents([.hour], from: lastUpdated!,to: Date())
                     NSLog("Got profile time diff \(timeDiff.hour!)")
-                    if(timeDiff.hour! < 24){
+                    if(timeDiff.hour! < 1){
                         loadProfile = false
                     }
                 }
@@ -307,7 +306,7 @@ class DataSync {
             if(loadProfile){
                 NSLog("Loading profile \(loadProfile)")
                 let macAddress = UserDefaults.standard.string(forKey: DataSync.MAC_ADDRESS_NAME)
-                if(macAddress != nil){
+                if(macAddress != nil && macAddress != ""){
                     let profileUrl = URL(string: getBaseUrl()+"profileInfo?deviceId="+macAddress!)!
                     NSLog("Calling profile url \(profileUrl)")
                     var request = URLRequest(url: profileUrl)

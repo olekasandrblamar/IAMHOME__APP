@@ -18,24 +18,26 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
     var deviceConnected = false
     var isDeviceConnectionAvailable = false
     var initComplete = false
+    private var deviceAdded = false
     
     //Initialize the B369
     override init() {
         super.init()
-        var userInfo = ICUserInfo()
-        userInfo.age = 30
-        userInfo.enableMeasureHr = true
-        userInfo.height = 170
-        userInfo.sex = ICSexType.male
-        userInfo.weightUnit = ICWeightUnit.lb
-        userInfo.weight = 170
-        userInfo.peopleType = ICPeopleTypeNormal
-        userInfo.kitchenUnit = ICKitchenScaleUnit.lb
-        userInfo.rulerUnit = ICRulerUnit.inch
-        userInfo.userIndex = 1
-        ICDeviceManager.shared()?.update(userInfo)
+//        var userInfo = ICUserInfo()
+//        userInfo.age = 30
+//        userInfo.enableMeasureHr = true
+//        userInfo.height = 170
+//        userInfo.sex = ICSexType.male
+//        userInfo.weightUnit = ICWeightUnit.lb
+//        userInfo.weight = 170
+//        userInfo.peopleType = ICPeopleTypeNormal
+//        userInfo.kitchenUnit = ICKitchenScaleUnit.lb
+//        userInfo.rulerUnit = ICRulerUnit.inch
+//        userInfo.userIndex = 1
+//        ICDeviceManager.shared()?.update(userInfo)
         ICDeviceManager.shared()?.delegate = self
         ICDeviceManager.shared()?.initMgr()
+        deviceAdded = false
     }
     
     func startScan(result:@escaping FlutterResult,scanDeviceId:String) {
@@ -62,11 +64,13 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
         ICDeviceManager.shared()?.getSettingManager()?.configWifi(self.device, ssid: ssid, password: password, callback: { (callBackCode) in
             NSLog("Got connection response \(callBackCode.rawValue)")
         })
+        
         let serverBaseUrl = UserDefaults.standard.object(forKey: AppDelegate.SERVER_BASE_URL) as! String
+        NSLog("Sending server base url \(String(describing: serverBaseUrl))")
         ICDeviceManager.shared()?.getSettingManager()?.setServerUrl(self.device, server: serverBaseUrl, callback: { (callBackCode) in
             NSLog("Got Server URL \(callBackCode.rawValue)")
         })
-        DispatchQueue.main.asyncAfter(deadline: .now() + 20) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 45) {
             self.sendWifiResponse(device: self.device,message: "Config failed",connected: false)
         }
     }
@@ -134,15 +138,36 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
         NSLog("Init finish status \(bSuccess)")
         if(bSuccess){
             self.initComplete = true
+            if(self.deviceId != nil){
+                checkAndReAddDevice(macAddr: self.deviceId)
+            }
         }
     }
     
-    func getConnectionStatus(result:@escaping FlutterResult){
+    func getConnectionStatus(result:@escaping FlutterResult,connectionInfo: ConnectionInfo){
+        self.checkAndReAddDevice(macAddr: connectionInfo.deviceId)
         return result(isDeviceConnectionAvailable)
+    }
+    
+    private func checkAndReAddDevice(macAddr:String?){
+        if(initComplete == true && deviceAdded == false){
+            let connectedDevice = ICDevice()
+            connectedDevice.macAddr = macAddr
+            NSLog("Device found and adding to devices")
+            ICDeviceManager.shared()?.add(connectedDevice, callback: { (device, callbackCode) in
+                NSLog("Got call back code \(callbackCode.rawValue) for \(device?.macAddr ?? "")")
+                if(callbackCode == .success){
+                    self.deviceAdded = true
+                }
+            })
+        }else if(deviceId == nil){
+            self.deviceId = macAddr
+        }
     }
     
     func getCurrentDeviceStatus(connInfo: ConnectionInfo, result:@escaping FlutterResult){
         do{
+            self.checkAndReAddDevice(macAddr: connInfo.deviceId)
             let connectionInfo = ConnectionInfo(deviceId: connInfo.deviceId, deviceName: connInfo.deviceName, connected: isDeviceConnectionAvailable, deviceFound: connInfo.deviceFound, message: "",batteryStatus: "99")
             let deviceJson = try JSONEncoder().encode(connectionInfo)
             let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
@@ -171,8 +196,14 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
     
     func onReceiveWeightData(_ device: ICDevice!, data: ICWeightData!) {
         NSLog("Got Weight data \(data)")
-        DataSync.uploadWeights(weights:[WeightUpload(measureTime: Date(), kgs: data.weight_kg, lbs: data.weight_lb, deviceId: device.macAddr)])
+        updateWeight(device: device, weight: data)
     }
+    
+    func updateWeight(device: ICDevice!,weight: ICWeightData){
+        DataSync.uploadWeights(weights:[WeightUpload(measureTime: Date(), kgs: weight.weight_kg, lbs: weight.weight_lb, deviceId: device.macAddr)])
+    }
+    
+    
     
     func onReceiveWeightHistoryData(_ device: ICDevice!, data: ICWeightHistoryData!) {
         NSLog("Got weight history data \(data)")
@@ -184,6 +215,24 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
     
     func onReceiveMeasureStepData(_ device: ICDevice!, step: ICMeasureStep, data: NSObject!) {
         NSLog("Got measure data \(step) \(data)")
+        switch step {
+        case ICMeasureStepMeasureOver :
+            NSLog("got measure over data \(data)")
+            let weightData = data as! ICWeightData
+            self.updateWeight(device: device, weight: weightData)
+        case ICMeasureStepMeasureWeightData:
+            NSLog("got center weight data \(data)")
+        case ICMeasureStepHrStart:
+            NSLog("For Step Hr start \(data)")
+        case ICMeasureStepAdcResult:
+            NSLog("Got adc result \(data)")
+        case ICMeasureStepAdcStart:
+            NSLog("Adc start \(data)")
+        case ICMeasureStepHrResult:
+            NSLog("Hr result \(data)")
+        default:
+            NSLog("Default case")
+        }
     }
     
     func sendResponse(result:@escaping FlutterResult){

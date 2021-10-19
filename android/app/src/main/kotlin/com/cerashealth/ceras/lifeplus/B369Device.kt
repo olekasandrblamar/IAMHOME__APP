@@ -272,8 +272,12 @@ class B369Device :BaseDevice(), ICDeviceManagerDelegate{
     }
 
     override fun onReceiveWeightHistoryData(device: ICDevice?, historyData: ICWeightHistoryData?) {
-        historyData?.let {
-            Log.d(TAG, "Got history data ${it.time} ${it.weight_lb} ")
+        historyData?.let {historyData->
+            Log.d(TAG, "Got history data ${historyData.time} ${historyData.weight_lb} ")
+            val measureTime = Calendar.getInstance().apply {
+                timeInMillis = historyData.time*1000L
+            }
+            DataSync.uploadWeightData(listOf(WeightData(measureTime.time,historyData.weight_lb,historyData.weight_kg,device!!.macAddr)))
         }
         Log.d(TAG, "Weight history data ")
     }

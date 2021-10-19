@@ -64,9 +64,10 @@ open class BaseDevice{
 
     companion object{
 
-        const val WATCH_DEVICE:String = "bWELL"
-        const val BAND_DEVICE:String = "bACTIVE"
-        const val B369_DEVICE:String = "B500"
+        const val WATCH_DEVICE = "BWELL"
+        const val B300_PLUS = "B300+"
+        const val BAND_DEVICE = "BACTIVE"
+        const val B369_DEVICE = "B500"
         const val B360_DEVICE = "B360"
         var isBackground = false
         val TAG = WatchDevice::class.java.simpleName
@@ -75,8 +76,9 @@ open class BaseDevice{
 
         fun getDeviceImpl(deviceName:String?): BaseDevice {
             Log.i(TAG,"Getting implementation for $deviceName")
-            return when(deviceName){
+            return when(deviceName?.toUpperCase()){
                 WATCH_DEVICE-> WatchDevice()
+                B300_PLUS-> WatchDevice()
                 BAND_DEVICE->BandDevice()
                 B369_DEVICE->B369Device.getInstance()
                 B360_DEVICE ->B360Device.getInstance()

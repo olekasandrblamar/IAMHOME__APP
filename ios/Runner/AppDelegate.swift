@@ -9,12 +9,15 @@ import BackgroundTasks
     
     static var watchData:WatchData? = nil
     static var scaleData:B369Device? = nil
+    static var b360Device:B360Device? = nil
 //    static var bandDevice:BandDevice? = nil
     static let dateFormatter = DateFormatter()
     static var lastUpdated:Date? = nil
-    static var WATCH_TYPE = "bWELL"
+    static var WATCH_TYPE = "BWELL"
     static var SCALE_TYPE = "B500"
-    static var BAND_TYPE = "bACTIVE"
+    static var BAND_TYPE = "BACTIVE"
+    static var B360_DEVICE = "B360"
+    static var B300_PLUS = "b300+"
     static var DEVICE_TYPE_KEY = "flutter.deviceType"
     static let BG_SYNC_TASK = "com.cerashealth.datasync"
     static let SERVER_BASE_URL =  "flutter.serverBaseUrl"
@@ -108,7 +111,7 @@ import BackgroundTasks
             
             let deviceId:String = (args as? [String: Any])?["deviceId"] as! String
             let deviceType:String = (args as? [String: Any])?["deviceType"] as! String
-            self?.connectDevice(result: result,deviceId: deviceId,deviceType: deviceType)
+            self?.connectDevice(result: result,deviceId: deviceId,deviceType: deviceType.uppercased())
         } else if(call.method=="syncData"){
             
             guard let args = call.arguments else {
@@ -366,30 +369,19 @@ import BackgroundTasks
         }
         
         //DataSync.loadWeatherData()
-        
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         syncDeviceFromConnectionInfo(connectionData: connectionData)
-//        let deviceType = connectionData.deviceType
-//        NSLog("Syncing data for device \(deviceType)")
-//        UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
-//        if(connectionData.deviceType == AppDelegate.WATCH_TYPE){
-//            self.getWatchDevice()?.syncData(connectionInfo: connectionData)
-//        }
-//        else if(deviceType! == AppDelegate.BAND_TYPE){
-//            self.getBandDevice()?.syncData(connectionInfo: connectionData)
-//        }
     }
     
     private func syncDeviceFromConnectionInfo(connectionData:ConnectionInfo){
-        let deviceType = connectionData.deviceType
+        let deviceType = connectionData.deviceType?.uppercased()
         NSLog("Syncing data for device \(deviceType)")
         UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
-        if(connectionData.deviceType == AppDelegate.WATCH_TYPE){
+        if(deviceType == AppDelegate.WATCH_TYPE || deviceType == AppDelegate.B300_PLUS){
             self.getWatchDevice()?.syncData(connectionInfo: connectionData)
+        }else if(deviceType == AppDelegate.B360_DEVICE){
+            self.getB360Device().syncData(connectionInfo: connectionData)
         }
-//        else if(deviceType! == AppDelegate.BAND_TYPE){
-//            self.getBandDevice()?.syncData(connectionInfo: connectionData)
-//        }
     }
     
     private func getProfile(){
@@ -404,29 +396,37 @@ import BackgroundTasks
     
     private func disconectDevice(result:@escaping FlutterResult, connectionInfo:String) throws{
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
-        let deviceType = connectionData.deviceType
-        NSLog("disconnecting device \(deviceType)")
-        if(deviceType==AppDelegate.WATCH_TYPE){
+        let deviceType = connectionData.deviceType?.uppercased()
+        switch deviceType {
+        case AppDelegate.WATCH_TYPE,AppDelegate.B300_PLUS:
             NSLog("disonnecting Watch")
             self.getWatchDevice()?.disconnect(result: result,connectionInfo: connectionData)
             NSLog("completed Connecting Watch")
-        }else if(deviceType == AppDelegate.SCALE_TYPE){
-            self.getWatchDevice()?.disconnect(result: result,connectionInfo: connectionData)
+        case AppDelegate.B360_DEVICE:
+            NSLog("disonnecting B360")
+            self.getB360Device().disconnect(result: result, connectionInfo: connectionData)
+            NSLog("completed Connecting B360")
+        case AppDelegate.SCALE_TYPE:
+            NSLog("disonnecting Scale")
+            self.getScaleDevice()?.disconnect(result: result, connectionInfo: connectionData)
+            NSLog("completed disconnecting scale")
+        default:
+            NSLog("Calling default disconnect device")
         }
-//        else if(deviceType==AppDelegate.BAND_TYPE){
-//            getBandDevice()?.disconnectDevice(result: result)
-//        }
     }
 
     private func connectDevice(result:@escaping FlutterResult,deviceId:String, deviceType:String) {
         NSLog("Connecting device \(deviceType)")
-        if(deviceType==AppDelegate.WATCH_TYPE){
+        if(deviceType==AppDelegate.WATCH_TYPE || deviceType == AppDelegate.B300_PLUS){
             NSLog("Connecting Watch")
             self.getWatchDevice()?.startScan(result: result,deviceId:deviceId)
             NSLog("completed Connecting Watch")
         }else if(deviceType==AppDelegate.SCALE_TYPE){
             NSLog("Connecting to Scale")
             self.getScaleDevice()?.startScan(result: result, scanDeviceId: deviceId)
+        }else if(deviceType == AppDelegate.B360_DEVICE){
+            NSLog("Connecting to B360")
+            self.getB360Device().startScan(result: result, deviceId: deviceId)
         }
 //        else if(deviceType==AppDelegate.BAND_TYPE){
 //            getBandDevice()?.connectDevice(result: result, deviceId: deviceId)
@@ -434,8 +434,8 @@ import BackgroundTasks
     }
     
     private func readDataFromDevice(eventSink events: @escaping FlutterEventSink,readingType:String){
-        let deviceType = getDeviceType()
-        if(deviceType==AppDelegate.WATCH_TYPE){
+        let deviceType = getDeviceType()?.uppercased()
+        if(deviceType==AppDelegate.WATCH_TYPE || deviceType == AppDelegate.B300_PLUS){
             NSLog("Connecting Watch")
             self.getWatchDevice()?.readDataFromDevice(eventSink: events, readingType: readingType)
         }else{
@@ -446,28 +446,33 @@ import BackgroundTasks
     private func getDeviceInfo(result:@escaping FlutterResult,connectionInfo:String) throws {
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         NSLog("Getting device info \(connectionInfo)")
-        let deviceType = connectionData.deviceType
-        if(deviceType == AppDelegate.WATCH_TYPE){
+        let deviceType = connectionData.deviceType?.uppercased()
+        switch deviceType {
+        case AppDelegate.WATCH_TYPE,AppDelegate.B300_PLUS:
             self.getWatchDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
-        }else if(deviceType == AppDelegate.SCALE_TYPE){
+        case AppDelegate.SCALE_TYPE:
             self.getScaleDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
+        case AppDelegate.B360_DEVICE:
+            self.getB360Device().getCurrentDeviceStatus(connInfo: connectionData, result: result)
+        default:
+            NSLog("Default value")
         }
-//        else if(deviceType! == AppDelegate.BAND_TYPE){
-//            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
-//        }
     }
     
     private func getConnectionStatus(result:@escaping FlutterResult,connectionInfo:String) throws {
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         NSLog("Getting device info ")
-        if(connectionData.deviceType == AppDelegate.WATCH_TYPE){
+        let deviceType = connectionData.deviceType?.uppercased()
+        switch deviceType {
+        case AppDelegate.WATCH_TYPE,AppDelegate.B300_PLUS:
             self.getWatchDevice()?.getConnectionStatus(result: result)
-        }else if(connectionData.deviceType == AppDelegate.SCALE_TYPE){
-            self.getScaleDevice()?.getConnectionStatus(result: result)
+        case AppDelegate.SCALE_TYPE:
+            self.getScaleDevice()?.getConnectionStatus(result: result,connectionInfo: connectionData)
+        case AppDelegate.B360_DEVICE:
+            self.getB360Device().getConnectionStatus(result: result)
+        default:
+            NSLog("Default connection status")
         }
-//        else if(deviceType! == AppDelegate.BAND_TYPE){
-//            self.getBandDevice()?.getCurrentDeviceStatus(connInfo: connectionData, result: result)
-//        }
     }
     
     private func connectWifi(result:@escaping FlutterResult,connectionInfo:String,ssid:String,password:String) throws {
@@ -478,8 +483,8 @@ import BackgroundTasks
     private func upgradeDevice(eventSink events: @escaping FlutterEventSink,connectionInfo:String) throws {
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         NSLog("Getting device info ")
-        let deviceType = getDeviceType()
-        if(connectionData.deviceType == AppDelegate.WATCH_TYPE){
+        let deviceType = getDeviceType()?.uppercased()
+        if(connectionData.deviceType == AppDelegate.WATCH_TYPE || connectionData.deviceType == AppDelegate.B300_PLUS){
             self.getWatchDevice()?.upgradeDevice(connectionInfo: connectionData, eventSink: events)
         }
 //        else if(deviceType! == AppDelegate.BAND_TYPE){
@@ -506,6 +511,13 @@ import BackgroundTasks
             AppDelegate.scaleData = B369Device()
         }
         return AppDelegate.scaleData
+    }
+    
+    private func getB360Device() -> B360Device{
+        if(AppDelegate.b360Device==nil){
+            AppDelegate.b360Device = B360Device()
+        }
+        return AppDelegate.b360Device!
     }
 }
 

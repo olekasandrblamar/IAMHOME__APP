@@ -15,6 +15,9 @@ class UserProfile{
     var offSets = listOf<Offset>()
 
     fun getOffsetValue(readingTypes:List<String>):Int = offSets.find { readingTypes.contains(it.trackerName) }?.offset?.toInt()?:0
+
+    override fun toString(): String = Gson().toJson(this)
+
 }
 
 class Offset{

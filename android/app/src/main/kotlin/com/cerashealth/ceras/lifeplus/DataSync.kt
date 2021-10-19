@@ -113,7 +113,7 @@ class DataSync {
                             override fun onResponse(call: Call, response: Response) {
                                 Log.i(TAG,"Got response ${response.isSuccessful} for call ${call.request().url}")
                                 try {
-                                    val userProfile = gson.fromJson<UserProfile>(response.body?.string(), UserProfile::class.java)
+                                    val userProfile = gson.fromJson(response.body?.string(), UserProfile::class.java)
                                     userProfile.lastUpdated = Date()
                                     currentContext.getSharedPreferences(MainActivity
                                             .SharedPrefernces, Context.MODE_PRIVATE).edit()
@@ -164,12 +164,13 @@ class DataSync {
             makePostRequest(gson.toJson(weights.filter { it.lbs>0 }),"weight")
             val lastMeasure = weights.maxByOrNull { it.measureTime }
             lastMeasure?.let {
-                updateLastSync("weight",lastMeasure = lastMeasure?.measureTime)
+                updateLastSync("weight",lastMeasure = it.measureTime)
             }
         }
 
         fun sendHeartBeat(heartBeat: HeartBeat){
             MainActivity.updateLastConnected()
+            CURRENT_MAC_ADDRESS = heartBeat.macAddress
             MainActivity.currentContext?.let {context->
                 Log.i(TAG,"Updating last connected")
                 heartBeat.deviceInfo = context.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE).getString("flutter.userDeviceInfo", "")
