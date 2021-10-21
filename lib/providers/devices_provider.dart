@@ -209,8 +209,10 @@ class DevicesProvider extends ChangeNotifier {
   Future<TrackerData> getLatestTrackerData(Tracker trackerMasterData) async {
     try {
       final baseUrl = await _baseUrl;
+      var trackerUrl = baseUrl + '/lastValue/' + trackerMasterData.trackerName;
+      print('Getting  value from $trackerUrl');
       final response = await mobileDataHttp.get(
-        baseUrl + '/lastValue/' + trackerMasterData.trackerName,
+        trackerUrl,
         queryParameters: await _getDeviceRequest(),
       );
 
@@ -249,7 +251,8 @@ class DevicesProvider extends ChangeNotifier {
         print("Got ${response.data}");
 
         final responseData = response.data;
-
+        trackerMasterData.trackerValues.sort((tracker1,tracker2)=>tracker1.order.compareTo(tracker2.order));
+        print('property 1 ${trackerMasterData.trackerValues[0].dataPropertyName} property2 ${trackerMasterData.trackerValues[1].dataPropertyName}');
         final dataValue1 =
             responseData[trackerMasterData.trackerValues[0].dataPropertyName];
         final dataValue2 =

@@ -28,6 +28,8 @@ class B360Device:BaseDevice(),SearchResponse {
         private var device:B360Device? = null
         private var connected = false
         private var connectionListenerConfigured = false
+        private var reading = false
+        private var lastReading:Date = Calendar.getInstance().time
 
         fun getInstance():B360Device{
             if(device ==null){
@@ -259,114 +261,140 @@ class B360Device:BaseDevice(),SearchResponse {
     }
 
     private fun readDataFromDevice(){
-        vManager?.readOriginData({
-            Log.i(B360DeviceTag,"Got response $it")
-        },object : IOriginData3Listener{
+        val fiveMinutesAgo = Calendar.getInstance().apply { add(Calendar.MINUTE,-5) }.time
+        if(!reading || lastReading.before(fiveMinutesAgo)) {
+            reading = true
+            lastReading = Calendar.getInstance().time
+            vManager?.readOriginData({
+                Log.i(B360DeviceTag, "Got response $it")
+            }, object : IOriginData3Listener {
 
-            val heartUploads = mutableListOf<HeartRateUpload>()
-            val bpUploads = mutableListOf<BpUpload>()
-            val o2Uploads = mutableListOf<OxygenLevelUpload>()
-            val dailyStepUploads = mutableListOf<DailyStepUpload>()
-            val stepUploads = mutableListOf<StepUpload>()
+                val heartUploads = mutableListOf<HeartRateUpload>()
+                val bpUploads = mutableListOf<BpUpload>()
+                val o2Uploads = mutableListOf<OxygenLevelUpload>()
+                val dailyStepUploads = mutableListOf<DailyStepUpload>()
+                val stepUploads = mutableListOf<StepUpload>()
 
-            override fun onReadOriginProgressDetail(day: Int, date: String?, allPackage: Int, currentPackage: Int) {
-                //Log.i(B360DeviceTag,"Day $day Date $date allPackage $allPackage currentPackage $currentPackage")
-            }
+                override fun onReadOriginProgressDetail(
+                    day: Int,
+                    date: String?,
+                    allPackage: Int,
+                    currentPackage: Int
+                ) {
+                    //Log.i(B360DeviceTag,"Day $day Date $date allPackage $allPackage currentPackage $currentPackage")
+                }
 
-            override fun onReadOriginProgress(progress: Float) {
-                Log.i(B360DeviceTag,"Origin Progress $progress")
-            }
+                override fun onReadOriginProgress(progress: Float) {
+                    Log.i(B360DeviceTag, "Origin Progress $progress")
+                }
 
-            override fun onReadOriginComplete() {
-                Log.i(B360DeviceTag,"Read complete")
+                override fun onReadOriginComplete() {
+                    Log.i(B360DeviceTag, "Read complete")
+                    reading = false
+                    Log.d(B360DeviceTag, "Uploading bp $bpUploads")
 
-                Log.d(B360DeviceTag,"Uploading bp $bpUploads")
+                    DataSync.uploadBloodPressure(bpUploads)
+                    Log.d(B360DeviceTag, "Uploading Daily steps $dailyStepUploads")
+                    DataSync.uploadDailySteps(dailyStepUploads.filter { it.steps > 0 })
+                    Log.d(B360DeviceTag, "Uploading steps $stepUploads")
+                    DataSync.uploadStepInfo(stepUploads)
+                    Log.d(B360DeviceTag, "Uploading HR $heartUploads")
+                    DataSync.uploadHeartRate(heartUploads)
+                    Log.d(B360DeviceTag, "Uploading o2 $o2Uploads")
+                    DataSync.uploadOxygenData(o2Uploads)
+                }
 
-                DataSync.uploadBloodPressure(bpUploads)
-                Log.d(B360DeviceTag,"Uploading Daily steps $dailyStepUploads")
-                DataSync.uploadDailySteps(dailyStepUploads.filter { it.steps>0 })
-                Log.d(B360DeviceTag,"Uploading steps $stepUploads")
-                DataSync.uploadStepInfo(stepUploads)
-                Log.d(B360DeviceTag,"Uploading HR $heartUploads")
-                DataSync.uploadHeartRate(heartUploads)
-                Log.d(B360DeviceTag,"Uploading o2 $o2Uploads")
-                DataSync.uploadOxygenData(o2Uploads)
-            }
-
-            override fun onOriginFiveMinuteListDataChange(originDataList: MutableList<OriginData3>?) {
-                //Log.i(B360DeviceTag,"Five minute data $originDataList")
+                override fun onOriginFiveMinuteListDataChange(originDataList: MutableList<OriginData3>?) {
+                    //Log.i(B360DeviceTag,"Five minute data $originDataList")
 //                    originDataList?.forEach {
 //                        Log.i(B360DeviceTag,"Got data $it")
 //                    }
-            }
-
-            override fun onOriginHalfHourDataChange(halfHourData: OriginHalfHourData?) {
-                //Log.i(B360DeviceTag,"Half hour data $halfHourData")
-                 halfHourData?.halfHourBps?.map {
-                    Log.i(B360DeviceTag,"${it.date}, ${it.time} - ${it.highValue} - ${it.lowValue}")
-                    BpUpload(measureTime = convertToDate(it.time),
-                        systolic = it.highValue,distolic = it.lowValue,
-                        deviceId = connectionInfo?.deviceId!!,
-                        userProfile = DataSync.getUserInfo())
-                }?.apply {
-                    bpUploads.addAll(this)
-                 }
-                Log.i(B360DeviceTag,"All step ${halfHourData?.allStep}")
-                halfHourData?.halfHourRateDatas?.map {
-                    Log.i(B360DeviceTag,"Heart rate ${it.time} - ${it.rateValue} - ${it.ecgCount}")
-                    HeartRateUpload(measureTime = convertToDate(it.time),
-                    heartRate = it.rateValue, deviceId = connectionInfo?.deviceId!!,userProfile = DataSync.getUserInfo())
-                }?.apply {
-                    heartUploads.addAll(this)
                 }
 
-                halfHourData?.halfHourSportDatas?.filter { it.stepValue>0 }?.map {
-                    StepUpload(measureTime = convertToDate(it.time),
-                        steps = it.stepValue,
-                        calories = it.calValue.toInt(),
-                        distance = it.disValue.toFloat(),
-                        userProfile = DataSync.getUserInfo(),
-                        deviceId = connectionInfo?.deviceId!!)
-                }?.apply {
-                    if(isNotEmpty()){
-                        val totalCalories = sumOf { it.calories }
-                        val totalDistance = sumOf { it.distance.toDouble() }
-                        halfHourData.halfHourSportDatas.first()?.let {
-                            dailyStepUploads.add(
-                                DailyStepUpload(measureTime = getDateFromString(it.date),
-                                steps = halfHourData.allStep,
-                                calories = totalCalories,
-                                distance = totalDistance.toFloat(),
-                                deviceId = connectionInfo?.deviceId!!,
-                                userProfile = DataSync.getUserInfo())
-                            )
+                override fun onOriginHalfHourDataChange(halfHourData: OriginHalfHourData?) {
+                    //Log.i(B360DeviceTag,"Half hour data $halfHourData")
+                    halfHourData?.halfHourBps?.map {
+                        Log.i(
+                            B360DeviceTag,
+                            "${it.date}, ${it.time} - ${it.highValue} - ${it.lowValue}"
+                        )
+                        BpUpload(
+                            measureTime = convertToDate(it.time),
+                            systolic = it.highValue, distolic = it.lowValue,
+                            deviceId = connectionInfo?.deviceId!!,
+                            userProfile = DataSync.getUserInfo()
+                        )
+                    }?.apply {
+                        bpUploads.addAll(this)
+                    }
+                    Log.i(B360DeviceTag, "All step ${halfHourData?.allStep}")
+                    halfHourData?.halfHourRateDatas?.map {
+                        Log.i(
+                            B360DeviceTag,
+                            "Heart rate ${it.time} - ${it.rateValue} - ${it.ecgCount}"
+                        )
+                        HeartRateUpload(
+                            measureTime = convertToDate(it.time),
+                            heartRate = it.rateValue,
+                            deviceId = connectionInfo?.deviceId!!,
+                            userProfile = DataSync.getUserInfo()
+                        )
+                    }?.apply {
+                        heartUploads.addAll(this)
+                    }
+
+                    halfHourData?.halfHourSportDatas?.filter { it.stepValue > 0 }?.map {
+                        StepUpload(
+                            measureTime = convertToDate(it.time),
+                            steps = it.stepValue,
+                            calories = it.calValue.toInt(),
+                            distance = it.disValue.toFloat(),
+                            userProfile = DataSync.getUserInfo(),
+                            deviceId = connectionInfo?.deviceId!!
+                        )
+                    }?.apply {
+                        if (isNotEmpty()) {
+                            val totalCalories = sumOf { it.calories }
+                            val totalDistance = sumOf { it.distance.toDouble() }
+                            halfHourData.halfHourSportDatas.first()?.let {
+                                dailyStepUploads.add(
+                                    DailyStepUpload(
+                                        measureTime = getDateFromString(it.date),
+                                        steps = halfHourData.allStep,
+                                        calories = totalCalories,
+                                        distance = totalDistance.toFloat(),
+                                        deviceId = connectionInfo?.deviceId!!,
+                                        userProfile = DataSync.getUserInfo()
+                                    )
+                                )
+                            }
+                            stepUploads.addAll(this)
                         }
-                        stepUploads.addAll(this)
                     }
                 }
-            }
 
-            override fun onOriginHRVOriginListDataChange(hrvDataList: MutableList<HRVOriginData>?) {
-                Log.i(B360DeviceTag,"Hrv data $hrvDataList")
-                hrvDataList?.forEach {
-                    Log.i(B360DeviceTag,"Hrv value ${Gson().toJson(it)}")
+                override fun onOriginHRVOriginListDataChange(hrvDataList: MutableList<HRVOriginData>?) {
+                    Log.i(B360DeviceTag, "Hrv data $hrvDataList")
+                    hrvDataList?.forEach {
+                        Log.i(B360DeviceTag, "Hrv value ${Gson().toJson(it)}")
+                    }
                 }
-            }
 
-            override fun onOriginSpo2OriginListDataChange(spo2Data: MutableList<Spo2hOriginData>?) {
-                //Log.i(B360DeviceTag,"SPO2 data $spo2Data")
-                spo2Data?.filter { it.oxygenValue>0 }?.map {
-                    OxygenLevelUpload(
-                        measureTime = convertToDate(it.getmTime()),
-                        oxygenLevel =  it.oxygenValue,
-                        deviceId = connectionInfo?.deviceId!!,
-                        userProfile = DataSync.getUserInfo()
-                    )
-                }?.apply {
-                    o2Uploads.addAll(this)
+                override fun onOriginSpo2OriginListDataChange(spo2Data: MutableList<Spo2hOriginData>?) {
+                    //Log.i(B360DeviceTag,"SPO2 data $spo2Data")
+                    spo2Data?.filter { it.oxygenValue > 0 }?.map {
+                        OxygenLevelUpload(
+                            measureTime = convertToDate(it.getmTime()),
+                            oxygenLevel = it.oxygenValue,
+                            deviceId = connectionInfo?.deviceId!!,
+                            userProfile = DataSync.getUserInfo()
+                        )
+                    }?.apply {
+                        o2Uploads.addAll(this)
+                    }
                 }
-            }
-        },3)
+            }, 3)
+        }
 
     }
 

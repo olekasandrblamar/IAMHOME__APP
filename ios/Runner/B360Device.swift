@@ -18,6 +18,7 @@ class B360Device{
     let bleManager: VPBleCentralManage = VPBleCentralManage.sharedBleManager()
     let deviceInfoResult:FlutterResult? = nil
     var dateTimeFormat = DateFormatter()
+    var result:FlutterResult? = nil
     
     init() {
         self.dateTimeFormat.dateFormat = "yyyy-MM-dd HH:mm"
@@ -96,9 +97,10 @@ class B360Device{
         }
     }
     
-    func syncData(connectionInfo: ConnectionInfo){
+    func syncData(connectionInfo: ConnectionInfo,result: @escaping FlutterResult){
         let deviceConnected = bleManager.isConnected
         self.connectionInfo = connectionInfo
+        self.result = result
         NSLog("Is device conected \(deviceConnected)")
         if(deviceConnected){
             syncDataFromDevice()
@@ -271,6 +273,11 @@ class B360Device{
     
     private func syncDataFromDevice(){
         NSLog("Getting step data")
+        if(self.result != nil){
+            self.connectionInfo?.connected = true
+            self.sendConnectionResponse(connInfo: self.connectionInfo!, result: self.result!)
+            self.result = nil
+        }
         self.sendHeartBeat(deviceId: self.connectionInfo?.deviceId ?? "", macAddress: self.connectionInfo?.deviceId ?? "")
         bleManager.peripheralManage.veepooSdkStartReadDeviceAllData { readState, totalDay, cureentDay, currentDayProgress in
             switch(readState){

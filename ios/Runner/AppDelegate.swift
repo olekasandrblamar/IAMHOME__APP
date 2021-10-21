@@ -49,7 +49,9 @@ import BackgroundTasks
                 let deviceList = try JSONDecoder().decode([DevicesModel].self, from: deviceListString!.data(using: .utf8) as! Data)
                 for deviceInfo in deviceList{
                     if(deviceInfo.watchInfo != nil){
-                        try self.syncDeviceFromConnectionInfo(connectionData: deviceInfo.watchInfo!)
+                        try self.syncDeviceFromConnectionInfo(connectionData: deviceInfo.watchInfo!,result: { data in
+                            
+                        })
                     }
                 }
             }
@@ -133,10 +135,10 @@ import BackgroundTasks
                 }
                 if(loadData){
                     NSLog("Syncing data ")
-                    try self?.syncData(connectionInfo: connectionInfo)
+                    try self?.syncData(connectionInfo: connectionInfo,result: result)
                     //self?.watchData.syncData(connectionInfo: connectionData)
                 }
-                result("Load complete")
+//                result("Load complete")
             }catch{
                 result("Error")
             }
@@ -263,18 +265,6 @@ import BackgroundTasks
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
     
-    private func loadDataFromDevice(){
-        do{
-            let connectionInfo = UserDefaults.standard.string(forKey: "flutter.watchInfo")
-            //If the connection info exists
-            if(connectionInfo != nil){
-                try syncData(connectionInfo: connectionInfo!)
-            }
-        }catch{
-            NSLog("Error while reading da \(error)")
-        }
-    }
-    
     private func takeReadingFromDevice(deviceType:String,readingType:String){
         
     }
@@ -329,7 +319,9 @@ import BackgroundTasks
                 NSLog("Got connection info in background \(connectionInfo)")
                 do{
                     if(connectionInfo != nil){
-                        try self.syncData(connectionInfo: connectionInfo!)
+                        try self.syncData(connectionInfo: connectionInfo!,result: { data in
+                            
+                        })
                     }
                 }catch{
                     NSLog("Error while loading data for task \(task.identifier) \(error)")
@@ -363,24 +355,26 @@ import BackgroundTasks
     }
     
     
-    private func syncData(connectionInfo:String) throws {
+    private func syncData(connectionInfo:String,result: @escaping FlutterResult) throws {
         Messaging.messaging().subscribe(toTopic: "ios_updates") { error in
           NSLog("Subscribed to ios_updates with error \(error)")
         }
         
         //DataSync.loadWeatherData()
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
-        syncDeviceFromConnectionInfo(connectionData: connectionData)
+        syncDeviceFromConnectionInfo(connectionData: connectionData,result: result)
     }
     
-    private func syncDeviceFromConnectionInfo(connectionData:ConnectionInfo){
+    private func syncDeviceFromConnectionInfo(connectionData:ConnectionInfo,result: @escaping FlutterResult){
         let deviceType = connectionData.deviceType?.uppercased()
         NSLog("Syncing data for device \(deviceType)")
         UserDefaults.standard.set(AppDelegate.dateFormatter.string(from: Date()),forKey: "flutter.last_sync")
         if(deviceType == AppDelegate.WATCH_TYPE || deviceType == AppDelegate.B300_PLUS){
-            self.getWatchDevice()?.syncData(connectionInfo: connectionData)
+            self.getWatchDevice()?.syncData(connectionInfo: connectionData,result: result)
         }else if(deviceType == AppDelegate.B360_DEVICE){
-            self.getB360Device().syncData(connectionInfo: connectionData)
+            self.getB360Device().syncData(connectionInfo: connectionData,result: result)
+        }else if(deviceType == AppDelegate.SCALE_TYPE){
+            self.getScaleDevice()?.syncData(connectionInfo: connectionData, result: result)
         }
     }
     

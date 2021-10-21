@@ -48,9 +48,11 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     if (widget.routeArgs != null) {
       _deviceIndex = widget.routeArgs['deviceIndex'];
     }
+    print('Gor index $_deviceIndex');
 
     // _changeLastUpdated();
     _syncDataFromDevice();
+    _loadDeviceData();
 
     super.initState();
 
@@ -169,7 +171,9 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
   void _syncDataFromDevice() async {
     _setIsLoading(true);
-    await readDataFromDevice(await getDeviceInfoString());
+    var deviceInfoString = await getDeviceInfoString();
+    print('Got device info string $deviceInfoString');
+    await readDataFromDevice(deviceInfoString);
     _changeLastUpdated();
   }
 
@@ -435,8 +439,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
   Widget buildDeviceConnect(context) {
     final _appLocalization = AppLocalizations.of(context);
-
-    var imageData = (_deviceData?.deviceMaster != null &&
+    print('device data ${json.encode(_deviceData?.deviceMaster)}');
+    var imageData = (_deviceData!=null && _deviceData?.deviceMaster != null &&
             _deviceData?.deviceMaster['displayImage'] != null)
         ? _deviceData?.deviceMaster['displayImage']
         : null;
