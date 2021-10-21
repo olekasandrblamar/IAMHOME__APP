@@ -23,18 +23,25 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
     //Initialize the B369
     override init() {
         super.init()
-//        var userInfo = ICUserInfo()
-//        userInfo.age = 30
-//        userInfo.enableMeasureHr = true
-//        userInfo.height = 170
-//        userInfo.sex = ICSexType.male
-//        userInfo.weightUnit = ICWeightUnit.lb
-//        userInfo.weight = 170
-//        userInfo.peopleType = ICPeopleTypeNormal
-//        userInfo.kitchenUnit = ICKitchenScaleUnit.lb
-//        userInfo.rulerUnit = ICRulerUnit.inch
-//        userInfo.userIndex = 1
-//        ICDeviceManager.shared()?.update(userInfo)
+        let userInfo = ICUserInfo()
+        userInfo.age = 30
+        userInfo.enableMeasureHr = true
+        userInfo.height = 170
+        userInfo.sex = ICSexType.male
+        userInfo.weightUnit = ICWeightUnit.lb
+        userInfo.weight = 60
+        userInfo.peopleType = ICPeopleTypeNormal
+        userInfo.kitchenUnit = ICKitchenScaleUnit.lb
+        userInfo.rulerUnit = ICRulerUnit.inch
+        userInfo.userIndex = 1
+        let userData = DataSync.getUserInfo()
+        if(userData != nil){
+            userInfo.age = UInt(userData!.age)
+            userInfo.sex = userData?.sex.lowercased() == "male" ? ICSexType.male : ICSexType.femal
+            userInfo.weight = Float(userData!.weightInKgs) * 2.20
+            userInfo.height = UInt(userData!.heightInCm)
+        }
+        ICDeviceManager.shared()?.update(userInfo)
         ICDeviceManager.shared()?.delegate = self
         ICDeviceManager.shared()?.initMgr()
         deviceAdded = false
@@ -56,6 +63,11 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
                 ICDeviceManager.shared()?.scanDevice(self)
             }
         }
+    }
+    
+    func syncData(connectionInfo:ConnectionInfo,result:@escaping FlutterResult){
+        self.checkAndReAddDevice(macAddr: connectionInfo.deviceId)
+        result(generateResponse(deviceId: connectionInfo.deviceId!, message: "Synced", connected: isDeviceConnectionAvailable))
     }
     
     func connectWifi(result:@escaping FlutterResult,ssid:String,password:String){
