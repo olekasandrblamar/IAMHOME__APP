@@ -42,6 +42,8 @@ class Tracker {
   List<TrackerValues> trackerValues;
   bool deleted;
   bool active;
+  bool mobileDisplay;
+  bool mobileMeasureNow;
 
   Tracker(
       {this.id,
@@ -51,7 +53,9 @@ class Tracker {
       this.graphType,
       this.trackerValues,
       this.deleted,
-      this.active});
+      this.active,
+      this.mobileDisplay,
+      this.mobileMeasureNow});
 
   factory Tracker.fromJson(Map<String, dynamic> json) =>
       _$TrackerFromJson(json);

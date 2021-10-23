@@ -21,6 +21,11 @@ import BackgroundTasks
     static var DEVICE_TYPE_KEY = "flutter.deviceType"
     static let BG_SYNC_TASK = "com.cerashealth.datasync"
     static let SERVER_BASE_URL =  "flutter.serverBaseUrl"
+    
+    static let TEMPERATURE = "TEMPERATURE"
+    static let HR = "HEART RATE"
+    static let BP = "BP"
+    static let O2 = "BLOOD OXYGEN"
   
 //    override func application(_ application: UIApplication,
 //                              performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void){
@@ -221,7 +226,8 @@ import BackgroundTasks
         func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
             NSLog("Arguments \(arguments)")
             let readingType:String = (arguments as? [String: Any])?["readingType"] as! String
-            appDelegate?.readDataFromDevice(eventSink: events, readingType: readingType)
+            let deviceType:String = (arguments as? [String: Any])?["deviceType"] as! String
+            appDelegate?.readDataFromDevice(eventSink: events, readingType: readingType,deviceType: deviceType)
             return nil
         }
     
@@ -427,11 +433,14 @@ import BackgroundTasks
 //        }
     }
     
-    private func readDataFromDevice(eventSink events: @escaping FlutterEventSink,readingType:String){
-        let deviceType = getDeviceType()?.uppercased()
+    private func readDataFromDevice(eventSink events: @escaping FlutterEventSink,readingType:String,deviceType: String){
+        NSLog("Got device type \(deviceType)")
         if(deviceType==AppDelegate.WATCH_TYPE || deviceType == AppDelegate.B300_PLUS){
             NSLog("Connecting Watch")
             self.getWatchDevice()?.readDataFromDevice(eventSink: events, readingType: readingType)
+        }else if(deviceType == AppDelegate.B360_DEVICE){
+            NSLog("Processing B360 device")
+            self.getB360Device().readDataFromDevice(eventSink: events, readingType: readingType)
         }else{
            events(FlutterEndOfEventStream)
         }
@@ -548,4 +557,30 @@ struct OxygenLevel:Codable{
 
 struct HeartRateReading:Codable {
     var heartRate:Int = 0
+}
+
+struct HeartRateDataValue:Codable {
+    var data:UInt
+    var measureTime:String
+}
+
+struct BpDataValue:Codable {
+    var data1:UInt
+    var data2:UInt
+    var measureTime:String
+}
+
+extension Formatter {
+    static let iso8601withFractionalSeconds: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
+        return formatter
+    }()
+}
+
+extension Date {
+    var iso8601withFractionalSeconds: String { return Formatter.iso8601withFractionalSeconds.string(from: self) }
 }

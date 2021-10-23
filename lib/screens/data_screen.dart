@@ -58,6 +58,13 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
     }
   }
 
+  void updateScroll(bool _canScroll){
+    setState(() {
+      canScroll = _canScroll;
+    });
+    print('Got can scroll $canScroll');
+  }
+
   @override
   void initState() {
     _initData();
@@ -142,6 +149,7 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
                         ..rotateX(currentPageValue - i),
                       child: TrackerDataWidget(
                         trackerMasterData: trackerTypeData[i],
+                        updateScroll: updateScroll,
                       ),
                     ),
                     physics: canScroll
@@ -200,20 +208,23 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
 class TrackerDataWidget extends StatefulWidget {
   final Tracker trackerMasterData;
+  final updateScroll;
 
   const TrackerDataWidget({
     @required this.trackerMasterData,
+    @required this.updateScroll
   });
 
   @override
   _TrackerDataWidgetState createState() =>
-      _TrackerDataWidgetState(trackerMasterData);
+      _TrackerDataWidgetState(trackerMasterData,updateScroll);
 }
 
 class _TrackerDataWidgetState extends State<TrackerDataWidget> {
-  _TrackerDataWidgetState(this.trackerMasterData);
+  _TrackerDataWidgetState(this.trackerMasterData,this.updateScroll);
 
   final Tracker trackerMasterData;
+  final updateScroll;
   dynamic _trackerData;
 
   bool canScroll = true;
@@ -228,7 +239,7 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
 
   @override
   void initState() {
-    // _loadData();
+    _loadData();
 
     // TODO: implement initState
     super.initState();
@@ -254,10 +265,16 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
     }
   }
 
-  void _readDataFromDevice(String dataType) async {
+  void updateCanScroll(bool _canScroll){
+    updateScroll(_canScroll);
+    canScroll = _canScroll;
     setState(() {
-      canScroll = false;
+      canScroll = _canScroll;
     });
+  }
+
+  void _readDataFromDevice(String dataType) async {
+    updateCanScroll(false);
     print('Loading data type $dataType');
     var _processingMap = processingMap;
     _processingMap[dataType] = true;
@@ -281,16 +298,21 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
 
     var subscription =
         eventChannel.receiveBroadcastStream(requestData).listen((event) {
-      final returnData = json.decode(event);
+          dynamic returnData;
+          if(trackerMasterData.trackerType == 'DOUBLE_VALUE') {
+            returnData = TrackerDataMultiple.fromJson(json.decode(event));
+          } else {
+            returnData = TrackerData.fromJson(json.decode(event));
+          }
       setState(() {
         _trackerData = returnData;
       });
     }, onError: (dynamic error) {
       var _processingMap = processingMap;
       _processingMap[dataType] = false;
+      updateCanScroll(true);
       setState(() {
         processingMap = _processingMap;
-        canScroll = true;
       });
       _currentCountDown = null;
       print('Got error $error for data type $dataType');
@@ -298,8 +320,8 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
       print('completed for $dataType');
       var _processingMap = processingMap;
       _processingMap[dataType] = false;
+      updateCanScroll(true);
       setState(() {
-        canScroll = true;
         _currentCountDown = null;
         processingMap = _processingMap;
       });
@@ -341,32 +363,37 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
   }
 
   Widget _buildLatestDataButton(Tracker trackerMasterData) {
-    return !canScroll
-        ? _loadCircularIndicator(trackerMasterData?.displayName)
-        : Container(
-            width: 270,
-            height: 80,
-            padding: EdgeInsets.all(15),
-            child: FlatButton(
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-                // side: BorderSide(color: Colors.grey),
-              ),
-              color: Color.fromRGBO(11, 140, 196, 1),
-              textColor: Colors.white,
-              onPressed: () {
-                return _readDataFromDevice(trackerMasterData?.trackerType);
-              },
-              child: FittedBox(
-                child: Text(
-                  'Measure Now',
-                  style: TextStyle(
-                    fontSize: 20,
-                  ),
-                ),
+    //If the measure now is enabled
+    if(trackerMasterData.mobileMeasureNow) {
+      return !canScroll
+          ? _loadCircularIndicator(trackerMasterData?.displayName)
+          : Container(
+        width: 270,
+        height: 80,
+        padding: EdgeInsets.all(15),
+        child: FlatButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            // side: BorderSide(color: Colors.grey),
+          ),
+          color: Color.fromRGBO(11, 140, 196, 1),
+          textColor: Colors.white,
+          onPressed: () {
+            return _readDataFromDevice(trackerMasterData?.displayName);
+          },
+          child: FittedBox(
+            child: Text(
+              'Measure Now',
+              style: TextStyle(
+                fontSize: 20,
               ),
             ),
-          );
+          ),
+        ),
+      );
+    }else {
+      return Container();
+    }
   }
 
   Widget _loadCountDownTimer(int seconds, String type) {
@@ -445,8 +472,8 @@ BoxDecoration _cardDecoration() {
 }
 
 List<Widget> multipleDisplayText(Tracker trackerMasterData, _trackerData) {
-  String trackerDataValue1;
-  String trackerDataValue2;
+  var trackerDataValue1 = '0';
+  var trackerDataValue2 = '0';
 
   if (_trackerData.data1 != null && _trackerData.data2 != null) {
     if (trackerMasterData?.trackerValues[0]?.valueDataType == 'INT') {
@@ -472,9 +499,6 @@ List<Widget> multipleDisplayText(Tracker trackerMasterData, _trackerData) {
     if (trackerMasterData?.trackerValues[1]?.valueDataType == 'STRING') {
       trackerDataValue1 = _trackerData?.data2.toString();
     }
-  } else {
-    trackerDataValue1 = '0';
-    trackerDataValue2 = '0';
   }
 
   return [
@@ -518,7 +542,7 @@ List<Widget> multipleDisplayText(Tracker trackerMasterData, _trackerData) {
 }
 
 List<Widget> singleDisplayText(Tracker trackerMasterData, _trackerData) {
-  String trackerDataValue;
+  var trackerDataValue = '0';
 
   if (_trackerData?.data != null) {
     if (trackerMasterData?.trackerValues[0]?.valueDataType == 'INT') {
@@ -532,8 +556,6 @@ List<Widget> singleDisplayText(Tracker trackerMasterData, _trackerData) {
     if (trackerMasterData?.trackerValues[0]?.valueDataType == 'STRING') {
       trackerDataValue = _trackerData?.data.toString();
     }
-  } else {
-    trackerDataValue = '0';
   }
 
   return [

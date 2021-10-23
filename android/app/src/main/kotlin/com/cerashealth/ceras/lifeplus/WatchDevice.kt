@@ -587,7 +587,7 @@ class WatchDevice:BaseDevice()     {
 
     override fun readDataFromDevice(eventSink: EventChannel.EventSink, readingType: String) {
         when(readingType){
-            "TEMPERATURE" -> {
+            TEMPERATURE -> {
                 if (HardSdk.getInstance().isDevConnected) {
                     WatchDevice.eventSink = eventSink
                     Log.d(TAG,"Reading temperature")
@@ -608,7 +608,7 @@ class WatchDevice:BaseDevice()     {
                     eventSink.endOfStream()
                 }
             }
-            "HR" -> {
+            HEARTRATE -> {
                 if(HardSdk.getInstance().isDevConnected){
                     WatchDevice.eventSink = eventSink
                     isTestingHeart = true
@@ -617,7 +617,7 @@ class WatchDevice:BaseDevice()     {
                 }else
                     eventSink.endOfStream()
             }
-            "BP" -> {
+            BP -> {
                 if(HardSdk.getInstance().isDevConnected){
                     WatchDevice.eventSink = eventSink
                     isTestingBp = true
@@ -626,7 +626,7 @@ class WatchDevice:BaseDevice()     {
                 }else
                     eventSink.endOfStream()
             }
-            "O2" -> {
+            O2 -> {
                 if(HardSdk.getInstance().isDevConnected){
                     WatchDevice.eventSink = eventSink
                     isTestingOxygen = true

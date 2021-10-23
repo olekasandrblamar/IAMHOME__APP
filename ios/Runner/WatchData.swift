@@ -656,7 +656,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     func readDataFromDevice(eventSink events: @escaping FlutterEventSink,readingType:String){
         if(HardManagerSDK.shareBLEManager().isConnected){
             //Device is connected
-            if(readingType == "TEMPERATURE"){
+            if(readingType == AppDelegate.TEMPERATURE){
                 self.eventSink = events
                 self.readingTemperature = true
                 HardManagerSDK.shareBLEManager()?.setHardBodyTemperatureMeasurement()
@@ -668,15 +668,15 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                     }
                     NSLog("Inside timer")
                 }
-            }else if(readingType == "HR"){
+            }else if(readingType == AppDelegate.HR){
                 self.eventSink = events
                 self.readingHr = true
                 HardManagerSDK.shareBLEManager()?.setStartHeartMeasurement()
-            }else if(readingType == "BP"){
+            }else if(readingType == AppDelegate.BP){
                 self.eventSink = events
                 self.readingBp = true
                 HardManagerSDK.shareBLEManager()?.setStartBloodPressureMeasurement()
-            }else if(readingType == "O2"){
+            }else if(readingType == AppDelegate.O2){
                 self.eventSink = events
                 self.readingo2 = true
                 HardManagerSDK.shareBLEManager()?.setStartBloodOxygenMeasurement()

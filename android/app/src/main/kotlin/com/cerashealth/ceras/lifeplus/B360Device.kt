@@ -10,6 +10,7 @@ import com.inuker.bluetooth.library.search.SearchResult
 import com.inuker.bluetooth.library.search.response.SearchResponse
 import com.veepoo.protocol.VPOperateManager
 import com.veepoo.protocol.listener.base.IABleConnectStatusListener
+import com.veepoo.protocol.listener.base.IBleWriteResponse
 import com.veepoo.protocol.listener.data.*
 import com.veepoo.protocol.model.datas.*
 import com.veepoo.protocol.model.enums.*
@@ -178,6 +179,59 @@ class B360Device:BaseDevice(),SearchResponse {
         }
     }
 
+    override fun readDataFromDevice(eventSink: EventChannel.EventSink, readingType: String) {
+        when(readingType){
+            HEARTRATE -> {
+                var heartRateStart = false
+                var startDate = Calendar.getInstance().timeInMillis
+                vManager?.startDetectHeart({
+                    Log.d(B360DeviceTag,"Got Heart Response $it")
+                }, {
+                    Log.d(B360DeviceTag,"Got heart rate ${it.data} with status ${it.heartStatus}")
+                    if(!heartRateStart && it.heartStatus == EHeartStatus.STATE_HEART_NORMAL){
+                        startDate = Calendar.getInstance().timeInMillis
+                        heartRateStart = true
+                    }
+                    if(it.heartStatus == EHeartStatus.STATE_HEART_NORMAL)
+                        eventSink.success(Gson().toJson(mapOf("data" to it.data,"measureTime" to getTimeInUtcString())))
+                    val timeDiff = (Calendar.getInstance().timeInMillis - startDate)/1000
+                    Log.d(B360DeviceTag,"Time difference $timeDiff")
+                    if( timeDiff > 30){
+                        vManager?.stopDetectHeart {
+                            eventSink.endOfStream()
+                        }
+                    }
+                })
+            }
+            BP -> {
+                vManager?.startDetectBP({
+                    Log.d(B360DeviceTag,"Got BP Response $it")
+                },{
+                    Log.d(B360DeviceTag,"Got BP data ${it.highPressure}/${it.lowPressure} with progress ${it.progress} and status ${it.status}")
+                    if(it.progress == 100){
+                        eventSink.success(Gson().toJson(mapOf("data1" to it.highPressure,"data2" to it.lowPressure,"measureTime" to getTimeInUtcString())))
+                        eventSink.endOfStream()
+                    }
+                },EBPDetectModel.DETECT_MODEL_PUBLIC)
+            }
+            O2 -> {
+                vManager?.startDetectSPO2H({
+                    Log.d(B360DeviceTag,"Got O2 Response $it")
+                },{
+                    Log.d(B360DeviceTag,"Got o2 data ${it.rateValue} with state ${it.spState} and progress ${it.checkingProgress}")
+                }, {
+                   Log.d(B360DeviceTag,"Got o2 sata $it")
+                })
+            }
+        }
+    }
+
+    private fun getTimeInUtcString():String{
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
+        return sdf.format(Calendar.getInstance().time)+"+00:00"
+    }
+
     private fun getBatteryInfo(connectionInfo: ConnectionInfo,callBack: () -> Unit = {}){
         vManager?.readBattery({
             Log.d(B360DeviceTag,"Got batery Response $it")
@@ -274,6 +328,7 @@ class B360Device:BaseDevice(),SearchResponse {
                 val o2Uploads = mutableListOf<OxygenLevelUpload>()
                 val dailyStepUploads = mutableListOf<DailyStepUpload>()
                 val stepUploads = mutableListOf<StepUpload>()
+                val dailyCaloriesUpload = mutableListOf<CaloriesUpload>()
 
                 override fun onReadOriginProgressDetail(
                     day: Int,
@@ -302,6 +357,8 @@ class B360Device:BaseDevice(),SearchResponse {
                     DataSync.uploadHeartRate(heartUploads)
                     Log.d(B360DeviceTag, "Uploading o2 $o2Uploads")
                     DataSync.uploadOxygenData(o2Uploads)
+                    Log.d(B360DeviceTag,"Uploading calories $dailyCaloriesUpload")
+                    DataSync.uploadCalories(dailyCaloriesUpload)
                 }
 
                 override fun onOriginFiveMinuteListDataChange(originDataList: MutableList<OriginData3>?) {
@@ -313,6 +370,7 @@ class B360Device:BaseDevice(),SearchResponse {
 
                 override fun onOriginHalfHourDataChange(halfHourData: OriginHalfHourData?) {
                     //Log.i(B360DeviceTag,"Half hour data $halfHourData")
+                    val userInfo = DataSync.getUserInfo()
                     halfHourData?.halfHourBps?.map {
                         Log.i(
                             B360DeviceTag,
@@ -322,7 +380,7 @@ class B360Device:BaseDevice(),SearchResponse {
                             measureTime = convertToDate(it.time),
                             systolic = it.highValue, distolic = it.lowValue,
                             deviceId = connectionInfo?.deviceId!!,
-                            userProfile = DataSync.getUserInfo()
+                            userProfile = userInfo
                         )
                     }?.apply {
                         bpUploads.addAll(this)
@@ -337,7 +395,7 @@ class B360Device:BaseDevice(),SearchResponse {
                             measureTime = convertToDate(it.time),
                             heartRate = it.rateValue,
                             deviceId = connectionInfo?.deviceId!!,
-                            userProfile = DataSync.getUserInfo()
+                            userProfile = userInfo
                         )
                     }?.apply {
                         heartUploads.addAll(this)
@@ -349,7 +407,7 @@ class B360Device:BaseDevice(),SearchResponse {
                             steps = it.stepValue,
                             calories = it.calValue.toInt(),
                             distance = it.disValue.toFloat(),
-                            userProfile = DataSync.getUserInfo(),
+                            userProfile = userInfo,
                             deviceId = connectionInfo?.deviceId!!
                         )
                     }?.apply {
@@ -364,7 +422,16 @@ class B360Device:BaseDevice(),SearchResponse {
                                         calories = totalCalories,
                                         distance = totalDistance.toFloat(),
                                         deviceId = connectionInfo?.deviceId!!,
-                                        userProfile = DataSync.getUserInfo()
+                                        userProfile = userInfo
+                                    )
+                                )
+                                dailyCaloriesUpload.add(
+                                    CaloriesUpload(
+                                        measureTime = getDateFromString(it.date),
+                                        calories = totalCalories,
+                                        deviceId = connectionInfo?.deviceId!!,
+                                        userProfile = userInfo
+
                                     )
                                 )
                             }
@@ -519,3 +586,5 @@ class B360Device:BaseDevice(),SearchResponse {
     }
 
 }
+
+class SingleRecord(val data: String, val measureTime: Date)

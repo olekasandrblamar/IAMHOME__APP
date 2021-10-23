@@ -197,7 +197,7 @@ class MainActivity: FlutterFragmentActivity()  {
                         val args = arguments as Map<String, String>
                         Log.d(TAG,"arguments $args ")
                         val deviceType = args["deviceType"]
-                        val readingType = args["readingType"]
+                        val readingType = args["readingType"]?.toUpperCase()
                         readDataFromDevice(eventSink!!,ReadingRequest().apply {
                             this.deviceType = deviceType!!
                             this.readingType = readingType!!

@@ -145,7 +145,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
     _loadDeviceData();
 
-    final connectionInfo = await getDeviceInfoString();
+    final connectionInfo = prefs.getString('watchInfo');
     if (connectionInfo != null) {
       _setIsLoading(true);
 
@@ -171,9 +171,8 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
 
   void _syncDataFromDevice() async {
     _setIsLoading(true);
-    var deviceInfoString = await getDeviceInfoString();
-    print('Got device info string $deviceInfoString');
-    await readDataFromDevice(deviceInfoString);
+
+    await syncDataFromDevice();
     _changeLastUpdated();
   }
 
@@ -198,29 +197,27 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   }
 
   void _removeDevice() async {
-    var connectionInfo = await getDeviceInfoString();
+    var deviceType = (_deviceData?.deviceMaster != null &&
+            _deviceData?.deviceMaster['deviceType']['displayName'] != null)
+        ? _deviceData?.deviceMaster['deviceType']['displayName']
+        : null;
 
-    var disconnect = await platform.invokeMethod(
-      'disconnect',
-      <String, dynamic>{'connectionInfo': connectionInfo},
-    ) as String;
+    if (deviceType != null) {
+      var disconnect = await platform.invokeMethod(
+        'disconnect',
+        <String, dynamic>{'deviceType': deviceType.toUpperCase()},
+      ) as String;
 
-    if (disconnect != null) {
-      var removeDeviceData =
-          await Provider.of<DevicesProvider>(context, listen: false)
-              .removeDevice(_deviceIndex);
+      if (disconnect != null) {
+        var removeDeviceData =
+            await Provider.of<DevicesProvider>(context, listen: false)
+                .removeDevice(_deviceIndex);
 
-      if (removeDeviceData) {
-        _loadCountDownTimer(20, 'Resetting Device');
+        if (removeDeviceData) {
+          _loadCountDownTimer(20, 'Resetting Device');
+        }
       }
     }
-
-  }
-
-  Future<String> getDeviceInfoString() async{
-    var deviceData = await Provider.of<DevicesProvider>(context, listen: false)
-        .getDeviceData(_deviceIndex);
-    return JsonEncoder().convert(deviceData.watchInfo);
   }
 
   void _loadCountDownTimer(int seconds, String type) {

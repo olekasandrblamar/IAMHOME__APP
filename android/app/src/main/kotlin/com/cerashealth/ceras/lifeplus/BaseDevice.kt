@@ -74,6 +74,11 @@ open class BaseDevice{
         const val SUCCESS_STATUS = "Success"
         const val ERROR_STATUS = "Error"
 
+        const val HEARTRATE = "HEART RATE"
+        const val BP = "BP"
+        const val TEMPERATURE = "TEMPERATURE"
+        const val O2 = "BLOOD OXYGEN"
+
         fun getDeviceImpl(deviceName:String?): BaseDevice {
             Log.i(TAG,"Getting implementation for $deviceName")
             return when(deviceName?.toUpperCase()){

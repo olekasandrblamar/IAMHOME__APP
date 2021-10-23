@@ -217,9 +217,8 @@ class DevicesProvider extends ChangeNotifier {
       );
 
       if (response.data != null) {
-        print("Got ${response.data}");
-
         final responseData = response.data;
+        print("Got ${response.data} and reading property ${trackerMasterData.trackerValues[0].dataPropertyName} value ${responseData[trackerMasterData.trackerValues[0].dataPropertyName]}");
 
         final dataValue =
             responseData[trackerMasterData.trackerValues[0].dataPropertyName];
@@ -229,6 +228,7 @@ class DevicesProvider extends ChangeNotifier {
           'deviceId': responseData['deviceId'],
           'measureTime': responseData['measureTime'],
         };
+
 
         return TrackerData.fromJson(formattedData);
       }

@@ -57,6 +57,8 @@ Tracker _$TrackerFromJson(Map<String, dynamic> json) {
         ?.toList(),
     deleted: json['deleted'] as bool,
     active: json['active'] as bool,
+    mobileDisplay: json['mobileDisplay'] as bool,
+    mobileMeasureNow: json['mobileMeasureNow'] as bool
   );
 }
 
@@ -69,6 +71,8 @@ Map<String, dynamic> _$TrackerToJson(Tracker instance) => <String, dynamic>{
       'trackerValues': instance.trackerValues,
       'deleted': instance.deleted,
       'active': instance.active,
+      'mobileDisplay': instance.mobileDisplay,
+      'mobileMeasureNow': instance.mobileMeasureNow
     };
 
 TrackerValues _$TrackerValuesFromJson(Map<String, dynamic> json) {

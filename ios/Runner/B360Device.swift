@@ -120,6 +120,78 @@ class B360Device{
         }
     }
     
+    private func sendHeartResponse(heartRate:UInt,eventSink events: @escaping FlutterEventSink){
+        do{
+            let returnData = HeartRateDataValue(data: heartRate, measureTime: Date().iso8601withFractionalSeconds)
+            let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
+            NSLog("Returning Heart rate \(returnDataValue)")
+            events(returnDataValue)
+        }
+        catch{
+            NSLog("Error while sending HR value \(error)")
+        }
+    }
+    
+    func readDataFromDevice(eventSink events: @escaping FlutterEventSink,readingType:String){
+        NSLog("Processing B360 reading type \(readingType.uppercased())")
+        switch readingType.uppercased() {
+        case AppDelegate.HR:
+            NSLog("Processing heart rate")
+            var startDate = Date()
+            bleManager.peripheralManage.veepooSDKTestHeartStart(true) { hrTestState, heartRate in
+                switch hrTestState {
+                case .over:
+                    NSLog("Heart rate complete")
+                    events(FlutterEndOfEventStream)
+                case .testing:
+                    NSLog("Heart rate testing")
+                    if(heartRate>0){
+                        self.sendHeartResponse(heartRate: heartRate, eventSink: events)
+                        if(Date().timeIntervalSince(startDate) > 30){
+                            self.bleManager.peripheralManage.veepooSDKTestHeartStart(false) { heartRateState, heartRate in
+                                NSLog("Completed Heart date")
+                                events(FlutterEndOfEventStream)
+                            }
+                            NSLog("Heart rate complete")
+                        }
+                        
+                        
+                    }
+                case .start:
+                    NSLog("Started reading heart rate ")
+                default:
+                    NSLog("Default for heart rate test")
+                }
+                
+            }
+        case AppDelegate.BP:
+            NSLog("Processing blood pressure")
+            bleManager.peripheralManage.veepooSDKTestBloodStart(true, testMode: 0) { state, progress, systolic, diastolic in
+                switch state{
+                case .complete:
+                    NSLog("BP complete")
+                    do{
+                        let returnData = BpDataValue(data1: systolic, data2: diastolic,measureTime: Date().iso8601withFractionalSeconds)
+                        let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
+                        NSLog("Returning Heart rate \(returnDataValue)")
+                        events(returnDataValue)
+                        events(FlutterEndOfEventStream)
+                    }
+                    catch{
+                        NSLog("Error while sending BP value \(error)")
+                    }
+                case .testing:
+                    NSLog("Testing BP with \(systolic)/\(diastolic) with progress \(progress)")
+                default:
+                    NSLog("Got default data with state \(String(describing: state))")
+                }
+            }
+            
+        default:
+            events(FlutterEndOfEventStream)
+        }
+    }
+    
     private func generateStatusResponse(connInfo:ConnectionInfo,result:@escaping FlutterResult){
         var connectionInfo = ConnectionInfo()
         connectionInfo.deviceId = connInfo.deviceId
@@ -227,6 +299,10 @@ class B360Device{
         //Upload heart rate
         if(!heartRateUploads.isEmpty){
             DataSync.uploadHeartRateInfo(heartRates: heartRateUploads)
+        }
+        
+        caloriesUpload.forEach { dailyCalories in
+            DataSync.uploadCalories(calories: dailyCalories)
         }
     }
     
