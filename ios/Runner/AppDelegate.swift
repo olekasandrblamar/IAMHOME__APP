@@ -16,8 +16,8 @@ import BackgroundTasks
     static var WATCH_TYPE = "BWELL"
     static var SCALE_TYPE = "B500"
     static var BAND_TYPE = "BACTIVE"
-    static var B360_DEVICE = "B360"
-    static var B300_PLUS = "b300+"
+    static var B360_DEVICE = "B330"
+    static var B300_PLUS = "B300+"
     static var DEVICE_TYPE_KEY = "flutter.deviceType"
     static let BG_SYNC_TASK = "com.cerashealth.datasync"
     static let SERVER_BASE_URL =  "flutter.serverBaseUrl"
@@ -227,7 +227,7 @@ import BackgroundTasks
             NSLog("Arguments \(arguments)")
             let readingType:String = (arguments as? [String: Any])?["readingType"] as! String
             let deviceType:String = (arguments as? [String: Any])?["deviceType"] as! String
-            appDelegate?.readDataFromDevice(eventSink: events, readingType: readingType,deviceType: deviceType)
+            appDelegate?.readDataFromDevice(eventSink: events, readingType: readingType,deviceType: deviceType.uppercased())
             return nil
         }
     
@@ -487,7 +487,7 @@ import BackgroundTasks
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         NSLog("Getting device info ")
         let deviceType = getDeviceType()?.uppercased()
-        if(connectionData.deviceType == AppDelegate.WATCH_TYPE || connectionData.deviceType == AppDelegate.B300_PLUS){
+        if(deviceType == AppDelegate.WATCH_TYPE || deviceType == AppDelegate.B300_PLUS){
             self.getWatchDevice()?.upgradeDevice(connectionInfo: connectionData, eventSink: events)
         }
 //        else if(deviceType! == AppDelegate.BAND_TYPE){

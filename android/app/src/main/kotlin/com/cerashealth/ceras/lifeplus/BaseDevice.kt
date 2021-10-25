@@ -68,7 +68,7 @@ open class BaseDevice{
         const val B300_PLUS = "B300+"
         const val BAND_DEVICE = "BACTIVE"
         const val B369_DEVICE = "B500"
-        const val B360_DEVICE = "B360"
+        const val B360_DEVICE = "B330"
         var isBackground = false
         val TAG = WatchDevice::class.java.simpleName
         const val SUCCESS_STATUS = "Success"
