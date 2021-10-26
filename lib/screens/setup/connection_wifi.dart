@@ -326,7 +326,8 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
         elevation: 0,
       ),
       backgroundColor: AppTheme.white,
-      body: Container(
+      body: SingleChildScrollView(
+      child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -347,6 +348,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
           ],
         ),
       ),
+    )
     );
   }
 
