@@ -16,9 +16,9 @@ class UserProfile{
 
     fun getOffsetValue(readingTypes:List<String>):Int = offSets.find { readingTypes.contains(it.trackerName) }?.offset?.toInt()?:0
 
-    fun getSystolicOffset():Int  = getOffset(listOf("systolic"))?.toInt()?:0
+    fun getSystolicOffset():Int  = getOffsetValue(listOf("systolic"))?.toInt()?:0
 
-    fun getDiastolicOffset():Int  = getOffset(listOf("diastolic","distolic"))?.toInt()?:0
+    fun getDiastolicOffset():Int  = getOffsetValue(listOf("diastolic","distolic"))?.toInt()?:0
 }
 
 class Offset{
