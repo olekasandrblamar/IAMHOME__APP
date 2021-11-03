@@ -15,6 +15,7 @@ import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:connectivity/connectivity.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:package_info/package_info.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -405,9 +406,18 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
       <String, dynamic>{'connectionInfo': connectionInfo},
     );
 
+
     //Don't wait for the response
     await syncResponse.then((value) {
       print('Syncing value $value');
+      var connectionInfo = WatchModel.fromJson(
+          json.decode(value) as Map<String, dynamic>);
+      var devices = _deviceData;
+      devices[index].watchInfo.connected = connectionInfo.connected;
+      setState(() {
+        _deviceData = devices;
+        _connectionStatus = connectionInfo.connected;
+      });
     });
   }
 
@@ -417,12 +427,15 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
       'connectionStatus',
       <String, dynamic>{'connectionInfo': connectionInfo},
     ) as bool;
-
+    var devices = _deviceData;
+    devices[index].watchInfo.connected = connectionStatus;
     print('Connection Status $connectionStatus');
-    _processSyncData(index);
     setState(() {
+      _deviceData = devices;
       _connectionStatus = connectionStatus;
     });
+    _processSyncData(index);
+
     // if (connectionStatus != "Error") {
     //   final WatchModel connectionStatusData = WatchModel.fromJson(
     //       json.decode(connectionStatus) as Map<String, dynamic>);

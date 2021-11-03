@@ -11,33 +11,36 @@ class UserProfile{
     var heightInCm = 0
     var sex:String = ""
     var lastUpdated = Date()
-    var offSets = listOf<TrackerOffsetReturn>()
 
-    fun getOffset(trackerNames:List<String>):Double?{
-        return offSets.find { trackerNames.contains(it.trackerName?.toLowerCase()) }?.offset
-    }
+    var offSets = listOf<Offset>()
+
+    fun getOffsetValue(readingTypes:List<String>):Int = offSets.find { readingTypes.contains(it.trackerName) }?.offset?.toInt()?:0
 
     fun getSystolicOffset():Int  = getOffset(listOf("systolic"))?.toInt()?:0
 
     fun getDiastolicOffset():Int  = getOffset(listOf("diastolic","distolic"))?.toInt()?:0
 }
 
-class TrackerOffsetReturn{
+class Offset{
     var trackerName:String? = null
     var offset:Double = 0.0
+
+    override fun toString(): String {
+        return "$trackerName = $offset"
+    }
 }
 
-data class TemperatureUpload(val measureTime: Date, var celsius:Double, val fahrenheit:Double, val deviceId:String)
+data class TemperatureUpload(val measureTime: Date, var celsius:Double, val fahrenheit:Double, val deviceId:String,var userProfile:UserProfile? = null)
 
-data class StepUpload(val measureTime: Date, var steps:Int, val deviceId:String,val calories:Int=0, val distance:Float=0.toFloat())
+data class StepUpload(val measureTime: Date, var steps:Int, val deviceId:String,val calories:Int=0, val distance:Float=0.toFloat(),var userProfile:UserProfile? = null)
 
-data class DailyStepUpload(val measureTime: Date, var steps:Int, val calories:Int, val distance:Float,val deviceId:String)
+data class DailyStepUpload(val measureTime: Date, var steps:Int, val calories:Int, val distance:Float,val deviceId:String,var userProfile:UserProfile? = null)
 
-data class CaloriesUpload(val measureTime: Date, var calories:Int, val deviceId:String)
+data class CaloriesUpload(val measureTime: Date, var calories:Int, val deviceId:String,var userProfile:UserProfile? = null)
 
 data class BpUpload(val measureTime: Date, var distolic:Int, var systolic:Int, val deviceId:String, var userProfile:UserProfile? = null)
 
-data class HeartRateUpload(val measureTime: Date, var heartRate:Int, val deviceId:String)
+data class HeartRateUpload(val measureTime: Date, var heartRate:Int, val deviceId:String,var userProfile:UserProfile? = null)
 
 data class OxygenLevelUpload(val measureTime: Date, var oxygenLevel:Int, val deviceId:String, var userProfile:UserProfile? = null)
 

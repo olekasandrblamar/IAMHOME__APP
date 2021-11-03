@@ -20,6 +20,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     var statusResult:FlutterResult? = nil
     var upgradeEventSink: FlutterEventSink? = nil
     var statusConnectionInfo: ConnectionInfo? = nil
+    var syncConectionInfo: ConnectionInfo? = nil
     var reconnect:Int = 0;
     var eventSink: FlutterEventSink? = nil
     var readingTemperature = false
@@ -177,7 +178,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                         if(heartRateVal != nil){
                             let heartRate = Int(heartRateVal!)!
                             let returnData = HeartRateReading(heartRate: heartRate)
-                            let heartRateUpload = HeartRateUpload(measureTime: Date(), heartRate: returnData.heartRate, deviceId: getMacId())
+                            let heartRateUpload = HeartRateUpload(measureTime: Date(), heartRate: returnData.heartRate, deviceId: getMacId(),userProfile: DataSync.getUserInfo())
                             DataSync.uploadHeartRateInfo(heartRates: [heartRateUpload])
                             let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
                             NSLog("Returning HR data \(returnDataValue)")
@@ -462,7 +463,19 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         }else{
             if(result == nil){
                 loadData(deviceId: WatchData.currentDeviceId)
+            }else if(syncConectionInfo != nil){
+                syncConectionInfo?.connected = true
+                do{
+                    let deviceJson = try JSONEncoder().encode(syncConectionInfo)
+                    let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                    NSLog("Connection data after initial connection \(connectionInfoData)")
+                    //If it not the first time load the device Data
+                    result?(connectionInfoData)
+                    loadData(deviceId: syncConectionInfo?.deviceId)
+                    syncConectionInfo = nil
+                }catch{result?("Error")}
             }
+            
         }
     }
     
@@ -508,13 +521,13 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             
             //Only upload valid values and ignore 0 values
             if( distolic != nil && distolic != 0 && measureDate != nil && measureDate!.timeIntervalSince1970 > 10000){
-                bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic ?? 0, systolic: systolic ?? 0, deviceId: deviceId))
+                bpUploads.append(BpUpload(measureTime: measureDate!, distolic: distolic ?? 0, systolic: systolic ?? 0, deviceId: deviceId, userProfile: DataSync.getUserInfo()))
             }
             if(oxygenLevel != nil && oxygenLevel != 0 && measureDate != nil && measureDate!.timeIntervalSince1970 > 10000){
-                oxygenUploads.append(OxygenLevelUpload(measureTime: measureDate!,oxygenLevel: oxygenLevel!,deviceId:deviceId))
+                oxygenUploads.append(OxygenLevelUpload(measureTime: measureDate!,oxygenLevel: oxygenLevel!,deviceId:deviceId, userProfile: DataSync.getUserInfo()))
             }
             if(heartRate != nil && heartRate != 0 && measureDate != nil && measureDate!.timeIntervalSince1970 > 10000){
-                heartRateUploads.append(HeartRateUpload(measureTime: measureDate!, heartRate: heartRate!, deviceId: deviceId))
+                heartRateUploads.append(HeartRateUpload(measureTime: measureDate!, heartRate: heartRate!, deviceId: deviceId, userProfile: DataSync.getUserInfo()))
             }
         }
         DataSync.uploadHeartRateInfo(heartRates: heartRateUploads)
@@ -538,13 +551,13 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             stepList = hourlySteps.map { (stepMap) -> StepUpload in
                 let (stepMinutes, stepsCount) = stepMap
                 let stepTime = Calendar.current.date(byAdding: .minute,value: Int(stepMinutes)!, to: stepDate!)
-                return StepUpload(measureTime: stepTime!, steps: Int(stepsCount)!, deviceId: deviceId, calories: 0, distance: 0)
+                return StepUpload(measureTime: stepTime!, steps: Int(stepsCount)!, deviceId: deviceId, calories: 0, distance: 0, userProfile: DataSync.getUserInfo())
                 
             }
         }
         let dailyStepsUpload = StepUpload(measureTime: stepDate!, steps: dailySteps!, deviceId: deviceId, calories: calories!
-                                          , distance: distance!)
-        let dailyCaloriesUpload = CaloriesUpload(measureTime: stepDate!, calories: calories!, deviceId: deviceId)
+                                          , distance: distance!, userProfile: DataSync.getUserInfo())
+        let dailyCaloriesUpload = CaloriesUpload(measureTime: stepDate!, calories: calories!, deviceId: deviceId, userProfile: DataSync.getUserInfo())
         DataSync.uploadCalories(calories: dailyCaloriesUpload)
         DataSync.uploadSteps(steps: stepList)
         DataSync.uploadDailySteps(dailySteps: dailyStepsUpload)
@@ -618,15 +631,24 @@ class WatchData: NSObject,HardManagerSDKDelegate{
         
     }
 
-    func syncData(connectionInfo:ConnectionInfo){
+    func syncData(connectionInfo:ConnectionInfo,result: @escaping FlutterResult){
         NSLog("Device connected \(HardManagerSDK.shareBLEManager().isConnected)")
         if(!HardManagerSDK.shareBLEManager().isConnected){
-            result = nil
-            //WatchData.currentDeviceId = connectionInfo.additionalInformation["macId"]
+            self.result = result
             WatchData.currentDeviceId = connectionInfo.deviceId
+            self.syncConectionInfo = connectionInfo
             HardManagerSDK.shareBLEManager().startConnectDevice(withUUID: connectionInfo.deviceId)
         }else if(HardManagerSDK.shareBLEManager().isConnected && !HardManagerSDK.shareBLEManager().isSyncing){
             NSLog("Syncing data")
+            do{
+                let deviceJson = try JSONEncoder().encode(ConnectionInfo.init(deviceId: connectionInfo.deviceId, deviceName: connectionInfo.deviceName, connected: true, deviceFound: true, message: "", additionalInformation: connectionInfo.additionalInformation, batteryStatus: "", upgradeAvailable: false))
+                let connectionInfoData = String(data: deviceJson, encoding: .utf8)!
+                NSLog("Connection data after initial connection \(connectionInfoData)")
+                //If it not the first time load the device Data
+                result(connectionInfoData)
+            }catch{
+                NSLog("Error while syncing data \(error)" )
+            }
             self.syncDeviceInfo();
             loadData(deviceId: connectionInfo.deviceId)
         }
