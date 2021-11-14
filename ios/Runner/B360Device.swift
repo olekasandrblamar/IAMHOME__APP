@@ -134,6 +134,7 @@ class B360Device{
     
     func readDataFromDevice(eventSink events: @escaping FlutterEventSink,readingType:String){
         NSLog("Processing B360 reading type \(readingType.uppercased())")
+        let userProfile = DataSync.getUserInfo()
         switch readingType.uppercased() {
         case AppDelegate.HR:
             NSLog("Processing heart rate")
@@ -147,14 +148,16 @@ class B360Device{
                     NSLog("Heart rate testing")
                     if(heartRate>0){
                         self.sendHeartResponse(heartRate: heartRate, eventSink: events)
-                        if(Date().timeIntervalSince(startDate) > 30){
+                        if(Date().timeIntervalSince(startDate) > 15){
                             self.bleManager.peripheralManage.veepooSDKTestHeartStart(false) { heartRateState, heartRate in
                                 NSLog("Completed Heart date")
                                 events(FlutterEndOfEventStream)
                             }
+                            let heartRateUploads = [HeartRateUpload(measureTime: Date(), heartRate: Int(heartRate), deviceId: self.deviceId!, userProfile: userProfile)]
+                            DataSync.uploadHeartRateInfo(heartRates: heartRateUploads)
                             NSLog("Heart rate complete")
                         }
-                        
+                    
                         
                     }
                 case .start:
@@ -176,6 +179,8 @@ class B360Device{
                         NSLog("Returning Heart rate \(returnDataValue)")
                         events(returnDataValue)
                         events(FlutterEndOfEventStream)
+                        let bpUploads = [BpUpload(measureTime: Date(), distolic: Int(diastolic), systolic: Int(systolic), deviceId: self.deviceId!, userProfile: userProfile)]
+                        DataSync.uploadBloodPressure(bpLevels: bpUploads)
                     }
                     catch{
                         NSLog("Error while sending BP value \(error)")

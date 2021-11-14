@@ -336,7 +336,8 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
         decoration: _cardDecoration(),
         child: SingleChildScrollView(
           child: Column(
-            children: [
+            children:
+              !canScroll?[_loadCountDownTimer(60, trackerMasterData.displayName)]:[
               ..._buildTrackerHeader(trackerMasterData, context),
               if (trackerMasterData.trackerType == 'SINGLE_VALUE' &&
                   _trackerData != null)
@@ -361,6 +362,8 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
       ),
     );
   }
+
+
 
   Widget _buildLatestDataButton(Tracker trackerMasterData) {
     //If the measure now is enabled
@@ -429,14 +432,22 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
         SizedBox(height: 100),
         canScroll ? Container() : _currentCountDown,
         SizedBox(height: 20),
-        Row(
+        Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            FittedBox(
-              child: Text(buttonText,
-                  style: TextStyle(fontSize: 20, color: Colors.black)),
-            )
-          ],
+          children: _buildTrackerLoadingFooter(trackerMasterData, context),
+          // children: [
+          //   // FittedBox(
+          //   //   child: Text(buttonText,
+          //   //       style: TextStyle(fontSize: 20, color: Colors.black)),
+          //   // ),
+          //   Container(
+          //     child:
+          //         Column(
+          //   children: _buildTrackerHeader(trackerMasterData, context),
+          //   )
+          //
+          //   )
+          // ],
         ),
       ],
     );
@@ -593,6 +604,36 @@ List<Widget> singleDisplayText(Tracker trackerMasterData, _trackerData) {
         ],
       ),
     ),
+  ];
+}
+
+List<Widget> _buildTrackerLoadingFooter(Tracker trackerMasterData, context) {
+  return [
+    Container(
+      margin: EdgeInsets.only(
+        top: 10,
+        bottom: 10,
+      ),
+      child: Text(
+        trackerMasterData?.displayName,
+        style: TextStyle(
+          fontSize: 26,
+          // fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+    Container(
+      padding: EdgeInsets.only(
+      top: 30
+  ),
+      child: SvgPicture.asset(
+        'assets/trackers/' +
+            trackerMasterData?.trackerName?.toLowerCase() +
+            '.svg',
+        height: MediaQuery.of(context).size.width * 0.2,
+      ),
+    ),
+    SizedBox(height: 20),
   ];
 }
 

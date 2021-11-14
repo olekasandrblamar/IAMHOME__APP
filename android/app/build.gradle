@@ -105,7 +105,7 @@ dependencies {
     annotationProcessor 'com.jakewharton:butterknife-compiler:10.2.1'
     implementation(name: 'hardsdk_1.30', ext: 'aar')// For bWell
     implementation files('libs/vpbluetooth-release.aar') // For B360
-    implementation files('libs/vpprotocol-2.1.88.15.aar')
+    implementation files('libs/vpprotocol-2.1.94.15.aar')
     implementation(name: 'ICDeviceManager', ext: 'aar')// For B369
     implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
     implementation 'io.reactivex.rxjava2:rxjava:2.1.6'
