@@ -475,6 +475,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                     syncConectionInfo = nil
                 }catch{result?("Error")}
             }
+            
         }
     }
     

@@ -210,6 +210,7 @@ class MainActivity: FlutterFragmentActivity()  {
                         }
                     }
                 })
+
     }
 
     private fun connectUpgradeChannel(flutterEngine: FlutterEngine){

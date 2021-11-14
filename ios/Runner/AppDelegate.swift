@@ -21,12 +21,12 @@ import BackgroundTasks
     static var DEVICE_TYPE_KEY = "flutter.deviceType"
     static let BG_SYNC_TASK = "com.cerashealth.datasync"
     static let SERVER_BASE_URL =  "flutter.serverBaseUrl"
-    
+
     static let TEMPERATURE = "TEMPERATURE"
     static let HR = "HEART RATE"
     static let BP = "BP"
     static let O2 = "BLOOD OXYGEN"
-  
+
 //    override func application(_ application: UIApplication,
 //                              performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void){
 //        //TSBackgroundFetch.sharedInstance()?.perform(completionHandler: completionHandler, applicationState: application.applicationState)
@@ -47,7 +47,7 @@ import BackgroundTasks
 //            NSLog("Error while syncing data")
 //        }
         do{
-            
+
             let deviceListString = UserDefaults.standard.string(forKey: "flutter.deviceData")
             if(deviceListString != nil){
                 NSLog("Got device list string in background \(deviceListString!)")
@@ -55,7 +55,7 @@ import BackgroundTasks
                 for deviceInfo in deviceList{
                     if(deviceInfo.watchInfo != nil){
                         try self.syncDeviceFromConnectionInfo(connectionData: deviceInfo.watchInfo!,result: { data in
-                            
+
                         })
                     }
                 }
@@ -63,7 +63,7 @@ import BackgroundTasks
         }catch{
             NSLog("Error while decding in background \(error)")
         }
-        
+
     }
     
 
@@ -183,7 +183,7 @@ import BackgroundTasks
             }catch{
                 result("Error")
             }
-            
+
         }else if(call.method=="upgradeDevice"){
 //             guard let args = call.arguments else {
 //               result("iOS could not recognize flutter arguments in method: (sendParams)")
@@ -270,7 +270,7 @@ import BackgroundTasks
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
-    
+
     private func takeReadingFromDevice(deviceType:String,readingType:String){
         
     }
@@ -326,7 +326,7 @@ import BackgroundTasks
                 do{
                     if(connectionInfo != nil){
                         try self.syncData(connectionInfo: connectionInfo!,result: { data in
-                            
+
                         })
                     }
                 }catch{
@@ -370,7 +370,7 @@ import BackgroundTasks
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         syncDeviceFromConnectionInfo(connectionData: connectionData,result: result)
     }
-    
+
     private func syncDeviceFromConnectionInfo(connectionData:ConnectionInfo,result: @escaping FlutterResult){
         let deviceType = connectionData.deviceType?.uppercased()
         NSLog("Syncing data for device \(deviceType)")
@@ -383,7 +383,7 @@ import BackgroundTasks
             self.getScaleDevice()?.syncData(connectionInfo: connectionData, result: result)
         }
     }
-    
+
     private func getProfile(){
         let deviceType = getDeviceType()
         NSLog("Syncing data for device \(deviceType)")
@@ -477,7 +477,7 @@ import BackgroundTasks
             NSLog("Default connection status")
         }
     }
-    
+
     private func connectWifi(result:@escaping FlutterResult,connectionInfo:String,ssid:String,password:String) throws {
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         self.getScaleDevice()?.connectWifi(result: result, ssid: ssid, password: password)
@@ -515,7 +515,7 @@ import BackgroundTasks
         }
         return AppDelegate.scaleData
     }
-    
+
     private func getB360Device() -> B360Device{
         if(AppDelegate.b360Device==nil){
             AppDelegate.b360Device = B360Device()
