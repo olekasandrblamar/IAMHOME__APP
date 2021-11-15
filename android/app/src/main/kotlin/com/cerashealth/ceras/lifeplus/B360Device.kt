@@ -584,9 +584,7 @@ class B360Device:BaseDevice(),SearchResponse {
                 Log.d(B360DeviceTag,"Got setting spo2 data")
             }, AllSetSetting(EAllSetType.SPO2H_NIGHT_AUTO_DETECT,0,0,23,59,1,1))
             syncUserInfo(callBack)
-        }, CustomSetting(false,false,false,true,true).apply {
-            temperatureUnit = ETemperatureUnit.FAHRENHEIT
-        })
+        }, CustomSetting(false,false,false,true,true))
     }
 
     private fun syncUserInfo(callBack: () -> Unit = {}){

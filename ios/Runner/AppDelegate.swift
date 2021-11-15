@@ -564,6 +564,11 @@ struct HeartRateDataValue:Codable {
     var measureTime:String
 }
 
+struct O2LevelDataValue:Codable{
+    var data:UInt
+    var measureTime:String
+}
+
 struct BpDataValue:Codable {
     var data1:UInt
     var data2:UInt

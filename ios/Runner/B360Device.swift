@@ -61,6 +61,49 @@ class B360Device{
         }
     }
     
+    private func turnOnSetting(setting: VPSettingBaseFunctionSwitchType,callBack:@escaping () -> Void = { }){
+        self.bleManager.peripheralManage.veepooSDKSettingBaseFunctionType(setting, settingState: .settingFunctionOpen) { completeState in
+            NSLog("Complete state for \(setting.rawValue) \(completeState.rawValue)")
+            switch completeState{
+            case .functionCompleteComplete,.functionCompleteClose, .functionCompleteOpen:
+                NSLog("Complete for \(String(setting.rawValue)) \(String(completeState.rawValue))")
+                callBack()
+            default:
+                NSLog("Pending state \(completeState) for \(String(setting.rawValue)) \(String(completeState.rawValue))")
+            }
+        }
+    }
+    
+    private func configureDevice(){
+        
+        var tbyte:[UInt8] = Array(repeating: 0x00, count: 20)
+        VPBleCentralManage.sharedBleManager()
+            .peripheralModel.deviceSwitchData.copyBytes(to: &tbyte, count: 20)
+        NSLog("Switch data \(tbyte)")
+        NSLog("Configuring device BP")
+        turnOnSetting(setting: VPSettingBaseFunctionSwitchType.automaticBPTest) {
+            NSLog("Configuring device HR")
+            self.turnOnSetting(setting: VPSettingBaseFunctionSwitchType.automaticHRTest) {
+                NSLog("Configuring device 02")
+                self.turnOnSetting(setting: VPSettingBaseFunctionSwitchType.automaticOxygenTest) {
+                    NSLog("Configuring device HRV")
+                    self.turnOnSetting(setting: VPSettingBaseFunctionSwitchType.automaticHRVTest) {
+                        self.bleManager.peripheralManage.veepooSDKSettingBaseFunctionType(VPSettingBaseFunctionSwitchType.metric, settingState: .settingFunctionClose) { completeState in
+                            NSLog("Complete state for HR \(completeState.rawValue)")
+                        }
+                    }
+                }
+            }
+        }
+        
+        
+        let curDate = Date()
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.day,.month,.year,.minute,.hour,.second], from: curDate)
+        self.bleManager.peripheralManage.veepooSDKSettingTime(withYear: Int32(components.year!), month: Int32(components.month!), day: Int32(components.day!), hour: Int32(components.hour!), minute: Int32(components.minute!), second: Int32(components.second!), timeSystem: 12)
+        
+    }
+    
     private func scanAndConnectDevice(result:@escaping FlutterResult,deviceId:String){
         bleManager.veepooSDKStartScanDeviceAndReceiveScanningDevice { (deviceInfo) in
             NSLog("Got mac address \(String(describing: deviceInfo?.deviceAddress)) and matching it with \(deviceId)")
@@ -100,9 +143,13 @@ class B360Device{
     func syncData(connectionInfo: ConnectionInfo,result: @escaping FlutterResult){
         let deviceConnected = bleManager.isConnected
         self.connectionInfo = connectionInfo
+        if(self.deviceId == nil){
+            self.deviceId = connectionInfo.deviceId
+        }
         self.result = result
         NSLog("Is device conected \(deviceConnected)")
         if(deviceConnected){
+            self.configureDevice()
             syncDataFromDevice()
         }else{
             reConnectDevice()
@@ -125,6 +172,18 @@ class B360Device{
             let returnData = HeartRateDataValue(data: heartRate, measureTime: Date().iso8601withFractionalSeconds)
             let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
             NSLog("Returning Heart rate \(returnDataValue)")
+            events(returnDataValue)
+        }
+        catch{
+            NSLog("Error while sending HR value \(error)")
+        }
+    }
+    
+    private func sendO2LevelResponse(o2Level:UInt,eventSink events: @escaping FlutterEventSink){
+        do{
+            let returnData = O2LevelDataValue(data: o2Level, measureTime: Date().iso8601withFractionalSeconds)
+            let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
+            NSLog("Returning O2 rate \(returnDataValue)")
             events(returnDataValue)
         }
         catch{
@@ -191,7 +250,32 @@ class B360Device{
                     NSLog("Got default data with state \(String(describing: state))")
                 }
             }
-            
+        case AppDelegate.O2:
+            NSLog("Processing O2 sats")
+            var startDate = Date()
+            bleManager.peripheralManage.veepooSDKTestOxygenStart(true) { o2state, o2Level in
+                switch o2state{
+                case .over:
+                    NSLog("O2 complete")
+                    events(FlutterEndOfEventStream)
+                case .testing:
+                    NSLog("Got o2 value \(o2Level)")
+                    if(o2Level>0){
+                        self.sendO2LevelResponse(o2Level: o2Level, eventSink: events)
+                        if(Date().timeIntervalSince(startDate) > 15){
+                            self.bleManager.peripheralManage.veepooSDKTestOxygenStart(false) { heartRateState, heartRate in
+                                NSLog("Completed o2 sats")
+                                events(FlutterEndOfEventStream)
+                            }
+                            let o2Levels = [OxygenLevelUpload(measureTime: Date(), oxygenLevel: Int(o2Level), deviceId: self.deviceId!, userProfile: userProfile)]
+                            DataSync.uploadOxygenLevels(oxygenLevels: o2Levels)
+                            NSLog("O2 levels complete")
+                        }
+                    }
+                default:
+                    NSLog("Defuault methos for o2 sats with value \(o2Level) and state \(String(describing: o2state))")
+                }
+            }
         default:
             events(FlutterEndOfEventStream)
         }
@@ -232,6 +316,7 @@ class B360Device{
             switch(syncType){
             case .validationAllSuccess:
                 callBack(true)
+                self.configureDevice()
                 self.syncDataFromDevice()
             case .validationSuccess:
                 NSLog("Password validation sucess")

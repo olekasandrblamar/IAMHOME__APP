@@ -228,6 +228,7 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
   dynamic _trackerData;
 
   bool canScroll = true;
+  bool canShow = true;
 
   bool _paused = false;
 
@@ -268,8 +269,10 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
   void updateCanScroll(bool _canScroll){
     updateScroll(_canScroll);
     canScroll = _canScroll;
+    canShow = _canScroll;
     setState(() {
       canScroll = _canScroll;
+      canShow = _canScroll;
     });
   }
 
@@ -306,6 +309,7 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
           }
       setState(() {
         _trackerData = returnData;
+        canShow = true;
       });
     }, onError: (dynamic error) {
       var _processingMap = processingMap;
@@ -337,7 +341,7 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
         child: SingleChildScrollView(
           child: Column(
             children:
-              !canScroll?[_loadCountDownTimer(60, trackerMasterData.displayName)]:[
+              !canShow?[_loadCountDownTimer(60, trackerMasterData.displayName)]:[
               ..._buildTrackerHeader(trackerMasterData, context),
               if (trackerMasterData.trackerType == 'SINGLE_VALUE' &&
                   _trackerData != null)
