@@ -183,12 +183,24 @@ class DevicesProvider extends ChangeNotifier {
     return deviceRequest;
   }
 
+  Future<Map<String, dynamic>> _getDeviceTypesRequest() async {
+    var devices = await getDevicesData();
+    var deviceRequestData = devices.map((e) => e.deviceMaster['name']).join(",");
+    // var b300Address = await (await SharedPreferences.getInstance()).getString("device_macid");
+    // if(b300Address != null){
+    //   deviceRequestData=b300Address+",$deviceRequestData";
+    // }
+    var deviceRequest =  {"deviceTypes": deviceRequestData};
+    print('Getting trackers for $deviceRequest');
+    return deviceRequest;
+  }
+
   Future<List<Tracker>> getDeviceTrackers() async {
     try {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
         baseUrl + '/master/deviceTrackers',
-        queryParameters: await _getDeviceRequest(),
+        queryParameters: await _getDeviceTypesRequest(),
       );
 
       if (response.data != null) {

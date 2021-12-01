@@ -187,8 +187,10 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   void _loadDeviceState(List<DevicesModel> deviceList) {
     var index = 0;
     deviceList.forEach((device) {
-      _getConnectionStatus(index);
-      _getDeviceStatus(index);
+      //Wait for the connection status
+      _getConnectionStatus(index).then((value){
+        _getDeviceStatus(index);
+      });
       index++;
     });
   }
@@ -422,7 +424,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     });
   }
 
-  void _getConnectionStatus(int index) async {
+  Future<void> _getConnectionStatus(int index) async {
     final connectionInfo = json.encode(_deviceData[index].watchInfo);
     final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
       'connectionStatus',
@@ -435,7 +437,8 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
       _deviceData = devices;
       _connectionStatus = connectionStatus;
     });
-    _processSyncData(index);
+    await _processSyncData(index);
+
 
     // if (connectionStatus != "Error") {
     //   final WatchModel connectionStatusData = WatchModel.fromJson(

@@ -126,31 +126,31 @@ class B360Device:BaseDevice(),SearchResponse {
         connectionInfo: ConnectionInfo,
         context: Context
     ) {
-        result?.success(getManager(context).isNetworkConnected(context))
+//        result?.success(getManager(context).isNetworkConnected(context))
         //If the device is not connected, try to connect and send a response
-//        if(!connected){
-//            reConnectDevice(connectionInfo.deviceId, connectionInfo.deviceName) {
-//                if (it == Code.REQUEST_SUCCESS) {
-//                    Log.d(B360DeviceTag, "Device connection success from Connection status")
-//                    confirmPasswd {
-//                        result?.success(getManager(context).isNetworkConnected(context))
-//                    }
-//                }else{
-//                    result?.success(getManager(context).isNetworkConnected(context))
-//                }
-//            }
-//            //Wait for 25 seconds and send an invalid response
-//            GlobalScope.launch {
-//                delay(10000)
-//                Log.d(B360DeviceTag, "Unable to find device $connected")
-//                getManager(context).stopScanDevice()
-//                if(!connected)
-//                    result?.success(getManager(context).isNetworkConnected(context))
-//            }
-//
-//        }else{
-//            result?.success(getManager(context).isNetworkConnected(context))
-//        }
+        if(!connected){
+            reConnectDevice(connectionInfo.deviceId, connectionInfo.deviceName) {
+                if (it == Code.REQUEST_SUCCESS) {
+                    Log.d(B360DeviceTag, "Device connection success from Connection status")
+                    confirmPasswd {
+                        result?.success(getManager(context).isNetworkConnected(context))
+                    }
+                }else{
+                    result?.success(getManager(context).isNetworkConnected(context))
+                }
+            }
+            //Wait for 10 seconds and send an invalid response
+            GlobalScope.launch {
+                delay(10000)
+                Log.d(B360DeviceTag, "Unable to find device $connected")
+                getManager(context).stopScanDevice()
+                if(!connected)
+                    result?.success(getManager(context).isNetworkConnected(context))
+            }
+
+        }else{
+            result?.success(getManager(context).isNetworkConnected(context))
+        }
     }
 
     override fun getDeviceInfo(
@@ -276,6 +276,8 @@ class B360Device:BaseDevice(),SearchResponse {
                     Log.d(B360DeviceTag,"Got O2 Response $it")
                 },{
                     Log.d(B360DeviceTag,"Got o2 data ${it.rateValue} with state ${it.spState} and progress ${it.checkingProgress}")
+                },{
+                    Log.d(B360DeviceTag,"Got readings $it")
                 })
             }
         }
@@ -337,6 +339,7 @@ class B360Device:BaseDevice(),SearchResponse {
                         vManager?.connectDevice(it.address,it.name, { code, bleGattProfile, isOadModel ->
                             Log.i(B360DeviceTag,"Got code $code oadModel $isOadModel")
                         }, {resp->
+                            connected = true
                             Log.i(B360DeviceTag,"Got connect response $resp")
                             callBack(resp)
                         })
@@ -397,8 +400,36 @@ class B360Device:BaseDevice(),SearchResponse {
                 Log.i(B360DeviceTag,"Origin complete")
             }
 
-        },3)
+        },getSyncDays())
 
+    }
+
+    //Update the last reading time for B330
+    private fun updateLastSyncTime(){
+        MainActivity.currentContext?.let {currentContext->
+            currentContext.getSharedPreferences(MainActivity
+                .SharedPrefernces, Context.MODE_PRIVATE).edit()
+                .putLong("B330_LASTUPDATE", Calendar.getInstance().timeInMillis).apply()
+        }
+    }
+
+    //Get the last sync time
+    private fun lastSyncTime():Long{
+        MainActivity.currentContext?.let { currentContext ->
+            return currentContext.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE)
+                .getLong("B330_LASTUPDATE",0L)
+        }
+        return 0L
+    }
+
+    private fun getSyncDays():Int{
+        val daysDiff = (Calendar.getInstance().timeInMillis - lastSyncTime())/(1000*60*60*24)
+
+        return when{
+            daysDiff>2 -> 3
+            daysDiff>1 -> 2
+            else -> 1
+        }
     }
 
     private fun readDataFromDevice(){
@@ -408,6 +439,9 @@ class B360Device:BaseDevice(),SearchResponse {
             Log.i(B360DeviceTag,"syncing data from B360")
             reading = true
             lastReading = Calendar.getInstance().time
+
+
+
             vManager?.readOriginData({
                 Log.i(B360DeviceTag, "Got response $it")
             }, object : IOriginData3Listener {
@@ -448,6 +482,7 @@ class B360Device:BaseDevice(),SearchResponse {
                     DataSync.uploadOxygenData(o2Uploads)
                     Log.d(B360DeviceTag,"Uploading calories $dailyCaloriesUpload")
                     DataSync.uploadCalories(dailyCaloriesUpload)
+                    updateLastSyncTime()
                 }
 
                 override fun onOriginFiveMinuteListDataChange(originDataList: MutableList<OriginData3>?) {
@@ -549,7 +584,7 @@ class B360Device:BaseDevice(),SearchResponse {
                         o2Uploads.addAll(this)
                     }
                 }
-            }, 3)
+            }, getSyncDays())
         }
 
     }
@@ -559,7 +594,6 @@ class B360Device:BaseDevice(),SearchResponse {
         readDataFromDevice()
 
         readHealthData()
-        readCustomSetting()
     }
 
     private fun readCustomSetting(){
@@ -613,7 +647,7 @@ class B360Device:BaseDevice(),SearchResponse {
         configureAutoDetection()
     }
     private fun configureAutoDetection(){
-        //updateTime()
+        updateTime()
         vManager?.settingDetectBP({
             Log.d(B360DeviceTag,"Got detection write response $it")
         },{
