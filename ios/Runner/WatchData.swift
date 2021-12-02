@@ -146,13 +146,14 @@ class WatchData: NSObject,HardManagerSDKDelegate{
             let tempData = values as! [String:String]
             let seconds = Int(tempData["second"] as! String)
             do{
-                var returnData = TemperatureReading(countDown: seconds!, celsius: 0, fahrenheit: 0)
+                var returnData = TemeparureDataValue(data: 0.0, measureTime: Date().iso8601withFractionalSeconds)
+                //var returnData = TemperatureReading(countDown: seconds!, celsius: 0, fahrenheit: 0)
                 if(seconds==0){
                     let bodyTemp = Double(tempData["bodyTemperature"] as! String)
                     readingTemperature = false
-                    returnData.celsius = Double(bodyTemp!)
-                    DataSync.uploadTemparatures(temps: [TemperatureUpload(measureTime: Date(), celsius: returnData.celsius, deviceId: getMacId())])
-                    returnData.fahrenheit = Double((bodyTemp!*9/5)+32)
+                    //returnData.celsius = Double(bodyTemp!)
+                    DataSync.uploadTemparatures(temps: [TemperatureUpload(measureTime: Date(), celsius: Double(bodyTemp!), deviceId: getMacId())])
+                    returnData.data = Double((bodyTemp!*9/5)+32)
                 }
                 let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
                 NSLog("Returning data \(returnDataValue)")
@@ -176,9 +177,9 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                         let heartRateVal = tempData["heart"]
                         NSLog("Heart rate \(heartRateVal)")
                         if(heartRateVal != nil){
-                            let heartRate = Int(heartRateVal!)!
-                            let returnData = HeartRateReading(heartRate: heartRate)
-                            let heartRateUpload = HeartRateUpload(measureTime: Date(), heartRate: returnData.heartRate, deviceId: getMacId(),userProfile: DataSync.getUserInfo())
+                            let heartRate = UInt(heartRateVal!)!
+                            let returnData = HeartRateDataValue(data: heartRate,measureTime: Date().iso8601withFractionalSeconds)
+                            let heartRateUpload = HeartRateUpload(measureTime: Date(), heartRate: Int(returnData.data), deviceId: getMacId(),userProfile: DataSync.getUserInfo())
                             DataSync.uploadHeartRateInfo(heartRates: [heartRateUpload])
                             let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
                             NSLog("Returning HR data \(returnDataValue)")
@@ -188,10 +189,10 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                     case HardMeasureType.bloodOxygen:
                         if (tempData["oxygen"] != nil) {
                             NSLog("Oxygen \(tempData["oxygen"])")
-                            let oxygenLevel = Int(tempData["oxygen"] as! String)!
+                            let oxygenLevel = UInt(tempData["oxygen"] as! String)!
                             if(oxygenLevel>0){
-                                let returnData = OxygenLevel(oxygenLevel: oxygenLevel)
-                                let oxygenUpload = OxygenLevelUpload(measureTime: Date(), oxygenLevel: oxygenLevel, deviceId: getMacId(), userProfile: DataSync.getUserInfo())
+                                let returnData = O2LevelDataValue(data: oxygenLevel, measureTime: Date().iso8601withFractionalSeconds)
+                                let oxygenUpload = OxygenLevelUpload(measureTime: Date(), oxygenLevel: Int(oxygenLevel), deviceId: getMacId(), userProfile: DataSync.getUserInfo())
                                 DataSync.uploadOxygenLevels(oxygenLevels: [oxygenUpload])
                                 let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
                                 NSLog("Returning O2 data \(returnDataValue)")
@@ -202,20 +203,22 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                     case HardMeasureType.bloodPressure:
                         if (tempData["systolicPressure"] != nil) {
                             NSLog("Systolic \(values["systolicPressure"]) diastolic \(values["diastolicPressure"]) ")
-                        }
-                        let systolic = Int(tempData["systolicPressure"] as! String)!
-                        if(systolic>0){
-                            var returnData = BpReading(systolic: systolic, diastolic: Int(tempData["diastolicPressure"] as! String)!)
-                            let userInfo = DataSync.getUserInfo()
-                            let bpUpload = BpUpload(measureTime: Date(), distolic: returnData.diastolic, systolic: returnData.systolic, deviceId: getMacId(), userProfile: DataSync.getUserInfo())
-                            if(userInfo != nil){
-                                returnData.diastolic+=userInfo!.getOffsetValue(readingTypes: ["distolic","diastolic"])
-                                returnData.systolic+=userInfo!.getOffsetValue(readingTypes: ["systolic"])
+                        
+                            let systolic = Int(tempData["systolicPressure"] as! String)!
+                            if(systolic>0){
+                                var returnData = BpDataValue(data1: systolic, data2: Int(tempData["diastolicPressure"] as! String)!,measureTime: Date().iso8601withFractionalSeconds)
+                                //var returnData = BpReading(systolic: systolic, diastolic: Int(tempData["diastolicPressure"] as! String)!)
+                                let userInfo = DataSync.getUserInfo()
+                                let bpUpload = BpUpload(measureTime: Date(), distolic: Int(returnData.data2), systolic: Int(returnData.data1), deviceId: getMacId(), userProfile: DataSync.getUserInfo())
+                                if(userInfo != nil){
+                                    returnData.data2+=userInfo!.getOffsetValue(readingTypes: ["distolic","diastolic"])
+                                    returnData.data1+=userInfo!.getOffsetValue(readingTypes: ["systolic"])
+                                }
+                                HardManagerSDK.shareBLEManager()?.setBloodPressurePassvielyMeasurementWithHeartRate(returnData.data1, sp: returnData.data2, dp: 0)
+                                let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
+                                NSLog("Returning BP data \(returnDataValue)")
+                                self.eventSink?(returnDataValue)
                             }
-                            HardManagerSDK.shareBLEManager()?.setBloodPressurePassvielyMeasurementWithHeartRate(returnData.systolic, sp: returnData.diastolic, dp: 0)
-                            let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
-                            NSLog("Returning BP data \(returnDataValue)")
-                            self.eventSink?(returnDataValue)
                         }
                 default:
                     NSLog("type not found")
@@ -258,7 +261,9 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                 var sp = bpData!["sp"]!
                 
                 var userInfo = DataSync.getUserInfo()
+                
                 if(userInfo != nil){
+                    NSLog("Updating user info  \(userInfo?.age)")
                     diastolicOffset = userInfo!.getOffsetValue(readingTypes: ["diastolic","distolic"])
                     systolicOffset = userInfo!.getOffsetValue(readingTypes: ["systolic"])
                 }
@@ -657,7 +662,7 @@ class WatchData: NSObject,HardManagerSDKDelegate{
     func readDataFromDevice(eventSink events: @escaping FlutterEventSink,readingType:String){
         if(HardManagerSDK.shareBLEManager().isConnected){
             //Device is connected
-            if(readingType == AppDelegate.TEMPERATURE){
+            if(readingType.uppercased() == AppDelegate.TEMPERATURE){
                 self.eventSink = events
                 self.readingTemperature = true
                 HardManagerSDK.shareBLEManager()?.setHardBodyTemperatureMeasurement()
@@ -669,15 +674,15 @@ class WatchData: NSObject,HardManagerSDKDelegate{
                     }
                     NSLog("Inside timer")
                 }
-            }else if(readingType == AppDelegate.HR){
+            }else if(readingType.uppercased() == AppDelegate.HR){
                 self.eventSink = events
                 self.readingHr = true
                 HardManagerSDK.shareBLEManager()?.setStartHeartMeasurement()
-            }else if(readingType == AppDelegate.BP){
+            }else if(readingType.uppercased() == AppDelegate.BP){
                 self.eventSink = events
                 self.readingBp = true
                 HardManagerSDK.shareBLEManager()?.setStartBloodPressureMeasurement()
-            }else if(readingType == AppDelegate.O2){
+            }else if(readingType.uppercased() == AppDelegate.O2){
                 self.eventSink = events
                 self.readingo2 = true
                 HardManagerSDK.shareBLEManager()?.setStartBloodOxygenMeasurement()

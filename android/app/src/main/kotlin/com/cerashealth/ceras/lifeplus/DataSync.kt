@@ -91,9 +91,9 @@ class DataSync {
                         val timeDiffInHours = (currentTime.timeInMillis-userProfile.lastUpdated.time)/(1000*60*60)
                         Log.i(TAG,"Time Diff $timeDiffInHours")
                         //If the last update time is less than 24 hours
-                        if(timeDiffInHours > 24){
-                            loadProfileData = false
-                        }
+//                        if(timeDiffInHours > 24){
+//                            loadProfileData = false
+//                        }
                     }
                 }
                 Log.i(TAG,"Loading profile info $loadProfileData")

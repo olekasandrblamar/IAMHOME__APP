@@ -233,7 +233,7 @@ class B360Device{
                 case .complete:
                     NSLog("BP complete")
                     do{
-                        let returnData = BpDataValue(data1: systolic, data2: diastolic,measureTime: Date().iso8601withFractionalSeconds)
+                        let returnData = BpDataValue(data1: Int(systolic), data2: Int(diastolic),measureTime: Date().iso8601withFractionalSeconds)
                         let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
                         NSLog("Returning Heart rate \(returnDataValue)")
                         events(returnDataValue)

@@ -297,7 +297,7 @@ class DataCallBack : SimpleDeviceCallback {
                     userProfile = DataSync.getUserInfo())
                 DataSync.uploadTemperature(listOf(upload))
                 WatchDevice.eventSink?.let {
-                    it.success(Gson().toJson(mapOf("celsius" to celsius,"fahrenheit" to fahrenheit,"countDown" to 0)))
+                    it.success(Gson().toJson(mapOf("data" to fahrenheit,"measureTime" to getTimeInUtcString())))
                     it.endOfStream()
                     WatchDevice.eventSink = null
                 }
@@ -355,6 +355,12 @@ class DataCallBack : SimpleDeviceCallback {
             }
 
         }
+    }
+
+    private fun getTimeInUtcString():String{
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
+        return sdf.format(Calendar.getInstance().time)+"+00:00"
     }
 
     private fun uploadBloodPressureInfo(){
@@ -423,7 +429,7 @@ class DataCallBack : SimpleDeviceCallback {
                 val hrUpload = HeartRateUpload(measureTime = Calendar.getInstance().time,heartRate= rate,deviceId = MainActivity.deviceId)
                 DataSync.uploadHeartRate(listOf(hrUpload))
                 WatchDevice.eventSink?.let {
-                    it.success(Gson().toJson(mapOf("heartRate" to rate,"countDown" to 0)))
+                    it.success(Gson().toJson(mapOf("data" to rate,"measureTime" to getTimeInUtcString())))
                     it.endOfStream()
                     WatchDevice.eventSink = null
                 }
@@ -432,7 +438,7 @@ class DataCallBack : SimpleDeviceCallback {
                 if(rate!=0) {
                     Log.d(WatchDevice.TAG,"heart rate status $status rate $rate")
                     WatchDevice.eventSink?.let {
-                        it.success(Gson().toJson(mapOf("heartRate" to rate, "countDown" to status)))
+                        it.success(Gson().toJson(mapOf("data" to rate, "measureTime" to getTimeInUtcString())))
                     }
                 }
             }
@@ -456,13 +462,13 @@ class DataCallBack : SimpleDeviceCallback {
                             WatchDevice.eventSink?.let {
                                 val oxygenUpload = OxygenLevelUpload(measureTime = Calendar.getInstance().time,deviceId = MainActivity.deviceId,oxygenLevel = oxygen,userProfile = userProfile)
                                 DataSync.uploadOxygenData(listOf(oxygenUpload))
-                                it.success(Gson().toJson(mapOf("oxygenLevel" to oxygen, "countDown" to status)))
+                                it.success(Gson().toJson(mapOf("data" to oxygen, "measureTime" to getTimeInUtcString())))
                                 it.endOfStream()
                             }
                         }else{
                             Log.d(WatchDevice.TAG,"oxygen status $status rate $rate")
                             WatchDevice.eventSink?.let {
-                                it.success(Gson().toJson(mapOf("oxygenLevel" to oxygen, "countDown" to status)))
+                                it.success(Gson().toJson(mapOf("data" to oxygen, "measureTime" to getTimeInUtcString())))
                             }
                         }
                     }
@@ -470,7 +476,7 @@ class DataCallBack : SimpleDeviceCallback {
                     WatchDevice.isTestingOxygen = false
                     HardSdk.getInstance().stopOxygenMeasure(0)
                     WatchDevice.eventSink?.let {
-                        it.success(Gson().toJson(mapOf("oxygenLevel" to 0, "countDown" to 0)))
+                        it.success(Gson().toJson(mapOf("data" to 0, "measureTime" to getTimeInUtcString())))
                         it.endOfStream()
                     }
                 }
@@ -500,12 +506,12 @@ class DataCallBack : SimpleDeviceCallback {
                     WatchDevice.isTestingBp = false
                     HardSdk.getInstance().stopBpMeasure(bloodPressure)
                     WatchDevice.eventSink?.let {
-                        it.success(Gson().toJson(mapOf("systolic" to bpUpload.systolic, "diastolic" to bpUpload.distolic, "countDown" to 0)))
+                        it.success(Gson().toJson(mapOf("data1" to bpUpload.systolic, "data2" to bpUpload.distolic, "countDown" to 0,"measureTime" to getTimeInUtcString())))
                         it.endOfStream()
                     }
                 }else{
                     Log.d(WatchDevice.TAG,"Bp status $status rate $rate")
-                    WatchDevice.eventSink?.success(Gson().toJson(mapOf("systolic" to bloodPressure.systolicPressure, "diastolic" to bloodPressure.diastolicPressure, "countDown" to 0)))
+                    WatchDevice.eventSink?.success(Gson().toJson(mapOf("data1" to bloodPressure.systolicPressure, "data2" to bloodPressure.diastolicPressure, "countDown" to 0,"measureTime" to getTimeInUtcString())))
                 }
             }else{
                 WatchDevice.isTestingBp = false
@@ -587,7 +593,7 @@ class WatchDevice:BaseDevice()     {
 
 
     override fun readDataFromDevice(eventSink: EventChannel.EventSink, readingType: String) {
-        when(readingType){
+        when(readingType.toUpperCase()){
             TEMPERATURE -> {
                 if (HardSdk.getInstance().isDevConnected) {
                     WatchDevice.eventSink = eventSink

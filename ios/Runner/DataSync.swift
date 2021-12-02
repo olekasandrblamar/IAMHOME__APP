@@ -296,9 +296,9 @@ class DataSync {
                     NSLog("Last Update is not empty with lst updated \(String(describing: lastUpdated))")
                     let timeDiff = Calendar.current.dateComponents([.hour], from: lastUpdated!,to: Date())
                     NSLog("Got profile time diff \(timeDiff.hour!)")
-                    if(timeDiff.hour! < 1){
-                        loadProfile = false
-                    }
+//                    if(timeDiff.hour! < 1){
+//                        loadProfile = false
+//                    }
                 }
             }
             NSLog("Load profile \(loadProfile)")
