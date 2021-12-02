@@ -303,7 +303,7 @@ class DataCallBack : SimpleDeviceCallback {
                 }
             }else{
                 WatchDevice.eventSink?.let {
-                    it.success(Gson().toJson(mapOf("countDown" to tempStatus.downTime)))
+                    it.success(Gson().toJson(mapOf("data" to 0,"measureTime" to getTimeInUtcString())))
                 }
             }
         } else if (flag == GlobalValue.READ_TEMP_FINISH) {
