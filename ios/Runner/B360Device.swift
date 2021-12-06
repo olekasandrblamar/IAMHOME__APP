@@ -43,10 +43,13 @@ class B360Device{
     func startScan(result:@escaping FlutterResult,deviceId:String) {
         NSLog("Connecting with device id \(String(describing: deviceId))")
         self.reconnect = 0
+        self.deviceFound = false
         self.scanAndConnectDevice(result: result, deviceId: deviceId)
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            NSLog("reconnect \(self.reconnect) device found \(self.deviceFound)")
             //Stop the scanning after 25 seconds
-            if(self.reconnect==0 && self.deviceFound == false){
+            if(self.reconnect==0){
+                NSLog("Reconnecting device")
                 self.bleManager.veepooSDKStopScanDevice()
                 self.reconnect = 1
                 self.scanAndConnectDevice(result: result, deviceId: deviceId)
@@ -55,9 +58,9 @@ class B360Device{
                     self.sendInvalidResponse(result: result)
                 }
             }else{
+                NSLog("Reconnecting failed")
                 self.sendInvalidResponse(result: result)
             }
-            
         }
     }
     
