@@ -37,6 +37,7 @@ class B360Device:BaseDevice(),SearchResponse {
         private var connected = false
         private var connectionListenerConfigured = false
         private var reading = false
+        private var lastConfirmPassword = 0L
         private var lastReading:Date = Calendar.getInstance().apply {
             add(Calendar.MINUTE,-10)
         }.time
@@ -89,7 +90,7 @@ class B360Device:BaseDevice(),SearchResponse {
         getManager(context).startScanDevice(this)
         //Wait for 25 seconds and if the device is not connected send an error response back
         GlobalScope.launch {
-            delay(25000)
+            delay(30000)
             Log.d(B360DeviceTag, "Unable to find device $connected")
             getManager(context).stopScanDevice()
             if(!connected)
@@ -121,6 +122,10 @@ class B360Device:BaseDevice(),SearchResponse {
         }
     }
 
+    private fun sendResponse(callBack: ()->Unit = {}){
+        MainActivity.currentActivity?.runOnUiThread(callBack)
+    }
+
     override fun getConnectionStatus(
         result: MethodChannel.Result?,
         connectionInfo: ConnectionInfo,
@@ -133,10 +138,14 @@ class B360Device:BaseDevice(),SearchResponse {
                 if (it == Code.REQUEST_SUCCESS) {
                     Log.d(B360DeviceTag, "Device connection success from Connection status")
                     confirmPasswd {
-                        result?.success(getManager(context).isNetworkConnected(context))
+                        sendResponse {
+                            result?.success(getManager(context).isNetworkConnected(context))
+                        }
                     }
                 }else{
-                    result?.success(getManager(context).isNetworkConnected(context))
+                    sendResponse {
+                        result?.success(getManager(context).isNetworkConnected(context))
+                    }
                 }
             }
             //Wait for 10 seconds and send an invalid response
@@ -144,12 +153,19 @@ class B360Device:BaseDevice(),SearchResponse {
                 delay(10000)
                 Log.d(B360DeviceTag, "Unable to find device $connected")
                 getManager(context).stopScanDevice()
-                if(!connected)
-                    result?.success(getManager(context).isNetworkConnected(context))
+                if(!connected) {
+                    sendResponse {
+                        result?.success(getManager(context).isNetworkConnected(context))
+                    }
+                }
             }
 
         }else{
-            result?.success(getManager(context).isNetworkConnected(context))
+            confirmPasswd {
+                sendResponse {
+                    result?.success(getManager(context).isNetworkConnected(context))
+                }
+            }
         }
     }
 
@@ -175,30 +191,36 @@ class B360Device:BaseDevice(),SearchResponse {
                                         B360DeviceTag,
                                         "Got battery status ${connectionInfo.batteryStatus}"
                                     )
-                                    result?.success(
-                                        ConnectionInfo.createResponse(
-                                            deviceId = connectionInfo.deviceId,
-                                            connected = connectionInfo.connected,
-                                            deviceType = connectionInfo.deviceType,
-                                            deviceName = connectionInfo.deviceName,
-                                            batteryStatus = connectionInfo.batteryStatus,
-                                            additionalInfo = connectionInfo.additionalInformation
+                                    sendResponse {
+                                        result?.success(
+                                            ConnectionInfo.createResponse(
+                                                deviceId = connectionInfo.deviceId,
+                                                connected = connectionInfo.connected,
+                                                deviceType = connectionInfo.deviceType,
+                                                deviceName = connectionInfo.deviceName,
+                                                batteryStatus = connectionInfo.batteryStatus,
+                                                additionalInfo = connectionInfo.additionalInformation
+                                            )
                                         )
-                                    )
+                                    }
+
                                 }
                             }
                         }
                     } else {
                         Log.d(B360DeviceTag, "Device connection failure")
-                        result?.success(
-                            ConnectionInfo.createResponse(
-                                deviceId = connectionInfo.deviceId,
-                                connected = false,
-                                deviceType = connectionInfo.deviceType,
-                                deviceName = connectionInfo.deviceName,
-                                message = "Connection Failed"
+                        sendResponse {
+                            result?.success(
+                                ConnectionInfo.createResponse(
+                                    deviceId = connectionInfo.deviceId,
+                                    connected = false,
+                                    deviceType = connectionInfo.deviceType,
+                                    deviceName = connectionInfo.deviceName,
+                                    message = "Connection Failed"
+                                )
                             )
-                        )
+                        }
+
                     }
                 }
             } else {
@@ -206,16 +228,19 @@ class B360Device:BaseDevice(),SearchResponse {
                 connectionInfo.connected = manager.isNetworkConnected(context)
                 getBatteryInfo(connectionInfo) {
                     Log.d(B360DeviceTag, "Got battery status ${connectionInfo.batteryStatus}")
-                    result?.success(
-                        ConnectionInfo.createResponse(
-                            deviceId = connectionInfo.deviceId,
-                            connected = connectionInfo.connected,
-                            deviceType = connectionInfo.deviceType,
-                            deviceName = connectionInfo.deviceName,
-                            batteryStatus = connectionInfo.batteryStatus,
-                            additionalInfo = connectionInfo.additionalInformation
+                    sendResponse {
+                        result?.success(
+                            ConnectionInfo.createResponse(
+                                deviceId = connectionInfo.deviceId,
+                                connected = connectionInfo.connected,
+                                deviceType = connectionInfo.deviceType,
+                                deviceName = connectionInfo.deviceName,
+                                batteryStatus = connectionInfo.batteryStatus,
+                                additionalInfo = connectionInfo.additionalInformation
+                            )
                         )
-                    )
+                    }
+
                 }
 
             }
@@ -272,10 +297,45 @@ class B360Device:BaseDevice(),SearchResponse {
                 },EBPDetectModel.DETECT_MODEL_PUBLIC)
             }
             O2 -> {
+                var o2Start = false
+                var startDate = Calendar.getInstance().timeInMillis
                 vManager?.startDetectSPO2H({
                     Log.d(B360DeviceTag,"Got O2 Response $it")
                 },{
-                    Log.d(B360DeviceTag,"Got o2 data ${it.rateValue} with state ${it.spState} and progress ${it.checkingProgress}")
+                    Log.d(B360DeviceTag,"Got o2 data ${it.value} with state ${it.spState} and progress ${it.checkingProgress}")
+                    if(it.value>0){
+                        if(!o2Start) {
+                            o2Start = true
+                            startDate = Calendar.getInstance().timeInMillis
+                        }
+                        eventSink.success(Gson().toJson(mapOf("data" to it.value,"measureTime" to getTimeInUtcString())))
+                    }
+                    val timeDiff = (Calendar.getInstance().timeInMillis - startDate)/1000
+                    if((!o2Start && timeDiff> 45)||(o2Start && timeDiff>10)){
+                        if(it.value>0) {
+                            DataSync.uploadOxygenData(
+                                listOf(
+                                    OxygenLevelUpload(
+                                        measureTime = Calendar.getInstance().time,
+                                        deviceId = connectionInfo?.deviceId!!,
+                                        userProfile = DataSync.getUserInfo(),
+                                        oxygenLevel = it.value
+                                    )
+                                )
+                            )
+                        }
+                        vManager?.stopDetectSPO2H({
+                            if(!o2Start){
+                                eventSink.success(Gson().toJson(mapOf("data" to 0,"measureTime" to getTimeInUtcString())))
+                            }
+                            eventSink.endOfStream()
+                            Log.d(B360DeviceTag,"Got O2 stop Response $it")
+                        },{
+
+                            Log.d(B360DeviceTag,"Sending end of stream")
+
+                        })
+                    }
                 },{
                     Log.d(B360DeviceTag,"Got readings $it")
                 })
@@ -306,8 +366,10 @@ class B360Device:BaseDevice(),SearchResponse {
             if(connected){
                 Log.d(B360DeviceTag,"Device is connected. Syncing password")
                 checkPasswordAndSync()
-                result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
-                    deviceId = connectionInfo.deviceId,connected = true,deviceType = connectionInfo.deviceType))
+                sendResponse {
+                    result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
+                        deviceId = connectionInfo.deviceId,connected = true,deviceType = connectionInfo.deviceType))
+                }
             }else{
                 Log.d(B360DeviceTag,"Device is not connected. Reconnecting device")
                 reConnectDevice(connectionInfo.deviceId,connectionInfo.deviceName){resp->
@@ -326,43 +388,55 @@ class B360Device:BaseDevice(),SearchResponse {
 
     private fun reConnectDevice(deviceId:String?,deviceName:String?,callBack: (connectionStatus:Int) -> Unit = {}){
         Log.d(B360DeviceTag,"Reconnecting device with deviceId $deviceId and deviceName $deviceName")
-        getManager(MainActivity.currentContext!!).startScanDevice(object: SearchResponse{
-            override fun onSearchStarted() {
-                Log.i(B360DeviceTag,"Search Started")
-            }
 
-            override fun onDeviceFounded(result: SearchResult?) {
-                result?.let {
-                    Log.d(B360DeviceTag,"Got search result ${it.address} and name ${it.name}")
-                    if(it.address == deviceId){
-                        vManager?.stopScanDevice()
-                        vManager?.connectDevice(it.address,it.name, { code, bleGattProfile, isOadModel ->
-                            Log.i(B360DeviceTag,"Got code $code oadModel $isOadModel")
-                        }, {resp->
-                            connected = true
-                            Log.i(B360DeviceTag,"Got connect response $resp")
-                            callBack(resp)
-                        })
-                    }
-                }
-            }
+//        getManager(MainActivity.currentContext!!).startScanDevice(object: SearchResponse{
+//            override fun onSearchStarted() {
+//                Log.i(B360DeviceTag,"Search Started")
+//            }
+//
+//            override fun onDeviceFounded(result: SearchResult?) {
+//                result?.let {
+//                    Log.d(B360DeviceTag,"Got search result ${it.address} and name ${it.name}")
+//                    if(it.address == deviceId){
+//                        vManager?.stopScanDevice()
+//                        vManager?.connectDevice(it.address,it.name, { code, bleGattProfile, isOadModel ->
+//                            Log.i(B360DeviceTag,"Got code $code oadModel $isOadModel")
+//                        }, {resp->
+//                            connected = true
+//                            Log.i(B360DeviceTag,"Got connect response $resp")
+//                            callBack(resp)
+//                        })
+//                    }
+//                }
+//            }
+//
+//            override fun onSearchStopped() {
+//                Log.i(B360DeviceTag,"Search Stopped")
+//            }
+//
+//            override fun onSearchCanceled() {
+//                Log.i(B360DeviceTag,"Search Cancelled")
+//            }
+//
+//        })
 
-            override fun onSearchStopped() {
-                Log.i(B360DeviceTag,"Search Stopped")
-            }
-
-            override fun onSearchCanceled() {
-                Log.i(B360DeviceTag,"Search Cancelled")
-            }
-
+        vManager?.connectDevice(deviceId,deviceName, { code, bleGattProfile, isOadModel ->
+            Log.i(B360DeviceTag,"Got code $code oadModel $isOadModel")
+            lastConfirmPassword = 0L
+        }, {resp->
+            connected = true
+            Log.i(B360DeviceTag,"Got connect response $resp")
+            callBack(resp)
         })
 
         //Wait for 25 seconds and stop the search
-        GlobalScope.launch {
-            delay(25000)
-            Log.d(B360DeviceTag, "Unable to find device $connected")
-            getManager(MainActivity.currentContext!!).stopScanDevice()
-        }
+//        GlobalScope.launch {
+//            delay(25000)
+//            if(!connected) {
+//                Log.d(B360DeviceTag, "Unable to find device $connected")
+//                getManager(MainActivity.currentContext!!).stopScanDevice()
+//            }
+//        }
     }
 
     private fun checkPasswordAndSync(){
@@ -647,12 +721,12 @@ class B360Device:BaseDevice(),SearchResponse {
         configureAutoDetection()
     }
     private fun configureAutoDetection(){
-        updateTime()
-        vManager?.settingDetectBP({
-            Log.d(B360DeviceTag,"Got detection write response $it")
-        },{
-            Log.d(B360DeviceTag,"Got detection response ${it.model}")
-        }, BpSetting(false,120,300))
+        //updateTime()
+//        vManager?.settingDetectBP({
+//            Log.d(B360DeviceTag,"Got detection write response $it")
+//        },{
+//            Log.d(B360DeviceTag,"Got detection response ${it.model}")
+//        }, BpSetting(false,120,300))
     }
 
     private fun configureAutoCapture(){
@@ -680,7 +754,7 @@ class B360Device:BaseDevice(),SearchResponse {
     override fun onDeviceFounded(searchResult: SearchResult?) {
         searchResult?.let {sResult->
             val lastFour = sResult.address.substring(sResult.address.length - 5).replace(":", "")
-            Log.i(B360DeviceTag,"Found last found $lastFour compared to $deviceId")
+            Log.i(B360DeviceTag,"Found last four $lastFour compared to $deviceId")
             if(lastFour == deviceId){
                 deviceFound = true
                 vManager?.stopScanDevice()
@@ -689,6 +763,7 @@ class B360Device:BaseDevice(),SearchResponse {
                 }, {resp->
                     Log.i(B360DeviceTag,"Got connect response $resp")
                     if(resp== Code.REQUEST_SUCCESS){
+                        connected = true
                         DataSync.sendHeartBeat(HeartBeat(macAddress = searchResult.address, deviceId = searchResult.name))
                         configureDevice()
                         connectResult?.success(ConnectionInfo.createResponse(deviceId = searchResult.address,deviceType = B360_DEVICE,
@@ -708,26 +783,40 @@ class B360Device:BaseDevice(),SearchResponse {
     }
 
     private fun confirmPasswd(callBack: ()->Unit = {}){
-        vManager?.confirmDevicePwd({
-            Log.i(B360DeviceTag,"Password write response ${Gson().toJson(it)}")
+        val curTime = Calendar.getInstance().timeInMillis
+        if(curTime - lastConfirmPassword > 30000) {
+            vManager?.confirmDevicePwd({
+                Log.i(B360DeviceTag, "Password write response ${Gson().toJson(it)}")
 
-        }, {
-            Log.i(B360DeviceTag,"pwd data ${it.deviceNumber} - ${it.deviceVersion} - ${it.getmStatus()}")
-            if(it.getmStatus() == EPwdStatus.CHECK_AND_TIME_SUCCESS){
-                Thread.sleep(1000)
-                callBack()
-            }
-        },
-            {
-                Log.i(B360DeviceTag,"Function listener ${it.bp} = ${it.heartDetect} ${it.hrvFunction}")
-            },object: ISocialMsgDataListener{
-                override fun onSocialMsgSupportDataChange(msgData: FunctionSocailMsgData?) {
-                    Log.i(B360DeviceTag,"Message Data $msgData")
+            }, {
+                Log.i(
+                    B360DeviceTag,
+                    "pwd data ${it.deviceNumber} - ${it.deviceVersion} - ${it.getmStatus()}"
+                )
+                if (it.getmStatus() == EPwdStatus.CHECK_AND_TIME_SUCCESS) {
+                    lastConfirmPassword = Calendar.getInstance().timeInMillis
+                    Thread.sleep(1000)
+                    callBack()
                 }
-                override fun onSocialMsgSupportDataChange2(msgData: FunctionSocailMsgData?) {
-                    Log.i(B360DeviceTag,"Message Data 2 $msgData")
-                }
-            },"0000",false)
+            },
+                {
+                    Log.i(
+                        B360DeviceTag,
+                        "Function listener ${it.bp} = ${it.heartDetect} ${it.hrvFunction}"
+                    )
+                }, object : ISocialMsgDataListener {
+                    override fun onSocialMsgSupportDataChange(msgData: FunctionSocailMsgData?) {
+                        Log.i(B360DeviceTag, "Message Data $msgData")
+                    }
+
+                    override fun onSocialMsgSupportDataChange2(msgData: FunctionSocailMsgData?) {
+                        Log.i(B360DeviceTag, "Message Data 2 $msgData")
+                    }
+                }, "0000", false
+            )
+        }else{
+            callBack()
+        }
 
     }
 
