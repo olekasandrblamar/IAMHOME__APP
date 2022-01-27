@@ -77,6 +77,17 @@ class B360Device{
         }
     }
     
+    private func updateTime(){
+        let curDate = Date()
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.day,.month,.year,.minute,.hour,.second], from: curDate)
+        NSLog("Current hour \(components.hour)")
+        self.bleManager.peripheralManage.veepooSDKSettingTime(withYear: Int32(components.year!), month: Int32(components.month!), day: Int32(components.day!), hour: Int32(components.hour!), minute: Int32(components.minute!), second: Int32(components.second!), timeSystem: 1)
+        self.bleManager.peripheralManage.veepooSDKSettingBaseFunctionType(VPSettingBaseFunctionSwitchType.timeFormat,settingState: .settingFunctionClose){ completeState in
+            NSLog("Complete state for Update time \(completeState.rawValue)")
+        }
+    }
+    
     private func configureDevice(){
         
         var tbyte:[UInt8] = Array(repeating: 0x00, count: 20)
@@ -98,12 +109,7 @@ class B360Device{
                 }
             }
         }
-        
-        
-        let curDate = Date()
-        let calendar = Calendar.current
-        let components = calendar.dateComponents([.day,.month,.year,.minute,.hour,.second], from: curDate)
-        self.bleManager.peripheralManage.veepooSDKSettingTime(withYear: Int32(components.year!), month: Int32(components.month!), day: Int32(components.day!), hour: Int32(components.hour!), minute: Int32(components.minute!), second: Int32(components.second!), timeSystem: 12)
+        self.updateTime()
         
     }
     
