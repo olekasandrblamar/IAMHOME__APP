@@ -10,6 +10,7 @@ import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.cerashealth.ceras.lifeplus.*
 import com.cerashealth.ceras.lifeplus.data.*
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.Gson
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetch
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetchConfig
@@ -38,6 +39,8 @@ class MainActivity: FlutterFragmentActivity()  {
         const val SERVER_BASE_URL = "flutter.apiBaseUrl"
         private const val BACKGROUND_JOB = "background_bluetooth"
         var deviceId = ""
+
+        var firebaseAnalytics: FirebaseAnalytics? = null
         const val SharedPrefernces = "FlutterSharedPreferences"
         private val displayDateFormat = SimpleDateFormat("MM/dd/yyyy hh:mm a")
         private const val MY_PERMISSIONS_REQUEST_BLUETOOTH:Int = 0x55

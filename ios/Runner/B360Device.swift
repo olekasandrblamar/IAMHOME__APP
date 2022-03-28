@@ -77,6 +77,19 @@ class B360Device{
         }
     }
     
+    private func turnOffSetting(setting: VPSettingBaseFunctionSwitchType,callBack:@escaping () -> Void = { }){
+        self.bleManager.peripheralManage.veepooSDKSettingBaseFunctionType(setting, settingState: .settingFunctionClose) { completeState in
+            NSLog("Complete state for \(setting.rawValue) \(completeState.rawValue)")
+            switch completeState{
+            case .functionCompleteComplete,.functionCompleteClose, .functionCompleteOpen:
+                NSLog("Complete for \(String(setting.rawValue)) \(String(completeState.rawValue))")
+                callBack()
+            default:
+                NSLog("Pending state \(completeState) for \(String(setting.rawValue)) \(String(completeState.rawValue))")
+            }
+        }
+    }
+    
     private func updateTime(){
         let curDate = Date()
         let calendar = Calendar.current
@@ -102,6 +115,9 @@ class B360Device{
                 self.turnOnSetting(setting: VPSettingBaseFunctionSwitchType.automaticOxygenTest) {
                     NSLog("Configuring device HRV")
                     self.turnOnSetting(setting: VPSettingBaseFunctionSwitchType.automaticHRVTest) {
+                        self.turnOffSetting(setting: VPSettingBaseFunctionSwitchType.accurateSleep) {
+                            NSLog("Configuring device Sleep")
+                        }
                         self.bleManager.peripheralManage.veepooSDKSettingBaseFunctionType(VPSettingBaseFunctionSwitchType.metric, settingState: .settingFunctionClose) { completeState in
                             NSLog("Complete state for HR \(completeState.rawValue)")
                         }
@@ -355,7 +371,7 @@ class B360Device{
             if(heartRateData == nil){
                 NSLog("Got empty heart rate data for \(dateString)")
             }else{
-                let heartRateValues = heartRateData as? Dictionary<String,Dictionary<String,String>>
+                let heartRateValues = heartRateData as? Dictionary<String?,Dictionary<String,String>>
                 let dailyStepTime = dateTimeFormat.date(from: dateString+" 00:00")!
                 var totalDailySteps = 0
                 var totalCalories = 0.0
@@ -365,15 +381,19 @@ class B360Device{
                     let steps = Int(heartRateData["stepValue"] ?? "0") ?? 0
                     let calories = Double(heartRateData["calValue"] ?? "0.0") ?? 0.0
                     let distance = Float(heartRateData["disValue"] ?? "0.0") ?? 0.0
-                    let measureTime = dateTimeFormat.date(from: dateString+" "+calculationTime)!
-                    if(heartRate>0){
-                        heartRateUploads.append(HeartRateUpload(measureTime: measureTime, heartRate: heartRate, deviceId: deviceId, userProfile: userInfo))
-                    }
-                    if(steps>0){
-                        totalDailySteps+=steps
-                        totalCalories+=calories
-                        totalDistance+=distance
-                        stepUploads.append(StepUpload(measureTime: measureTime, steps: steps, deviceId: deviceId, calories: Int(calories), distance: distance, userProfile: userInfo))
+                    if(calculationTime != nil){
+                        let measureTime = dateTimeFormat.date(from: dateString+" "+calculationTime!)
+                        if(measureTime != nil){
+                            if(heartRate>0){
+                                heartRateUploads.append(HeartRateUpload(measureTime: measureTime!, heartRate: heartRate, deviceId: deviceId, userProfile: userInfo))
+                            }
+                            if(steps>0){
+                                totalDailySteps+=steps
+                                totalCalories+=calories
+                                totalDistance+=distance
+                                stepUploads.append(StepUpload(measureTime: measureTime!, steps: steps, deviceId: deviceId, calories: Int(calories), distance: distance, userProfile: userInfo))
+                            }
+                        }
                     }
                 })
                 if(totalDailySteps > 0){
@@ -384,6 +404,10 @@ class B360Device{
             NSLog("Got Heart rate data \(heartRateData ?? [:])")
             day+=1
         }
+        
+        let params = ["message":"Data Uploaded","HR":String(heartRateUploads.count),"STEPS":String(stepUploads.count),"DAILYSTEPS":String(dailyStepUploads.count)]
+        
+        DataSync.postLog(action: "DATA UPLOAD", params: params, deviceId: connectionInfo?.deviceId)
         
         //Upload the daily steps
         dailyStepUploads.forEach { dailyStep in
@@ -433,7 +457,22 @@ class B360Device{
                     bpUploads.append(BpUpload(measureTime: measueTime, distolic: diastolic, systolic: systolic, deviceId: deviceId, userProfile: userInfo))
                 }
             })
+            
+            let params = ["message":"Data Uploaded","O2":String(o2Uploads.count),"BP":String(bpUploads.count)]
+            
+            DataSync.postLog(action: "DATA UPLOAD", params: params, deviceId: connectionInfo?.deviceId)
+            
             NSLog("Got BP info \(bpInfo)")
+            
+            //let originalSleep = VPDataBaseOperation.veepooSDKGetAccurateSleepData(withDate: dateString, andTableID: connectionInfo?.deviceId) as? [Dictionary<String,Any>]
+            //NSLog("original sleep for date \(dateString) \(originalSleep)")
+            
+            //let sleepInfo = VPDataBaseOperation.veepooSDKGetSleepData(withDate: dateString, andTableID: connectionInfo?.deviceId)
+            //NSLog("Got sleep info \(sleepInfo)")
+//            sleepInfo?.forEach { sleep in
+//
+//            }
+            
             day+=1
         }
         if(!bpUploads.isEmpty){

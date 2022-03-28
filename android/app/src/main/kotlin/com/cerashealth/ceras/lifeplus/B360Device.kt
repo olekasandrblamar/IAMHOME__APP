@@ -1,6 +1,7 @@
 package com.cerashealth.ceras.lifeplus
 
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
 import com.cerashealth.ceras.MainActivity
 import com.cerashealth.ceras.lifeplus.data.*
@@ -15,10 +16,7 @@ import com.veepoo.protocol.listener.base.IBleWriteResponse
 import com.veepoo.protocol.listener.data.*
 import com.veepoo.protocol.model.datas.*
 import com.veepoo.protocol.model.enums.*
-import com.veepoo.protocol.model.settings.AllSetSetting
-import com.veepoo.protocol.model.settings.BpSetting
-import com.veepoo.protocol.model.settings.CustomSetting
-import com.veepoo.protocol.model.settings.DeviceTimeSetting
+import com.veepoo.protocol.model.settings.*
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
 import kotlinx.coroutines.GlobalScope
@@ -245,6 +243,13 @@ class B360Device:BaseDevice(),SearchResponse {
 
             }
         }
+    }
+
+    private fun logFirebaseEvent(action:String,params:MutableMap<String,String?>){
+        DataSync.sendLog(params.apply {
+            put("deviceId", connectionInfo?.deviceId)
+            put("action",action)
+        })
     }
 
     override fun readDataFromDevice(eventSink: EventChannel.EventSink, readingType: String) {
@@ -507,14 +512,12 @@ class B360Device:BaseDevice(),SearchResponse {
     }
 
     private fun readDataFromDevice(){
-        val fiveMinutesAgo = Calendar.getInstance().apply { add(Calendar.MINUTE,-2) }.time
+        val fiveMinutesAgo = Calendar.getInstance().apply { add(Calendar.MINUTE,-5) }.time
         Log.d(B360DeviceTag," Is reading $reading with lastReading $lastReading")
         if(lastReading.before(fiveMinutesAgo)) {
             Log.i(B360DeviceTag,"syncing data from B360")
             reading = true
             lastReading = Calendar.getInstance().time
-
-
 
             vManager?.readOriginData({
                 Log.i(B360DeviceTag, "Got response $it")
@@ -544,18 +547,25 @@ class B360Device:BaseDevice(),SearchResponse {
                     Log.i(B360DeviceTag, "Read complete")
                     reading = false
                     Log.d(B360DeviceTag, "Uploading bp $bpUploads")
-
                     DataSync.uploadBloodPressure(bpUploads)
-                    Log.d(B360DeviceTag, "Uploading Daily steps $dailyStepUploads")
-                    DataSync.uploadDailySteps(dailyStepUploads.filter { it.steps > 0 })
-                    Log.d(B360DeviceTag, "Uploading steps $stepUploads")
-                    DataSync.uploadStepInfo(stepUploads)
                     Log.d(B360DeviceTag, "Uploading HR $heartUploads")
                     DataSync.uploadHeartRate(heartUploads)
+                    logFirebaseEvent("Data UPLOAD",
+                        mutableMapOf("message" to "Data uploaded",
+                            "HR" to "${heartUploads.size}",
+                            "BP" to "${bpUploads.size}",
+                            "O2" to "${o2Uploads.size}"))
                     Log.d(B360DeviceTag, "Uploading o2 $o2Uploads")
                     DataSync.uploadOxygenData(o2Uploads)
                     Log.d(B360DeviceTag,"Uploading calories $dailyCaloriesUpload")
                     DataSync.uploadCalories(dailyCaloriesUpload)
+                    logFirebaseEvent("CALORY UPLOAD", mutableMapOf("message" to "Calories uploaded with size ${dailyCaloriesUpload.size}"))
+                    Log.d(B360DeviceTag, "Uploading Daily steps $dailyStepUploads")
+                    DataSync.uploadDailySteps(dailyStepUploads.filter { it.steps > 0 })
+                    Log.d(B360DeviceTag, "Uploading steps $stepUploads")
+                    DataSync.uploadStepInfo(stepUploads)
+                    logFirebaseEvent("STEP UPLOAD", mutableMapOf("message" to "Steps uploaded with size ${stepUploads.size}"))
+                    //readSleepData()
                     updateLastSyncTime()
                 }
 
@@ -663,6 +673,30 @@ class B360Device:BaseDevice(),SearchResponse {
 
     }
 
+    private fun readSleepData(){
+        vManager?.readSleepData({
+
+        },object:ISleepDataListener{
+            override fun onSleepDataChange(p0: String?, sleepData: SleepData?) {
+                Log.d(TAG,"Got sleep data ${sleepData?.sleepDown}")
+            }
+
+            override fun onSleepProgress(p0: Float) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onSleepProgressDetail(p0: String?, p1: Int) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onReadSleepComplete() {
+                //TODO("Not yet implemented")
+                Log.d(TAG,"Sleep complete")
+            }
+
+        },getSyncDays())
+    }
+
     private fun syncData(){
         Log.i(B360DeviceTag,"Is network connected")
         readDataFromDevice()
@@ -678,7 +712,6 @@ class B360Device:BaseDevice(),SearchResponse {
                 Log.d(B360DeviceTag,"Got custom data BP:${it.autoBpDetect} HR:${it.autoHeartDetect} ${it.status}")
             })
         }
-
     }
 
     private fun configureDevice(callBack: () -> Unit = {}){
@@ -721,7 +754,12 @@ class B360Device:BaseDevice(),SearchResponse {
         configureAutoDetection()
     }
     private fun configureAutoDetection(){
-        //updateTime()
+        updateTime()
+        vManager?.changeCustomSetting({
+
+        },{
+
+        },CustomSetting(false,false,false,true,true))
 //        vManager?.settingDetectBP({
 //            Log.d(B360DeviceTag,"Got detection write response $it")
 //        },{
@@ -737,7 +775,7 @@ class B360Device:BaseDevice(),SearchResponse {
     private fun updateTime(callBack: () -> Unit = {}){
         val cal = Calendar.getInstance()
         val currentTime = DeviceTimeSetting(cal.get(Calendar.YEAR),
-            cal.get(Calendar.MONTH),
+            cal.get(Calendar.MONTH)+1,
             cal.get(Calendar.DAY_OF_MONTH),
             cal.get(Calendar.HOUR_OF_DAY),
             cal.get(Calendar.MINUTE),

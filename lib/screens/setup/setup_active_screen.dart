@@ -171,12 +171,11 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   }
 
   void _syncDataFromDevice() async {
-    _setIsLoading(true);
+    //_setIsLoading(true);
     var deviceInfoString = await getDeviceInfoString();
     print('Got device info string $deviceInfoString');
-
-    await readDataFromDevice(deviceInfoString);
     _changeLastUpdated();
+    await readDataFromDevice(deviceInfoString);
   }
 
   void _showSuccessMessage() {

@@ -213,6 +213,10 @@ class DataSync {
             }
         }
 
+        fun sendLog(data:Map<String,Any?>){
+            makePostRequest(gson.toJson(data),"log")
+        }
+
         /**
          * This method loads the weather info
          */

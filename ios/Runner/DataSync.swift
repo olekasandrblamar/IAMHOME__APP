@@ -46,6 +46,7 @@ class DataSync {
     private static let CAL_UPDATE = "user_last_cal_sent"
     private static let OXYGEN_UPDATE = "user_last_o2_sent"
     private static let TEMP_UPDATE = "user_last_temp_sent"
+    private static let SLEEP_UPDATE = "user_last_sleep_sent"
     private static let DATA_UPDATE = "user_last_data_sent"
 
     static let LAST_WEATHER_UPDATE = "last_weather_update"
@@ -100,6 +101,23 @@ class DataSync {
             }
             if(latestValue != nil){
                 changeLastUpdated(type: "WEIGHT",latestMeasureTime: latestValue!.measureTime)
+            }
+        }catch{
+            NSLog("Error while Uploading Data \(error)")
+        }
+    }
+    
+    static func uploadSleep(sleepList:[SleepUpload]){
+        do{
+            makePostApiCall(url: "sleep", postData: try encoder.encode(sleepList))
+            let latestValue = sleepList.max { (first, second) -> Bool in
+                first.measureTime < second.measureTime
+            }
+            if(!sleepList.isEmpty){
+                updateFireBase(property: SLEEP_UPDATE)
+            }
+            if(latestValue != nil){
+                changeLastUpdated(type: "SLEEP",latestMeasureTime: latestValue!.measureTime)
             }
         }catch{
             NSLog("Error while Uploading Data \(error)")
@@ -324,6 +342,17 @@ class DataSync {
             NSLog("Error loading profile \(error)")
         }
     }
+    
+    static func postLog(action:String,params:Dictionary<String,String?>,deviceId:String?){
+        var submissionData = params
+        submissionData["action"] = action
+        submissionData["deviceId"] = deviceId
+        do{
+            makePostApiCall(url: "log", postData: try encoder.encode(submissionData))
+        }catch{
+            NSLog("Error Sending data to \(action) with error \(error)")
+        }
+    }
 
     static func getUserInfo() -> UserProfile?{
         let userProfileData = UserDefaults.standard.object(forKey: DataSync.USER_PROFILE_DATA) as! String?
@@ -520,6 +549,20 @@ struct TemperatureUpload:Codable {
         self.fahrenheit = (celsius*9/5)+32
         self.deviceId = deviceId
         self.userProfile = DataSync.getUserInfo()
+    }
+}
+
+struct SleepUpload:Codable{
+    let measureTime:Date
+    let deepSleepTime:Double
+    let lowSleepTime:Double
+    let totalSleepTime:Double
+    
+    init(measureTime:Date,deepSleepTime:Double,lowSleepTime:Double,totalSleepTime:Double){
+        self.measureTime = measureTime
+        self.deepSleepTime = deepSleepTime
+        self.lowSleepTime = lowSleepTime
+        self.totalSleepTime = totalSleepTime
     }
 }
 
