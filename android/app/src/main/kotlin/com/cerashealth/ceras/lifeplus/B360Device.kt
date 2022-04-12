@@ -142,18 +142,18 @@ class B360Device:BaseDevice(),SearchResponse {
                     }
                 }else{
                     sendResponse {
-                        result?.success(getManager(context).isNetworkConnected(context))
+                        result?.success(false)
                     }
                 }
             }
-            //Wait for 10 seconds and send an invalid response
+            //Wait for 20 seconds and send an invalid response
             GlobalScope.launch {
-                delay(10000)
+                delay(20000)
                 Log.d(B360DeviceTag, "Unable to find device $connected")
                 getManager(context).stopScanDevice()
                 if(!connected) {
                     sendResponse {
-                        result?.success(getManager(context).isNetworkConnected(context))
+                        result?.success(false)
                     }
                 }
             }
@@ -346,6 +346,46 @@ class B360Device:BaseDevice(),SearchResponse {
                 })
             }
         }
+    }
+
+    private fun startO2SatsDetection(){
+        var o2Start = false
+        var startDate = Calendar.getInstance().timeInMillis
+        vManager?.startDetectSPO2H({
+            Log.d(B360DeviceTag,"Got O2 Response $it")
+        },{
+            Log.d(B360DeviceTag,"Got o2 data ${it.value} with state ${it.spState} and progress ${it.checkingProgress}")
+            if(it.value>0){
+                if(!o2Start) {
+                    o2Start = true
+                    startDate = Calendar.getInstance().timeInMillis
+                }
+            }
+            val timeDiff = (Calendar.getInstance().timeInMillis - startDate)/1000
+            if((!o2Start && timeDiff> 45)||(o2Start && timeDiff>10)){
+                if(it.value>0) {
+                    DataSync.uploadOxygenData(
+                        listOf(
+                            OxygenLevelUpload(
+                                measureTime = Calendar.getInstance().time,
+                                deviceId = connectionInfo?.deviceId!!,
+                                userProfile = DataSync.getUserInfo(),
+                                oxygenLevel = it.value
+                            )
+                        )
+                    )
+                }
+                vManager?.stopDetectSPO2H({
+                    Log.d(B360DeviceTag,"Got O2 stop Response $it")
+                },{
+
+                    Log.d(B360DeviceTag,"Sending end of stream")
+
+                })
+            }
+        },{
+            Log.d(B360DeviceTag,"Got readings $it")
+        })
     }
 
     private fun getTimeInUtcString():String{
@@ -702,6 +742,8 @@ class B360Device:BaseDevice(),SearchResponse {
         readDataFromDevice()
 
         readHealthData()
+        //Sync o2 sats from device
+        startO2SatsDetection()
     }
 
     private fun readCustomSetting(){

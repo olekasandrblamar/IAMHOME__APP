@@ -306,6 +306,32 @@ class B360Device{
         }
     }
     
+    private func syncO2Sats(){
+        NSLog("Processing O2 sats")
+        var startDate = Date()
+        let userProfile = DataSync.getUserInfo()
+        bleManager.peripheralManage.veepooSDKTestOxygenStart(true) { o2state, o2Level in
+            switch o2state{
+            case .over:
+                NSLog("O2 complete")
+            case .testing:
+                NSLog("Got o2 value \(o2Level)")
+                if(o2Level>0){
+                    if(Date().timeIntervalSince(startDate) > 15){
+                        self.bleManager.peripheralManage.veepooSDKTestOxygenStart(false) { heartRateState, heartRate in
+                            NSLog("Completed o2 sats")
+                        }
+                        let o2Levels = [OxygenLevelUpload(measureTime: Date(), oxygenLevel: Int(o2Level), deviceId: self.deviceId!, userProfile: userProfile)]
+                        DataSync.uploadOxygenLevels(oxygenLevels: o2Levels)
+                        NSLog("O2 levels complete")
+                    }
+                }
+            default:
+                NSLog("Defuault methos for o2 sats with value \(o2Level) and state \(String(describing: o2state))")
+            }
+        }
+    }
+    
     private func generateStatusResponse(connInfo:ConnectionInfo,result:@escaping FlutterResult){
         var connectionInfo = ConnectionInfo()
         connectionInfo.deviceId = connInfo.deviceId
@@ -503,6 +529,7 @@ class B360Device{
                 NSLog("Data sync complete")
                 self.syncHeartRate()
                 self.syncDeviceData()
+                self.syncO2Sats()
             case .invalid:
                 NSLog("Error reading data from the device")
             default:
