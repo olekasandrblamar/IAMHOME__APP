@@ -2,16 +2,21 @@ package com.cerashealth.ceras
 
 
 import android.Manifest
+import android.app.Notification
 import android.content.Context
 import android.content.pm.PackageManager
 import android.view.WindowManager.LayoutParams
 import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import androidx.work.*
 import com.cerashealth.ceras.lifeplus.*
 import com.cerashealth.ceras.lifeplus.data.*
+import com.google.common.util.concurrent.Futures
+import com.google.common.util.concurrent.ListenableFuture
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.gson.Gson
+import com.google.gson.internal.LinkedTreeMap
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetch
 import com.transistorsoft.tsbackgroundfetch.BackgroundFetchConfig
 import io.flutter.app.FlutterApplication
@@ -23,6 +28,7 @@ import io.flutter.plugin.common.MethodChannel
 import io.flutter.plugins.GeneratedPluginRegistrant
 import java.text.SimpleDateFormat
 import java.util.*
+import java.util.concurrent.TimeUnit
 
 class MainActivity: FlutterFragmentActivity()  {
 
@@ -35,7 +41,7 @@ class MainActivity: FlutterFragmentActivity()  {
         var lastConnected: Calendar = Calendar.getInstance()
         var currentContext:Context? = null
         var currentActivity:MainActivity? = null
-        val TAG = MainActivity::class.java.simpleName
+        const val TAG = "Ceras App"
         const val SERVER_BASE_URL = "flutter.apiBaseUrl"
         private const val BACKGROUND_JOB = "background_bluetooth"
         var deviceId = ""
@@ -93,21 +99,12 @@ class MainActivity: FlutterFragmentActivity()  {
     }
     
     private fun scheduleBackgroundTasks(){
-        val config = BackgroundFetchConfig.Builder()
-                .setPeriodic(true)
-                .setStartOnBoot(true)
-//                .setDelay(5)//Delay by 5 minutes
-                .setIsFetchTask(true)
-                .setMinimumFetchInterval(15)// Every five minutes
-                .setTaskId(BACKGROUND_JOB)
-                .setStopOnTerminate(false)
-                .setJobService(CerasBluetoothSync::class.java.name)
-                .build()
-        BackgroundFetch.getInstance(this).configure(config) {
-            Log.i(TAG,"Executing background job")
-            CerasBluetoothSync(this, BACKGROUND_JOB)
-        }
 
+        val periodicReq = PeriodicWorkRequestBuilder<AppSync>(30,TimeUnit.MINUTES)
+            .setInitialDelay(10,TimeUnit.MINUTES)
+            .build()
+        WorkManager.getInstance(this).cancelAllWorkByTag("com.cerashealth.ceras.AppSync")
+        WorkManager.getInstance(this).enqueue(periodicReq)
     }
 
     private fun connectDeviceChannel(flutterEngine: FlutterEngine){
@@ -273,6 +270,62 @@ class ReadingRequest{
     lateinit var readingType: String
 }
 
+class AppSync(var appContext: Context, var workerParams: WorkerParameters):
+    Worker(appContext, workerParams) {
+
+    companion object{
+        private const val NOTIFICATION_ID = 1201
+    }
+
+    override fun doWork(): Result {
+
+        try {
+            MainActivity.currentContext = appContext
+//            if (ContextCompat.checkSelfPermission(appContext,
+//                    Manifest.permission.ACCESS_BACKGROUND_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                BaseDevice.isBackground = true
+                Log.i(MainActivity.TAG, "Doing background work")
+                val devicesListString = appContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE)
+                    .getString("flutter.deviceData", "")
+                Gson().fromJson(devicesListString, List::class.java).forEach {
+                    //val data = Gson().fromJson(it.toString(),Map::class.java)
+                    val currentData = it as LinkedTreeMap<String,Any>
+                    val watchInfo = it["watchInfo"] as LinkedTreeMap<String,Any>
+                    val connectionInfo = ConnectionInfo().apply {
+                                            deviceId = watchInfo["deviceId"].toString()
+                                            deviceName = watchInfo["deviceName"].toString()
+                                            deviceType = watchInfo["deviceType"].toString()
+                                            additionalInformation = watchInfo["additionalInformation"] as LinkedTreeMap<String,String>
+                                        }
+                    BaseDevice.getDeviceImpl(connectionInfo.deviceType).syncData(null, connectionInfo, appContext)
+                    //Log.d(CerasBluetoothSync.TAG,"Got device ingo ${watchInfo["additionalInformation"]?.javaClass} ")
+                }
+//                val devicesList = Gson().fromJson(devicesListString, List::class.java) as List<DevicesModel>
+//                devicesList.forEach {
+//                    it.watchInfo?.let {
+//                        BaseDevice.getDeviceImpl(it.deviceType).syncData(null, it, appContext)
+//                    }
+//
+//                }
+//            } else {
+//                Log.e(CerasBluetoothSync.TAG, "No location permission")
+//            }
+        }catch(ex:Exception){
+            Log.e(CerasBluetoothSync.TAG,"Error syncing health data",ex)
+        }
+
+        return Result.success()
+    }
+
+    override fun getForegroundInfoAsync(): ListenableFuture<ForegroundInfo> {
+        return Futures.immediateFuture(ForegroundInfo(NOTIFICATION_ID, Notification().apply {
+            number = NOTIFICATION_ID
+            tickerText = "Ceras sync in progress"
+        }))
+    }
+
+}
+
 class CerasBluetoothSync{
 
     companion object{
@@ -300,7 +353,6 @@ class CerasBluetoothSync{
                     it.watchInfo?.let {
                         BaseDevice.getDeviceImpl(it.deviceType)?.syncData(null, it, applicationContext)
                     }
-
                 }
 //                deviceData?.deviceType?.let {
 //                    val deviceType = applicationContext.getSharedPreferences(MainActivity.SharedPrefernces, Context.MODE_PRIVATE).getString("flutter.deviceType", null)

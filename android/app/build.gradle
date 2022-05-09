@@ -35,6 +35,15 @@ android {
     compileSdkVersion rootProject.ext.compileSdkVersion
     ndkVersion "22.0.7026061"
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    kotlinOptions {
+        jvmTarget = JavaVersion.VERSION_1_8.toString()
+    }
+
     repositories {
         google()
         flatDir {
@@ -96,7 +105,7 @@ flutter {
 
 dependencies {
 
-    def work_version = "2.4.0"
+    def work_version = "2.7.1"
     implementation "androidx.work:work-runtime-ktx:$work_version"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
 //    implementation fileTree(dir: "libs", include: ["*.jar"])

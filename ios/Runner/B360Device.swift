@@ -241,8 +241,6 @@ class B360Device{
                             DataSync.uploadHeartRateInfo(heartRates: heartRateUploads)
                             NSLog("Heart rate complete")
                         }
-                    
-                        
                     }
                 case .start:
                     NSLog("Started reading heart rate ")
