@@ -13,7 +13,7 @@ class CustomEncoder: JSONEncoder{
 
     override init() {
         super.init()
-        var isoFormatter = DateFormatter()
+        let isoFormatter = DateFormatter()
         isoFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
         self.dateEncodingStrategy = .formatted(isoFormatter)
     }
@@ -46,12 +46,13 @@ class DataSync {
     private static let CAL_UPDATE = "user_last_cal_sent"
     private static let OXYGEN_UPDATE = "user_last_o2_sent"
     private static let TEMP_UPDATE = "user_last_temp_sent"
+    private static let SLEEP_UPDATE = "user_last_sleep_sent"
     private static let DATA_UPDATE = "user_last_data_sent"
 
     static let LAST_WEATHER_UPDATE = "last_weather_update"
 
     static func getBaseUrl() -> String{
-        NSLog("Getting base URL \(UserDefaults.standard.string(forKey: DataSync.BASE_URL))")
+        NSLog("Getting base URL \(String(describing: UserDefaults.standard.string(forKey: DataSync.BASE_URL)))")
         return UserDefaults.standard.object(forKey: DataSync.BASE_URL) as! String
     }
 
@@ -100,6 +101,23 @@ class DataSync {
             }
             if(latestValue != nil){
                 changeLastUpdated(type: "WEIGHT",latestMeasureTime: latestValue!.measureTime)
+            }
+        }catch{
+            NSLog("Error while Uploading Data \(error)")
+        }
+    }
+    
+    static func uploadSleep(sleepList:[SleepUpload]){
+        do{
+            makePostApiCall(url: "sleep", postData: try encoder.encode(sleepList))
+            let latestValue = sleepList.max { (first, second) -> Bool in
+                first.measureTime < second.measureTime
+            }
+            if(!sleepList.isEmpty){
+                updateFireBase(property: SLEEP_UPDATE)
+            }
+            if(latestValue != nil){
+                changeLastUpdated(type: "SLEEP",latestMeasureTime: latestValue!.measureTime)
             }
         }catch{
             NSLog("Error while Uploading Data \(error)")
@@ -186,13 +204,13 @@ class DataSync {
     }
 
     static func changeLastUpdated(type:String?,latestMeasureTime:Date){
-        NSLog("Setting last updates for \(type)")
+        NSLog("Setting last updates for \(String(describing: type))")
         var lastUpdates = UserDefaults.standard.string(forKey: DataSync.LAST_UPDATES)
-        NSLog("Got last updates from local storage \(lastUpdates)")
+        NSLog("Got last updates from local storage \(String(describing: lastUpdates))")
         var updates:[String:String] = [:]
         if(lastUpdates != nil || !((lastUpdates != nil ? lastUpdates! : "").isEmpty)){
             do{
-                updates = try JSONDecoder().decode(Dictionary<String,String>.self, from: lastUpdates!.data(using: .utf8) as! Data)
+                updates = try JSONDecoder().decode(Dictionary<String,String>.self, from: lastUpdates!.data(using: .utf8)!)
             }catch{
                 NSLog("Error decoding data from local storage \(error)")
             }
@@ -203,11 +221,11 @@ class DataSync {
             updates[type!] = currentLastUpdate
             lastUpdates = String(data:try JSONEncoder().encode(updates),encoding: .utf8)
             UserDefaults.standard.set(lastUpdates, forKey: DataSync.LAST_UPDATES)
-            NSLog("Set updates to \(lastUpdates)")
+            NSLog("Set updates to \(String(describing: lastUpdates))")
         }catch{
-            NSLog("Error updating last sync for \(type) with \(error)")
+            NSLog("Error updating last sync for \(String(describing: type)) with \(error)")
         }
-        NSLog("completed setting last updates for \(type)")
+        NSLog("completed setting last updates for \(String(describing: type))")
 
     }
 
@@ -249,8 +267,8 @@ class DataSync {
 
     static func loadWeatherData(){
 
-        let currentDay = dayFormat.string(from: Date())
-        let lastWetherUpdate = UserDefaults.standard.object(forKey: DataSync.LAST_WEATHER_UPDATE) as! String?
+//        let currentDay = dayFormat.string(from: Date())
+//        let lastWetherUpdate = UserDefaults.standard.object(forKey: DataSync.LAST_WEATHER_UPDATE) as! String?
 
         //If the last weather update is null or it is not updated today update it
 //        if(lastWetherUpdate == nil || lastWetherUpdate! != currentDay){
@@ -285,20 +303,20 @@ class DataSync {
         let userProfileData = UserDefaults.standard.object(forKey: DataSync.USER_PROFILE_DATA) as! String?
         do{
             var loadProfile = true
-            NSLog("Got old profile data \(userProfileData)")
+            NSLog("Got old profile data \(String(describing: userProfileData))")
             if(userProfileData != nil){
                 NSLog("Reading old profile data \(userProfileData!.data(using: .utf8)!)")
                 let userProfile = try JSONDecoder().decode(UserProfile.self, from: userProfileData!.data(using: .utf8)!)
                 if(userProfile.lastUpdate != nil){
-                    NSLog("Last Update is not empty \(userProfile.lastUpdate)")
+                    NSLog("Last Update is not empty \(String(describing: userProfile.lastUpdate))")
                     AppDelegate.dateFormatter.timeZone = TimeZone.current
                     let lastUpdated = AppDelegate.dateFormatter.date(from: userProfile.lastUpdate!)
-                    NSLog("Last Update is not empty with lst updated \(lastUpdated)")
+                    NSLog("Last Update is not empty with lst updated \(String(describing: lastUpdated))")
                     let timeDiff = Calendar.current.dateComponents([.hour], from: lastUpdated!,to: Date())
                     NSLog("Got profile time diff \(timeDiff.hour!)")
-                    if(timeDiff.hour! < 1){
-                        loadProfile = false
-                    }
+//                    if(timeDiff.hour! < 1){
+//                        loadProfile = false
+//                    }
                 }
             }
             NSLog("Load profile \(loadProfile)")
@@ -324,10 +342,21 @@ class DataSync {
             NSLog("Error loading profile \(error)")
         }
     }
+    
+    static func postLog(action:String,params:Dictionary<String,String?>,deviceId:String?){
+        var submissionData = params
+        submissionData["action"] = action
+        submissionData["deviceId"] = deviceId
+        do{
+            makePostApiCall(url: "log", postData: try encoder.encode(submissionData))
+        }catch{
+            NSLog("Error Sending data to \(action) with error \(error)")
+        }
+    }
 
     static func getUserInfo() -> UserProfile?{
         let userProfileData = UserDefaults.standard.object(forKey: DataSync.USER_PROFILE_DATA) as! String?
-        NSLog("Getting user info with \(userProfileData)")
+        NSLog("Getting user info with \(String(describing: userProfileData))")
         if(userProfileData != nil){
             do{
                 return try JSONDecoder().decode(UserProfile.self, from: userProfileData!.data(using: .utf8)!)
@@ -406,7 +435,7 @@ class WeatherDataDeletage: NSObject,URLSessionTaskDelegate, URLSessionDataDelega
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if(error != nil){
             let currentUrl = task.currentRequest?.url?.absoluteString
-            print("Got error for \(currentUrl) with \(error)")
+            print("Got error for \(String(describing: currentUrl)) with \(String(describing: error))")
         }
     }
 
@@ -419,15 +448,15 @@ class UserDataUrlDelegate: NSObject,URLSessionTaskDelegate,URLSessionDataDelegat
         if(httpReseponse.statusCode == 200){
             do{
                 let userProfile = String.init(data: data, encoding: .utf8)
-                NSLog("Got profile data \(userProfile)")
+                NSLog("Got profile data \(String(describing: userProfile))")
                 var userData = try JSONDecoder().decode(UserProfile.self, from: data)
                 userData.lastUpdate = AppDelegate.dateFormatter.string(from: Date())
                 let encodedDataString = String.init(data: try JSONEncoder().encode(userData),encoding: .utf8)
-                NSLog("Saving profile data \(encodedDataString)")
+                NSLog("Saving profile data \(String(describing: encodedDataString))")
                 UserDefaults.standard.set(encodedDataString, forKey: DataSync.USER_PROFILE_DATA)
                 NSLog("Synchronize status \(UserDefaults.standard.synchronize())")
                 let userProfileData = UserDefaults.standard.object(forKey: DataSync.USER_PROFILE_DATA)
-                NSLog("Got profile data after saving \(userProfileData)")
+                NSLog("Got profile data after saving \(String(describing: userProfileData))")
             }catch{
                 NSLog("Error loading user profile ")
             }
@@ -437,7 +466,7 @@ class UserDataUrlDelegate: NSObject,URLSessionTaskDelegate,URLSessionDataDelegat
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if(error != nil){
             let currentUrl = task.currentRequest?.url?.absoluteString
-            print("Got error for \(currentUrl) with \(error)")
+            print("Got error for \(String(describing: currentUrl)) with \(String(describing: error))")
         }
     }
 
@@ -449,13 +478,13 @@ class CustomUrlDelegate: NSObject,URLSessionTaskDelegate,URLSessionDelegate,URLS
     func urlSession(_ session: URLSession, dataTask: URLSessionDataTask, didReceive data: Data) {
         let currentUrl = dataTask.currentRequest?.url?.absoluteString
         let httpResponse = dataTask.response as! HTTPURLResponse
-        print("Got response for \(currentUrl) with status \(httpResponse.statusCode) \(String.init(data: data, encoding: .utf8))")
+        print("Got response for \(String(describing: currentUrl)) with status \(httpResponse.statusCode) \(String(describing: String.init(data: data, encoding: .utf8)))")
     }
 
     func urlSession(_ session: URLSession, task: URLSessionTask, didCompleteWithError error: Error?) {
         if(error != nil){
             let currentUrl = task.currentRequest?.url?.absoluteString
-            print("Got error for \(currentUrl) with \(error)")
+            print("Got error for \(String(describing: currentUrl)) with \(String(describing: error))")
         }
     }
 
@@ -520,6 +549,20 @@ struct TemperatureUpload:Codable {
         self.fahrenheit = (celsius*9/5)+32
         self.deviceId = deviceId
         self.userProfile = DataSync.getUserInfo()
+    }
+}
+
+struct SleepUpload:Codable{
+    let measureTime:Date
+    let deepSleepTime:Double
+    let lowSleepTime:Double
+    let totalSleepTime:Double
+    
+    init(measureTime:Date,deepSleepTime:Double,lowSleepTime:Double,totalSleepTime:Double){
+        self.measureTime = measureTime
+        self.deepSleepTime = deepSleepTime
+        self.lowSleepTime = lowSleepTime
+        self.totalSleepTime = totalSleepTime
     }
 }
 

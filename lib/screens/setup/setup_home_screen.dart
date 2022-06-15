@@ -187,8 +187,11 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
   void _loadDeviceState(List<DevicesModel> deviceList) {
     var index = 0;
     deviceList.forEach((device) {
-      _getConnectionStatus(index);
-      _getDeviceStatus(index);
+      var currentIndex = index;
+      //Wait for the connection status
+      _getConnectionStatus(index).then((value){
+        _getDeviceStatus(currentIndex);
+      });
       index++;
     });
   }
@@ -422,20 +425,36 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
     });
   }
 
-  void _getConnectionStatus(int index) async {
-    final connectionInfo = json.encode(_deviceData[index].watchInfo);
-    final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
-      'connectionStatus',
-      <String, dynamic>{'connectionInfo': connectionInfo},
-    ) as bool;
+  Future<void> updateDeviceConnectionStatus(int index,bool connected,String connectionStatus) async{
     var devices = _deviceData;
-    devices[index].watchInfo.connected = connectionStatus;
+    devices[index].watchInfo.connectionStatus = connectionStatus;
+    devices[index].watchInfo.connected = connected;
+    setState(() {
+      _deviceData = devices;
+    });
+  }
+
+  Future<void> _getConnectionStatus(int index) async {
+    final connectionInfo = json.encode(_deviceData[index].watchInfo);
+    var devices = _deviceData;
+    await updateDeviceConnectionStatus(index,false,'Reconnecting');
+    var connectionStatus = false;
+    try {
+      connectionStatus = await BackgroundFetchData.platform.invokeMethod(
+        'connectionStatus',
+        <String, dynamic>{'connectionInfo': connectionInfo},
+      ) as bool;
+    }catch(e){
+      devices[index].watchInfo.connectionStatus = 'Error';
+    }
+    await updateDeviceConnectionStatus(index,connectionStatus,connectionStatus?'Connected':'Connection Failure');
     print('Connection Status $connectionStatus');
     setState(() {
       _deviceData = devices;
       _connectionStatus = connectionStatus;
     });
-    _processSyncData(index);
+    await _processSyncData(index);
+
 
     // if (connectionStatus != "Error") {
     //   final WatchModel connectionStatusData = WatchModel.fromJson(
@@ -600,7 +619,7 @@ class _SetupHomeScreenState extends State<SetupHomeScreen>
                       SizedBox(height: 10),
                       FittedBox(
                         child: Text(
-                          _connectionStatus ? 'Connected' : 'Not Connected',
+                          deviceData.watchInfo.connected ? 'Connected' : deviceData.watchInfo.connectionStatus,
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,

@@ -25,7 +25,6 @@ class DataScreen extends StatefulWidget {
 class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   var currentPageValue = 0.0;
   int _currentPage = 0;
-  var trackers = [1, 2, 3, 4, 5, 6];
 
   bool canScroll = true;
 
@@ -40,8 +39,6 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
   List<Tracker> trackerTypeData = [];
 
   Map<String, bool> processingMap = {};
-
-  final eventChannel = EventChannel("ceras.iamhome.mobile/device_events");
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
@@ -59,6 +56,13 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       case AppLifecycleState.detached:
         break;
     }
+  }
+
+  void updateScroll(bool _canScroll){
+    setState(() {
+      canScroll = _canScroll;
+    });
+    print('Got can scroll $canScroll');
   }
 
   @override
@@ -92,7 +96,9 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
   Future<void> _initData() async {
     try {
-      final deviceTrackers = await Provider.of<DevicesProvider>(context, listen: false).getDeviceTrackers();
+      final deviceTrackers =
+          await Provider.of<DevicesProvider>(context, listen: false)
+              .getDeviceTrackers();
 
       print(deviceTrackers);
 
@@ -104,145 +110,6 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
       _goToLogin();
     }
   }
-
-  void _gotoListPage() async {
-    await Navigator.of(context).pushReplacementNamed(
-      routes.SetupHomeRoute,
-    );
-  }
-
-  // void _readDataFromDevice(String dataType) async {
-  //   setState(() {
-  //     canScroll = false;
-  //   });
-  //   print('Loading data type $dataType');
-  //   var _processingMap = processingMap;
-  //   _processingMap[dataType] = true;
-  //   setState(() {
-  //     processingMap = _processingMap;
-  //   });
-  //   var deviceList = await Provider.of<DevicesProvider>(context, listen: false)
-  //       .getDevicesData();
-  //   var device = deviceList[0];
-  //   final requestData = {
-  //     'deviceType': device.watchInfo.deviceType,
-  //     'readingType': dataType
-  //   };
-  //   var request = json.encode(requestData);
-  //   //var currentTemp = _lastTemperature;
-  //   print('Sending request $request');
-  //   switch (dataType) {
-  //     case 'TEMPERATURE':
-  //       {
-  //         setState(() {
-  //           _lastTemperature = null;
-  //         });
-  //       }
-  //       break;
-  //     case 'HR':
-  //       {
-  //         setState(() {
-  //           _lastHr = null;
-  //         });
-  //       }
-  //       break;
-  //     case 'O2':
-  //       {
-  //         setState(() {
-  //           _oxygenLevel = null;
-  //         });
-  //       }
-  //       break;
-  //     case 'BP':
-  //       {
-  //         setState(() {
-  //           _bloodPressure = null;
-  //         });
-  //       }
-  //       break;
-  //     default:
-  //       {}
-  //       break;
-  //   }
-  //
-  //   var subscription =
-  //   eventChannel.receiveBroadcastStream(requestData).listen((event) {
-  //     final returnData = json.decode(event);
-  //     switch (dataType) {
-  //       case 'TEMPERATURE':
-  //         {
-  //           if (returnData['countDown'] == 0) {
-  //             var updatedTemp = Temperature();
-  //             updatedTemp.celsius = returnData['celsius'];
-  //             updatedTemp.fahrenheit = returnData['fahrenheit'];
-  //             updatedTemp.measureTime = DateTime.now();
-  //             setState(() {
-  //               _lastTemperature = updatedTemp;
-  //             });
-  //           }
-  //         }
-  //         break;
-  //       case 'HR':
-  //         {
-  //           if (returnData['rate'] != 0) {
-  //             var updatedHr = HeartRate();
-  //             updatedHr.heartRate = returnData['heartRate'];
-  //             updatedHr.measureTime = DateTime.now();
-  //             setState(() {
-  //               _lastHr = updatedHr;
-  //             });
-  //           }
-  //         }
-  //         break;
-  //       case 'BP':
-  //         {
-  //           if (returnData['systolic'] != 0) {
-  //             var updatedBp = BloodPressure();
-  //             updatedBp.systolic = returnData['systolic'];
-  //             updatedBp.distolic = returnData['diastolic'];
-  //             updatedBp.measureTime = DateTime.now();
-  //             setState(() {
-  //               _bloodPressure = updatedBp;
-  //             });
-  //           }
-  //         }
-  //         break;
-  //       case 'O2':
-  //         {
-  //           if (returnData['oxygenLevel'] != 0) {
-  //             var updateo2 = OxygenLevel();
-  //             updateo2.oxygenLevel = returnData['oxygenLevel'];
-  //             updateo2.measureTime = DateTime.now();
-  //             setState(() {
-  //               _oxygenLevel = updateo2;
-  //             });
-  //           }
-  //         }
-  //         break;
-  //       default:
-  //         {}
-  //         break;
-  //     }
-  //   }, onError: (dynamic error) {
-  //     var _processingMap = processingMap;
-  //     _processingMap[dataType] = false;
-  //     setState(() {
-  //       processingMap = _processingMap;
-  //       canScroll = true;
-  //     });
-  //     _currentCountDown = null;
-  //     print('Got error $error for data type $dataType');
-  //   }, onDone: () {
-  //     print('completed for $dataType');
-  //     var _processingMap = processingMap;
-  //     _processingMap[dataType] = false;
-  //     setState(() {
-  //       canScroll = true;
-  //       _currentCountDown = null;
-  //       processingMap = _processingMap;
-  //     });
-  //   }, cancelOnError: true);
-  // }
 
   void _goToLogin() async {
     await Navigator.of(context).pushReplacementNamed(
@@ -260,67 +127,80 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
         title: Text(
           'My Data',
         ),
-        // actions: <Widget>[
-        //   SwitchStoreIcon(),
-        // ],
       ),
       backgroundColor: Color(0xffecf3fb),
-      // body: Container(
-      //   decoration: BoxDecoration(
-      //     color: Color(0xffecf3fb),
-      //   ),
-      //   child: CustomScrollView(
-      //     physics: BouncingScrollPhysics(),
-      //     slivers: [
-      //       SliverAppBar(
-      //         // backgroundColor: Colors.transparent,
-      //         // elevation: 0.0,
-      //         pinned: true,
-      //         expandedHeight: 150.0,
-      //         stretch: true,
-      //         stretchTriggerOffset: 75,
-      //         flexibleSpace: FlexibleSpaceBar(
-      //           title: Text(
-      //             'My Data',
-      //             style: TextStyle(
-      //               fontSize: 25,
-      //               // fontWeight: FontWeight.bold,
-      //               // color: Colors.black,
-      //             ),
-      //           ),
-      //           stretchModes: [
-      //             StretchMode.zoomBackground,
-      //             // StretchMode.blurBackground,
-      //             // StretchMode.fadeTitle,
-      //           ],
-      //           background: Image.asset(
-      //             'assets/images/clouds.png',
-      //             fit: BoxFit.cover,
-      //           ),
-      //         ),
-      //       ),
-      //       SliverList(
-      //         delegate: SliverChildListDelegate(
-      //           []
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      body: SingleChildScrollView(
+      body: Container(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              const SizedBox(height: 16),
-              ...trackerTypeData?.map((trackerMasterData) {
-                    return TrackerDataWidget(
-                        trackerMasterData: trackerMasterData);
-                  }) ??
-                  [],
-              const SizedBox(height: 16),
-            ],
+          child: Container(
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 50,
+                ),
+                Expanded(
+                  child: PageView.builder(
+                    scrollDirection: Axis.horizontal,
+                    controller: _pageController,
+                    onPageChanged: _onPageChanged,
+                    itemCount: trackerTypeData.length,
+                    itemBuilder: (ctx, i) => Transform(
+                      transform: Matrix4.identity()
+                        ..rotateX(currentPageValue - i),
+                      child: TrackerDataWidget(
+                        trackerMasterData: trackerTypeData[i],
+                        updateScroll: updateScroll,
+                      ),
+                    ),
+                    physics: canScroll
+                        ? ScrollPhysics()
+                        : NeverScrollableScrollPhysics(),
+                  ),
+                ),
+                SizedBox(
+                  height: 25,
+                ),
+                _populateDots(),
+                SizedBox(
+                  height: MediaQuery.of(context).size.width * 0.2,
+                ),
+              ],
+            ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _populateDots() {
+    if (canScroll) {
+      return Container(
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            for (int i = 0; i < trackerTypeData.length; i++)
+              if (i == _currentPage)
+                _buildSlideDots(context, true, i)
+              else
+                _buildSlideDots(context, false, i)
+          ],
+        ),
+      );
+    } else {
+      return SizedBox(height: 25);
+    }
+  }
+
+  Widget _buildSlideDots(BuildContext context, bool isActive, int index) {
+    return AnimatedContainer(
+      duration: Duration(milliseconds: 150),
+      margin: const EdgeInsets.symmetric(horizontal: 6),
+      height: isActive ? 20 : 12,
+      width: isActive ? 20 : 12,
+      decoration: BoxDecoration(
+        color: isActive ? Theme.of(context).primaryColor : Colors.grey,
+        borderRadius: BorderRadius.all(Radius.circular(12)),
       ),
     );
   }
@@ -328,21 +208,35 @@ class _DataScreenState extends State<DataScreen> with WidgetsBindingObserver {
 
 class TrackerDataWidget extends StatefulWidget {
   final Tracker trackerMasterData;
+  final updateScroll;
 
   const TrackerDataWidget({
     @required this.trackerMasterData,
+    @required this.updateScroll
   });
 
   @override
   _TrackerDataWidgetState createState() =>
-      _TrackerDataWidgetState(trackerMasterData);
+      _TrackerDataWidgetState(trackerMasterData,updateScroll);
 }
 
 class _TrackerDataWidgetState extends State<TrackerDataWidget> {
-  _TrackerDataWidgetState(this.trackerMasterData);
+  _TrackerDataWidgetState(this.trackerMasterData,this.updateScroll);
 
   final Tracker trackerMasterData;
+  final updateScroll;
   dynamic _trackerData;
+
+  bool canScroll = true;
+  bool canShow = true;
+
+  bool _paused = false;
+
+  Map<String, bool> processingMap = {};
+
+  final eventChannel = EventChannel("ceras.iamhome.mobile/device_events");
+
+  TimeCircularCountdown _currentCountDown;
 
   @override
   void initState() {
@@ -372,131 +266,229 @@ class _TrackerDataWidgetState extends State<TrackerDataWidget> {
     }
   }
 
+  void updateCanScroll(bool _canScroll){
+    updateScroll(_canScroll);
+    canScroll = _canScroll;
+    canShow = _canScroll;
+    setState(() {
+      canScroll = _canScroll;
+      canShow = _canScroll;
+    });
+  }
+
+  void _readDataFromDevice(String dataType) async {
+    updateCanScroll(false);
+    print('Loading data type $dataType');
+    var _processingMap = processingMap;
+    _processingMap[dataType] = true;
+    setState(() {
+      processingMap = _processingMap;
+    });
+    var deviceList = await Provider.of<DevicesProvider>(context, listen: false)
+        .getDevicesData();
+    var device = deviceList[0];
+    final requestData = {
+      'deviceType': device.watchInfo.deviceType,
+      'readingType': dataType
+    };
+    var request = json.encode(requestData);
+    //var currentTemp = _lastTemperature;
+    print('Sending request $request');
+
+    setState(() {
+      _trackerData = null;
+    });
+
+    var subscription =
+        eventChannel.receiveBroadcastStream(requestData).listen((event) {
+          dynamic returnData;
+          if(trackerMasterData.trackerType == 'DOUBLE_VALUE') {
+            returnData = TrackerDataMultiple.fromJson(json.decode(event));
+          } else {
+            returnData = TrackerData.fromJson(json.decode(event));
+          }
+      setState(() {
+        _trackerData = returnData;
+        canShow = true;
+      });
+    }, onError: (dynamic error) {
+      var _processingMap = processingMap;
+      _processingMap[dataType] = false;
+      updateCanScroll(true);
+      setState(() {
+        processingMap = _processingMap;
+      });
+      _currentCountDown = null;
+      print('Got error $error for data type $dataType');
+    }, onDone: () {
+      print('completed for $dataType');
+      var _processingMap = processingMap;
+      _processingMap[dataType] = false;
+      updateCanScroll(true);
+      setState(() {
+        _currentCountDown = null;
+        processingMap = _processingMap;
+      });
+    }, cancelOnError: true);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      child: Card(
-        // color: Color(0xffdfeffd),
-        elevation: 5,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20.0),
-        ),
-        child: Column(
-          children: [
-            trackerDisplayName(trackerMasterData),
-            _trackerData != null
-                ? Container(
-                    padding: EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: <Widget>[
-                        if (trackerMasterData.trackerType == 'SINGLE_VALUE')
-                          singleDisplayText(trackerMasterData, _trackerData),
-                        if (trackerMasterData.trackerType == 'DOUBLE_VALUE')
-                          multipleDisplayText(trackerMasterData, _trackerData),
-                      ],
+      padding: _trackerPadding(),
+      child: Container(
+        decoration: _cardDecoration(),
+        child: SingleChildScrollView(
+          child: Column(
+            children:
+              !canShow?[_loadCountDownTimer(60, trackerMasterData.displayName)]:[
+              ..._buildTrackerHeader(trackerMasterData, context),
+              if (trackerMasterData.trackerType == 'SINGLE_VALUE' &&
+                  _trackerData != null)
+                ...singleDisplayText(trackerMasterData, _trackerData),
+              if (trackerMasterData.trackerType == 'DOUBLE_VALUE' &&
+                  _trackerData != null)
+                ...multipleDisplayText(trackerMasterData, _trackerData),
+              const SizedBox(height: 10),
+              _buildLatestDataButton(trackerMasterData),
+              const SizedBox(height: 10),
+              _trackerData != null
+                  ? _buildLastUpdatedTime(_trackerData)
+                  : Container(
+                      height: 0,
                     ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.all(16.0),
-                    child: CircularProgressIndicator(),
-                  ),
-            _trackerData != null
-                ? lastUpdated(_trackerData)
-                : Container(
-                    height: 0,
-                  ),
-            const SizedBox(height: 10),
-          ],
+              const SizedBox(height: 10),
+              // if (_trackerData == null)
+              //   _loadCountDownTimer(70, trackerMasterData?.displayName),
+            ],
+          ),
         ),
       ),
     );
   }
-}
 
-Container trackerDisplayName(trackerMasterData) {
-  return Container(
-    decoration: BoxDecoration(
-      borderRadius: BorderRadius.only(
-        topLeft: Radius.circular(20),
-        topRight: Radius.circular(20),
-      ),
-      color: Colors.white,
-      boxShadow: [
-        BoxShadow(
-          color: Color.fromRGBO(0, 0, 0, 0.10),
-          blurRadius: 10.0,
-          // spreadRadius: 1.0,
-          offset: Offset(0, 10),
-        ),
-      ],
-    ),
-    child: Container(
-      padding: EdgeInsets.all(16),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: <Widget>[
-          Image.asset(
-            'assets/icons/icons_' +
-                trackerMasterData?.trackerName?.toLowerCase() +
-                '.png',
-            height: 25,
-            errorBuilder: (
-              BuildContext context,
-              Object exception,
-              StackTrace stackTrace,
-            ) {
-              return Image.asset(
-                'assets/images/placeholder.jpg',
-                height: 25,
-              );
-            },
+
+
+  Widget _buildLatestDataButton(Tracker trackerMasterData) {
+    //If the measure now is enabled
+    if(trackerMasterData.mobileMeasureNow) {
+      return !canScroll
+          ? _loadCircularIndicator(trackerMasterData?.displayName)
+          : Container(
+        width: 270,
+        height: 80,
+        padding: EdgeInsets.all(15),
+        child: FlatButton(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+            // side: BorderSide(color: Colors.grey),
           ),
-          const SizedBox(width: 16),
-          Text(
-            trackerMasterData?.displayName,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+          color: Color.fromRGBO(11, 140, 196, 1),
+          textColor: Colors.white,
+          onPressed: () {
+            return _readDataFromDevice(trackerMasterData?.displayName);
+          },
+          child: FittedBox(
+            child: Text(
+              'Measure Now',
+              style: TextStyle(
+                fontSize: 20,
+              ),
             ),
           ),
-        ],
-      ),
-    ),
-  );
-}
-
-Container lastUpdated(_trackerData) {
-  String _formatDate(DateTime date) {
-    return DateFormat.yMMMMd().format(date.toLocal());
-  }
-
-  String _formatTime(DateTime date) {
-    return DateFormat.jm().format(date.toLocal());
-  }
-
-  return Container(
-    child: FittedBox(
-      child: Text(
-        _trackerData != null
-            ? 'Last Updated: ' +
-                _formatDate(_trackerData.measureTime) +
-                ' ' +
-                _formatTime(_trackerData.measureTime)
-            : '--',
-        style: TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.bold,
         ),
+      );
+    }else {
+      return Container();
+    }
+  }
+
+  Widget _loadCountDownTimer(int seconds, String type) {
+    _currentCountDown = TimeCircularCountdown(
+      unit: CountdownUnit.second,
+      countdownTotal: seconds,
+      onUpdated: (unit, remainingTime) => print('Updated'),
+      onFinished: () {
+        if (_currentCountDown != null) {
+          setState(() {
+            canScroll = false;
+          });
+        }
+      },
+      onCanceled: (CountdownUnit unit, int remaining) {},
+      diameter: 200,
+      countdownTotalColor: Colors.white,
+      countdownCurrentColor: Colors.blue,
+      countdownRemainingColor: Colors.blue,
+      strokeWidth: 10,
+      gapFactor: 2,
+      textStyle: TextStyle(
+        fontSize: 50,
+        fontWeight: FontWeight.bold,
+        color: Colors.redAccent,
       ),
+    );
+    var buttonText = canScroll ? 'Loading $type ...' : 'Reading $type ...';
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        SizedBox(height: 100),
+        canScroll ? Container() : _currentCountDown,
+        SizedBox(height: 20),
+        Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: _buildTrackerLoadingFooter(trackerMasterData, context),
+          // children: [
+          //   // FittedBox(
+          //   //   child: Text(buttonText,
+          //   //       style: TextStyle(fontSize: 20, color: Colors.black)),
+          //   // ),
+          //   Container(
+          //     child:
+          //         Column(
+          //   children: _buildTrackerHeader(trackerMasterData, context),
+          //   )
+          //
+          //   )
+          // ],
+        ),
+      ],
+    );
+  }
+}
+
+EdgeInsets _trackerPadding() {
+  return EdgeInsets.symmetric(horizontal: 40, vertical: 5);
+}
+
+Widget _loadCircularIndicator(String text) {
+  return Column(
+    children: [
+      SizedBox(height: 10),
+      CircularProgressIndicator(),
+      SizedBox(height: 20),
+      Text('Reading ' + text,
+          style: TextStyle(fontSize: 20, color: Colors.black))
+    ],
+  );
+}
+
+BoxDecoration _cardDecoration() {
+  return BoxDecoration(
+    borderRadius: BorderRadius.all(Radius.circular(20)),
+    image: DecorationImage(
+      colorFilter:
+          ColorFilter.mode(Colors.white.withOpacity(0.70), BlendMode.dstATop),
+      image: AssetImage('assets/trackers/tracker_background.png'),
+      fit: BoxFit.fill,
     ),
   );
 }
 
-Expanded multipleDisplayText(trackerMasterData, _trackerData) {
-  String trackerDataValue1;
-  String trackerDataValue2;
+List<Widget> multipleDisplayText(Tracker trackerMasterData, _trackerData) {
+  var trackerDataValue1 = '0';
+  var trackerDataValue2 = '0';
 
   if (_trackerData.data1 != null && _trackerData.data2 != null) {
     if (trackerMasterData?.trackerValues[0]?.valueDataType == 'INT') {
@@ -522,48 +514,52 @@ Expanded multipleDisplayText(trackerMasterData, _trackerData) {
     if (trackerMasterData?.trackerValues[1]?.valueDataType == 'STRING') {
       trackerDataValue1 = _trackerData?.data2.toString();
     }
-  } else {
-    trackerDataValue1 = '0';
-    trackerDataValue2 = '0';
   }
 
-  return Expanded(
-    flex: 6,
-    child: FittedBox(
-      child: RichText(
-        text: TextSpan(children: [
-          TextSpan(
-            text: trackerDataValue1 + '/' + trackerDataValue2,
-            style: TextStyle(
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          WidgetSpan(
-            child: Transform.translate(
-              offset: const Offset(2, 2),
-              child: Text(
-                trackerMasterData?.trackerValues[0].units,
-                //superscript is usually smaller in size
-                textScaleFactor: 2,
-                style: TextStyle(
-                  color: Colors.black,
-                  fontWeight: FontWeight.bold,
+  return [
+    Container(
+      padding: EdgeInsets.all(16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          RichText(
+            text: TextSpan(
+              children: [
+                TextSpan(
+                  text: trackerDataValue1 + '/' + trackerDataValue2,
+                  style: TextStyle(
+                    fontSize: 50,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black,
+                  ),
                 ),
-              ),
+                WidgetSpan(
+                  child: Transform.translate(
+                    offset: const Offset(2, 2),
+                    child: Text(
+                      trackerMasterData?.trackerValues[0].units,
+                      //superscript is usually smaller in size
+                      textScaleFactor: 2,
+                      style: TextStyle(
+                        color: Colors.black,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
-        ]),
+        ],
       ),
     ),
-  );
+  ];
 }
 
-Expanded singleDisplayText(trackerMasterData, _trackerData) {
-  String trackerDataValue;
+List<Widget> singleDisplayText(Tracker trackerMasterData, _trackerData) {
+  var trackerDataValue = '0';
 
-  if (_trackerData.data != null) {
+  if (_trackerData?.data != null) {
     if (trackerMasterData?.trackerValues[0]?.valueDataType == 'INT') {
       trackerDataValue = _trackerData?.data?.toInt().toString();
     }
@@ -575,38 +571,129 @@ Expanded singleDisplayText(trackerMasterData, _trackerData) {
     if (trackerMasterData?.trackerValues[0]?.valueDataType == 'STRING') {
       trackerDataValue = _trackerData?.data.toString();
     }
-  } else {
-    trackerDataValue = '0';
   }
 
-  return Expanded(
-    flex: 6,
-    child: FittedBox(
-      child: RichText(
-        text: TextSpan(children: [
-          TextSpan(
-            text: trackerDataValue,
-            style: TextStyle(
-              fontSize: 40,
-              fontWeight: FontWeight.bold,
-              color: Colors.black,
-            ),
-          ),
-          WidgetSpan(
-            child: Transform.translate(
-              offset: const Offset(2, 2),
-              child: Text(
-                trackerMasterData?.trackerValues[0].units ?? '',
-                //superscript is usually smaller in size
-                textScaleFactor: 2,
+  return [
+    Container(
+      padding: EdgeInsets.all(16),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: <Widget>[
+          RichText(
+            text: TextSpan(children: [
+              TextSpan(
+                text: trackerDataValue,
                 style: TextStyle(
-                  color: Colors.black,
+                  fontSize: 50,
                   fontWeight: FontWeight.bold,
+                  color: Colors.black,
                 ),
               ),
-            ),
+              WidgetSpan(
+                child: Transform.translate(
+                  offset: const Offset(2, 2),
+                  child: Text(
+                    trackerMasterData?.trackerValues[0].units ?? '',
+                    //superscript is usually smaller in size
+                    textScaleFactor: 2,
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ]),
           ),
-        ]),
+        ],
+      ),
+    ),
+  ];
+}
+
+List<Widget> _buildTrackerLoadingFooter(Tracker trackerMasterData, context) {
+  return [
+    Container(
+      margin: EdgeInsets.only(
+        top: 10,
+        bottom: 10,
+      ),
+      child: Text(
+        trackerMasterData?.displayName,
+        style: TextStyle(
+          fontSize: 26,
+          // fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+    Container(
+      padding: EdgeInsets.only(
+      top: 30
+  ),
+      child: SvgPicture.asset(
+        'assets/trackers/' +
+            trackerMasterData?.trackerName?.toLowerCase() +
+            '.svg',
+        height: MediaQuery.of(context).size.width * 0.2,
+      ),
+    ),
+    SizedBox(height: 20),
+  ];
+}
+
+List<Widget> _buildTrackerHeader(Tracker trackerMasterData, context) {
+  return [
+    Container(
+      margin: EdgeInsets.only(
+        top: 30,
+        bottom: 10,
+      ),
+      child: Text(
+        trackerMasterData?.displayName,
+        style: TextStyle(
+          fontSize: 26,
+          // fontWeight: FontWeight.bold,
+        ),
+      ),
+    ),
+    SizedBox(
+      height: MediaQuery.of(context).size.width * 0.1,
+    ),
+    Container(
+      padding: EdgeInsets.all(16),
+      child: SvgPicture.asset(
+        'assets/trackers/' +
+            trackerMasterData?.trackerName?.toLowerCase() +
+            '.svg',
+        height: MediaQuery.of(context).size.width * 0.2,
+      ),
+    ),
+    SizedBox(height: 20),
+  ];
+}
+
+Container _buildLastUpdatedTime(_trackerData) {
+  String _formatDate(DateTime date) {
+    return DateFormat.yMMMMd().format(date.toLocal());
+  }
+
+  String _formatTime(DateTime date) {
+    return DateFormat.jm().format(date.toLocal());
+  }
+
+  return Container(
+    child: FittedBox(
+      child: Text(
+        _trackerData != null
+            ? 'Last Updated: ' +
+                _formatDate(_trackerData.measureTime) +
+                ' ' +
+                _formatTime(_trackerData.measureTime)
+            : '--',
+        style: TextStyle(
+          fontSize: 12,
+          fontWeight: FontWeight.bold,
+        ),
       ),
     ),
   );

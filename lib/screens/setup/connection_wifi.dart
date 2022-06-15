@@ -326,7 +326,8 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
         elevation: 0,
       ),
       backgroundColor: AppTheme.white,
-      body: Container(
+      body: SingleChildScrollView(
+      child: Container(
         width: double.infinity,
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -347,6 +348,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
           ],
         ),
       ),
+    )
     );
   }
 
@@ -456,30 +458,7 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                     SizedBox(
                       height: 30,
                     ),
-                    TextFormField(
-                        style: TextStyle(
-                          fontSize: 24,
-                        ),
-                        // suffixIcon: Icon(Icons.remove_red_eye),
-                        decoration: _inputDecoration('Password', ''),
-                        controller: _passwordController,
-                        focusNode: _passwordFocusNode,
-                        keyboardType: TextInputType.text,
-                        textInputAction: TextInputAction.done,
-                        obscureText: _showPassword,
-                        autofocus: true,
-                        validator: (value) {
-                          if (value.isEmpty) {
-                            return 'Please enter password.';
-                          }
-
-                          if (value.length < 3) {
-                            return 'password must be more than 2 charater';
-                          }
-
-                          return null;
-                        },
-                        onSaved: (password) => _password = password),
+                    _passwordInput(),
                     SizedBox(
                       height: 50,
                     ),
@@ -536,6 +515,35 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
           ),
         ],
       ),
+    );
+  }
+
+  Widget _passwordInput() {
+    return TextFormField(
+      style: TextStyle(
+        fontSize: 24,
+      ),
+      // suffixIcon: Icon(Icons.remove_red_eye),
+      decoration: _inputDecoration('Password', ''),
+      controller: _passwordController,
+      focusNode: _passwordFocusNode,
+      keyboardType: TextInputType.text,
+      textInputAction: TextInputAction.done,
+      obscureText: _showPassword,
+      autofocus: false,
+      validator: (value) {
+        if (value.isEmpty) {
+          return 'Please enter password.';
+        }
+
+        if (value.length < 3) {
+          return 'password must be more than 2 charater';
+        }
+
+        return null;
+      },
+      onSaved: (password) => _password = password,
+      // onChanged: onChangePhoneNumberInput,
     );
   }
 

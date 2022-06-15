@@ -12,8 +12,10 @@ class WatchModel {
   String deviceType;
   final bool deviceFound;
   String batteryStatus;
+  String connectionStatus;
   final Map<String, String> additionalInformation;
   final bool upgradeAvailable;
+  bool connectionPending;
 
   WatchModel({
     this.connected,

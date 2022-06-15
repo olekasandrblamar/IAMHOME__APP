@@ -68,11 +68,16 @@ open class BaseDevice{
         const val B300_PLUS = "B300+"
         const val BAND_DEVICE = "BACTIVE"
         const val B369_DEVICE = "B500"
-        const val B360_DEVICE = "B360"
+        const val B360_DEVICE = "B330"
         var isBackground = false
         val TAG = WatchDevice::class.java.simpleName
         const val SUCCESS_STATUS = "Success"
         const val ERROR_STATUS = "Error"
+
+        const val HEARTRATE = "HEART RATE"
+        const val BP = "BP"
+        const val TEMPERATURE = "TEMPERATURE"
+        const val O2 = "BLOOD OXYGEN"
 
         fun getDeviceImpl(deviceName:String?): BaseDevice {
             Log.i(TAG,"Getting implementation for $deviceName")

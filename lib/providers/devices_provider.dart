@@ -173,7 +173,26 @@ class DevicesProvider extends ChangeNotifier {
 
   Future<Map<String, dynamic>> _getDeviceRequest() async {
     var devices = await getDevicesData();
-    return {"deviceList": devices.map((e) => e.watchInfo.deviceId).join(",")};
+    var deviceRequestData = devices.map((e) => e.watchInfo.deviceId).join(",");
+    var b300Address = await (await SharedPreferences.getInstance()).getString("device_macid");
+    if(b300Address != null){
+      deviceRequestData=b300Address+",$deviceRequestData";
+    }
+    var deviceRequest =  {"deviceList": deviceRequestData};
+    print('Getting trackers for $deviceRequest');
+    return deviceRequest;
+  }
+
+  Future<Map<String, dynamic>> _getDeviceTypesRequest() async {
+    var devices = await getDevicesData();
+    var deviceRequestData = devices.map((e) => e.deviceMaster['name']).join(",");
+    // var b300Address = await (await SharedPreferences.getInstance()).getString("device_macid");
+    // if(b300Address != null){
+    //   deviceRequestData=b300Address+",$deviceRequestData";
+    // }
+    var deviceRequest =  {"deviceTypes": deviceRequestData};
+    print('Getting trackers for $deviceRequest');
+    return deviceRequest;
   }
 
   Future<List<Tracker>> getDeviceTrackers() async {
@@ -181,7 +200,7 @@ class DevicesProvider extends ChangeNotifier {
       final baseUrl = await _baseUrl;
       final response = await mobileDataHttp.get(
         baseUrl + '/master/deviceTrackers',
-        queryParameters: await _getDeviceRequest(),
+        queryParameters: await _getDeviceTypesRequest(),
       );
 
       if (response.data != null) {
@@ -217,9 +236,8 @@ class DevicesProvider extends ChangeNotifier {
       );
 
       if (response.data != null) {
-        print("Got ${response.data}");
-
         final responseData = response.data;
+        print("Got ${response.data} and reading property ${trackerMasterData.trackerValues[0].dataPropertyName} value ${responseData[trackerMasterData.trackerValues[0].dataPropertyName]}");
 
         final dataValue =
             responseData[trackerMasterData.trackerValues[0].dataPropertyName];
@@ -229,6 +247,7 @@ class DevicesProvider extends ChangeNotifier {
           'deviceId': responseData['deviceId'],
           'measureTime': responseData['measureTime'],
         };
+
 
         return TrackerData.fromJson(formattedData);
       }

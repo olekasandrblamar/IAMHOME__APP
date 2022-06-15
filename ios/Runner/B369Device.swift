@@ -53,15 +53,19 @@ class B369Device: NSObject,ICScanDeviceDelegate,ICDeviceManagerDelegate{
         self.deviceConnected=false
         self.connectionResult = result
         if(initComplete){
-            ICDeviceManager.shared()?.scanDevice(self)
-            //Stop scanning after 20 seconds
-            DispatchQueue.main.asyncAfter(deadline: .now() + 20) {
-                self.sendResponse(result: result)
-            }
+            self.scanAndFindDevice(result: result)
         }else{
             DispatchQueue.main.asyncAfter(deadline: .now() + 5) {
-                ICDeviceManager.shared()?.scanDevice(self)
+                self.scanAndFindDevice(result: result)
             }
+        }
+    }
+    
+    private func scanAndFindDevice(result:@escaping FlutterResult){
+        ICDeviceManager.shared()?.scanDevice(self)
+        //Stop scanning after 20 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 20) {
+            self.sendResponse(result: result)
         }
     }
     

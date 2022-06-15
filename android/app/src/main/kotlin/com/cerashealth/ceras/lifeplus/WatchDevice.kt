@@ -188,9 +188,13 @@ class DataCallBack : SimpleDeviceCallback {
     private fun checkAndSendStatusResponse(){
         if(this.batteryComplete && this.versionComplete) {
             try {
-                batteryResult?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
+                //If the battery result exists use that
+                batteryResult?.let {
+                    batteryResult?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
                         deviceName = "", additionalInfo = mapOf(), deviceType = "", batteryStatus = this.batteryPercentage, versionUpdate = this.versionUpdate))
-                this.batteryResult = null
+                    this.batteryResult = null
+                }
+
             } catch (ex: Exception) {
                 Log.e(WatchDevice.TAG, "Error while sending response ", ex)
             }
@@ -207,13 +211,15 @@ class DataCallBack : SimpleDeviceCallback {
         }
         if (flag == GlobalValue.CONNECTED_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult from sync: Connected ${HardSdk.getInstance().isDevConnected}")
-            WatchDevice.initializeWatch()
-            WatchDevice.syncData()
             try {
-                result?.success("Load complete")
+                result?.success(ConnectionInfo.createResponse(message = "Success", connected = true, deviceId = MainActivity.deviceId,
+                    deviceName = "", additionalInfo = mapOf(), deviceType = ""))
             }catch (ex:Exception){
                 Log.e(WatchDevice.TAG,"Error after connecting")
             }
+            WatchDevice.initializeWatch()
+            WatchDevice.syncData()
+
         } else if (flag == GlobalValue.DISCONNECT_MSG) {
             Log.d(WatchDevice.TAG, "onCallbackResult: Disconnected")
         } else if (flag == GlobalValue.CONNECT_TIME_OUT_MSG) {
@@ -291,13 +297,13 @@ class DataCallBack : SimpleDeviceCallback {
                     userProfile = DataSync.getUserInfo())
                 DataSync.uploadTemperature(listOf(upload))
                 WatchDevice.eventSink?.let {
-                    it.success(Gson().toJson(mapOf("celsius" to celsius,"fahrenheit" to fahrenheit,"countDown" to 0)))
+                    it.success(Gson().toJson(mapOf("data" to fahrenheit,"measureTime" to getTimeInUtcString())))
                     it.endOfStream()
                     WatchDevice.eventSink = null
                 }
             }else{
                 WatchDevice.eventSink?.let {
-                    it.success(Gson().toJson(mapOf("countDown" to tempStatus.downTime)))
+                    it.success(Gson().toJson(mapOf("data" to 0,"measureTime" to getTimeInUtcString())))
                 }
             }
         } else if (flag == GlobalValue.READ_TEMP_FINISH) {
@@ -349,6 +355,12 @@ class DataCallBack : SimpleDeviceCallback {
             }
 
         }
+    }
+
+    private fun getTimeInUtcString():String{
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
+        return sdf.format(Calendar.getInstance().time)+"+00:00"
     }
 
     private fun uploadBloodPressureInfo(){
@@ -417,7 +429,7 @@ class DataCallBack : SimpleDeviceCallback {
                 val hrUpload = HeartRateUpload(measureTime = Calendar.getInstance().time,heartRate= rate,deviceId = MainActivity.deviceId)
                 DataSync.uploadHeartRate(listOf(hrUpload))
                 WatchDevice.eventSink?.let {
-                    it.success(Gson().toJson(mapOf("heartRate" to rate,"countDown" to 0)))
+                    it.success(Gson().toJson(mapOf("data" to rate,"measureTime" to getTimeInUtcString())))
                     it.endOfStream()
                     WatchDevice.eventSink = null
                 }
@@ -426,7 +438,7 @@ class DataCallBack : SimpleDeviceCallback {
                 if(rate!=0) {
                     Log.d(WatchDevice.TAG,"heart rate status $status rate $rate")
                     WatchDevice.eventSink?.let {
-                        it.success(Gson().toJson(mapOf("heartRate" to rate, "countDown" to status)))
+                        it.success(Gson().toJson(mapOf("data" to rate, "measureTime" to getTimeInUtcString())))
                     }
                 }
             }
@@ -450,13 +462,13 @@ class DataCallBack : SimpleDeviceCallback {
                             WatchDevice.eventSink?.let {
                                 val oxygenUpload = OxygenLevelUpload(measureTime = Calendar.getInstance().time,deviceId = MainActivity.deviceId,oxygenLevel = oxygen,userProfile = userProfile)
                                 DataSync.uploadOxygenData(listOf(oxygenUpload))
-                                it.success(Gson().toJson(mapOf("oxygenLevel" to oxygen, "countDown" to status)))
+                                it.success(Gson().toJson(mapOf("data" to oxygen, "measureTime" to getTimeInUtcString())))
                                 it.endOfStream()
                             }
                         }else{
                             Log.d(WatchDevice.TAG,"oxygen status $status rate $rate")
                             WatchDevice.eventSink?.let {
-                                it.success(Gson().toJson(mapOf("oxygenLevel" to oxygen, "countDown" to status)))
+                                it.success(Gson().toJson(mapOf("data" to oxygen, "measureTime" to getTimeInUtcString())))
                             }
                         }
                     }
@@ -464,21 +476,14 @@ class DataCallBack : SimpleDeviceCallback {
                     WatchDevice.isTestingOxygen = false
                     HardSdk.getInstance().stopOxygenMeasure(0)
                     WatchDevice.eventSink?.let {
-                        it.success(Gson().toJson(mapOf("oxygenLevel" to 0, "countDown" to 0)))
+                        it.success(Gson().toJson(mapOf("data" to 0, "measureTime" to getTimeInUtcString())))
                         it.endOfStream()
                     }
                 }
 
             }
           else if (WatchDevice.isTestingBp) {
-            //val userInfo = DataSync.getUserInfo()
-            val userInfo = UserProfile().apply {
-                heightInCm = 180
-                weightInKgs = 80.0
-                sex = "male"
-                age = 37
-
-            }
+            val userInfo = DataSync.getUserInfo()
             if(userInfo != null) {
                 val heartRateAdditional = HeartRateAdditional(
                         System.currentTimeMillis() / 1000,
@@ -489,8 +494,9 @@ class DataCallBack : SimpleDeviceCallback {
                         userInfo.age
                 )
                 val bloodPressure = BloodPressure()
-                bloodPressure.systolicPressure = heartRateAdditional.get_systolic_blood_pressure() - 20
-                bloodPressure.diastolicPressure = heartRateAdditional.get_diastolic_blood_pressure() - 5
+
+                bloodPressure.systolicPressure = heartRateAdditional.get_systolic_blood_pressure() + userInfo.getSystolicOffset()
+                bloodPressure.diastolicPressure = heartRateAdditional.get_diastolic_blood_pressure() +userInfo.getSystolicOffset()
 
                 Log.i(WatchDevice.TAG,"writing blood pressure systolic ${bloodPressure.systolicPressure} diastolic ${bloodPressure.diastolicPressure}")
                 if (status == GlobalValue.RATE_TEST_FINISH || status == GlobalValue.RATE_TEST_INTERRUPT) {
@@ -500,12 +506,12 @@ class DataCallBack : SimpleDeviceCallback {
                     WatchDevice.isTestingBp = false
                     HardSdk.getInstance().stopBpMeasure(bloodPressure)
                     WatchDevice.eventSink?.let {
-                        it.success(Gson().toJson(mapOf("systolic" to bpUpload.systolic, "diastolic" to bpUpload.distolic, "countDown" to 0)))
+                        it.success(Gson().toJson(mapOf("data1" to bpUpload.systolic, "data2" to bpUpload.distolic, "countDown" to 0,"measureTime" to getTimeInUtcString())))
                         it.endOfStream()
                     }
                 }else{
                     Log.d(WatchDevice.TAG,"Bp status $status rate $rate")
-                    WatchDevice.eventSink?.success(Gson().toJson(mapOf("systolic" to bloodPressure.systolicPressure, "diastolic" to bloodPressure.diastolicPressure, "countDown" to 0)))
+                    WatchDevice.eventSink?.success(Gson().toJson(mapOf("data1" to bloodPressure.systolicPressure, "data2" to bloodPressure.diastolicPressure, "countDown" to 0,"measureTime" to getTimeInUtcString())))
                 }
             }else{
                 WatchDevice.isTestingBp = false
@@ -585,9 +591,10 @@ class WatchDevice:BaseDevice()     {
 
     }
 
+
     override fun readDataFromDevice(eventSink: EventChannel.EventSink, readingType: String) {
-        when(readingType){
-            "TEMPERATURE" -> {
+        when(readingType.toUpperCase()){
+            TEMPERATURE -> {
                 if (HardSdk.getInstance().isDevConnected) {
                     WatchDevice.eventSink = eventSink
                     Log.d(TAG,"Reading temperature")
@@ -608,7 +615,7 @@ class WatchDevice:BaseDevice()     {
                     eventSink.endOfStream()
                 }
             }
-            "HR" -> {
+            HEARTRATE -> {
                 if(HardSdk.getInstance().isDevConnected){
                     WatchDevice.eventSink = eventSink
                     isTestingHeart = true
@@ -617,7 +624,7 @@ class WatchDevice:BaseDevice()     {
                 }else
                     eventSink.endOfStream()
             }
-            "BP" -> {
+            BP -> {
                 if(HardSdk.getInstance().isDevConnected){
                     WatchDevice.eventSink = eventSink
                     isTestingBp = true
@@ -626,7 +633,7 @@ class WatchDevice:BaseDevice()     {
                 }else
                     eventSink.endOfStream()
             }
-            "O2" -> {
+            O2 -> {
                 if(HardSdk.getInstance().isDevConnected){
                     WatchDevice.eventSink = eventSink
                     isTestingOxygen = true
@@ -713,9 +720,9 @@ class WatchDevice:BaseDevice()     {
         DataSync.CURRENT_MAC_ADDRESS = connectionInfo.deviceId
         DataSync.sendHeartBeat(HeartBeat(macAddress = connectionInfo.deviceId, deviceId = connectionInfo.deviceName))
         Log.i(TAG, "Is device connected ${HardSdk.getInstance().isDevConnected}")
+        Log.i(TAG, "Is device conecting ${HardSdk.getInstance().isConnecting}")
         if(dataCallback==null) {
             dataCallback = DataCallBack(result)
-            //Load the data from device
         }
         var returnValue = true
         //If the device is not connected  try to connect
@@ -736,12 +743,15 @@ class WatchDevice:BaseDevice()     {
             HardSdk.getInstance().setHardSdkCallback(dataCallback)
             Log.i(TAG, "Data sync complete")
             returnValue = false
-            result?.success("Load complete")
+            connectionInfo.connected = true
+            result?.success(Gson().toJson(connectionInfo))
             syncProfile()
             syncData()
         }
-        if(returnValue)
-            result?.success("Load complete")
+        if(returnValue) {
+            connectionInfo.connected = false
+            result?.success(Gson().toJson(connectionInfo))
+        }
     }
 
     override fun getConnectionStatus(result: MethodChannel.Result?, connectionInfo: ConnectionInfo, context: Context) {

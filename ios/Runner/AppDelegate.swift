@@ -16,12 +16,17 @@ import BackgroundTasks
     static var WATCH_TYPE = "BWELL"
     static var SCALE_TYPE = "B500"
     static var BAND_TYPE = "BACTIVE"
-    static var B360_DEVICE = "B360"
-    static var B300_PLUS = "b300+"
+    static var B360_DEVICE = "B330"
+    static var B300_PLUS = "B300+"
     static var DEVICE_TYPE_KEY = "flutter.deviceType"
     static let BG_SYNC_TASK = "com.cerashealth.datasync"
     static let SERVER_BASE_URL =  "flutter.serverBaseUrl"
-  
+
+    static let TEMPERATURE = "TEMPERATURE"
+    static let HR = "HEART RATE"
+    static let BP = "BP"
+    static let O2 = "BLOOD OXYGEN"
+
 //    override func application(_ application: UIApplication,
 //                              performFetchWithCompletionHandler completionHandler: @escaping (UIBackgroundFetchResult) -> Void){
 //        //TSBackgroundFetch.sharedInstance()?.perform(completionHandler: completionHandler, applicationState: application.applicationState)
@@ -42,7 +47,7 @@ import BackgroundTasks
 //            NSLog("Error while syncing data")
 //        }
         do{
-            
+
             let deviceListString = UserDefaults.standard.string(forKey: "flutter.deviceData")
             if(deviceListString != nil){
                 NSLog("Got device list string in background \(deviceListString!)")
@@ -50,7 +55,7 @@ import BackgroundTasks
                 for deviceInfo in deviceList{
                     if(deviceInfo.watchInfo != nil){
                         try self.syncDeviceFromConnectionInfo(connectionData: deviceInfo.watchInfo!,result: { data in
-                            
+
                         })
                     }
                 }
@@ -58,7 +63,7 @@ import BackgroundTasks
         }catch{
             NSLog("Error while decding in background \(error)")
         }
-        
+
     }
     
 
@@ -178,7 +183,7 @@ import BackgroundTasks
             }catch{
                 result("Error")
             }
-            
+
         }else if(call.method=="upgradeDevice"){
 //             guard let args = call.arguments else {
 //               result("iOS could not recognize flutter arguments in method: (sendParams)")
@@ -221,7 +226,8 @@ import BackgroundTasks
         func onListen(withArguments arguments: Any?, eventSink events: @escaping FlutterEventSink) -> FlutterError? {
             NSLog("Arguments \(arguments)")
             let readingType:String = (arguments as? [String: Any])?["readingType"] as! String
-            appDelegate?.readDataFromDevice(eventSink: events, readingType: readingType)
+            let deviceType:String = (arguments as? [String: Any])?["deviceType"] as! String
+            appDelegate?.readDataFromDevice(eventSink: events, readingType: readingType,deviceType: deviceType.uppercased())
             return nil
         }
     
@@ -264,7 +270,7 @@ import BackgroundTasks
     GeneratedPluginRegistrant.register(with: self)
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
-    
+
     private func takeReadingFromDevice(deviceType:String,readingType:String){
         
     }
@@ -320,7 +326,7 @@ import BackgroundTasks
                 do{
                     if(connectionInfo != nil){
                         try self.syncData(connectionInfo: connectionInfo!,result: { data in
-                            
+
                         })
                     }
                 }catch{
@@ -364,7 +370,7 @@ import BackgroundTasks
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         syncDeviceFromConnectionInfo(connectionData: connectionData,result: result)
     }
-    
+
     private func syncDeviceFromConnectionInfo(connectionData:ConnectionInfo,result: @escaping FlutterResult){
         let deviceType = connectionData.deviceType?.uppercased()
         NSLog("Syncing data for device \(deviceType)")
@@ -377,7 +383,7 @@ import BackgroundTasks
             self.getScaleDevice()?.syncData(connectionInfo: connectionData, result: result)
         }
     }
-    
+
     private func getProfile(){
         let deviceType = getDeviceType()
         NSLog("Syncing data for device \(deviceType)")
@@ -427,11 +433,14 @@ import BackgroundTasks
 //        }
     }
     
-    private func readDataFromDevice(eventSink events: @escaping FlutterEventSink,readingType:String){
-        let deviceType = getDeviceType()?.uppercased()
+    private func readDataFromDevice(eventSink events: @escaping FlutterEventSink,readingType:String,deviceType: String){
+        NSLog("Got device type \(deviceType)")
         if(deviceType==AppDelegate.WATCH_TYPE || deviceType == AppDelegate.B300_PLUS){
             NSLog("Connecting Watch")
             self.getWatchDevice()?.readDataFromDevice(eventSink: events, readingType: readingType)
+        }else if(deviceType == AppDelegate.B360_DEVICE){
+            NSLog("Processing B360 device")
+            self.getB360Device().readDataFromDevice(eventSink: events, readingType: readingType)
         }else{
            events(FlutterEndOfEventStream)
         }
@@ -468,7 +477,7 @@ import BackgroundTasks
             NSLog("Default connection status")
         }
     }
-    
+
     private func connectWifi(result:@escaping FlutterResult,connectionInfo:String,ssid:String,password:String) throws {
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         self.getScaleDevice()?.connectWifi(result: result, ssid: ssid, password: password)
@@ -478,7 +487,7 @@ import BackgroundTasks
         let connectionData = try JSONDecoder().decode(ConnectionInfo.self, from: connectionInfo.data(using: .utf8) as! Data)
         NSLog("Getting device info ")
         let deviceType = getDeviceType()?.uppercased()
-        if(connectionData.deviceType == AppDelegate.WATCH_TYPE || connectionData.deviceType == AppDelegate.B300_PLUS){
+        if(deviceType == AppDelegate.WATCH_TYPE || deviceType == AppDelegate.B300_PLUS){
             self.getWatchDevice()?.upgradeDevice(connectionInfo: connectionData, eventSink: events)
         }
 //        else if(deviceType! == AppDelegate.BAND_TYPE){
@@ -506,7 +515,7 @@ import BackgroundTasks
         }
         return AppDelegate.scaleData
     }
-    
+
     private func getB360Device() -> B360Device{
         if(AppDelegate.b360Device==nil){
             AppDelegate.b360Device = B360Device()
@@ -548,4 +557,40 @@ struct OxygenLevel:Codable{
 
 struct HeartRateReading:Codable {
     var heartRate:Int = 0
+}
+
+struct HeartRateDataValue:Codable {
+    var data:UInt
+    var measureTime:String
+}
+
+struct TemeparureDataValue:Codable {
+    var data:Double
+    var measureTime:String
+}
+
+struct O2LevelDataValue:Codable{
+    var data:UInt
+    var measureTime:String
+}
+
+struct BpDataValue:Codable {
+    var data1:Int
+    var data2:Int
+    var measureTime:String
+}
+
+extension Formatter {
+    static let iso8601withFractionalSeconds: DateFormatter = {
+        let formatter = DateFormatter()
+        formatter.calendar = Calendar(identifier: .iso8601)
+        formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.timeZone = TimeZone(secondsFromGMT: 0)
+        formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSXXXXX"
+        return formatter
+    }()
+}
+
+extension Date {
+    var iso8601withFractionalSeconds: String { return Formatter.iso8601withFractionalSeconds.string(from: self) }
 }

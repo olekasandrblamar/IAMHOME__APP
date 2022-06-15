@@ -48,11 +48,10 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     if (widget.routeArgs != null) {
       _deviceIndex = widget.routeArgs['deviceIndex'];
     }
-    print('Gor index $_deviceIndex');
+    print('Got index $_deviceIndex');
 
     // _changeLastUpdated();
-    _syncDataFromDevice();
-    _loadDeviceData();
+    _loadDeviceData().then((value) => _syncDataFromDevice());
 
     super.initState();
 
@@ -101,7 +100,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     print('detach');
   }
 
-  void _getDeviceStatus(String connectionInfo) async {
+  Future<void> _getDeviceStatus(String connectionInfo) async {
     final connectionStatus = await BackgroundFetchData.platform.invokeMethod(
       'deviceStatus',
       <String, dynamic>{'connectionInfo': connectionInfo},
@@ -143,14 +142,16 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
       });
     }
 
-    _loadDeviceData();
+    await _loadDeviceData();
 
     final connectionInfo = await getDeviceInfoString();
     if (connectionInfo != null) {
       _setIsLoading(true);
 
       Future.delayed(Duration(seconds: 3), () {
-        _getDeviceStatus(connectionInfo);
+        _getDeviceStatus(connectionInfo).then((value){
+          _setIsLoading(false);
+        });
         _setIsLoading(false);
       });
     }
@@ -158,7 +159,7 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
     // _showSuccessMessage();
   }
 
-  void _loadDeviceData() async {
+  Future<void> _loadDeviceData() async {
     var deviceData = await Provider.of<DevicesProvider>(context, listen: false)
         .getDeviceData(_deviceIndex);
 
@@ -170,11 +171,11 @@ class _SetupActiveScreenState extends State<SetupActiveScreen>
   }
 
   void _syncDataFromDevice() async {
-    _setIsLoading(true);
+    //_setIsLoading(true);
     var deviceInfoString = await getDeviceInfoString();
     print('Got device info string $deviceInfoString');
-    await readDataFromDevice(deviceInfoString);
     _changeLastUpdated();
+    await readDataFromDevice(deviceInfoString);
   }
 
   void _showSuccessMessage() {

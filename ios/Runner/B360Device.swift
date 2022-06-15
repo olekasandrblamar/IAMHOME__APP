@@ -43,10 +43,13 @@ class B360Device{
     func startScan(result:@escaping FlutterResult,deviceId:String) {
         NSLog("Connecting with device id \(String(describing: deviceId))")
         self.reconnect = 0
+        self.deviceFound = false
         self.scanAndConnectDevice(result: result, deviceId: deviceId)
         DispatchQueue.main.asyncAfter(deadline: .now() + 3) {
+            NSLog("reconnect \(self.reconnect) device found \(self.deviceFound)")
             //Stop the scanning after 25 seconds
-            if(self.reconnect==0 && self.deviceFound == false){
+            if(self.reconnect==0){
+                NSLog("Reconnecting device")
                 self.bleManager.veepooSDKStopScanDevice()
                 self.reconnect = 1
                 self.scanAndConnectDevice(result: result, deviceId: deviceId)
@@ -55,10 +58,75 @@ class B360Device{
                     self.sendInvalidResponse(result: result)
                 }
             }else{
+                NSLog("Reconnecting failed")
                 self.sendInvalidResponse(result: result)
             }
-            
         }
+    }
+    
+    private func turnOnSetting(setting: VPSettingBaseFunctionSwitchType,callBack:@escaping () -> Void = { }){
+        self.bleManager.peripheralManage.veepooSDKSettingBaseFunctionType(setting, settingState: .settingFunctionOpen) { completeState in
+            NSLog("Complete state for \(setting.rawValue) \(completeState.rawValue)")
+            switch completeState{
+            case .functionCompleteComplete,.functionCompleteClose, .functionCompleteOpen:
+                NSLog("Complete for \(String(setting.rawValue)) \(String(completeState.rawValue))")
+                callBack()
+            default:
+                NSLog("Pending state \(completeState) for \(String(setting.rawValue)) \(String(completeState.rawValue))")
+            }
+        }
+    }
+    
+    private func turnOffSetting(setting: VPSettingBaseFunctionSwitchType,callBack:@escaping () -> Void = { }){
+        self.bleManager.peripheralManage.veepooSDKSettingBaseFunctionType(setting, settingState: .settingFunctionClose) { completeState in
+            NSLog("Complete state for \(setting.rawValue) \(completeState.rawValue)")
+            switch completeState{
+            case .functionCompleteComplete,.functionCompleteClose, .functionCompleteOpen:
+                NSLog("Complete for \(String(setting.rawValue)) \(String(completeState.rawValue))")
+                callBack()
+            default:
+                NSLog("Pending state \(completeState) for \(String(setting.rawValue)) \(String(completeState.rawValue))")
+            }
+        }
+    }
+    
+    private func updateTime(){
+        let curDate = Date()
+        let calendar = Calendar.current
+        let components = calendar.dateComponents([.day,.month,.year,.minute,.hour,.second], from: curDate)
+        NSLog("Current hour \(components.hour)")
+        self.bleManager.peripheralManage.veepooSDKSettingTime(withYear: Int32(components.year!), month: Int32(components.month!), day: Int32(components.day!), hour: Int32(components.hour!), minute: Int32(components.minute!), second: Int32(components.second!), timeSystem: 1)
+        self.bleManager.peripheralManage.veepooSDKSettingBaseFunctionType(VPSettingBaseFunctionSwitchType.timeFormat,settingState: .settingFunctionClose){ completeState in
+            NSLog("Complete state for Update time \(completeState.rawValue)")
+        }
+    }
+    
+    private func configureDevice(){
+        
+        var tbyte:[UInt8] = Array(repeating: 0x00, count: 20)
+        VPBleCentralManage.sharedBleManager()
+            .peripheralModel.deviceSwitchData.copyBytes(to: &tbyte, count: 20)
+        NSLog("Switch data \(tbyte)")
+        NSLog("Configuring device BP")
+        turnOnSetting(setting: VPSettingBaseFunctionSwitchType.automaticBPTest) {
+            NSLog("Configuring device HR")
+            self.turnOnSetting(setting: VPSettingBaseFunctionSwitchType.automaticHRTest) {
+                NSLog("Configuring device 02")
+                self.turnOnSetting(setting: VPSettingBaseFunctionSwitchType.automaticOxygenTest) {
+                    NSLog("Configuring device HRV")
+                    self.turnOnSetting(setting: VPSettingBaseFunctionSwitchType.automaticHRVTest) {
+                        self.turnOffSetting(setting: VPSettingBaseFunctionSwitchType.accurateSleep) {
+                            NSLog("Configuring device Sleep")
+                        }
+                        self.bleManager.peripheralManage.veepooSDKSettingBaseFunctionType(VPSettingBaseFunctionSwitchType.metric, settingState: .settingFunctionClose) { completeState in
+                            NSLog("Complete state for HR \(completeState.rawValue)")
+                        }
+                    }
+                }
+            }
+        }
+        self.updateTime()
+        
     }
     
     private func scanAndConnectDevice(result:@escaping FlutterResult,deviceId:String){
@@ -100,9 +168,13 @@ class B360Device{
     func syncData(connectionInfo: ConnectionInfo,result: @escaping FlutterResult){
         let deviceConnected = bleManager.isConnected
         self.connectionInfo = connectionInfo
+        if(self.deviceId == nil){
+            self.deviceId = connectionInfo.deviceId
+        }
         self.result = result
         NSLog("Is device conected \(deviceConnected)")
         if(deviceConnected){
+            self.configureDevice()
             syncDataFromDevice()
         }else{
             reConnectDevice()
@@ -117,6 +189,144 @@ class B360Device{
             }
         }else{
             self.generateStatusResponse(connInfo: connInfo, result: result)
+        }
+    }
+    
+    private func sendHeartResponse(heartRate:UInt,eventSink events: @escaping FlutterEventSink){
+        do{
+            let returnData = HeartRateDataValue(data: heartRate, measureTime: Date().iso8601withFractionalSeconds)
+            let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
+            NSLog("Returning Heart rate \(returnDataValue)")
+            events(returnDataValue)
+        }
+        catch{
+            NSLog("Error while sending HR value \(error)")
+        }
+    }
+    
+    private func sendO2LevelResponse(o2Level:UInt,eventSink events: @escaping FlutterEventSink){
+        do{
+            let returnData = O2LevelDataValue(data: o2Level, measureTime: Date().iso8601withFractionalSeconds)
+            let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
+            NSLog("Returning O2 rate \(returnDataValue)")
+            events(returnDataValue)
+        }
+        catch{
+            NSLog("Error while sending HR value \(error)")
+        }
+    }
+    
+    func readDataFromDevice(eventSink events: @escaping FlutterEventSink,readingType:String){
+        NSLog("Processing B360 reading type \(readingType.uppercased())")
+        let userProfile = DataSync.getUserInfo()
+        switch readingType.uppercased() {
+        case AppDelegate.HR:
+            NSLog("Processing heart rate")
+            var startDate = Date()
+            bleManager.peripheralManage.veepooSDKTestHeartStart(true) { hrTestState, heartRate in
+                switch hrTestState {
+                case .over:
+                    NSLog("Heart rate complete")
+                    events(FlutterEndOfEventStream)
+                case .testing:
+                    NSLog("Heart rate testing")
+                    if(heartRate>0){
+                        self.sendHeartResponse(heartRate: heartRate, eventSink: events)
+                        if(Date().timeIntervalSince(startDate) > 15){
+                            self.bleManager.peripheralManage.veepooSDKTestHeartStart(false) { heartRateState, heartRate in
+                                NSLog("Completed Heart date")
+                                events(FlutterEndOfEventStream)
+                            }
+                            let heartRateUploads = [HeartRateUpload(measureTime: Date(), heartRate: Int(heartRate), deviceId: self.deviceId!, userProfile: userProfile)]
+                            DataSync.uploadHeartRateInfo(heartRates: heartRateUploads)
+                            NSLog("Heart rate complete")
+                        }
+                    }
+                case .start:
+                    NSLog("Started reading heart rate ")
+                default:
+                    NSLog("Default for heart rate test")
+                }
+                
+            }
+        case AppDelegate.BP:
+            NSLog("Processing blood pressure")
+            bleManager.peripheralManage.veepooSDKTestBloodStart(true, testMode: 0) { state, progress, systolic, diastolic in
+                switch state{
+                case .complete:
+                    NSLog("BP complete")
+                    do{
+                        let returnData = BpDataValue(data1: Int(systolic), data2: Int(diastolic),measureTime: Date().iso8601withFractionalSeconds)
+                        let returnDataValue = String(data: try JSONEncoder().encode(returnData), encoding: .utf8)!
+                        NSLog("Returning Heart rate \(returnDataValue)")
+                        events(returnDataValue)
+                        events(FlutterEndOfEventStream)
+                        let bpUploads = [BpUpload(measureTime: Date(), distolic: Int(diastolic), systolic: Int(systolic), deviceId: self.deviceId!, userProfile: userProfile)]
+                        DataSync.uploadBloodPressure(bpLevels: bpUploads)
+                    }
+                    catch{
+                        NSLog("Error while sending BP value \(error)")
+                    }
+                case .testing:
+                    NSLog("Testing BP with \(systolic)/\(diastolic) with progress \(progress)")
+                default:
+                    NSLog("Got default data with state \(String(describing: state))")
+                }
+            }
+        case AppDelegate.O2:
+            NSLog("Processing O2 sats")
+            var startDate = Date()
+            bleManager.peripheralManage.veepooSDKTestOxygenStart(true) { o2state, o2Level in
+                switch o2state{
+                case .over:
+                    NSLog("O2 complete")
+                    events(FlutterEndOfEventStream)
+                case .testing:
+                    NSLog("Got o2 value \(o2Level)")
+                    if(o2Level>0){
+                        self.sendO2LevelResponse(o2Level: o2Level, eventSink: events)
+                        if(Date().timeIntervalSince(startDate) > 15){
+                            self.bleManager.peripheralManage.veepooSDKTestOxygenStart(false) { heartRateState, heartRate in
+                                NSLog("Completed o2 sats")
+                                events(FlutterEndOfEventStream)
+                            }
+                            let o2Levels = [OxygenLevelUpload(measureTime: Date(), oxygenLevel: Int(o2Level), deviceId: self.deviceId!, userProfile: userProfile)]
+                            DataSync.uploadOxygenLevels(oxygenLevels: o2Levels)
+                            NSLog("O2 levels complete")
+                        }
+                    }
+                default:
+                    NSLog("Defuault methos for o2 sats with value \(o2Level) and state \(String(describing: o2state))")
+                }
+            }
+        default:
+            events(FlutterEndOfEventStream)
+        }
+    }
+    
+    private func syncO2Sats(){
+        NSLog("Processing O2 sats")
+        var startDate = Date()
+        let userProfile = DataSync.getUserInfo()
+        bleManager.peripheralManage.veepooSDKTestOxygenStart(true) { o2state, o2Level in
+            switch o2state{
+            case .over:
+                NSLog("O2 complete")
+            case .testing:
+                NSLog("Got o2 value \(o2Level)")
+                if(o2Level>0){
+                    if(Date().timeIntervalSince(startDate) > 15){
+                        self.bleManager.peripheralManage.veepooSDKTestOxygenStart(false) { heartRateState, heartRate in
+                            NSLog("Completed o2 sats")
+                        }
+                        let o2Levels = [OxygenLevelUpload(measureTime: Date(), oxygenLevel: Int(o2Level), deviceId: self.deviceId!, userProfile: userProfile)]
+                        DataSync.uploadOxygenLevels(oxygenLevels: o2Levels)
+                        NSLog("O2 levels complete")
+                    }
+                }
+            default:
+                NSLog("Defuault methos for o2 sats with value \(o2Level) and state \(String(describing: o2state))")
+            }
         }
     }
     
@@ -155,6 +365,7 @@ class B360Device{
             switch(syncType){
             case .validationAllSuccess:
                 callBack(true)
+                self.configureDevice()
                 self.syncDataFromDevice()
             case .validationSuccess:
                 NSLog("Password validation sucess")
@@ -184,7 +395,7 @@ class B360Device{
             if(heartRateData == nil){
                 NSLog("Got empty heart rate data for \(dateString)")
             }else{
-                let heartRateValues = heartRateData as? Dictionary<String,Dictionary<String,String>>
+                let heartRateValues = heartRateData as? Dictionary<String?,Dictionary<String,String>>
                 let dailyStepTime = dateTimeFormat.date(from: dateString+" 00:00")!
                 var totalDailySteps = 0
                 var totalCalories = 0.0
@@ -194,15 +405,19 @@ class B360Device{
                     let steps = Int(heartRateData["stepValue"] ?? "0") ?? 0
                     let calories = Double(heartRateData["calValue"] ?? "0.0") ?? 0.0
                     let distance = Float(heartRateData["disValue"] ?? "0.0") ?? 0.0
-                    let measureTime = dateTimeFormat.date(from: dateString+" "+calculationTime)!
-                    if(heartRate>0){
-                        heartRateUploads.append(HeartRateUpload(measureTime: measureTime, heartRate: heartRate, deviceId: deviceId, userProfile: userInfo))
-                    }
-                    if(steps>0){
-                        totalDailySteps+=steps
-                        totalCalories+=calories
-                        totalDistance+=distance
-                        stepUploads.append(StepUpload(measureTime: measureTime, steps: steps, deviceId: deviceId, calories: Int(calories), distance: distance, userProfile: userInfo))
+                    if(calculationTime != nil){
+                        let measureTime = dateTimeFormat.date(from: dateString+" "+calculationTime!)
+                        if(measureTime != nil){
+                            if(heartRate>0){
+                                heartRateUploads.append(HeartRateUpload(measureTime: measureTime!, heartRate: heartRate, deviceId: deviceId, userProfile: userInfo))
+                            }
+                            if(steps>0){
+                                totalDailySteps+=steps
+                                totalCalories+=calories
+                                totalDistance+=distance
+                                stepUploads.append(StepUpload(measureTime: measureTime!, steps: steps, deviceId: deviceId, calories: Int(calories), distance: distance, userProfile: userInfo))
+                            }
+                        }
                     }
                 })
                 if(totalDailySteps > 0){
@@ -213,6 +428,10 @@ class B360Device{
             NSLog("Got Heart rate data \(heartRateData ?? [:])")
             day+=1
         }
+        
+        let params = ["message":"Data Uploaded","HR":String(heartRateUploads.count),"STEPS":String(stepUploads.count),"DAILYSTEPS":String(dailyStepUploads.count)]
+        
+        DataSync.postLog(action: "DATA UPLOAD", params: params, deviceId: connectionInfo?.deviceId)
         
         //Upload the daily steps
         dailyStepUploads.forEach { dailyStep in
@@ -227,6 +446,10 @@ class B360Device{
         //Upload heart rate
         if(!heartRateUploads.isEmpty){
             DataSync.uploadHeartRateInfo(heartRates: heartRateUploads)
+        }
+        
+        caloriesUpload.forEach { dailyCalories in
+            DataSync.uploadCalories(calories: dailyCalories)
         }
     }
     
@@ -258,7 +481,22 @@ class B360Device{
                     bpUploads.append(BpUpload(measureTime: measueTime, distolic: diastolic, systolic: systolic, deviceId: deviceId, userProfile: userInfo))
                 }
             })
+            
+            let params = ["message":"Data Uploaded","O2":String(o2Uploads.count),"BP":String(bpUploads.count)]
+            
+            DataSync.postLog(action: "DATA UPLOAD", params: params, deviceId: connectionInfo?.deviceId)
+            
             NSLog("Got BP info \(bpInfo)")
+            
+            //let originalSleep = VPDataBaseOperation.veepooSDKGetAccurateSleepData(withDate: dateString, andTableID: connectionInfo?.deviceId) as? [Dictionary<String,Any>]
+            //NSLog("original sleep for date \(dateString) \(originalSleep)")
+            
+            //let sleepInfo = VPDataBaseOperation.veepooSDKGetSleepData(withDate: dateString, andTableID: connectionInfo?.deviceId)
+            //NSLog("Got sleep info \(sleepInfo)")
+//            sleepInfo?.forEach { sleep in
+//
+//            }
+            
             day+=1
         }
         if(!bpUploads.isEmpty){
@@ -289,6 +527,7 @@ class B360Device{
                 NSLog("Data sync complete")
                 self.syncHeartRate()
                 self.syncDeviceData()
+                self.syncO2Sats()
             case .invalid:
                 NSLog("Error reading data from the device")
             default:

@@ -1,7 +1,9 @@
 package com.cerashealth.ceras.lifeplus
 
 import android.content.Context
+import android.os.Bundle
 import android.util.Log
+import com.cerashealth.ceras.MainActivity
 import com.cerashealth.ceras.lifeplus.data.*
 import com.google.gson.Gson
 import com.inuker.bluetooth.library.Code
@@ -10,12 +12,16 @@ import com.inuker.bluetooth.library.search.SearchResult
 import com.inuker.bluetooth.library.search.response.SearchResponse
 import com.veepoo.protocol.VPOperateManager
 import com.veepoo.protocol.listener.base.IABleConnectStatusListener
+import com.veepoo.protocol.listener.base.IBleWriteResponse
 import com.veepoo.protocol.listener.data.*
 import com.veepoo.protocol.model.datas.*
 import com.veepoo.protocol.model.enums.*
-import com.veepoo.protocol.model.settings.CustomSetting
+import com.veepoo.protocol.model.settings.*
 import io.flutter.plugin.common.EventChannel
 import io.flutter.plugin.common.MethodChannel
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -29,7 +35,10 @@ class B360Device:BaseDevice(),SearchResponse {
         private var connected = false
         private var connectionListenerConfigured = false
         private var reading = false
-        private var lastReading:Date = Calendar.getInstance().time
+        private var lastConfirmPassword = 0L
+        private var lastReading:Date = Calendar.getInstance().apply {
+            add(Calendar.MINUTE,-10)
+        }.time
 
         fun getInstance():B360Device{
             if(device ==null){
@@ -51,7 +60,9 @@ class B360Device:BaseDevice(),SearchResponse {
     }
 
     private fun checkAndConfigureConnectionListener(connectionInfo: ConnectionInfo,context: Context,callBack: () -> Unit){
+        Log.d(B360DeviceTag,"Checking and configuring connection listener")
         if(!connectionListenerConfigured){
+            Log.d(B360DeviceTag,"Configuring connection listener")
             getManager(context).registerConnectStatusListener(connectionInfo.deviceId,object: IABleConnectStatusListener() {
                     override fun onConnectStatusChanged(macAddress: String?, connectionStatus: Int) {
                         when(connectionStatus){
@@ -63,7 +74,6 @@ class B360Device:BaseDevice(),SearchResponse {
                             }
                         }
                     }
-
                 }
             )
             connectionListenerConfigured = true
@@ -75,7 +85,18 @@ class B360Device:BaseDevice(),SearchResponse {
         B360Device.deviceId = deviceId
         connectResult = result
         deviceFound = false
+        //Scan for the device
         getManager(context).startScanDevice(this)
+        //Wait for 25 seconds and if the device is not connected send an error response back
+        GlobalScope.launch {
+            delay(30000)
+            Log.d(B360DeviceTag, "Unable to find device $connected")
+            getManager(context).stopScanDevice()
+            if(!connected)
+                MainActivity.currentActivity?.runOnUiThread {
+                    result.success(ConnectionInfo.createResponse(message = "Failed", connected = false, deviceFound = deviceFound))
+                }
+        }
     }
 
     override fun onSearchStarted() {
@@ -100,12 +121,51 @@ class B360Device:BaseDevice(),SearchResponse {
         }
     }
 
+    private fun sendResponse(callBack: ()->Unit = {}){
+        MainActivity.currentActivity?.runOnUiThread(callBack)
+    }
+
     override fun getConnectionStatus(
         result: MethodChannel.Result?,
         connectionInfo: ConnectionInfo,
         context: Context
     ) {
-        result?.success(getManager(context).isNetworkConnected(context))
+//        result?.success(getManager(context).isNetworkConnected(context))
+        //If the device is not connected, try to connect and send a response
+        if(!connected){
+            reConnectDevice(connectionInfo.deviceId, connectionInfo.deviceName) {
+                if (it == Code.REQUEST_SUCCESS) {
+                    Log.d(B360DeviceTag, "Device connection success from Connection status")
+                    confirmPasswd {
+                        sendResponse {
+                            result?.success(getManager(context).isNetworkConnected(context))
+                        }
+                    }
+                }else{
+                    sendResponse {
+                        result?.success(false)
+                    }
+                }
+            }
+            //Wait for 20 seconds and send an invalid response
+            GlobalScope.launch {
+                delay(20000)
+                Log.d(B360DeviceTag, "Unable to find device $connected")
+                getManager(context).stopScanDevice()
+                if(!connected) {
+                    sendResponse {
+                        result?.success(false)
+                    }
+                }
+            }
+
+        }else{
+            confirmPasswd {
+                sendResponse {
+                    result?.success(getManager(context).isNetworkConnected(context))
+                }
+            }
+        }
     }
 
     override fun getDeviceInfo(
@@ -117,10 +177,10 @@ class B360Device:BaseDevice(),SearchResponse {
         checkAndConfigureConnectionListener(connectionInfo,context) {
             Log.d(B360DeviceTag, "Getting device info")
             if (!connected) {
-                Log.d(B360DeviceTag, "Device not connected, reconnecting")
+                Log.d(B360DeviceTag, "Device not connected from device info, reconnecting")
                 reConnectDevice(connectionInfo.deviceId, connectionInfo.deviceName) {
                     if (it == Code.REQUEST_SUCCESS) {
-                        Log.d(B360DeviceTag, "Device connection success")
+                        Log.d(B360DeviceTag, "Device connection success from device info")
                         confirmPasswd {
                             syncUserInfo {
                                 connectionInfo.connected = manager.isNetworkConnected(context)
@@ -130,52 +190,267 @@ class B360Device:BaseDevice(),SearchResponse {
                                         B360DeviceTag,
                                         "Got battery status ${connectionInfo.batteryStatus}"
                                     )
-                                    result?.success(
-                                        ConnectionInfo.createResponse(
-                                            deviceId = connectionInfo.deviceId,
-                                            connected = connectionInfo.connected,
-                                            deviceType = connectionInfo.deviceType,
-                                            deviceName = connectionInfo.deviceName,
-                                            batteryStatus = connectionInfo.batteryStatus,
-                                            additionalInfo = connectionInfo.additionalInformation
+                                    sendResponse {
+                                        result?.success(
+                                            ConnectionInfo.createResponse(
+                                                deviceId = connectionInfo.deviceId,
+                                                connected = connectionInfo.connected,
+                                                deviceType = connectionInfo.deviceType,
+                                                deviceName = connectionInfo.deviceName,
+                                                batteryStatus = connectionInfo.batteryStatus,
+                                                additionalInfo = connectionInfo.additionalInformation
+                                            )
                                         )
-                                    )
+                                    }
+
                                 }
                             }
                         }
                     } else {
                         Log.d(B360DeviceTag, "Device connection failure")
-                        result?.success(
-                            ConnectionInfo.createResponse(
-                                deviceId = connectionInfo.deviceId,
-                                connected = false,
-                                deviceType = connectionInfo.deviceType,
-                                deviceName = connectionInfo.deviceName,
-                                message = "Connection Failed"
+                        sendResponse {
+                            result?.success(
+                                ConnectionInfo.createResponse(
+                                    deviceId = connectionInfo.deviceId,
+                                    connected = false,
+                                    deviceType = connectionInfo.deviceType,
+                                    deviceName = connectionInfo.deviceName,
+                                    message = "Connection Failed"
+                                )
                             )
-                        )
+                        }
+
                     }
                 }
-
             } else {
-                Log.d(B360DeviceTag, "Device already connected")
+                Log.d(B360DeviceTag, "Device already connected from get device info")
                 connectionInfo.connected = manager.isNetworkConnected(context)
                 getBatteryInfo(connectionInfo) {
                     Log.d(B360DeviceTag, "Got battery status ${connectionInfo.batteryStatus}")
-                    result?.success(
-                        ConnectionInfo.createResponse(
-                            deviceId = connectionInfo.deviceId,
-                            connected = connectionInfo.connected,
-                            deviceType = connectionInfo.deviceType,
-                            deviceName = connectionInfo.deviceName,
-                            batteryStatus = connectionInfo.batteryStatus,
-                            additionalInfo = connectionInfo.additionalInformation
+                    sendResponse {
+                        result?.success(
+                            ConnectionInfo.createResponse(
+                                deviceId = connectionInfo.deviceId,
+                                connected = connectionInfo.connected,
+                                deviceType = connectionInfo.deviceType,
+                                deviceName = connectionInfo.deviceName,
+                                batteryStatus = connectionInfo.batteryStatus,
+                                additionalInfo = connectionInfo.additionalInformation
+                            )
                         )
-                    )
+                    }
+
                 }
 
             }
         }
+    }
+
+    private fun logFirebaseEvent(action:String,params:MutableMap<String,String?>){
+        DataSync.sendLog(params.apply {
+            put("deviceId", connectionInfo?.deviceId)
+            put("action",action)
+        })
+    }
+
+    override fun readDataFromDevice(eventSink: EventChannel.EventSink, readingType: String) {
+        when(readingType){
+            HEARTRATE -> {
+                startHeartRateDetection(eventSink)
+//                var heartRateStart = false
+//                var startDate = Calendar.getInstance().timeInMillis
+//                vManager?.startDetectHeart({
+//                    Log.d(B360DeviceTag,"Got Heart Response $it")
+//                }, {
+//                    Log.d(B360DeviceTag,"Got heart rate ${it.data} with status ${it.heartStatus}")
+//                    if(!heartRateStart && it.heartStatus == EHeartStatus.STATE_HEART_NORMAL){
+//                        startDate = Calendar.getInstance().timeInMillis
+//                        heartRateStart = true
+//                    }
+//                    if(it.heartStatus == EHeartStatus.STATE_HEART_NORMAL)
+//                        eventSink.success(Gson().toJson(mapOf("data" to it.data,"measureTime" to getTimeInUtcString())))
+//                    val timeDiff = (Calendar.getInstance().timeInMillis - startDate)/1000
+//                    Log.d(B360DeviceTag,"Time difference $timeDiff")
+//                    if( (heartRateStart && timeDiff > 10) || timeDiff > 60){
+//                        vManager?.stopDetectHeart {
+//                            eventSink.endOfStream()
+//                        }
+//                        DataSync.uploadHeartRate(
+//                            listOf(HeartRateUpload(
+//                            measureTime = Calendar.getInstance().time,
+//                            heartRate = it.data,
+//                            deviceId = connectionInfo?.deviceId!!,
+//                            userProfile = DataSync.getUserInfo()
+//                        )))
+//                    }
+//                })
+            }
+            BP -> {
+//                vManager?.startDetectBP({
+//                    Log.d(B360DeviceTag,"Got BP Response $it")
+//                },{
+//                    Log.d(B360DeviceTag,"Got BP data ${it.highPressure}/${it.lowPressure} with progress ${it.progress} and status ${it.status}")
+//                    if(it.progress == 100){
+//                        eventSink.success(Gson().toJson(mapOf("data1" to it.highPressure,"data2" to it.lowPressure,"measureTime" to getTimeInUtcString())))
+//                        eventSink.endOfStream()
+//                        DataSync.uploadBloodPressure(listOf(BpUpload(
+//                            measureTime = Calendar.getInstance().time,
+//                            distolic = it.lowPressure,
+//                            systolic = it.highPressure,
+//                            userProfile = DataSync.getUserInfo(),
+//                            deviceId = connectionInfo?.deviceId!!
+//                            )))
+//                    }
+//                },EBPDetectModel.DETECT_MODEL_PUBLIC)
+                startBpDetection(eventSink)
+            }
+            O2 -> {
+                var o2Start = false
+                var startDate = Calendar.getInstance().timeInMillis
+                vManager?.startDetectSPO2H({
+                    Log.d(B360DeviceTag,"Got O2 Response $it")
+                },{
+                    Log.d(B360DeviceTag,"Got o2 data ${it.value} with state ${it.spState} and progress ${it.checkingProgress}")
+                    if(it.value>0){
+                        if(!o2Start) {
+                            o2Start = true
+                            startDate = Calendar.getInstance().timeInMillis
+                        }
+                        eventSink.success(Gson().toJson(mapOf("data" to it.value,"measureTime" to getTimeInUtcString())))
+                    }
+                    val timeDiff = (Calendar.getInstance().timeInMillis - startDate)/1000
+                    if((!o2Start && timeDiff> 45)||(o2Start && timeDiff>10)){
+                        if(it.value>0) {
+                            DataSync.uploadOxygenData(
+                                listOf(
+                                    OxygenLevelUpload(
+                                        measureTime = Calendar.getInstance().time,
+                                        deviceId = connectionInfo?.deviceId!!,
+                                        userProfile = DataSync.getUserInfo(),
+                                        oxygenLevel = it.value
+                                    )
+                                )
+                            )
+                        }
+                        vManager?.stopDetectSPO2H({
+                            if(!o2Start){
+                                eventSink.success(Gson().toJson(mapOf("data" to 0,"measureTime" to getTimeInUtcString())))
+                            }
+                            eventSink.endOfStream()
+                            Log.d(B360DeviceTag,"Got O2 stop Response $it")
+                        },{
+
+                            Log.d(B360DeviceTag,"Sending end of stream")
+
+                        })
+                    }
+                },{
+                    Log.d(B360DeviceTag,"Got readings $it")
+                })
+            }
+        }
+    }
+
+    private fun startHeartRateDetection(eventSink: EventChannel.EventSink? = null){
+        var heartRateStart = false
+        var startDate = Calendar.getInstance().timeInMillis
+        vManager?.startDetectHeart({
+            Log.d(B360DeviceTag,"Got Heart Response $it")
+        }, {
+            Log.d(B360DeviceTag,"Got heart rate ${it.data} with status ${it.heartStatus}")
+            if(!heartRateStart && it.heartStatus == EHeartStatus.STATE_HEART_NORMAL){
+                startDate = Calendar.getInstance().timeInMillis
+                heartRateStart = true
+            }
+            eventSink?.let{eventSink->
+                if(it.heartStatus == EHeartStatus.STATE_HEART_NORMAL)
+                    eventSink.success(Gson().toJson(mapOf("data" to it.data,"measureTime" to getTimeInUtcString())))
+            }
+
+            val timeDiff = (Calendar.getInstance().timeInMillis - startDate)/1000
+            Log.d(B360DeviceTag,"Time difference $timeDiff")
+            if( (heartRateStart && timeDiff > 10) || timeDiff > 60){
+                vManager?.stopDetectHeart {
+                    eventSink?.endOfStream()
+                }
+                if(eventSink==null)
+                    startBpDetection()
+                DataSync.uploadHeartRate(
+                    listOf(HeartRateUpload(
+                        measureTime = Calendar.getInstance().time,
+                        heartRate = it.data,
+                        deviceId = connectionInfo?.deviceId!!,
+                        userProfile = DataSync.getUserInfo()
+                    )))
+            }
+        })
+    }
+
+    private fun startBpDetection(eventSink: EventChannel.EventSink? = null){
+        vManager?.startDetectBP({
+            Log.d(B360DeviceTag,"Got BP Response $it")
+        },{
+            Log.d(B360DeviceTag,"Got BP data ${it.highPressure}/${it.lowPressure} with progress ${it.progress} and status ${it.status}")
+            if(it.progress == 100){
+                eventSink?.let {eventSink->
+                    eventSink.success(Gson().toJson(mapOf("data1" to it.highPressure,"data2" to it.lowPressure,"measureTime" to getTimeInUtcString())))
+                    eventSink.endOfStream()
+                }
+                DataSync.uploadBloodPressure(listOf(BpUpload(
+                    measureTime = Calendar.getInstance().time,
+                    distolic = it.lowPressure,
+                    systolic = it.highPressure,
+                    userProfile = DataSync.getUserInfo(),
+                    deviceId = connectionInfo?.deviceId!!
+                )))
+            }
+        },EBPDetectModel.DETECT_MODEL_PUBLIC)
+    }
+
+    private fun startO2SatsDetection(){
+        var o2Start = false
+        var startDate = Calendar.getInstance().timeInMillis
+        vManager?.startDetectSPO2H({
+            Log.d(B360DeviceTag,"Got O2 Response $it")
+        },{
+            Log.d(B360DeviceTag,"Got o2 data ${it.value} with state ${it.spState} and progress ${it.checkingProgress}")
+            if(it.value>0){
+                if(!o2Start) {
+                    o2Start = true
+                    startDate = Calendar.getInstance().timeInMillis
+                }
+            }
+            val timeDiff = (Calendar.getInstance().timeInMillis - startDate)/1000
+            if((!o2Start && timeDiff> 45)||(o2Start && timeDiff>10)){
+                if(it.value>0) {
+                    DataSync.uploadOxygenData(
+                        listOf(
+                            OxygenLevelUpload(
+                                measureTime = Calendar.getInstance().time,
+                                deviceId = connectionInfo?.deviceId!!,
+                                userProfile = DataSync.getUserInfo(),
+                                oxygenLevel = it.value
+                            )
+                        )
+                    )
+                }
+                vManager?.stopDetectSPO2H({
+                    Log.d(B360DeviceTag,"Got O2 stop Response $it")
+                },{
+                    //startHeartRateDetection()
+                    Log.d(B360DeviceTag,"Sending end of stream")
+
+                })
+            }
+        },{
+            Log.d(B360DeviceTag,"Got readings $it")
+        })
+    }
+
+    private fun getTimeInUtcString():String{
+        val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS")
+        sdf.timeZone = TimeZone.getTimeZone("UTC")
+        return sdf.format(Calendar.getInstance().time)+"+00:00"
     }
 
     private fun getBatteryInfo(connectionInfo: ConnectionInfo,callBack: () -> Unit = {}){
@@ -195,9 +470,12 @@ class B360Device:BaseDevice(),SearchResponse {
             if(connected){
                 Log.d(B360DeviceTag,"Device is connected. Syncing password")
                 checkPasswordAndSync()
-                result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
-                    deviceId = connectionInfo.deviceId,connected = true,deviceType = connectionInfo.deviceType))
+                sendResponse {
+                    result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
+                        deviceId = connectionInfo.deviceId,connected = true,deviceType = connectionInfo.deviceType))
+                }
             }else{
+                Log.d(B360DeviceTag,"Device is not connected. Reconnecting device")
                 reConnectDevice(connectionInfo.deviceId,connectionInfo.deviceName){resp->
                     if(resp== Code.REQUEST_SUCCESS){
                         result?.success(ConnectionInfo.createResponse(deviceName = connectionInfo.deviceName,
@@ -213,12 +491,57 @@ class B360Device:BaseDevice(),SearchResponse {
     }
 
     private fun reConnectDevice(deviceId:String?,deviceName:String?,callBack: (connectionStatus:Int) -> Unit = {}){
-        vManager?.connectDevice(deviceId,deviceName, { code, bleGattProfile, isOadModel ->
-            Log.i(B360DeviceTag,"Got code $code oadModel $isOadModel")
-        }, {resp->
-            Log.i(B360DeviceTag,"Got connect response $resp")
-            callBack(resp)
+        Log.d(B360DeviceTag,"Reconnecting device with deviceId $deviceId and deviceName $deviceName")
+
+        getManager(MainActivity.currentContext!!).startScanDevice(object: SearchResponse{
+            override fun onSearchStarted() {
+                Log.i(B360DeviceTag,"Search Started")
+            }
+
+            override fun onDeviceFounded(result: SearchResult?) {
+                result?.let {
+                    Log.d(B360DeviceTag,"Got search result ${it.address} and name ${it.name}")
+                    if(it.address == deviceId){
+                        vManager?.stopScanDevice()
+                        vManager?.connectDevice(it.address,it.name, { code, bleGattProfile, isOadModel ->
+                            Log.i(B360DeviceTag,"Got code $code oadModel $isOadModel")
+                        }, {resp->
+                            lastConfirmPassword = 0L
+                            connected = true
+                            Log.i(B360DeviceTag,"Got connect response $resp")
+                            callBack(resp)
+                        })
+                    }
+                }
+            }
+
+            override fun onSearchStopped() {
+                Log.i(B360DeviceTag,"Search Stopped")
+            }
+
+            override fun onSearchCanceled() {
+                Log.i(B360DeviceTag,"Search Cancelled")
+            }
+
         })
+
+//        vManager?.connectDevice(deviceId,deviceName, { code, bleGattProfile, isOadModel ->
+//            Log.i(B360DeviceTag,"Got code $code oadModel $isOadModel")
+//            lastConfirmPassword = 0L
+//        }, {resp->
+//            connected = true
+//            Log.i(B360DeviceTag,"Got connect response $resp")
+//            callBack(resp)
+//        })
+
+        //Wait for 25 seconds and stop the search
+        GlobalScope.launch {
+            delay(25000)
+            if(!connected) {
+                Log.d(B360DeviceTag, "Unable to find device $connected")
+                getManager(MainActivity.currentContext!!).stopScanDevice()
+            }
+        }
     }
 
     private fun checkPasswordAndSync(){
@@ -236,8 +559,8 @@ class B360Device:BaseDevice(),SearchResponse {
                 Log.i(B360DeviceTag,"All health progress $progress")
             }
 
-            override fun onSleepDataChange(dataChange: SleepData?) {
-                Log.i(B360DeviceTag,"Sleep data ${Gson().toJson(dataChange)}")
+            override fun onSleepDataChange(sleepChange: String?, sleepData: SleepData?) {
+                Log.i(B360DeviceTag,"Sleep data ${Gson().toJson(sleepData)} and sleep change $sleepChange")
             }
 
             override fun onReadSleepComplete() {
@@ -256,15 +579,46 @@ class B360Device:BaseDevice(),SearchResponse {
                 Log.i(B360DeviceTag,"Origin complete")
             }
 
-        },3)
+        },getSyncDays())
 
+    }
+
+    //Update the last reading time for B330
+    private fun updateLastSyncTime(){
+        MainActivity.currentContext?.let {currentContext->
+            currentContext.getSharedPreferences(MainActivity
+                .SharedPrefernces, Context.MODE_PRIVATE).edit()
+                .putLong("B330_LASTUPDATE", Calendar.getInstance().timeInMillis).apply()
+        }
+    }
+
+    //Get the last sync time
+    private fun lastSyncTime():Long{
+        MainActivity.currentContext?.let { currentContext ->
+            return currentContext.getSharedPreferences(MainActivity.SharedPrefernces,Context.MODE_PRIVATE)
+                .getLong("B330_LASTUPDATE",0L)
+        }
+        return 0L
+    }
+
+    private fun getSyncDays():Int{
+        val daysDiff = (Calendar.getInstance().timeInMillis - lastSyncTime())/(1000*60*60*24)
+
+        return when{
+            daysDiff>2 -> 3
+            daysDiff>1 -> 2
+            else -> 1
+        }
     }
 
     private fun readDataFromDevice(){
         val fiveMinutesAgo = Calendar.getInstance().apply { add(Calendar.MINUTE,-5) }.time
-        if(!reading || lastReading.before(fiveMinutesAgo)) {
+        Log.d(B360DeviceTag," Is reading $reading with lastReading $lastReading")
+        if(lastReading.before(fiveMinutesAgo)) {
+            Log.i(B360DeviceTag,"syncing data from B360")
             reading = true
             lastReading = Calendar.getInstance().time
+
             vManager?.readOriginData({
                 Log.i(B360DeviceTag, "Got response $it")
             }, object : IOriginData3Listener {
@@ -274,6 +628,7 @@ class B360Device:BaseDevice(),SearchResponse {
                 val o2Uploads = mutableListOf<OxygenLevelUpload>()
                 val dailyStepUploads = mutableListOf<DailyStepUpload>()
                 val stepUploads = mutableListOf<StepUpload>()
+                val dailyCaloriesUpload = mutableListOf<CaloriesUpload>()
 
                 override fun onReadOriginProgressDetail(
                     day: Int,
@@ -281,7 +636,7 @@ class B360Device:BaseDevice(),SearchResponse {
                     allPackage: Int,
                     currentPackage: Int
                 ) {
-                    //Log.i(B360DeviceTag,"Day $day Date $date allPackage $allPackage currentPackage $currentPackage")
+                    Log.i(B360DeviceTag,"Day $day Date $date allPackage $allPackage currentPackage $currentPackage")
                 }
 
                 override fun onReadOriginProgress(progress: Float) {
@@ -292,27 +647,38 @@ class B360Device:BaseDevice(),SearchResponse {
                     Log.i(B360DeviceTag, "Read complete")
                     reading = false
                     Log.d(B360DeviceTag, "Uploading bp $bpUploads")
-
                     DataSync.uploadBloodPressure(bpUploads)
+                    Log.d(B360DeviceTag, "Uploading HR $heartUploads")
+                    DataSync.uploadHeartRate(heartUploads)
+                    logFirebaseEvent("Data UPLOAD",
+                        mutableMapOf("message" to "Data uploaded",
+                            "HR" to "${heartUploads.size}",
+                            "BP" to "${bpUploads.size}",
+                            "O2" to "${o2Uploads.size}"))
+                    Log.d(B360DeviceTag, "Uploading o2 $o2Uploads")
+                    DataSync.uploadOxygenData(o2Uploads)
+                    Log.d(B360DeviceTag,"Uploading calories $dailyCaloriesUpload")
+                    DataSync.uploadCalories(dailyCaloriesUpload)
+                    logFirebaseEvent("CALORY UPLOAD", mutableMapOf("message" to "Calories uploaded with size ${dailyCaloriesUpload.size}"))
                     Log.d(B360DeviceTag, "Uploading Daily steps $dailyStepUploads")
                     DataSync.uploadDailySteps(dailyStepUploads.filter { it.steps > 0 })
                     Log.d(B360DeviceTag, "Uploading steps $stepUploads")
                     DataSync.uploadStepInfo(stepUploads)
-                    Log.d(B360DeviceTag, "Uploading HR $heartUploads")
-                    DataSync.uploadHeartRate(heartUploads)
-                    Log.d(B360DeviceTag, "Uploading o2 $o2Uploads")
-                    DataSync.uploadOxygenData(o2Uploads)
+                    logFirebaseEvent("STEP UPLOAD", mutableMapOf("message" to "Steps uploaded with size ${stepUploads.size}"))
+                    //readSleepData()
+                    updateLastSyncTime()
                 }
 
                 override fun onOriginFiveMinuteListDataChange(originDataList: MutableList<OriginData3>?) {
-                    //Log.i(B360DeviceTag,"Five minute data $originDataList")
-//                    originDataList?.forEach {
-//                        Log.i(B360DeviceTag,"Got data $it")
-//                    }
+                    Log.i(B360DeviceTag,"Five minute data $originDataList")
+                    originDataList?.forEach {
+                        Log.i(B360DeviceTag,"Got data $it")
+                    }
                 }
 
                 override fun onOriginHalfHourDataChange(halfHourData: OriginHalfHourData?) {
                     //Log.i(B360DeviceTag,"Half hour data $halfHourData")
+                    val userInfo = DataSync.getUserInfo()
                     halfHourData?.halfHourBps?.map {
                         Log.i(
                             B360DeviceTag,
@@ -322,7 +688,7 @@ class B360Device:BaseDevice(),SearchResponse {
                             measureTime = convertToDate(it.time),
                             systolic = it.highValue, distolic = it.lowValue,
                             deviceId = connectionInfo?.deviceId!!,
-                            userProfile = DataSync.getUserInfo()
+                            userProfile = userInfo
                         )
                     }?.apply {
                         bpUploads.addAll(this)
@@ -337,7 +703,7 @@ class B360Device:BaseDevice(),SearchResponse {
                             measureTime = convertToDate(it.time),
                             heartRate = it.rateValue,
                             deviceId = connectionInfo?.deviceId!!,
-                            userProfile = DataSync.getUserInfo()
+                            userProfile = userInfo
                         )
                     }?.apply {
                         heartUploads.addAll(this)
@@ -349,7 +715,7 @@ class B360Device:BaseDevice(),SearchResponse {
                             steps = it.stepValue,
                             calories = it.calValue.toInt(),
                             distance = it.disValue.toFloat(),
-                            userProfile = DataSync.getUserInfo(),
+                            userProfile = userInfo,
                             deviceId = connectionInfo?.deviceId!!
                         )
                     }?.apply {
@@ -364,7 +730,16 @@ class B360Device:BaseDevice(),SearchResponse {
                                         calories = totalCalories,
                                         distance = totalDistance.toFloat(),
                                         deviceId = connectionInfo?.deviceId!!,
-                                        userProfile = DataSync.getUserInfo()
+                                        userProfile = userInfo
+                                    )
+                                )
+                                dailyCaloriesUpload.add(
+                                    CaloriesUpload(
+                                        measureTime = getDateFromString(it.date),
+                                        calories = totalCalories,
+                                        deviceId = connectionInfo?.deviceId!!,
+                                        userProfile = userInfo
+
                                     )
                                 )
                             }
@@ -393,26 +768,66 @@ class B360Device:BaseDevice(),SearchResponse {
                         o2Uploads.addAll(this)
                     }
                 }
-            }, 3)
+            }, getSyncDays())
         }
 
+    }
+
+    private fun readSleepData(){
+        vManager?.readSleepData({
+
+        },object:ISleepDataListener{
+            override fun onSleepDataChange(p0: String?, sleepData: SleepData?) {
+                Log.d(TAG,"Got sleep data ${sleepData?.sleepDown}")
+            }
+
+            override fun onSleepProgress(p0: Float) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onSleepProgressDetail(p0: String?, p1: Int) {
+                //TODO("Not yet implemented")
+            }
+
+            override fun onReadSleepComplete() {
+                //TODO("Not yet implemented")
+                Log.d(TAG,"Sleep complete")
+            }
+
+        },getSyncDays())
     }
 
     private fun syncData(){
         Log.i(B360DeviceTag,"Is network connected")
         readDataFromDevice()
-//        readHealthData()
+
+        readHealthData()
+        //Sync o2 sats from device
+        startO2SatsDetection()
+    }
+
+    private fun readCustomSetting(){
+        configureDevice {
+            vManager?.readCustomSetting({
+                Log.d(B360DeviceTag,"Read custom setting response $it")
+            },{
+                Log.d(B360DeviceTag,"Got custom data BP:${it.autoBpDetect} HR:${it.autoHeartDetect} ${it.status}")
+            })
+        }
     }
 
     private fun configureDevice(callBack: () -> Unit = {}){
         vManager?.changeCustomSetting({
         },{
-            Log.i(B360DeviceTag,"Custom setting Data ")
+            Log.i(B360DeviceTag,"Got Custom setting Data with status ${it.status}")
             DataSync.sendHeartBeat(HeartBeat(macAddress = connectionInfo?.deviceId, deviceId = connectionInfo?.deviceName))
+            vManager?.settingSpo2hAutoDetect({
+                Log.d(B360DeviceTag,"Got SPO02 auto detect response $it")
+            },{
+                Log.d(B360DeviceTag,"Got setting spo2 data")
+            }, AllSetSetting(EAllSetType.SPO2H_NIGHT_AUTO_DETECT,0,0,23,59,1,1))
             syncUserInfo(callBack)
-        }, CustomSetting(false,false,false,true,true).apply {
-            temperatureUnit = ETemperatureUnit.FAHRENHEIT
-        })
+        }, CustomSetting(false,false,false,true,true))
     }
 
     private fun syncUserInfo(callBack: () -> Unit = {}){
@@ -420,6 +835,7 @@ class B360Device:BaseDevice(),SearchResponse {
         if(userInfo!=null){
             vManager?.syncPersonInfo({
                 Log.i(B360DeviceTag,"Status response $it")
+                //updateTime(callBack)
                 callBack()
             },{
                 if(it == EOprateStauts.OPRATE_SUCCESS){
@@ -437,12 +853,48 @@ class B360Device:BaseDevice(),SearchResponse {
         }else{
             callBack()
         }
+        configureAutoDetection()
+    }
+    private fun configureAutoDetection(){
+        updateTime()
+        vManager?.changeCustomSetting({
+
+        },{
+
+        },CustomSetting(false,false,false,true,true))
+//        vManager?.settingDetectBP({
+//            Log.d(B360DeviceTag,"Got detection write response $it")
+//        },{
+//            Log.d(B360DeviceTag,"Got detection response ${it.model}")
+//        }, BpSetting(false,120,300))
+    }
+
+    private fun configureAutoCapture(){
+        //vManager?.
+    }
+
+
+    private fun updateTime(callBack: () -> Unit = {}){
+        val cal = Calendar.getInstance()
+        val currentTime = DeviceTimeSetting(cal.get(Calendar.YEAR),
+            cal.get(Calendar.MONTH)+1,
+            cal.get(Calendar.DAY_OF_MONTH),
+            cal.get(Calendar.HOUR_OF_DAY),
+            cal.get(Calendar.MINUTE),
+            Calendar.SECOND,
+            ETimeMode.MODE_12)
+        vManager?.settingTime({
+            Log.i(B360DeviceTag,"Time setting write response $it")
+            callBack()
+        },{
+            Log.i(B360DeviceTag,"Time setting response $it")
+        },currentTime)
     }
 
     override fun onDeviceFounded(searchResult: SearchResult?) {
         searchResult?.let {sResult->
             val lastFour = sResult.address.substring(sResult.address.length - 5).replace(":", "")
-            Log.i(B360DeviceTag,"Found last found $lastFour compared to $deviceId")
+            Log.i(B360DeviceTag,"Found last four $lastFour compared to $deviceId")
             if(lastFour == deviceId){
                 deviceFound = true
                 vManager?.stopScanDevice()
@@ -451,6 +903,7 @@ class B360Device:BaseDevice(),SearchResponse {
                 }, {resp->
                     Log.i(B360DeviceTag,"Got connect response $resp")
                     if(resp== Code.REQUEST_SUCCESS){
+                        connected = true
                         DataSync.sendHeartBeat(HeartBeat(macAddress = searchResult.address, deviceId = searchResult.name))
                         configureDevice()
                         connectResult?.success(ConnectionInfo.createResponse(deviceId = searchResult.address,deviceType = B360_DEVICE,
@@ -470,27 +923,40 @@ class B360Device:BaseDevice(),SearchResponse {
     }
 
     private fun confirmPasswd(callBack: ()->Unit = {}){
-        vManager?.confirmDevicePwd({
-            Log.i(B360DeviceTag,"Password write response ${Gson().toJson(it)}")
+        val curTime = Calendar.getInstance().timeInMillis
+        if(curTime - lastConfirmPassword > 30000) {
+            vManager?.confirmDevicePwd({
+                Log.i(B360DeviceTag, "Password write response ${Gson().toJson(it)}")
 
-        }, {
-            Log.i(B360DeviceTag,"pwd data ${it.deviceNumber} - ${it.deviceVersion} - ${it.getmStatus()}")
-            if(it.getmStatus() == EPwdStatus.CHECK_AND_TIME_SUCCESS){
-                Thread.sleep(1000)
-                callBack()
-            }
-        },
-            {
-                Log.i(B360DeviceTag,"Function listener ${it.bp} = ${it.heartDetect} ${it.hrvFunction}")
-            },object: ISocialMsgDataListener{
-                override fun onSocialMsgSupportDataChange(msgData: FunctionSocailMsgData?) {
-                    Log.i(B360DeviceTag,"Message Data $msgData")
+            }, {
+                Log.i(
+                    B360DeviceTag,
+                    "pwd data ${it.deviceNumber} - ${it.deviceVersion} - ${it.getmStatus()}"
+                )
+                if (it.getmStatus() == EPwdStatus.CHECK_AND_TIME_SUCCESS) {
+                    lastConfirmPassword = Calendar.getInstance().timeInMillis
+                    Thread.sleep(1000)
+                    callBack()
                 }
-                override fun onSocialMsgSupportDataChange2(msgData: FunctionSocailMsgData?) {
-                    Log.i(B360DeviceTag,"Message Data 2 $msgData")
-                }
+            },
+                {
+                    Log.i(
+                        B360DeviceTag,
+                        "Function listener ${it.bp} = ${it.heartDetect} ${it.hrvFunction}"
+                    )
+                }, object : ISocialMsgDataListener {
+                    override fun onSocialMsgSupportDataChange(msgData: FunctionSocailMsgData?) {
+                        Log.i(B360DeviceTag, "Message Data $msgData")
+                    }
 
-            },"0000",false)
+                    override fun onSocialMsgSupportDataChange2(msgData: FunctionSocailMsgData?) {
+                        Log.i(B360DeviceTag, "Message Data 2 $msgData")
+                    }
+                }, "0000", false
+            )
+        }else{
+            callBack()
+        }
 
     }
 
@@ -519,3 +985,5 @@ class B360Device:BaseDevice(),SearchResponse {
     }
 
 }
+
+class SingleRecord(val data: String, val measureTime: Date)
