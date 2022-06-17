@@ -22,6 +22,10 @@ const String ConnectionNotfoundRoute = '/setup/connectionNotfound';
 const String UnabletoconnectRoute = '/setup/unabletoconnect';
 const String ConnectionWifiRoute = '/setup/connectwifi';
 
+const String SetupScaleOptionsRoute = '/setup/options';
+const String SetupScaleBluetoothRoute = '/setup/bluetooth';
+const String SetupScaleWifiRoute = '/setup/wifi';
+
 const String HelpRoute = '/help';
 const String SettingsRoute = '/settings';
 const String RedeemRoute = '/redeem';

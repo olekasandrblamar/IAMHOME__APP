@@ -8,8 +8,6 @@ import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'package:ceras/constants/route_paths.dart' as routes;
-
 import 'widgets/bluetooth_notfound_widget.dart';
 
 class SetupDevicesScreen extends StatefulWidget {
@@ -147,8 +145,9 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                           arguments: {
                             'tag': 'imageHero' + index.toString(),
                             'deviceData': hardwareDataSnapshot.data[index],
-                            'deviceType': hardwareDataSnapshot.data[index]
-                                .deviceMaster['name'].toUpperCase(),
+                            'deviceType': hardwareDataSnapshot
+                                .data[index].deviceMaster['name']
+                                .toUpperCase(),
                             'displayImage': imageData,
                           },
                         ),
