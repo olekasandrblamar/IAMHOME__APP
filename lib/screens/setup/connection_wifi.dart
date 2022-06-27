@@ -320,36 +320,35 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        leading: BackButton(color: Colors.black),
-        backgroundColor: Colors.white,
-        elevation: 0,
-      ),
-      backgroundColor: AppTheme.white,
-      body: SingleChildScrollView(
-      child: Container(
-        width: double.infinity,
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: <Widget>[
-            SizedBox(height: 5.0),
-            !_isInit
-                ? _connectionStatus != 'wifi'
-                    ? NoWifiConnectionWidget(context)
-                    : _wifiName != null
-                        ? _connectError
-                            ? ConnectErrorWidget(context)
-                            : EnterWifiInformation(context)
-                        : NoLocationEnabledWidget(context)
-                : Center(
-                    child: CircularProgressIndicator(),
-                  ),
-          ],
+        appBar: AppBar(
+          leading: BackButton(color: Colors.black),
+          backgroundColor: Colors.white,
+          elevation: 0,
         ),
-      ),
-    )
-    );
+        backgroundColor: AppTheme.white,
+        body: SingleChildScrollView(
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: <Widget>[
+                SizedBox(height: 5.0),
+                !_isInit
+                    ? _connectionStatus != 'wifi'
+                        ? NoWifiConnectionWidget(context)
+                        : _wifiName != null
+                            ? _connectError
+                                ? ConnectErrorWidget(context)
+                                : EnterWifiInformation(context)
+                            : NoLocationEnabledWidget(context)
+                    : Center(
+                        child: CircularProgressIndicator(),
+                      ),
+              ],
+            ),
+          ),
+        ));
   }
 
   Container EnterWifiInformation(BuildContext context) {
@@ -376,30 +375,33 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                   ),
                 )
               : Container(height: 0),
+          SizedBox(
+            height: 25,
+          ),
           Container(
             width: double.infinity,
             padding: const EdgeInsets.only(
               bottom: 10.0,
             ),
             child: Text(
-              'Please Choose Your WIFI',
+              'Please enter your wifi password',
               overflow: TextOverflow.ellipsis,
               textAlign: TextAlign.center,
               style: AppTheme.title,
             ),
           ),
-          Container(
-            width: double.infinity,
-            child: Text(
-              'Choose your local wifi network',
-              overflow: TextOverflow.ellipsis,
-              textAlign: TextAlign.center,
-              style: AppTheme.subtitle,
-            ),
-          ),
-          SizedBox(
-            height: 25,
-          ),
+          // Container(
+          //   width: double.infinity,
+          //   child: Text(
+          //     'Choose your local wifi network',
+          //     overflow: TextOverflow.ellipsis,
+          //     textAlign: TextAlign.center,
+          //     style: AppTheme.subtitle,
+          //   ),
+          // ),
+          // SizedBox(
+          //   height: 25,
+          // ),
           Form(
             key: _formKey,
             child: Card(
@@ -484,7 +486,38 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
                                 ),
                               ),
                             ),
-                          )
+                          ),
+                    SizedBox(
+                      height: 25,
+                    ),
+                    Container(
+                      width: 200,
+                      height: 75,
+                      padding: EdgeInsets.all(10),
+                      child: RaisedButton(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(4.5),
+                        ),
+                        // color: Theme.of(context).primaryColor,
+                        // textColor: Colors.white,
+                        onPressed: () async {
+                          await Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(
+                                builder: (BuildContext context) =>
+                                    SetupHomeScreen(),
+                                settings: const RouteSettings(
+                                    name: routes.SetupHomeRoute),
+                              ),
+                              (Route<dynamic> route) => false);
+                        },
+                        child: Text(
+                          'Skip',
+                          style: TextStyle(
+                            fontSize: 14,
+                          ),
+                        ),
+                      ),
+                    ),
                     // Container(
                     //   width: 200,
                     //   height: 75,
@@ -622,9 +655,13 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
               // color: Theme.of(context).primaryColor,
               // textColor: Colors.white,
               onPressed: () async {
-                return Navigator.of(context).pushReplacementNamed(
-                  routes.SetupHomeRoute,
-                );
+                await Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => SetupHomeScreen(),
+                      settings:
+                          const RouteSettings(name: routes.SetupHomeRoute),
+                    ),
+                    (Route<dynamic> route) => false);
               },
               child: Text(
                 'Skip',
@@ -690,9 +727,13 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
               color: Theme.of(context).primaryColor,
               textColor: Colors.white,
               onPressed: () async {
-                return Navigator.of(context).pushReplacementNamed(
-                  routes.SetupHomeRoute,
-                );
+                await Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => SetupHomeScreen(),
+                      settings:
+                          const RouteSettings(name: routes.SetupHomeRoute),
+                    ),
+                    (Route<dynamic> route) => false);
               },
               child: Text(
                 'Skip',

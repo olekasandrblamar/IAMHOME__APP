@@ -5,6 +5,8 @@ import 'package:ceras/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../setup_home_screen.dart';
+
 class SetupScaleWifiScreen extends StatefulWidget {
   final Map<dynamic, dynamic> routeArgs;
 
@@ -78,20 +80,26 @@ class _SetupScaleWifiScreenState extends State<SetupScaleWifiScreen> {
             ),
           ),
         ),
+        SizedBox(
+          height: 25,
+        ),
         Container(
           width: double.infinity,
           child: Text(
             '- Connecting via 2.4Ghz wifi will allow you to weight yourself without opening the ceras app daily.',
-            overflow: TextOverflow.ellipsis,
+            // overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: AppTheme.title,
           ),
+        ),
+        SizedBox(
+          height: 25,
         ),
         Container(
           width: double.infinity,
           child: Text(
             '- Please note that it may not work with some wifi networks.',
-            overflow: TextOverflow.ellipsis,
+            // overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: AppTheme.title,
           ),
@@ -102,6 +110,7 @@ class _SetupScaleWifiScreenState extends State<SetupScaleWifiScreen> {
         Card(
           elevation: 5.0,
           child: Container(
+            width: double.infinity,
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
             child: Column(
@@ -117,11 +126,14 @@ class _SetupScaleWifiScreenState extends State<SetupScaleWifiScreen> {
                     ),
                     padding: const EdgeInsets.all(10.0),
                     child: SvgPicture.asset(
-                      'assets/images/bluetooth.svg',
+                      'assets/images/wifi_icon.svg',
                       fit: BoxFit.contain,
                       alignment: Alignment.center,
                     ),
                   ),
+                ),
+                SizedBox(
+                  height: 25,
                 ),
                 Container(
                   width: 200,
@@ -151,6 +163,34 @@ class _SetupScaleWifiScreenState extends State<SetupScaleWifiScreen> {
                           ),
                           (Route<dynamic> route) => false);
                     },
+                  ),
+                ),
+                Container(
+                  width: 200,
+                  height: 75,
+                  padding: EdgeInsets.all(10),
+                  child: RaisedButton(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(4.5),
+                    ),
+                    // color: Theme.of(context).primaryColor,
+                    // textColor: Colors.white,
+                    onPressed: () async {
+                      await Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                SetupHomeScreen(),
+                            settings: const RouteSettings(
+                                name: routes.SetupHomeRoute),
+                          ),
+                          (Route<dynamic> route) => false);
+                    },
+                    child: Text(
+                      'Skip',
+                      style: TextStyle(
+                        fontSize: 14,
+                      ),
+                    ),
                   ),
                 ),
               ],

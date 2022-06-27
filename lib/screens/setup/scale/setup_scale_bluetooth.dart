@@ -316,11 +316,14 @@ class _SetupScaleBluetoothScreenState extends State<SetupScaleBluetoothScreen> {
             ),
           ),
         ),
+        SizedBox(
+          height: 25,
+        ),
         Container(
           width: double.infinity,
           child: Text(
             'Your device ID is the last 4 digits on the back of the box',
-            overflow: TextOverflow.ellipsis,
+            // overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: AppTheme.title,
           ),
@@ -331,6 +334,7 @@ class _SetupScaleBluetoothScreenState extends State<SetupScaleBluetoothScreen> {
         Card(
           elevation: 5.0,
           child: Container(
+            width: double.infinity,
             padding:
                 const EdgeInsets.symmetric(horizontal: 16.0, vertical: 32.0),
             child: Column(
@@ -394,11 +398,14 @@ class _SetupScaleBluetoothScreenState extends State<SetupScaleBluetoothScreen> {
             ),
           ),
         ),
+        SizedBox(
+          height: 25,
+        ),
         Container(
           width: double.infinity,
           child: Text(
             'While Standing on the device please enter your device ID',
-            overflow: TextOverflow.ellipsis,
+            // overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: AppTheme.title,
           ),
