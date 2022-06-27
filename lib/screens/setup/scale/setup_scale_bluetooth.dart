@@ -2,16 +2,13 @@ import 'dart:convert';
 
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ceras/config/app_localizations.dart';
+import 'package:ceras/helpers/errordialog_popup.dart';
 import 'package:ceras/models/devices_model.dart';
+import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/devices_provider.dart';
-import 'package:ceras/screens/setup/connection_wifi.dart';
-import 'package:ceras/screens/setup/setup_connected_screen.dart';
+import 'package:ceras/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:ceras/constants/route_paths.dart' as routes;
-import 'package:ceras/helpers/errordialog_popup.dart';
-import 'package:ceras/models/watchdata_model.dart';
-import 'package:ceras/theme.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 // import 'package:flutter_blue/flutter_blue.dart';
 import 'package:provider/provider.dart';
@@ -292,14 +289,14 @@ class _SetupScaleBluetoothScreenState extends State<SetupScaleBluetoothScreen> {
         padding: const EdgeInsets.all(16.0),
         child: SingleChildScrollView(
           child: _selectStep == 1
-              ? setupBluetoothInto(context)
+              ? setupBluetoothIntro(context)
               : setupBluetooth(context),
         ),
       ),
     );
   }
 
-  Column setupBluetoothInto(BuildContext context) {
+  Column setupBluetoothIntro(BuildContext context) {
     return Column(
       children: <Widget>[
         Container(
@@ -308,7 +305,7 @@ class _SetupScaleBluetoothScreenState extends State<SetupScaleBluetoothScreen> {
             bottom: 5.0,
           ),
           child: Text(
-            'Step 1 of 1',
+            'Step 1 of 2',
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: TextStyle(
@@ -343,20 +340,10 @@ class _SetupScaleBluetoothScreenState extends State<SetupScaleBluetoothScreen> {
                     maxHeight: 250.0,
                   ),
                   padding: const EdgeInsets.all(10.0),
-                  child: Hero(
-                    transitionOnUserGestures: true,
-                    tag: _deviceTag,
-                    child: CachedNetworkImage(
-                      imageUrl: _displayImage,
-                      fit: BoxFit.contain,
-                      alignment: Alignment.center,
-                      fadeInDuration: Duration(milliseconds: 200),
-                      fadeInCurve: Curves.easeIn,
-                      placeholder: (context, url) =>
-                          CircularProgressIndicator(),
-                      errorWidget: (context, url, error) =>
-                          Image.asset('assets/images/bluetooth_scale_into.png'),
-                    ),
+                  child: Image.asset(
+                    'assets/images/bluetooth_scale_into.png',
+                    fit: BoxFit.contain,
+                    alignment: Alignment.center,
                   ),
                 ),
                 Container(
@@ -396,7 +383,7 @@ class _SetupScaleBluetoothScreenState extends State<SetupScaleBluetoothScreen> {
             bottom: 5.0,
           ),
           child: Text(
-            'Step 1 of 2',
+            'Step 2 of 2',
             overflow: TextOverflow.ellipsis,
             textAlign: TextAlign.center,
             style: TextStyle(

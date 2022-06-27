@@ -8,6 +8,7 @@ import 'package:ceras/screens/setup/connection_notfound_screen.dart';
 import 'package:ceras/screens/setup/connection_wifi.dart';
 import 'package:ceras/screens/setup/scale/setup_scale_bluetooth.dart';
 import 'package:ceras/screens/setup/scale/setup_scale_options.dart';
+import 'package:ceras/screens/setup/scale/setup_scale_wifi.dart';
 import 'package:ceras/screens/setup/setup_connected_screen.dart';
 import 'package:ceras/screens/setup/setup_devices_screen.dart';
 import 'package:ceras/screens/setup/setup_upgrade_screen.dart';
@@ -137,9 +138,17 @@ Route<dynamic> generateRoute(
     case SetupScaleBluetoothRoute:
       var arguments = settings.arguments as Map<dynamic, dynamic>;
       return MaterialPageRoute(
-          builder: (context) => SetupScaleBluetoothScreen(
-                routeArgs: arguments,
-              ));
+        builder: (context) => SetupScaleBluetoothScreen(
+          routeArgs: arguments,
+        ),
+      );
+    case SetupScaleWifiRoute:
+      var arguments = settings.arguments as Map<dynamic, dynamic>;
+      return MaterialPageRoute(
+        builder: (context) => SetupScaleWifiScreen(
+          routeArgs: arguments,
+        ),
+      );
     case AppPermissionsRoute:
       return MaterialPageRoute(builder: (context) => AppPermissions());
     default:

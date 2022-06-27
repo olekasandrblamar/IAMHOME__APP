@@ -112,6 +112,7 @@ flutter:
     - assets/images/storage.png
     - assets/images/wifi.svg
     - assets/images/bluetooth.svg
+    - assets/images/wifi_icon.svg
     - assets/images/bluetooth_scale_into.png
 
   fonts:

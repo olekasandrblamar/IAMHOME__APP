@@ -1,13 +1,7 @@
-import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
-import 'package:ceras/providers/devices_provider.dart';
-import 'package:ceras/screens/auth/login_screen.dart';
 import 'package:ceras/theme.dart';
-import 'package:ceras/widgets/nodata_widget.dart';
-import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:provider/provider.dart';
 
 class SetupScaleOptionsScreen extends StatefulWidget {
   final Map<dynamic, dynamic> routeArgs;
@@ -188,7 +182,12 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 ),
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
-                onPressed: () async {},
+                onPressed: () async {
+                  return Navigator.of(context).pushNamed(
+                    routes.SetupScaleWifiRoute,
+                    arguments: {...widget.routeArgs},
+                  );
+                },
                 child: Text(
                   'Connect Now',
                   style: TextStyle(

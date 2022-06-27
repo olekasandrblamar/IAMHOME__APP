@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="157" height="99" viewBox="0 0 157 99">
+  <g id="wifi_icon" data-name="wifi icon" transform="translate(-109 -317)">
+    <g id="Group_40024" data-name="Group 40024" transform="translate(229.527 346.149)">
+      <g id="Rectangle_12127" data-name="Rectangle 12127" transform="translate(0.473 -0.149)" fill="#fff" stroke="#000" stroke-width="4">
+        <rect width="36" height="68" rx="5" stroke="none"/>
+        <rect x="2" y="2" width="32" height="64" rx="3" fill="none"/>
+      </g>
+      <rect id="Rectangle_12128" data-name="Rectangle 12128" width="20" height="5" rx="2.5" transform="translate(8.473 0.851)"/>
+    </g>
+    <g id="Group_40025" data-name="Group 40025" transform="translate(109 346.149)">
+      <g id="Rectangle_12129" data-name="Rectangle 12129" transform="translate(0 -0.149)" fill="none" stroke="#000" stroke-width="4">
+        <rect width="71" height="70" rx="11" stroke="none"/>
+        <rect x="2" y="2" width="67" height="66" rx="9" fill="none"/>
+      </g>
+      <g id="Ellipse_1420" data-name="Ellipse 1420" transform="translate(28 27.851)" fill="#fff" stroke="#000" stroke-width="3">
+        <circle cx="7.5" cy="7.5" r="7.5" stroke="none"/>
+        <circle cx="7.5" cy="7.5" r="6" fill="none"/>
+      </g>
+      <g id="Rectangle_12130" data-name="Rectangle 12130" transform="translate(8 30.851)" fill="#fff" stroke="#000" stroke-width="3">
+        <rect width="17" height="7" stroke="none"/>
+        <rect x="1.5" y="1.5" width="14" height="4" fill="none"/>
+      </g>
+      <g id="Rectangle_12131" data-name="Rectangle 12131" transform="translate(47 30.851)" fill="#fff" stroke="#000" stroke-width="3">
+        <rect width="17" height="7" stroke="none"/>
+        <rect x="1.5" y="1.5" width="14" height="4" fill="none"/>
+      </g>
+      <g id="Rectangle_12132" data-name="Rectangle 12132" transform="translate(39.034 45.54) rotate(90)" fill="#fff" stroke="#000" stroke-width="3">
+        <rect width="17.12" height="6.848" stroke="none"/>
+        <rect x="1.5" y="1.5" width="14.12" height="3.848" fill="none"/>
+      </g>
+      <g id="Rectangle_12133" data-name="Rectangle 12133" transform="translate(39.034 7.191) rotate(90)" fill="#fff" stroke="#000" stroke-width="3">
+        <rect width="17.12" height="6.848" stroke="none"/>
+        <rect x="1.5" y="1.5" width="14.12" height="3.848" fill="none"/>
+      </g>
+    </g>
+    <path id="Path_27346" data-name="Path 27346" d="M111.928,1580.3V1565.68H223.1V1580.3" transform="translate(24.415 -1237.555)" fill="none" stroke="#707070" stroke-width="1" stroke-dasharray="5"/>
+    <g id="Ellipse_1421" data-name="Ellipse 1421" transform="translate(185 317)" fill="#fff" stroke="#707070" stroke-width="1">
+      <ellipse cx="15" cy="15.5" rx="15" ry="15.5" stroke="none"/>
+      <ellipse cx="15" cy="15.5" rx="14.5" ry="15" fill="none"/>
+    </g>
+    <g id="Group_40027" data-name="Group 40027" transform="translate(191.863 324.235)">
+      <path id="Path_27347" data-name="Path 27347" d="M0,0H16.436V16.436H0ZM0,0H16.436V16.436H0Z" fill="none"/>
+      <path id="Path_27348" data-name="Path 27348" d="M1,7.565l1.37,1.37a8.717,8.717,0,0,1,12.327,0l1.37-1.37A10.66,10.66,0,0,0,1,7.565Zm5.479,5.479L8.533,15.1l2.054-2.054A2.9,2.9,0,0,0,6.479,13.044ZM3.739,10.3l1.37,1.37a4.844,4.844,0,0,1,6.848,0l1.37-1.37A6.787,6.787,0,0,0,3.739,10.3Z" transform="translate(-0.315 -1.402)" fill="#c20a12"/>
+    </g>
+  </g>
+</svg>
