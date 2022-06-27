@@ -6,9 +6,14 @@ import 'package:ceras/theme.dart';
 import 'package:ceras/widgets/nodata_widget.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:provider/provider.dart';
 
 class SetupScaleOptionsScreen extends StatefulWidget {
+  final Map<dynamic, dynamic> routeArgs;
+
+  SetupScaleOptionsScreen({Key key, this.routeArgs}) : super(key: key);
+
   @override
   _SetupScaleOptionsScreenState createState() =>
       _SetupScaleOptionsScreenState();
@@ -76,8 +81,8 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 maxHeight: 300.0,
               ),
               padding: const EdgeInsets.all(10.0),
-              child: Image.asset(
-                'assets/images/noConnection.png',
+              child: SvgPicture.asset(
+                'assets/images/bluetooth.svg',
               ),
             ),
             Container(
@@ -99,9 +104,14 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 ),
                 color: Theme.of(context).primaryColor,
                 textColor: Colors.white,
-                onPressed: () async {},
+                onPressed: () async {
+                  return Navigator.of(context).pushNamed(
+                    routes.SetupScaleBluetoothRoute,
+                    arguments: {...widget.routeArgs},
+                  );
+                },
                 child: Text(
-                  'Check Again',
+                  'Connect Now',
                   style: TextStyle(
                     fontSize: 14,
                   ),
@@ -133,8 +143,8 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 maxHeight: 300.0,
               ),
               padding: const EdgeInsets.all(10.0),
-              child: Image.asset(
-                'assets/images/noConnection.png',
+              child: SvgPicture.asset(
+                'assets/images/wifi.svg',
               ),
             ),
             Container(
@@ -180,7 +190,7 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 textColor: Colors.white,
                 onPressed: () async {},
                 child: Text(
-                  'Check Again',
+                  'Connect Now',
                   style: TextStyle(
                     fontSize: 14,
                   ),

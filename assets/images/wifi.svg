@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="77.053" height="77.053" viewBox="0 0 77.053 77.053">
+  <g id="wifi" transform="translate(-186.5 -153.5)">
+    <g id="Ellipse_1421" data-name="Ellipse 1421" transform="translate(186.5 153.5)" fill="#fff" stroke="#707070" stroke-width="1">
+      <circle cx="38.527" cy="38.527" r="38.527" stroke="none"/>
+      <circle cx="38.527" cy="38.527" r="38.027" fill="none"/>
+    </g>
+    <g id="Group_40071" data-name="Group 40071" transform="translate(204.822 171.822)">
+      <path id="Path_27347" data-name="Path 27347" d="M0,0H40.409V40.409H0ZM0,0H40.409V40.409H0Z" transform="translate(0 0)" fill="none"/>
+      <path id="Path_27348" data-name="Path 27348" d="M1,12.113,4.367,15.48a21.432,21.432,0,0,1,30.307,0l3.367-3.367A26.208,26.208,0,0,0,1,12.113Zm13.47,13.47,5.051,5.051,5.051-5.051A7.134,7.134,0,0,0,14.47,25.582ZM7.735,18.847,11.1,22.215a11.91,11.91,0,0,1,16.837,0l3.367-3.367A16.686,16.686,0,0,0,7.735,18.847Z" transform="translate(0.684 3.041)" fill="#c20a12"/>
+    </g>
+  </g>
+</svg>

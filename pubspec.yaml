@@ -110,6 +110,9 @@ flutter:
     - assets/images/AddNewDeviceDefault.png
     - assets/images/upgrading.png
     - assets/images/storage.png
+    - assets/images/wifi.svg
+    - assets/images/bluetooth.svg
+    - assets/images/bluetooth_scale_into.png
 
   fonts:
     - family: Roboto

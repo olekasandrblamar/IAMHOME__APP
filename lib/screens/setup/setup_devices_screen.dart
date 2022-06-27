@@ -132,6 +132,11 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                 itemBuilder: (BuildContext context, int index) {
                   var imageData = hardwareDataSnapshot
                       .data[index].deviceMaster['displayImage'];
+
+                  var deviceName = hardwareDataSnapshot
+                      .data[index].deviceMaster['name']
+                      .toUpperCase();
+
                   return Card(
                     margin: EdgeInsets.symmetric(vertical: 10),
                     elevation: 5,
@@ -140,17 +145,30 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                     ),
                     child: InkWell(
                       onTap: () => {
-                        Navigator.of(context).pushNamed(
-                          routes.SetupConnectRoute,
-                          arguments: {
-                            'tag': 'imageHero' + index.toString(),
-                            'deviceData': hardwareDataSnapshot.data[index],
-                            'deviceType': hardwareDataSnapshot
-                                .data[index].deviceMaster['name']
-                                .toUpperCase(),
-                            'displayImage': imageData,
-                          },
-                        ),
+                        if (deviceName == 'B500')
+                          {
+                            Navigator.of(context).pushNamed(
+                              routes.SetupScaleOptionsRoute,
+                              arguments: {
+                                'tag': 'imageHero' + index.toString(),
+                                'deviceData': hardwareDataSnapshot.data[index],
+                                'deviceType': deviceName,
+                                'displayImage': imageData,
+                              },
+                            )
+                          }
+                        else
+                          {
+                            Navigator.of(context).pushNamed(
+                              routes.SetupConnectRoute,
+                              arguments: {
+                                'tag': 'imageHero' + index.toString(),
+                                'deviceData': hardwareDataSnapshot.data[index],
+                                'deviceType': deviceName,
+                                'displayImage': imageData,
+                              },
+                            )
+                          }
                       },
                       child: Container(
                         padding: EdgeInsets.all(5),
