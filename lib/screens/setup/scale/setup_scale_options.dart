@@ -3,6 +3,8 @@ import 'package:ceras/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
 
+import '../../../models/devices_model.dart';
+
 class SetupScaleOptionsScreen extends StatefulWidget {
   final Map<dynamic, dynamic> routeArgs;
 
@@ -14,8 +16,14 @@ class SetupScaleOptionsScreen extends StatefulWidget {
 }
 
 class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
+  DevicesModel _deviceData = null;
+
   @override
   void initState() {
+    if (widget.routeArgs != null) {
+      _deviceData = widget.routeArgs['deviceData'];
+    }
+
     // TODO: implement initState
     super.initState();
   }
@@ -122,6 +130,7 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
   }
 
   Container wifiConnect(BuildContext context) {
+    var deviceWifiAvailable = _deviceData.deviceMaster['wifi'];
     return Container(
       width: double.infinity,
       child: Card(
@@ -137,9 +146,11 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 maxHeight: 300.0,
               ),
               padding: const EdgeInsets.all(10.0),
-              child: SvgPicture.asset(
-                'assets/images/wifi.svg',
-              ),
+              child: deviceWifiAvailable != null
+                  ? SvgPicture.asset(
+                      'assets/images/wifi.svg',
+                    )
+                  : Image.asset('assets/images/wifi_error.png'),
             ),
             Container(
               padding: const EdgeInsets.all(10.0),
@@ -172,30 +183,32 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 style: AppTheme.subtitle,
               ),
             ),
-            Container(
-              width: 200,
-              height: 75,
-              padding: EdgeInsets.all(10),
-              child: RaisedButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.5),
-                ),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () async {
-                  return Navigator.of(context).pushNamed(
-                    routes.SetupScaleWifiRoute,
-                    arguments: {...widget.routeArgs},
-                  );
-                },
-                child: Text(
-                  'Connect Now',
-                  style: TextStyle(
-                    fontSize: 14,
-                  ),
-                ),
-              ),
-            ),
+            deviceWifiAvailable != null
+                ? Container(
+                    width: 200,
+                    height: 75,
+                    padding: EdgeInsets.all(10),
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.5),
+                      ),
+                      color: Theme.of(context).primaryColor,
+                      textColor: Colors.white,
+                      onPressed: () async {
+                        return Navigator.of(context).pushNamed(
+                          routes.SetupScaleWifiRoute,
+                          arguments: {...widget.routeArgs},
+                        );
+                      },
+                      child: Text(
+                        'Connect Now',
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(height: 0),
             SizedBox(
               height: 25,
             ),

@@ -84,36 +84,9 @@ flutter:
   assets:
     - i18n/
     - assets/privacy/index.html
-    - assets/images/placeholder.jpg
-    - assets/images/location.png
-    - assets/images/camera.png
-    - assets/images/push_notification.png
-    - assets/images/ceraswithletter.png
-    - assets/images/bWell.jpg
-    - assets/images/bActive.jpg
-    - assets/images/condition.png
-    - assets/images/bluetooth.png
-    - assets/images/devicenotfound.png
-    - assets/images/noConnection.png
-    - assets/images/noconnection_ceras.png
-    - assets/images/health.png
-    - assets/images/connected.png
-    - assets/images/support.png
-    - assets/images/t&c.png
-    - assets/images/emptyImage.png
+    - assets/images/
     - assets/icons/
     - assets/trackers/
-    - assets/images/clouds.png
-    - assets/images/bee_left.png
-    - assets/images/bee_right.png
-    - assets/images/Bluechecked.png
-    - assets/images/AddNewDeviceDefault.png
-    - assets/images/upgrading.png
-    - assets/images/storage.png
-    - assets/images/wifi.svg
-    - assets/images/bluetooth.svg
-    - assets/images/wifi_icon.svg
-    - assets/images/bluetooth_scale_into.png
 
   fonts:
     - family: Roboto
