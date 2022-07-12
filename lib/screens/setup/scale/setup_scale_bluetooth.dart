@@ -272,6 +272,7 @@ class _SetupScaleBluetoothScreenState extends State<SetupScaleBluetoothScreen> {
 
   void _redirectTo() {
     Navigator.of(context).pop();
+    Navigator.of(context).pop();
   }
 
   @override
