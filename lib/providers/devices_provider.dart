@@ -22,6 +22,9 @@ class DevicesProvider extends ChangeNotifier {
   List<DevicesModel> _deviceData = [];
   WatchModel _watchInfo;
 
+  bool b500BluetoothConnection;
+  bool b500WifiConnection;
+
   Future<String> get _baseUrl async {
     final prefs = await SharedPreferences.getInstance();
     final baseUrl = await prefs.getString('apiBaseUrl');
@@ -74,7 +77,7 @@ class DevicesProvider extends ChangeNotifier {
   // This method migrates the saved device data from old model to new device model
   static Future<void> migrateDeviceModel() async {
     var devices = await DevicesProvider.loadDevices();
-    if(devices.isNotEmpty) {
+    if (devices.isNotEmpty) {
       devices.forEach((device) {
         var deviceName = device.deviceMaster['name'] as String;
         device.watchInfo.deviceType = deviceName;
@@ -84,7 +87,7 @@ class DevicesProvider extends ChangeNotifier {
     }
   }
 
-  static Future<List<DevicesModel>> loadDevices() async{
+  static Future<List<DevicesModel>> loadDevices() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
     var prefData = prefs.getString('deviceData');
@@ -103,7 +106,7 @@ class DevicesProvider extends ChangeNotifier {
     // print(existingDeviceData);
 
     existingDeviceData.forEach(
-          (data) {
+      (data) {
         formattedData.add(
           DevicesModel.fromJson(data),
         );
@@ -164,7 +167,7 @@ class DevicesProvider extends ChangeNotifier {
     //   macAddress = WatchModel.fromJson(watchInfo).deviceId;
     // }
 
-    if(deviceData.isNotEmpty){
+    if (deviceData.isNotEmpty) {
       macAddress = deviceData[0].watchInfo.deviceId;
     }
 
@@ -174,23 +177,25 @@ class DevicesProvider extends ChangeNotifier {
   Future<Map<String, dynamic>> _getDeviceRequest() async {
     var devices = await getDevicesData();
     var deviceRequestData = devices.map((e) => e.watchInfo.deviceId).join(",");
-    var b300Address = await (await SharedPreferences.getInstance()).getString("device_macid");
-    if(b300Address != null){
-      deviceRequestData=b300Address+",$deviceRequestData";
+    var b300Address =
+        await (await SharedPreferences.getInstance()).getString("device_macid");
+    if (b300Address != null) {
+      deviceRequestData = b300Address + ",$deviceRequestData";
     }
-    var deviceRequest =  {"deviceList": deviceRequestData};
+    var deviceRequest = {"deviceList": deviceRequestData};
     print('Getting trackers for $deviceRequest');
     return deviceRequest;
   }
 
   Future<Map<String, dynamic>> _getDeviceTypesRequest() async {
     var devices = await getDevicesData();
-    var deviceRequestData = devices.map((e) => e.deviceMaster['name']).join(",");
+    var deviceRequestData =
+        devices.map((e) => e.deviceMaster['name']).join(",");
     // var b300Address = await (await SharedPreferences.getInstance()).getString("device_macid");
     // if(b300Address != null){
     //   deviceRequestData=b300Address+",$deviceRequestData";
     // }
-    var deviceRequest =  {"deviceTypes": deviceRequestData};
+    var deviceRequest = {"deviceTypes": deviceRequestData};
     print('Getting trackers for $deviceRequest');
     return deviceRequest;
   }
@@ -237,7 +242,8 @@ class DevicesProvider extends ChangeNotifier {
 
       if (response.data != null) {
         final responseData = response.data;
-        print("Got ${response.data} and reading property ${trackerMasterData.trackerValues[0].dataPropertyName} value ${responseData[trackerMasterData.trackerValues[0].dataPropertyName]}");
+        print(
+            "Got ${response.data} and reading property ${trackerMasterData.trackerValues[0].dataPropertyName} value ${responseData[trackerMasterData.trackerValues[0].dataPropertyName]}");
 
         final dataValue =
             responseData[trackerMasterData.trackerValues[0].dataPropertyName];
@@ -247,7 +253,6 @@ class DevicesProvider extends ChangeNotifier {
           'deviceId': responseData['deviceId'],
           'measureTime': responseData['measureTime'],
         };
-
 
         return TrackerData.fromJson(formattedData);
       }
@@ -270,8 +275,10 @@ class DevicesProvider extends ChangeNotifier {
         print("Got ${response.data}");
 
         final responseData = response.data;
-        trackerMasterData.trackerValues.sort((tracker1,tracker2)=>tracker1.order.compareTo(tracker2.order));
-        print('property 1 ${trackerMasterData.trackerValues[0].dataPropertyName} property2 ${trackerMasterData.trackerValues[1].dataPropertyName}');
+        trackerMasterData.trackerValues.sort(
+            (tracker1, tracker2) => tracker1.order.compareTo(tracker2.order));
+        print(
+            'property 1 ${trackerMasterData.trackerValues[0].dataPropertyName} property2 ${trackerMasterData.trackerValues[1].dataPropertyName}');
         final dataValue1 =
             responseData[trackerMasterData.trackerValues[0].dataPropertyName];
         final dataValue2 =
@@ -363,7 +370,5 @@ class DevicesProvider extends ChangeNotifier {
     }
   }
 
-  findDevice(deviceId) {
-
-  }
+  findDevice(deviceId) {}
 }
