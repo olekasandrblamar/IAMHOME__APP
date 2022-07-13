@@ -1,7 +1,9 @@
 import 'package:ceras/constants/route_paths.dart' as routes;
+import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/theme.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:provider/provider.dart';
 
 import '../../../models/devices_model.dart';
 
@@ -17,6 +19,8 @@ class SetupScaleOptionsScreen extends StatefulWidget {
 
 class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
   DevicesModel _deviceData = null;
+  bool b500BluetoothConnection;
+  bool b500WifiConnection;
 
   @override
   void initState() {
@@ -24,8 +28,22 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
       _deviceData = widget.routeArgs['deviceData'];
     }
 
+    bluetoothConnection();
+    wifiConnection();
+
     // TODO: implement initState
     super.initState();
+  }
+
+  void bluetoothConnection() async {
+    b500BluetoothConnection =
+        Provider.of<DevicesProvider>(context, listen: true)
+            .b500BluetoothConnection;
+  }
+
+  void wifiConnection() async {
+    b500WifiConnection =
+        Provider.of<DevicesProvider>(context, listen: true).b500WifiConnection;
   }
 
   @override
@@ -83,9 +101,11 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 maxHeight: 300.0,
               ),
               padding: const EdgeInsets.all(10.0),
-              child: SvgPicture.asset(
-                'assets/images/bluetooth.svg',
-              ),
+              child: b500WifiConnection
+                  ? Image.asset('assets/images/bluetooth_success.png')
+                  : SvgPicture.asset(
+                      'assets/images/bluetooth.svg',
+                    ),
             ),
             Container(
               padding: const EdgeInsets.all(10.0),
@@ -96,30 +116,34 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 style: AppTheme.title,
               ),
             ),
-            Container(
-              width: 200,
-              height: 75,
-              padding: EdgeInsets.all(10),
-              child: RaisedButton(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(4.5),
-                ),
-                color: Theme.of(context).primaryColor,
-                textColor: Colors.white,
-                onPressed: () async {
-                  return Navigator.of(context).pushNamed(
-                    routes.SetupScaleBluetoothRoute,
-                    arguments: {...widget.routeArgs},
-                  );
-                },
-                child: Text(
-                  'Connect Now',
-                  style: TextStyle(
-                    fontSize: 14,
+            !b500BluetoothConnection
+                ? Container(
+                    width: 200,
+                    height: 75,
+                    padding: EdgeInsets.all(10),
+                    child: RaisedButton(
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(4.5),
+                      ),
+                      color: Theme.of(context).primaryColor,
+                      textColor: Colors.white,
+                      onPressed: () async {
+                        return Navigator.of(context).pushNamed(
+                          routes.SetupScaleBluetoothRoute,
+                          arguments: {...widget.routeArgs},
+                        );
+                      },
+                      child: Text(
+                        'Connect Now',
+                        style: TextStyle(
+                          fontSize: 14,
+                        ),
+                      ),
+                    ),
+                  )
+                : Container(
+                    height: 0,
                   ),
-                ),
-              ),
-            ),
             SizedBox(
               height: 25,
             ),
@@ -147,9 +171,11 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
               ),
               padding: const EdgeInsets.all(10.0),
               child: deviceWifiAvailable != null
-                  ? SvgPicture.asset(
-                      'assets/images/wifi.svg',
-                    )
+                  ? b500WifiConnection
+                      ? Image.asset('assets/images/wifi_success.png')
+                      : SvgPicture.asset(
+                          'assets/images/wifi.svg',
+                        )
                   : Image.asset('assets/images/wifi_error.png'),
             ),
             Container(
@@ -183,7 +209,7 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 style: AppTheme.subtitle,
               ),
             ),
-            deviceWifiAvailable != null
+            deviceWifiAvailable != null || !b500WifiConnection
                 ? Container(
                     width: 200,
                     height: 75,

@@ -371,4 +371,16 @@ class DevicesProvider extends ChangeNotifier {
   }
 
   findDevice(deviceId) {}
+
+  updateB500BluetoothConnection(bool connection) async{
+    b500BluetoothConnection  = connection
+
+    notifyListeners();
+  }
+
+  updateB500WifiConnection(bool connection) async{
+    b500WifiConnection  = connection
+
+    notifyListeners();
+  }
 }

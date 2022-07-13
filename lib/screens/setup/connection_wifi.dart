@@ -13,8 +13,11 @@ import 'package:flutter/services.dart';
 import 'package:ceras/models/watchdata_model.dart';
 import 'package:network_info_plus/network_info_plus.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:system_settings/system_settings.dart';
+
+import '../../providers/devices_provider.dart';
 
 class ConnectionWifiScreen extends StatefulWidget {
   final Map<dynamic, dynamic> routeArgs;
@@ -229,6 +232,10 @@ class _ConnectionWifiScreenState extends State<ConnectionWifiScreen>
 
   void sendToSuccessScreen(bool connectivityStatus) async {
     _devicesModel.wifiConnected = connectivityStatus;
+
+    await Provider.of<DevicesProvider>(context, listen: false)
+        .updateB500WifiConnection(true);
+
     if (_initialSetup) {
       await Navigator.of(context).pushAndRemoveUntil(
           MaterialPageRoute(

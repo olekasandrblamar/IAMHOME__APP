@@ -270,7 +270,10 @@ class _SetupScaleBluetoothScreenState extends State<SetupScaleBluetoothScreen> {
     );
   }
 
-  void _redirectTo() {
+  void _redirectTo() async {
+    await Provider.of<DevicesProvider>(context, listen: false)
+        .updateB500BluetoothConnection(true);
+
     Navigator.of(context).pop();
     Navigator.of(context).pop();
   }
