@@ -19,8 +19,8 @@ class SetupScaleOptionsScreen extends StatefulWidget {
 
 class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
   DevicesModel _deviceData = null;
-  bool b500BluetoothConnection;
-  bool b500WifiConnection;
+  bool _b500BluetoothConnection = false;
+  bool _b500WifiConnection = false;
 
   @override
   void initState() {
@@ -28,22 +28,35 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
       _deviceData = widget.routeArgs['deviceData'];
     }
 
-    bluetoothConnection();
-    wifiConnection();
-
     // TODO: implement initState
     super.initState();
   }
 
-  void bluetoothConnection() async {
-    b500BluetoothConnection =
+  @override
+  void didChangeDependencies() {
+    bluetoothConnection();
+    wifiConnection();
+
+    super.didChangeDependencies();
+  }
+
+  void bluetoothConnection() {
+    var b500BluetoothConnection =
         Provider.of<DevicesProvider>(context, listen: true)
-            .b500BluetoothConnection;
+            .getB500BluetoothConnection();
+
+    setState(() {
+      _b500BluetoothConnection = b500BluetoothConnection;
+    });
   }
 
   void wifiConnection() async {
-    b500WifiConnection =
-        Provider.of<DevicesProvider>(context, listen: true).b500WifiConnection;
+    var b500WifiConnection = Provider.of<DevicesProvider>(context, listen: true)
+        .getB500WifiConnection();
+
+    setState(() {
+      _b500WifiConnection = b500WifiConnection;
+    });
   }
 
   @override
@@ -101,7 +114,7 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 maxHeight: 300.0,
               ),
               padding: const EdgeInsets.all(10.0),
-              child: b500WifiConnection
+              child: _b500WifiConnection
                   ? Image.asset('assets/images/bluetooth_success.png')
                   : SvgPicture.asset(
                       'assets/images/bluetooth.svg',
@@ -116,7 +129,7 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 style: AppTheme.title,
               ),
             ),
-            !b500BluetoothConnection
+            !_b500BluetoothConnection
                 ? Container(
                     width: 200,
                     height: 75,
@@ -171,7 +184,7 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
               ),
               padding: const EdgeInsets.all(10.0),
               child: deviceWifiAvailable != null
-                  ? b500WifiConnection
+                  ? _b500WifiConnection
                       ? Image.asset('assets/images/wifi_success.png')
                       : SvgPicture.asset(
                           'assets/images/wifi.svg',
@@ -209,7 +222,7 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
                 style: AppTheme.subtitle,
               ),
             ),
-            deviceWifiAvailable != null || !b500WifiConnection
+            deviceWifiAvailable != null || !_b500WifiConnection
                 ? Container(
                     width: 200,
                     height: 75,

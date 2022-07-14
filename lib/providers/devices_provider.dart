@@ -22,8 +22,8 @@ class DevicesProvider extends ChangeNotifier {
   List<DevicesModel> _deviceData = [];
   WatchModel _watchInfo;
 
-  bool b500BluetoothConnection;
-  bool b500WifiConnection;
+  bool _b500BluetoothConnection = false;
+  bool _b500WifiConnection = false;
 
   Future<String> get _baseUrl async {
     final prefs = await SharedPreferences.getInstance();
@@ -372,15 +372,23 @@ class DevicesProvider extends ChangeNotifier {
 
   findDevice(deviceId) {}
 
-  updateB500BluetoothConnection(bool connection) async{
-    b500BluetoothConnection  = connection
+  updateB500BluetoothConnection(bool connection) async {
+    _b500BluetoothConnection = connection;
 
     notifyListeners();
   }
 
-  updateB500WifiConnection(bool connection) async{
-    b500WifiConnection  = connection
+  updateB500WifiConnection(bool connection) async {
+    _b500WifiConnection = connection;
 
     notifyListeners();
+  }
+
+  bool getB500BluetoothConnection() {
+    return _b500BluetoothConnection;
+  }
+
+  bool getB500WifiConnection() {
+    return _b500WifiConnection;
   }
 }
