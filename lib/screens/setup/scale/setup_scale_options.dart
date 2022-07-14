@@ -34,13 +34,13 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
 
   @override
   void didChangeDependencies() {
-    bluetoothConnection();
-    wifiConnection();
+    _bluetoothConnection();
+    _wifiConnection();
 
     super.didChangeDependencies();
   }
 
-  void bluetoothConnection() {
+  void _bluetoothConnection() {
     var b500BluetoothConnection =
         Provider.of<DevicesProvider>(context, listen: true)
             .getB500BluetoothConnection();
@@ -50,7 +50,7 @@ class _SetupScaleOptionsScreenState extends State<SetupScaleOptionsScreen> {
     });
   }
 
-  void wifiConnection() async {
+  void _wifiConnection() async {
     var b500WifiConnection = Provider.of<DevicesProvider>(context, listen: true)
         .getB500WifiConnection();
 
