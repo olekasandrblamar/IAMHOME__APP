@@ -483,6 +483,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fluttertoast:
+    dependency: "direct main"
+    description:
+      name: fluttertoast
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "8.1.1"
   glob:
     dependency: transitive
     description:
@@ -1013,6 +1020,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
+  terra_flutter_bridge:
+    dependency: "direct main"
+    description:
+      name: terra_flutter_bridge
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "0.2.0"
   test_api:
     dependency: transitive
     description:
