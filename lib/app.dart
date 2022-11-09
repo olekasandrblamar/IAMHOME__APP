@@ -60,8 +60,8 @@ class _MyAppState extends State<MyApp> {
     ///////////For Terra API////////////////////////////////
     initTerraFunctionState();
     ///////////////////////////////////////////////////
-
   }
+
   ///////////////For Terra API /////////////////////
   Future<void> initTerraFunctionState() async {
     bool initialised = false;
@@ -89,11 +89,12 @@ class _MyAppState extends State<MyApp> {
         fontSize: 16.0,
       );
       initialised =
-          await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "67d93d7e-09f1-4402-b5ad-fb437f3b4628") ??
-              false;
+          await TerraFlutter.initTerra("ceras-dev-ID", "refID") ?? false;
       String str;
-      if(_initialised) str = "true";
-      else str = "false";
+      if (_initialised)
+        str = "true";
+      else
+        str = "false";
       Fluttertoast.showToast(
         msg: "Did integration init:" + str,
         toastLength: Toast.LENGTH_SHORT,
@@ -103,12 +104,13 @@ class _MyAppState extends State<MyApp> {
         fontSize: 16.0,
       );
 
+      connected =
+          await TerraFlutter.initConnection(c, "token", false, []) ?? false;
 
-      connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ??
-          false;
-
-      if(_connected) str = "true";
-      else str = "false";
+      if (_connected)
+        str = "true";
+      else
+        str = "false";
       Fluttertoast.showToast(
         msg: "Is integration connected:" + str,
         toastLength: Toast.LENGTH_SHORT,
@@ -129,25 +131,25 @@ class _MyAppState extends State<MyApp> {
         fontSize: 16.0,
       );
 
-      daily = await TerraFlutter.getDaily(
-          c, lastMidnight, now) ??
-          false;
+      daily = await TerraFlutter.getDaily(c, lastMidnight, now) ?? false;
       daily = await TerraFlutter.getAthlete(c) ?? false;
       daily = await TerraFlutter.getMenstruation(
-          c, DateTime(2022, 9, 25), DateTime(2022, 9, 30)) ??
+              c, DateTime(2022, 9, 25), DateTime(2022, 9, 30)) ??
           false;
       daily = await TerraFlutter.getNutrition(
-          c, DateTime(2022, 7, 25), DateTime(2022, 7, 26)) ??
+              c, DateTime(2022, 7, 25), DateTime(2022, 7, 26)) ??
           false;
       daily = await TerraFlutter.getSleep(
-          c, now.subtract(Duration(days: 1)), now) ??
+              c, now.subtract(Duration(days: 1)), now) ??
           false;
       daily = await TerraFlutter.getActivity(
-          c, DateTime(2022, 7, 25), DateTime(2022, 7, 26)) ??
+              c, DateTime(2022, 7, 25), DateTime(2022, 7, 26)) ??
           false;
 
-      if(_daily) str = "true";
-      else str = "false";
+      if (_daily)
+        str = "true";
+      else
+        str = "false";
       Fluttertoast.showToast(
         msg: "Requested daily webhook for integration:" + str,
         toastLength: Toast.LENGTH_SHORT,
@@ -170,7 +172,6 @@ class _MyAppState extends State<MyApp> {
         textColor: Colors.white,
         fontSize: 16.0,
       );
-
     }
     Fluttertoast.showToast(
       msg: "No exception occured",
@@ -191,9 +192,8 @@ class _MyAppState extends State<MyApp> {
       _daily = daily;
       _testText = testText;
     });
-
-
   }
+
   /////////////////////////////////////////////////////////
   Future<void> _handleStartUpLogic() async {
     await _initializeFlutterFire();
