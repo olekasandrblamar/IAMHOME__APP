@@ -33,14 +33,12 @@ class MyWebView extends StatelessWidget {
             onPageStarted: (String url) {
               if(url.startsWith('https://happy-developer.com')) {
                 // https://happy-developer.com/?user_id=8f4274ca-aa9e-458f-8b8f-93951d9b01c5&resource=FITBIT&reference_id=1234&lan=en#_=_
-                // var regExp = RegExp(r'resource=([a-zA-Z0-9]*)&');
-                // var match = regExp.firstMatch(url);
-                // var resourceId = '';
-                // print(match.groupCount);
-                // if(match.groupCount > 0) {
-                //   resourceId = match.group(0);
-                // }
-                // print('Resource Id = ' + resourceId);
+
+                var uri = Uri.dataFromString(url); //converts string to a uri
+                Map<String, String> params = uri.queryParameters; // query parameters automatically populated
+                var reference_id = params['reference_id']; // return value of parameter "param1" from uri
+                var resource = params['resource'];
+                print(reference_id + resource);
                 Navigator.of(context).pushNamed(
                   routes.SetupConnectedRoute,
                   arguments: {

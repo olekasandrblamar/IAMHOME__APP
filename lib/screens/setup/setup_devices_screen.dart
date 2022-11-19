@@ -241,17 +241,16 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                       ),
                       child: InkWell(
                         onTap: () {
-                          int a = 10;
                           if (deviceName == 'Terra Devices')
                            {
                               Dio dio = new Dio();
                               dio.post(
                                   'https://api.tryterra.co/v2/auth/generateWidgetSession',
                                   data: {
-                                    'reference_id': '1234',
+                                    'reference_id': '1234',//please enter userID from your server.
                                     'providers': 'GARMIN, FITBIT, OURA, APPLE, COROS, CONCEPT2, CRONOMETER, Dexcom, Eight, Fatsecret,Freestylelibre,Google, Huawei,Ifit,Nutracheck,Omron,Peloton,Polar,Renpho,Suunto,Tempo,Trainingpeaks,Underarmour,Wahoo,WHOOP,Withings,Zwift',
-                                    'auth_success_redirect_url': 'https://happy-developer.com',
-                                    'auth_failure_redirect_url': 'https://sad-developer.com',
+                                    'auth_success_redirect_url': 'https://happy-developer.com',//please enter your server URL
+                                    'auth_failure_redirect_url': 'https://sad-developer.com',//please enter your server URL
                                     'language': 'EN'
                                   },
                                   options: Options(
@@ -265,7 +264,7 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                                   Navigator.of(context).pushNamed(
                                     routes.SetupWebviewdRoute,
                                     arguments: {
-                                    'title': "terra Device Add",
+                                    'title': "Terra Device Add",
                                     'selectedUrl': response.data['url']
                                     },
                                   );
