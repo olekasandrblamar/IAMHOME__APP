@@ -8,6 +8,8 @@
 .buildlog/
 .history
 .svn/
+.t/
+
 
 # IntelliJ related
 *.iml
@@ -18,7 +20,7 @@
 # The .vscode folder contains launch configuration and tasks you configure in
 # VS Code which you may wish to be included in version control, so this line
 # is commented out by default.
-#.vscode/
+.vscode/
 
 # Flutter/Dart/Pub related
 **/doc/api/
@@ -48,5 +50,3 @@ ios/Flutter/.last_build_id
 ios/ICDeviceManager.framework/ICDeviceManager
 lib/main.dart
 ios/Podfile.lock.bak
-/.t/
-/.vscode/

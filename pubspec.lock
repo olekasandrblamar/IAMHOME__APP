@@ -440,6 +440,13 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.0.1"
+  flutter_foreground_task:
+    dependency: "direct main"
+    description:
+      name: flutter_foreground_task
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.10.0"
   flutter_inappwebview:
     dependency: "direct main"
     description:
@@ -874,21 +881,21 @@ packages:
       name: shared_preferences
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.13"
+    version: "2.0.15"
   shared_preferences_android:
     dependency: transitive
     description:
       name: shared_preferences_android
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.0.11"
+    version: "2.0.14"
   shared_preferences_ios:
     dependency: transitive
     description:
       name: shared_preferences_ios
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "2.1.0"
+    version: "2.1.1"
   shared_preferences_linux:
     dependency: transitive
     description:
@@ -1132,6 +1139,34 @@ packages:
       url: "https://pub.dartlang.org"
     source: hosted
     version: "1.2.0"
+  webview_flutter:
+    dependency: "direct main"
+    description:
+      name: webview_flutter
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "3.0.4"
+  webview_flutter_android:
+    dependency: transitive
+    description:
+      name: webview_flutter_android
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.10.4"
+  webview_flutter_platform_interface:
+    dependency: transitive
+    description:
+      name: webview_flutter_platform_interface
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "1.9.5"
+  webview_flutter_wkwebview:
+    dependency: transitive
+    description:
+      name: webview_flutter_wkwebview
+      url: "https://pub.dartlang.org"
+    source: hosted
+    version: "2.9.5"
   win32:
     dependency: transitive
     description:
@@ -1161,5 +1196,5 @@ packages:
     source: hosted
     version: "3.1.0"
 sdks:
-  dart: ">=2.17.0-0 <3.0.0"
-  flutter: ">=2.10.0"
+  dart: ">=2.17.0 <3.0.0"
+  flutter: ">=3.0.0"

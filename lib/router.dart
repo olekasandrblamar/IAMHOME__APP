@@ -30,6 +30,8 @@ import 'package:ceras/screens/setup/setup_connect_screen.dart';
 import 'package:ceras/screens/setup/setup_search_screen.dart';
 import 'package:ceras/screens/selectlanguage_screen.dart';
 import 'package:ceras/screens/settings/settings_screen.dart';
+import 'package:ceras/screens/setup/setup_webview_screen.dart';
+import 'package:webview_flutter/webview_flutter.dart';
 
 import 'constants/route_paths.dart';
 import 'screens/setup/setup_home_screen.dart';
@@ -107,6 +109,13 @@ Route<dynamic> generateRoute(
         builder: (context) => SetupConnectedScreen(
           routeArgs: arguments,
         ),
+      );
+    case SetupWebviewdRoute:
+      var arguments = settings.arguments as Map<dynamic, dynamic>;
+      return MaterialPageRoute(
+        builder: (context) => MyWebView(
+            title: arguments['title'],
+            selectedUrl: arguments['selectedUrl']),
       );
     case BluetoothNotfoundRoute:
       return MaterialPageRoute(builder: (context) => BluetoothNotfoundScreen());

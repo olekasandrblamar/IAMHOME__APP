@@ -57,8 +57,10 @@ dependencies:
   flutter_svg: ^0.22.0
   circular_countdown: ^1.2.1
   system_settings: ^2.0.0
+  flutter_foreground_task: ^3.10.0
   terra_flutter_bridge: ^0.2.0
   fluttertoast: ^8.1.1
+  webview_flutter: ^3.0.4
 
 dependency_overrides:
   plugin_platform_interface: ">=2.0.1"

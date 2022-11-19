@@ -6,6 +6,7 @@ import 'package:ceras/models/currentversion_model.dart';
 import 'package:ceras/models/promo_model.dart';
 import 'package:ceras/models/profile_model.dart';
 import 'package:ceras/models/devices_model.dart';
+import 'package:ceras/models/terra_devices_model.dart';
 import 'package:ceras/models/tracker_model.dart';
 import 'package:ceras/models/watchdata_model.dart';
 import 'package:ceras/providers/auth_provider.dart';
@@ -13,13 +14,14 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ceras/config/http.dart';
 import 'package:ceras/config/navigation_service.dart';
+import 'package:ceras/data/terra_device_data.dart';
 
 class DevicesProvider extends ChangeNotifier {
   final http = HttpClient().http;
 
   final mobileDataHttp = HttpClient().mobileDataHttp;
 
-  List<DevicesModel> _deviceData = [];
+  List<dynamic> _deviceData = [];
   WatchModel _watchInfo;
 
   bool _b500BluetoothConnection = false;
@@ -45,8 +47,13 @@ class DevicesProvider extends ChangeNotifier {
       );
 
       final responseData = response.data;
-      final formattedData = <DevicesModel>[];
-
+      final formattedData = [];
+      ////////////Terra Devices/////////
+      for(int i = 0; i < TERRA_DEVICE_DATA.length; i++)
+        {
+          formattedData.add(TERRA_DEVICE_DATA[i]);
+        }
+      /////////////////////
       responseData.forEach(
         (data) {
           if (_deviceData != null && !_deviceData.isEmpty) {
@@ -87,7 +94,7 @@ class DevicesProvider extends ChangeNotifier {
     }
   }
 
-  static Future<List<DevicesModel>> loadDevices() async {
+  static Future<List<dynamic>> loadDevices() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.reload();
     var prefData = prefs.getString('deviceData');
@@ -100,7 +107,7 @@ class DevicesProvider extends ChangeNotifier {
 
     // print("Got prefs data ${prefData}");
 
-    final List<DevicesModel> formattedData = [];
+    final List<dynamic> formattedData = [];
     final List existingDeviceData = json.decode(prefData);
 
     // print(existingDeviceData);
@@ -116,23 +123,23 @@ class DevicesProvider extends ChangeNotifier {
     return formattedData;
   }
 
-  Future<List<DevicesModel>> getDevicesData() async {
+  Future<List<dynamic>> getDevicesData() async {
     _deviceData = await loadDevices();
     notifyListeners();
 
     return _deviceData;
   }
 
-  Future<DevicesModel> getDeviceData(int index) async {
-    DevicesModel deviceData = _deviceData[index];
+  Future<dynamic> getDeviceData(int index) async {
+    dynamic deviceData = _deviceData[index];
     return deviceData;
   }
 
-  void setDeviceData(DevicesModel deviceData) async {
+  void setDeviceData(dynamic deviceData) async {
     final prefs = await SharedPreferences.getInstance();
     final prefData = prefs.getString('deviceData');
 
-    final List<DevicesModel> formattedData = [];
+    final List<dynamic> formattedData = [];
 
     if (prefData != null) {
       final List existingDeviceData = json.decode(prefData);

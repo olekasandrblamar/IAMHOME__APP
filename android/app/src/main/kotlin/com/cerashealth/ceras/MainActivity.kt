@@ -10,6 +10,7 @@ import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.work.*
+import com.cerashealth.ceras.foregroundservice.ForegroundService
 import com.cerashealth.ceras.lifeplus.*
 import com.cerashealth.ceras.lifeplus.data.*
 import com.google.common.util.concurrent.Futures
@@ -99,12 +100,8 @@ class MainActivity: FlutterFragmentActivity()  {
     }
     
     private fun scheduleBackgroundTasks(){
-
-        val periodicReq = PeriodicWorkRequestBuilder<AppSync>(30,TimeUnit.MINUTES)
-            .setInitialDelay(10,TimeUnit.MINUTES)
-            .build()
-        WorkManager.getInstance(this).cancelAllWorkByTag("com.cerashealth.ceras.AppSync")
-        WorkManager.getInstance(this).enqueue(periodicReq)
+        ForegroundService.startService(this, "Ceras is capturing Health Data")
+//        ForegroundService.stopService(this)  //service stop method.
     }
 
     private fun connectDeviceChannel(flutterEngine: FlutterEngine){
@@ -112,6 +109,7 @@ class MainActivity: FlutterFragmentActivity()  {
             updateCurrentActivity()
             BaseDevice.isBackground = false
             if(call.method=="connectDevice"){
+                Log.d(TAG,"Connect Device is caled")
                 val deviceType = call.argument<String>("deviceType")
                 val deviceId = call.argument<String>("deviceId")
                 //For now connect to watch
@@ -121,7 +119,8 @@ class MainActivity: FlutterFragmentActivity()  {
                     //Update the device type
                     applicationContext.getSharedPreferences(SharedPrefernces, MODE_PRIVATE).edit().putString("flutter.deviceType",deviceType).commit()
                 }
-            } else if(call.method =="syncData"){
+            }
+            else if(call.method =="syncData"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 updateLastConnected()
                 Log.i(TAG,"last Updated ${getSharedPreferences(SharedPrefernces, MODE_PRIVATE).all}")
@@ -131,33 +130,39 @@ class MainActivity: FlutterFragmentActivity()  {
                 deviceId = deviceData.deviceId?:""
                 Log.i(TAG,"Device type ${deviceData.deviceType} with ${Gson().toJson(deviceData)}")
                 BaseDevice.getDeviceImpl(deviceData.deviceType).syncData(result,deviceData,this)
-            }else if(call.method =="deviceStatus"){
+            }
+            else if(call.method =="deviceStatus"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got device status data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceData.deviceType).getDeviceInfo(result,deviceData,this)
-            }else if(call.method =="connectionStatus"){
+            }
+            else if(call.method =="connectionStatus"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got device status data with arguments $deviceDataString")
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
                 val deviceType = getSharedPreferences(SharedPrefernces, MODE_PRIVATE).getString("flutter.deviceType",null)
                 deviceId = deviceData.deviceId?:""
                 BaseDevice.getDeviceImpl(deviceData.deviceType).getConnectionStatus(result,deviceData,this)
-            }else if(call.method =="disconnect"){
+            }
+            else if(call.method =="disconnect"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 Log.i(TAG,"got disconnect with arguments $deviceDataString")
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
                 BaseDevice.getDeviceImpl(deviceData.deviceType).disconnectDevice(result,deviceData.deviceId)
             }
             else if(call.method == "readLineData"){
-            }else if(call.method == "upgradeDevice"){
+
+            }
+            else if(call.method == "upgradeDevice"){
 //                val deviceDataString = call.argument<String>("connectionInfo")
 //                Log.i(TAG,"got upgrade device data with arguments $deviceDataString")
 //                val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
 //                deviceId = deviceData.deviceId?:""
 //                BaseDevice.getDeviceImpl(deviceData.deviceType).upgradeDevice(result,deviceData,this)
-            }else if(call.method == "connectWifi"){
+            }
+            else if(call.method == "connectWifi"){
                 val deviceDataString = call.argument<String>("connectionInfo")
                 val deviceData = Gson().fromJson(deviceDataString,ConnectionInfo::class.java)
                 val network = call.argument<String>("network")
@@ -168,7 +173,11 @@ class MainActivity: FlutterFragmentActivity()  {
                 val deviceDataString = call.argument<String>("connectionInfo")
 
             }
+            else if(call.method == "appSync") {
+//                doWork() ///////This code is not neccessary any more.
+            }
             else {
+                Log.i(TAG,"Not Implemented")
                 result.notImplemented()
             }
         }
@@ -243,9 +252,20 @@ class MainActivity: FlutterFragmentActivity()  {
         connectEventChannel(flutterEngine)
         connectDeviceChannel(flutterEngine)
         connectUpgradeChannel(flutterEngine)
+
+//        channel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL_DOWORK)
+//        channel.setMethodCallHandler { call, result ->
+//            var argument = call.arguments() as Map<String, String>;
+//            var message = argument["message"];
+//            if (call.method == "showToast") {
+//                Log.d("TAG", "message");
+//                Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+//            }
+//        }
     }
 
 }
+
 
 //class BackgroundWork(appContext:Context,workerParams: WorkerParameters):Worker(appContext,workerParams){
 //

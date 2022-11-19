@@ -1,5 +1,9 @@
+import 'dart:collection';
+import 'dart:io';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:ceras/constants/route_paths.dart' as routes;
+import 'package:ceras/models/devices_model.dart';
 import 'package:ceras/providers/devices_provider.dart';
 import 'package:ceras/screens/auth/login_screen.dart';
 import 'package:ceras/theme.dart';
@@ -7,6 +11,8 @@ import 'package:ceras/widgets/nodata_widget.dart';
 import 'package:ceras/widgets/setup_appbar_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:ceras/config/http.dart';
+import 'package:dio/dio.dart';
 
 import 'widgets/bluetooth_notfound_widget.dart';
 
@@ -16,6 +22,7 @@ class SetupDevicesScreen extends StatefulWidget {
 }
 
 class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
+
   @override
   void initState() {
     // TODO: implement initState
@@ -130,95 +137,194 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                 ),
                 itemCount: hardwareDataSnapshot.data.length,
                 itemBuilder: (BuildContext context, int index) {
-                  var imageData = hardwareDataSnapshot
-                      .data[index].deviceMaster['displayImage'];
+                  if(hardwareDataSnapshot.data[index] is DevicesModel) {
 
-                  var deviceName = hardwareDataSnapshot
-                      .data[index].deviceMaster['name']
-                      .toUpperCase();
+                    var imageData = hardwareDataSnapshot
+                        .data[index].deviceMaster['displayImage'];
 
-                  return Card(
-                    margin: EdgeInsets.symmetric(vertical: 10),
-                    elevation: 5,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10.0),
-                    ),
-                    child: InkWell(
-                      onTap: () => {
-                        if (deviceName == 'B500')
-                          {
-                            Navigator.of(context).pushNamed(
-                              routes.SetupScaleOptionsRoute,
-                              arguments: {
-                                'tag': 'imageHero' + index.toString(),
-                                'deviceData': hardwareDataSnapshot.data[index],
-                                'deviceType': deviceName,
-                                'displayImage': imageData,
-                              },
-                            )
-                          }
-                        else
-                          {
-                            Navigator.of(context).pushNamed(
-                              routes.SetupConnectRoute,
-                              arguments: {
-                                'tag': 'imageHero' + index.toString(),
-                                'deviceData': hardwareDataSnapshot.data[index],
-                                'deviceType': deviceName,
-                                'displayImage': imageData,
-                              },
-                            )
-                          }
-                      },
-                      child: Container(
-                        padding: EdgeInsets.all(5),
-                        child: GridTile(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Expanded(
-                                child: Hero(
-                                  transitionOnUserGestures: true,
-                                  tag: 'imageHero' + index.toString(),
-                                  child: CachedNetworkImage(
-                                    imageUrl: imageData,
-                                    fit: BoxFit.contain,
-                                    alignment: Alignment.center,
-                                    fadeInDuration: Duration(milliseconds: 200),
-                                    fadeInCurve: Curves.easeIn,
-                                    width: double.infinity,
-                                    height: double.infinity,
-                                    errorWidget: (context, url, error) =>
-                                        Image.asset(
-                                            'assets/images/placeholder.jpg'),
-                                  ),
-                                ),
-                              ),
-                              Container(
-                                // color: Colors.black.withOpacity(0.7),
-                                height: 30,
-                                width: double.infinity,
-                                child: Center(
-                                  child: Text(
-                                    hardwareDataSnapshot.data[index]
-                                        .deviceMaster['displayName'],
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                    style: TextStyle(
-                                      // color: Colors.white,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                      fontFamily: 'Regular',
+                    var deviceName = hardwareDataSnapshot
+                        .data[index].deviceMaster['name']
+                        .toUpperCase();
+
+                    return Card(
+                      margin: EdgeInsets.symmetric(vertical: 10),
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: InkWell(
+                        onTap: () => {
+                          if (deviceName == 'B500')
+                            {
+                              Navigator.of(context).pushNamed(
+                                routes.SetupScaleOptionsRoute,
+                                arguments: {
+                                  'tag': 'imageHero' + index.toString(),
+                                  'deviceData': hardwareDataSnapshot.data[index],
+                                  'deviceType': deviceName,
+                                  'displayImage': imageData,
+                                },
+                              )
+                            }
+                          else
+                            {
+                              Navigator.of(context).pushNamed(
+                                routes.SetupConnectRoute,
+                                arguments: {
+                                  'tag': 'imageHero' + index.toString(),
+                                  'deviceData': hardwareDataSnapshot.data[index],
+                                  'deviceType': deviceName,
+                                  'displayImage': imageData,
+                                },
+                              )
+                            }
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(5),
+                          child: GridTile(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Hero(
+                                    transitionOnUserGestures: true,
+                                    tag: 'imageHero' + index.toString(),
+                                    child: CachedNetworkImage(
+                                      imageUrl: imageData,
+                                      fit: BoxFit.contain,
+                                      alignment: Alignment.center,
+                                      fadeInDuration: Duration(milliseconds: 200),
+                                      fadeInCurve: Curves.easeIn,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      errorWidget: (context, url, error) =>
+                                          Image.asset(
+                                              'assets/images/placeholder.jpg'),
                                     ),
                                   ),
                                 ),
-                              )
-                            ],
+                                Container(
+                                  // color: Colors.black.withOpacity(0.7),
+                                  height: 30,
+                                  width: double.infinity,
+                                  child: Center(
+                                    child: Text(
+                                      hardwareDataSnapshot.data[index]
+                                          .deviceMaster['displayName'],
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        // color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        fontFamily: 'Regular',
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  );
+                    );
+                  }
+                  else{
+                    var imageData = hardwareDataSnapshot.data[index].imageUrl;
+
+                    var deviceName = hardwareDataSnapshot.data[index].deviceName;
+                    return Card(
+                      margin: EdgeInsets.symmetric(vertical: 10),
+                      elevation: 5,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: InkWell(
+                        onTap: () {
+                          int a = 10;
+                          if (deviceName == 'Terra Devices')
+                           {
+                              Dio dio = new Dio();
+                              dio.post(
+                                  'https://api.tryterra.co/v2/auth/generateWidgetSession',
+                                  data: {
+                                    'reference_id': '1234',
+                                    'providers': 'GARMIN, FITBIT, OURA, APPLE, COROS, CONCEPT2, CRONOMETER, Dexcom, Eight, Fatsecret,Freestylelibre,Google, Huawei,Ifit,Nutracheck,Omron,Peloton,Polar,Renpho,Suunto,Tempo,Trainingpeaks,Underarmour,Wahoo,WHOOP,Withings,Zwift',
+                                    'auth_success_redirect_url': 'https://happy-developer.com',
+                                    'auth_failure_redirect_url': 'https://sad-developer.com',
+                                    'language': 'EN'
+                                  },
+                                  options: Options(
+                                    headers: {
+                                      'X-API-Key': 'a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562',
+                                      'dev-id': 'ceras-dev-y5kN5MDRKv'
+                                    }
+                                  )
+                              ).then((response) {
+                                  print(response);
+                                  Navigator.of(context).pushNamed(
+                                    routes.SetupWebviewdRoute,
+                                    arguments: {
+                                    'title': "terra Device Add",
+                                    'selectedUrl': response.data['url']
+                                    },
+                                  );
+                              });
+
+
+                            }
+                        },
+                        child: Container(
+                          padding: EdgeInsets.all(5),
+                          child: GridTile(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Expanded(
+                                  child: Hero(
+                                    transitionOnUserGestures: true,
+                                    tag: 'imageHero' + index.toString(),
+                                    child: CachedNetworkImage(
+                                      imageUrl: imageData,
+                                      fit: BoxFit.contain,
+                                      alignment: Alignment.center,
+                                      fadeInDuration: Duration(milliseconds: 200),
+                                      fadeInCurve: Curves.easeIn,
+                                      width: double.infinity,
+                                      height: double.infinity,
+                                      errorWidget: (context, url, error) =>
+                                          Image.asset(
+                                              'assets/images/placeholder.jpg'),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  // color: Colors.black.withOpacity(0.7),
+                                  height: 30,
+                                  width: double.infinity,
+                                  child: Center(
+                                    child: Text(
+                                      deviceName,
+                                      maxLines: 1,
+                                      overflow: TextOverflow.ellipsis,
+                                      style: TextStyle(
+                                        // color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        fontFamily: 'Regular',
+                                      ),
+                                    ),
+                                  ),
+                                )
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    );
+
+                  }
+
                 },
               );
             } else {

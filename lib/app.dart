@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:convert';
 import 'package:ceras/config/env.dart';
 import 'package:ceras/config/user_deviceinfo.dart';
+import 'package:ceras/services/foreground_service.dart';
 import 'package:ceras/providers/applanguage_provider.dart';
 import 'package:ceras/providers/auth_provider.dart';
 import 'package:ceras/providers/devices_provider.dart';
@@ -11,6 +12,7 @@ import 'package:ceras/screens/splash_screen.dart';
 import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_crashlytics/firebase_crashlytics.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart' show kDebugMode;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -19,6 +21,7 @@ import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'config/app_localizations.dart';
+import 'config/background_fetch.dart';
 import 'config/dynamiclinks_setup.dart';
 import 'config/navigation_service.dart';
 // import 'config/push_notifications.dart';
@@ -27,10 +30,8 @@ import 'data/language_data.dart';
 import 'router.dart' as router;
 import 'screens/setup/setup_home_screen.dart';
 import 'theme.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:terra_flutter_bridge/terra_flutter_bridge.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 // import 'package:firebase_in_app_messaging/firebase_in_app_messaging.dart';
 // import 'config/locator.dart';
 
@@ -42,26 +43,40 @@ class MyApp extends StatefulWidget {
 class _MyAppState extends State<MyApp> {
   final AppLanguageProvider appLanguage = AppLanguageProvider();
   static FirebaseAnalytics analytics = FirebaseAnalytics();
+  MyForegroundService fService;
   //////////////For Terra API///////////////////
   bool _initialised = false;
   bool _connected = false;
   bool _daily = false;
   String _testText = "Hello World";
   ////////////////////////////////////////////////
-
   @override
   void initState() {
     super.initState();
+    /////////////////FLUTTER LEVEL FOREGROUND SERVICE START/////////////////////////////////
+    ///
+    // fService = new MyForegroundService();
+    // fService.isForegroundRunning().then((reqResult) {
+    //   if (!reqResult) {
+    //     fService.initForegroundService();
+    //     fService.startForegroundTask();
+    //   }
+    // });
+    //////////////////////////////////////////////////////////////////////
 
+    /////////////////FOREGROUND SERVICE STOP/////////////////////////////////////////////////////
+    // fService.stopForegroundTask();
+    //////////////////////////////////////////////////////////////////////
     _handleStartUpLogic();
 
     appLanguage.fetchLocale();
 
     ///////////For Terra API////////////////////////////////
-    initTerraFunctionState();
+//    initTerraFunctionState();
+
+
     ///////////////////////////////////////////////////
   }
-
   ///////////////For Terra API /////////////////////
   Future<void> initTerraFunctionState() async {
     bool initialised = false;
@@ -89,12 +104,11 @@ class _MyAppState extends State<MyApp> {
         fontSize: 16.0,
       );
       initialised =
-          await TerraFlutter.initTerra("ceras-dev-ID", "refID") ?? false;
+          await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "67d93d7e-09f1-4402-b5ad-fb437f3b4628") ??
+              false;
       String str;
-      if (_initialised)
-        str = "true";
-      else
-        str = "false";
+      if(_initialised) str = "true";
+      else str = "false";
       Fluttertoast.showToast(
         msg: "Did integration init:" + str,
         toastLength: Toast.LENGTH_SHORT,
@@ -104,13 +118,12 @@ class _MyAppState extends State<MyApp> {
         fontSize: 16.0,
       );
 
-      connected =
-          await TerraFlutter.initConnection(c, "token", false, []) ?? false;
 
-      if (_connected)
-        str = "true";
-      else
-        str = "false";
+      connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ??
+          false;
+
+      if(_connected) str = "true";
+      else str = "false";
       Fluttertoast.showToast(
         msg: "Is integration connected:" + str,
         toastLength: Toast.LENGTH_SHORT,
@@ -131,25 +144,25 @@ class _MyAppState extends State<MyApp> {
         fontSize: 16.0,
       );
 
-      daily = await TerraFlutter.getDaily(c, lastMidnight, now) ?? false;
+      daily = await TerraFlutter.getDaily(
+          c, lastMidnight, now) ??
+          false;
       daily = await TerraFlutter.getAthlete(c) ?? false;
       daily = await TerraFlutter.getMenstruation(
-              c, DateTime(2022, 9, 25), DateTime(2022, 9, 30)) ??
+          c, DateTime(2022, 9, 25), DateTime(2022, 9, 30)) ??
           false;
       daily = await TerraFlutter.getNutrition(
-              c, DateTime(2022, 7, 25), DateTime(2022, 7, 26)) ??
+          c, DateTime(2022, 7, 25), DateTime(2022, 7, 26)) ??
           false;
       daily = await TerraFlutter.getSleep(
-              c, now.subtract(Duration(days: 1)), now) ??
+          c, now.subtract(Duration(days: 1)), now) ??
           false;
       daily = await TerraFlutter.getActivity(
-              c, DateTime(2022, 7, 25), DateTime(2022, 7, 26)) ??
+          c, DateTime(2022, 7, 25), DateTime(2022, 7, 26)) ??
           false;
 
-      if (_daily)
-        str = "true";
-      else
-        str = "false";
+      if(_daily) str = "true";
+      else str = "false";
       Fluttertoast.showToast(
         msg: "Requested daily webhook for integration:" + str,
         toastLength: Toast.LENGTH_SHORT,
@@ -172,6 +185,7 @@ class _MyAppState extends State<MyApp> {
         textColor: Colors.white,
         fontSize: 16.0,
       );
+
     }
     Fluttertoast.showToast(
       msg: "No exception occured",
@@ -192,8 +206,9 @@ class _MyAppState extends State<MyApp> {
       _daily = daily;
       _testText = testText;
     });
-  }
 
+
+  }
   /////////////////////////////////////////////////////////
   Future<void> _handleStartUpLogic() async {
     await _initializeFlutterFire();
@@ -246,11 +261,11 @@ class _MyAppState extends State<MyApp> {
   void _handleMessage(RemoteMessage message) async {
     if (message.data['action'] == 'device_sync') {
       var payload =
-          json.decode(message.data['payload']) as Map<String, dynamic>;
+      json.decode(message.data['payload']) as Map<String, dynamic>;
       var deviceId = payload['deviceId'].toString();
       var devices = await DevicesProvider.loadDevices();
       var deviceIndex = devices.indexWhere(
-        (element) => (element.watchInfo.deviceId == deviceId),
+            (element) => (element.watchInfo.deviceId == deviceId),
       );
 
       if (deviceIndex >= 0) {
@@ -285,12 +300,13 @@ class _MyAppState extends State<MyApp> {
 
   @override
   Widget build(BuildContext context) {
+
     SystemChrome.setSystemUIOverlayStyle(
       SystemUiOverlayStyle(
         statusBarColor: Colors.transparent,
         statusBarIconBrightness: Brightness.dark,
         statusBarBrightness:
-            Platform.isAndroid ? Brightness.dark : Brightness.light,
+        Platform.isAndroid ? Brightness.dark : Brightness.light,
         systemNavigationBarColor: Colors.white,
         systemNavigationBarDividerColor: Colors.grey,
         systemNavigationBarIconBrightness: Brightness.dark,
