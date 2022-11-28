@@ -13,7 +13,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:ceras/config/http.dart';
 import 'package:dio/dio.dart';
-
+import 'package:terra_flutter_bridge/terra_flutter_bridge.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'widgets/bluetooth_notfound_widget.dart';
 
 class SetupDevicesScreen extends StatefulWidget {
@@ -240,7 +241,7 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                         borderRadius: BorderRadius.circular(10.0),
                       ),
                       child: InkWell(
-                        onTap: () {
+                        onTap:  () async{
                           if (deviceName == 'Terra Devices')
                            {
                               Dio dio = new Dio();
@@ -264,7 +265,7 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                                   Navigator.of(context).pushNamed(
                                     routes.SetupWebviewdRoute,
                                     arguments: {
-                                    'title': "Terra Device Add",
+                                    'title': "Add Terra Device",
                                     'selectedUrl': response.data['url']
                                     },
                                   );
@@ -272,6 +273,97 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
 
 
                             }
+                          else if(deviceName == 'SAMSUNG') {
+
+                            bool initialised = false;
+                            bool connected = false;
+                            bool daily = false;
+                            String testText;
+                            Connection c = Connection.samsung;
+                            try {
+                              DateTime now = DateTime.now().toUtc();
+                              DateTime lastMidnight = DateTime(now.year, now.month, now.day);
+
+                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "ceras-userId") ?? false;
+
+                              connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ?? false;
+
+                              testText = await TerraFlutter.getUserId(c) ?? "1234";
+                              Navigator.of(context).pushNamed(
+                                routes.SetupConnectedRoute,
+                                arguments: {
+                                  'deviceData': null,
+                                  'displayImage': imageData,
+                                },
+                              );
+
+                            } on Exception catch (e) {
+                              print('error caught: $e');
+                              Navigator.of(context).pushNamed(
+                                  routes.UnabletoconnectRoute
+                              );
+                            }
+
+                          }
+                          else if( deviceName == 'FREESTYLE_LIBRE') {
+                            bool initialised = false;
+                            bool connected = false;
+                            bool daily = false;
+                            String testText;
+                            Connection c = Connection.freestyleLibre;
+                            try {
+                              DateTime now = DateTime.now().toUtc();
+                              DateTime lastMidnight = DateTime(now.year, now.month, now.day);
+
+                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "ceras-userId") ?? false;
+
+                              connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ?? false;
+
+                              testText = await TerraFlutter.getUserId(c) ?? "1234";
+                              Navigator.of(context).pushNamed(
+                                routes.SetupConnectedRoute,
+                                arguments: {
+                                  'deviceData': null,
+                                  'displayImage': imageData,
+                                },
+                              );
+
+                            } on Exception catch (e) {
+                              print('error caught: $e');
+                              Navigator.of(context).pushNamed(
+                                  routes.UnabletoconnectRoute
+                              );
+                            }
+                          } else if( deviceName == 'GOOGLE_FIT') {
+                            bool initialised = false;
+                            bool connected = false;
+                            bool daily = false;
+                            String testText;
+                            Connection c = Connection.googleFit;
+                            try {
+                              DateTime now = DateTime.now().toUtc();
+                              DateTime lastMidnight = DateTime(now.year, now.month, now.day);
+
+                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "ceras-userId") ?? false;
+
+                              connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ?? false;
+
+                              testText = await TerraFlutter.getUserId(c) ?? "1234";
+                              Navigator.of(context).pushNamed(
+                                routes.SetupConnectedRoute,
+                                arguments: {
+                                  'deviceData': null,
+                                  'displayImage': imageData,
+                                },
+                              );
+
+                            } on Exception catch (e) {
+                              print('error caught: $e');
+                              Navigator.of(context).pushNamed(
+                                  routes.UnabletoconnectRoute
+                              );
+                            }
+                          }
                         },
                         child: Container(
                           padding: EdgeInsets.all(5),
