@@ -363,6 +363,35 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                                   routes.UnabletoconnectRoute
                               );
                             }
+                          }else if( deviceName == 'APPLE_HEALTH') {
+                            bool initialised = false;
+                            bool connected = false;
+                            bool daily = false;
+                            String testText;
+                            Connection c = Connection.appleHealth;
+                            try {
+                              DateTime now = DateTime.now().toUtc();
+                              DateTime lastMidnight = DateTime(now.year, now.month, now.day);
+
+                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "ceras-userId") ?? false;
+
+                              connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ?? false;
+
+                              testText = await TerraFlutter.getUserId(c) ?? "1234";
+                              Navigator.of(context).pushNamed(
+                                routes.SetupConnectedRoute,
+                                arguments: {
+                                  'deviceData': null,
+                                  'displayImage': imageData,
+                                },
+                              );
+
+                            } on Exception catch (e) {
+                              print('error caught: $e');
+                              Navigator.of(context).pushNamed(
+                                  routes.UnabletoconnectRoute
+                              );
+                            }
                           }
                         },
                         child: Container(
