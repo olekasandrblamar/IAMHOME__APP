@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:ceras/config/http.dart';
 import 'package:ceras/config/navigation_service.dart';
 import 'package:ceras/data/terra_device_data.dart';
+import 'dart:io' show Platform;
 
 class DevicesProvider extends ChangeNotifier {
   final http = HttpClient().http;
@@ -49,10 +50,15 @@ class DevicesProvider extends ChangeNotifier {
       final responseData = response.data;
       final formattedData = [];
       ////////////Terra Devices/////////
-      for(int i = 0; i < TERRA_DEVICE_DATA.length; i++)
-        {
-          formattedData.add(TERRA_DEVICE_DATA[i]);
+      if(Platform.isAndroid) {
+        for (int i = 0; i < TERRA_DEVICE_DATA_ANDROID.length; i++) {
+          formattedData.add(TERRA_DEVICE_DATA_ANDROID[i]);
         }
+      }else if(Platform.isIOS) {
+        for (int i = 0; i < TERRA_DEVICE_DATA_IOS.length; i++) {
+          formattedData.add(TERRA_DEVICE_DATA_IOS[i]);
+        }
+      }
       /////////////////////
       responseData.forEach(
         (data) {

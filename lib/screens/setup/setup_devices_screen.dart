@@ -249,7 +249,7 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                                   'https://api.tryterra.co/v2/auth/generateWidgetSession',
                                   data: {
                                     'reference_id': '1234',//please enter userID from your server.
-                                    'providers': 'GARMIN, FITBIT, OURA, APPLE, COROS, CONCEPT2, CRONOMETER, Dexcom, Eight, Fatsecret,Freestylelibre,Google, Huawei,Ifit,Nutracheck,Omron,Peloton,Polar,Renpho,Suunto,Tempo,Trainingpeaks,Underarmour,Wahoo,WHOOP,Withings,Zwift',
+                                    'providers': 'samsung, GARMIN, FITBIT, OURA, APPLE, COROS, CONCEPT2, CRONOMETER, Dexcom, Eight, Fatsecret,Freestylelibre,Google, Huawei,Ifit,Nutracheck,Omron,Peloton,Polar,Renpho,Suunto,Tempo,Trainingpeaks,Underarmour,Wahoo,WHOOP,Withings,Zwift',
                                     'auth_success_redirect_url': 'https://happy-developer.com',//please enter your server URL
                                     'auth_failure_redirect_url': 'https://sad-developer.com',//please enter your server URL
                                     'language': 'EN'
@@ -284,18 +284,24 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                               DateTime now = DateTime.now().toUtc();
                               DateTime lastMidnight = DateTime(now.year, now.month, now.day);
 
-                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "ceras-userId") ?? false;
+                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "276e6232-a1ef-4809-9262-bdea9c761316") ?? false;
 
                               connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ?? false;
 
-                              testText = await TerraFlutter.getUserId(c) ?? "1234";
-                              Navigator.of(context).pushNamed(
-                                routes.SetupConnectedRoute,
-                                arguments: {
-                                  'deviceData': null,
-                                  'displayImage': imageData,
-                                },
-                              );
+                              // testText = await TerraFlutter.getUserId(c) ?? "1234";
+                              if(connected) {
+                                Navigator.of(context).pushNamed(
+                                  routes.SetupConnectedRoute,
+                                  arguments: {
+                                    'deviceData': null,
+                                    'displayImage': imageData,
+                                  },
+                                );
+                              } else {
+                                Navigator.of(context).pushNamed(
+                                    routes.UnabletoconnectRoute
+                                );
+                              }
 
                             } on Exception catch (e) {
                               print('error caught: $e');
@@ -315,19 +321,24 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                               DateTime now = DateTime.now().toUtc();
                               DateTime lastMidnight = DateTime(now.year, now.month, now.day);
 
-                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "ceras-userId") ?? false;
+                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "276e6232-a1ef-4809-9262-bdea9c761316") ?? false;
 
                               connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ?? false;
 
-                              testText = await TerraFlutter.getUserId(c) ?? "1234";
-                              Navigator.of(context).pushNamed(
-                                routes.SetupConnectedRoute,
-                                arguments: {
-                                  'deviceData': null,
-                                  'displayImage': imageData,
-                                },
-                              );
-
+                              // testText = await TerraFlutter.getUserId(c) ?? "1234";
+                              if(connected) {
+                                Navigator.of(context).pushNamed(
+                                  routes.SetupConnectedRoute,
+                                  arguments: {
+                                    'deviceData': null,
+                                    'displayImage': imageData,
+                                  },
+                                );
+                              } else {
+                                Navigator.of(context).pushNamed(
+                                    routes.UnabletoconnectRoute
+                                );
+                              }
                             } on Exception catch (e) {
                               print('error caught: $e');
                               Navigator.of(context).pushNamed(
@@ -344,18 +355,24 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                               DateTime now = DateTime.now().toUtc();
                               DateTime lastMidnight = DateTime(now.year, now.month, now.day);
 
-                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "ceras-userId") ?? false;
+                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "276e6232-a1ef-4809-9262-bdea9c761316") ?? false;
 
                               connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ?? false;
 
-                              testText = await TerraFlutter.getUserId(c) ?? "1234";
-                              Navigator.of(context).pushNamed(
-                                routes.SetupConnectedRoute,
-                                arguments: {
-                                  'deviceData': null,
-                                  'displayImage': imageData,
-                                },
-                              );
+                              // testText = await TerraFlutter.getUserId(c) ?? "1234";
+                              if(connected) {
+                                Navigator.of(context).pushNamed(
+                                  routes.SetupConnectedRoute,
+                                  arguments: {
+                                    'deviceData': null,
+                                    'displayImage': imageData,
+                                  },
+                                );
+                              } else {
+                                Navigator.of(context).pushNamed(
+                                    routes.UnabletoconnectRoute
+                                );
+                              }
 
                             } on Exception catch (e) {
                               print('error caught: $e');
@@ -373,18 +390,24 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                               DateTime now = DateTime.now().toUtc();
                               DateTime lastMidnight = DateTime(now.year, now.month, now.day);
 
-                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "ceras-userId") ?? false;
+                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "276e6232-a1ef-4809-9262-bdea9c761316") ?? false;
 
                               connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ?? false;
 
-                              testText = await TerraFlutter.getUserId(c) ?? "1234";
-                              Navigator.of(context).pushNamed(
-                                routes.SetupConnectedRoute,
-                                arguments: {
-                                  'deviceData': null,
-                                  'displayImage': imageData,
-                                },
-                              );
+                              // testText = await TerraFlutter.getUserId(c) ?? "1234";
+                              if(connected) {
+                                Navigator.of(context).pushNamed(
+                                  routes.SetupConnectedRoute,
+                                  arguments: {
+                                    'deviceData': null,
+                                    'displayImage': imageData,
+                                  },
+                                );
+                              } else {
+                                Navigator.of(context).pushNamed(
+                                    routes.UnabletoconnectRoute
+                                );
+                              }
 
                             } on Exception catch (e) {
                               print('error caught: $e');
