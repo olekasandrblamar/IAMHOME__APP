@@ -284,9 +284,9 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                               DateTime now = DateTime.now().toUtc();
                               DateTime lastMidnight = DateTime(now.year, now.month, now.day);
 
-                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "276e6232-a1ef-4809-9262-bdea9c761316") ?? false;
+                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "test-User") ?? false;
 
-                              connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ?? false;
+                              connected = await TerraFlutter.initConnection(c, "UserToken comes from back end", false, []) ?? false;
 
                               // testText = await TerraFlutter.getUserId(c) ?? "1234";
                               if(connected) {
@@ -321,9 +321,9 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                               DateTime now = DateTime.now().toUtc();
                               DateTime lastMidnight = DateTime(now.year, now.month, now.day);
 
-                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "276e6232-a1ef-4809-9262-bdea9c761316") ?? false;
+                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "test-User") ?? false;
 
-                              connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ?? false;
+                              connected = await TerraFlutter.initConnection(c, "UserToken comes from back end", false, []) ?? false;
 
                               // testText = await TerraFlutter.getUserId(c) ?? "1234";
                               if(connected) {
@@ -355,9 +355,9 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                               DateTime now = DateTime.now().toUtc();
                               DateTime lastMidnight = DateTime(now.year, now.month, now.day);
 
-                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "276e6232-a1ef-4809-9262-bdea9c761316") ?? false;
+                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "test-User") ?? false;
 
-                              connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ?? false;
+                              connected = await TerraFlutter.initConnection(c, "UserToken comes from back end", false, []) ?? false;
 
                               // testText = await TerraFlutter.getUserId(c) ?? "1234";
                               if(connected) {
@@ -390,9 +390,9 @@ class _SetupDevicesScreenState extends State<SetupDevicesScreen> {
                               DateTime now = DateTime.now().toUtc();
                               DateTime lastMidnight = DateTime(now.year, now.month, now.day);
 
-                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "276e6232-a1ef-4809-9262-bdea9c761316") ?? false;
+                              initialised = await TerraFlutter.initTerra("ceras-dev-y5kN5MDRKv", "test-User") ?? false;
 
-                              connected = await TerraFlutter.initConnection(c, "a3e614f4481dbb92cca6d2957bde3f71951551e726710c2f7b88d7c7c5174562", false, []) ?? false;
+                              connected = await TerraFlutter.initConnection(c, "UserToken comes from back end", false, []) ?? false;
 
                               // testText = await TerraFlutter.getUserId(c) ?? "1234";
                               if(connected) {
